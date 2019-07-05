@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+	  "jsx":"react",
+	  "target": "es5",
+	  "noImplicitAny": false,
+	  "module": "esnext",
+	  "removeComments": true,
+	  "moduleResolution":"node",
+	  "outDir": "./lib",
+	  "strict": true,
+	  "allowJs": true,
+	  "lib": ["dom", "es5", "es2015.promise"]
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "**/__tests__/*"]
+  }
