@@ -57,5 +57,25 @@ export class FlowToCanvas {
 			}
 		}
 	}
+
+	static getLinesForStartNodeFromCanvasFlow(flow: any, startNode: any) {
+		if (flow === undefined || startNode === undefined) {
+			return false;
+		}
+
+		return flow.filter((node) => {
+			return (node.shapeType === "Line" && node.startshapeid === startNode.name);
+		})
+	}
+
+	static getLinesForEndNodeFromCanvasFlow(flow: any, endNode: any) {
+		if (flow === undefined || endNode === undefined) {
+			return false;
+		}
+
+		return flow.filter((node) => {
+			return (node.shapeType === "Line" && node.endshapeid === endNode.name);
+		})
+	}
 	
 }

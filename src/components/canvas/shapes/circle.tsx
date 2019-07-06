@@ -12,6 +12,7 @@ export const Circle = (props : ShapeTypeProps) => {
 	return <Group
 		x={props.x}
 		y={props.y}
+		data-id={props.name}
 		draggable={true}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}

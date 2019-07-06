@@ -23,16 +23,31 @@ const mapDispatchToProps = (dispatch : any) => {
 
 class ContainedCanvas extends React.Component<CanvasProps> {
 	
+	constructor(props) {
+		super(props);
+
+		this.onDragEnd = this.onDragEnd.bind(this);
+		this.onDragMove = this.onDragMove.bind(this);
+	}
+
 	componentDidMount() {
 		this.props.storeFlow(this.props.nodes);
 	}
 
-	onDragMove = (shape, event) => {
+	onDragMove(node, event) {
 
 	}
 
-	onDragEnd = (shape, event) => {
+	onDragEnd(node, event) {
+		console.log(node, event);
+		
+		// event.currentTarget points to the "Group" in the actual shape component
+		// the Group is the draggable part of the shape component
+		// it has a property "attrs" which contains properties x,y,data-id etc
+		// so... no need for refs here probably
 
+		// node is the reference to the node from the flow
+		
 	}
 
 	render() {
@@ -58,8 +73,8 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 								x={node.x} 
 								y={node.y} 
 								name={node.name}
-								onDragEnd={this.onDragEnd}
-								onDragMove={this.onDragMove}
+								onDragEnd={this.onDragEnd.bind(this, node)}
+								onDragMove={this.onDragMove.bind(this, node)}
 								></Shape>;
 						}
 						return null;
