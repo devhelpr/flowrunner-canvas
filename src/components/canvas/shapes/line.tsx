@@ -27,7 +27,7 @@ export const Line = (props : LineTypeProps) => {
 		controlPointx2 = props.xend+(factor*diffAbsX);
 		controlPointy2 = props.yend; 
 	}
-	
+
 	return <Group>
 		<KonvaLine 
 			points={[props.xstart, props.ystart,

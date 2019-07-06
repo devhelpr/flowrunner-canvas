@@ -6,21 +6,24 @@ const KonvaCircle = Konva.Circle;
 import { Group, Text } from 'react-konva';
 
 import { ShapeTypeProps } from './shape-types';
+import { ShapeMeasures } from '../../../helpers/shape-measures';
 
 export const Circle = (props : ShapeTypeProps) => {
 	return <Group
 		x={props.x}
 		y={props.y}
-	draggable={true}
+		draggable={true}
+		onDragMove={props.onDragMove}
+		onDragEnd={props.onDragEnd}
 		>
 		<KonvaCircle 
-			x={40}
-			y={40}
-			radius={32}
+			x={ShapeMeasures.circleSize/2}
+			y={ShapeMeasures.circleSize/2}
+			radius={ShapeMeasures.circleSize}
 			stroke="#000000"
 			strokeWidth={4}
-			width={80}
-			height={80}
+			width={ShapeMeasures.circleSize}
+			height={ShapeMeasures.circleSize}
 			fill="#ff0000" 
 			perfectDrawEnabled={false}>
 		</KonvaCircle>
@@ -29,8 +32,8 @@ export const Circle = (props : ShapeTypeProps) => {
 			y={0}
 			text={props.name}
 			align='center'
-			width={80}
-			height={80}
+			width={ShapeMeasures.circleSize}
+			height={ShapeMeasures.circleSize}
 			verticalAlign="middle"
 			listening={false}
 			wrap="none"

@@ -64,5 +64,5 @@ gulp.task('startFlowServer', function(cb) {
 gulp.task('build', function() { return buildTypescript() } );
 
 gulp.task('default', gulp.series('build', 'startFlowServer', function () {
-  gulp.watch('src/**/*.tsx', buildTypescript);
+  gulp.watch('src/**/*.{ts,tsx}', buildTypescript);
 }));

@@ -3,7 +3,9 @@ import { number } from "prop-types";
 export interface ShapeTypeProps {
 	x: number,
 	y: number,
-	name: string
+	name: string,
+	onDragMove : any,
+	onDragEnd : any
 }
 
 export interface LineTypeProps {

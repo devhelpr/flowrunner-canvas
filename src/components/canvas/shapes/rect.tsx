@@ -5,20 +5,23 @@ const KonvaRect = Konva.Rect;
 
 import { Group, Text } from 'react-konva';
 import { ShapeTypeProps } from './shape-types';
+import { ShapeMeasures } from '../../../helpers/shape-measures';
 
 export const Rect = (props: ShapeTypeProps) => {
 	return <Group
 		x={props.x}
 		y={props.y}
-	draggable={true}
+		onDragMove={props.onDragMove}
+		onDragEnd={props.onDragEnd}
+		draggable={true}
 		>
 		<KonvaRect 
 			x={0}
 			y={0}
 			stroke="#000000"
 			strokeWidth={4}
-			width={160}
-			height={80}
+			width={ShapeMeasures.rectWidht}
+			height={ShapeMeasures.rectHeight}
 			fill="#ff0000" 
 			perfectDrawEnabled={false}>
 		</KonvaRect>
@@ -27,8 +30,8 @@ export const Rect = (props: ShapeTypeProps) => {
 			y={0}
 			text={props.name}
 			align='center'
-			width={160}
-			height={80}
+			width={ShapeMeasures.rectWidht}
+			height={ShapeMeasures.rectHeight}
 			verticalAlign="middle"
 			listening={false}
 			wrap="none"

@@ -33,6 +33,7 @@
     "react-konva": "^16.8.7-3",
     "react-redux": "^7.1.0",
     "redux": "^4.0.1",
+    "typesafe-actions": "^4.4.2",
     "victor": "^1.1.0"
   },
   "devDependencies": {

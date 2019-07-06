@@ -1,49 +1,74 @@
 import * as React from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
+import { connect } from "react-redux";
 import { Shapes } from './shapes'; 
-import { ShapeTypeProps } from './shapes/shape-types';
+import { storeFlow } from '../../redux/actions/flow-actions';
 
 export interface CanvasProps {
-	nodes : any[]
+	nodes : any[];
+	storeFlow : any;
+	flow: any[];
+}
+const mapStateToProps = (state : any) => {
+	return {
+		flow: state.flow
+	}
 }
 
-export const Canvas = (props : CanvasProps) => {
+const mapDispatchToProps = (dispatch : any) => {
+	return {
+		storeFlow: (flow) => dispatch(storeFlow(flow))
+	}
+}
+
+class ContainedCanvas extends React.Component<CanvasProps> {
 	
-	return <>
-		<Stage
-			draggable={true}
-			pixelRatio={1} 
-			width={ 1024 } 
-			height={ 750 } className="stage-container">
-			<Layer>
-				<Rect x={0} y={0} width={1024} height={750}></Rect>
-				{props.nodes.map((node, index) => {
-					let Shape = Shapes[node.shapeType];
-					if (node.shapeType === "line") {
-						Shape = Shapes["Line"];
+	componentDidMount() {
+		this.props.storeFlow(this.props.nodes);
+	}
 
-						const shartShapes = props.nodes.filter((startnode) => startnode.name === node.startshapeid);
-						const endShapes = props.nodes.filter((endnode) => endnode.name === node.endshapeid);
+	onDragMove = (shape, event) => {
 
-						if (shartShapes.length >= 1 && endShapes.length >= 1) {
+	}
+
+	onDragEnd = (shape, event) => {
+
+	}
+
+	render() {
+		return <>
+			<Stage
+				draggable={true}
+				pixelRatio={1} 
+				width={ 1024 } 
+				height={ 750 } className="stage-container">
+				<Layer>
+					<Rect x={0} y={0} width={1024} height={750}></Rect>
+					{this.props.flow.map((node, index) => {
+						let Shape = Shapes[node.shapeType];
+						if (node.shapeType === "Line") {
 							return <Shape key={"node-"+index}
-								xstart={shartShapes[0].x+80} 
-								ystart={shartShapes[0].y+40}
-								xend={endShapes[0].x} 
-								yend={endShapes[0].y+40}></Shape>;
+								xstart={node.xstart} 
+								ystart={node.ystart}
+								xend={node.xend} 
+								yend={node.yend}></Shape>;
+						} else
+						if (Shape) {
+							return <Shape key={"node-"+index} 
+								x={node.x} 
+								y={node.y} 
+								name={node.name}
+								onDragEnd={this.onDragEnd}
+								onDragMove={this.onDragMove}
+								></Shape>;
 						}
 						return null;
-					} else
-					if (Shape) {
-						return <Shape key={"node-"+index} 
-							x={node.x} 
-							y={node.y} 
-							name={node.name}></Shape>;
-					}
-					return null;
-				})}
-				
-			</Layer>
-		</Stage>
-	</>
+					})}
+					
+				</Layer>
+			</Stage>
+		</>;
+	}
 } 
+
+export const Canvas = connect(mapStateToProps, mapDispatchToProps)(ContainedCanvas);
