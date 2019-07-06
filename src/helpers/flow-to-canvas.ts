@@ -14,8 +14,8 @@ export class FlowToCanvas {
 
 				if (shartShapes.length >= 1 && endShapes.length >= 1) {
 
-					const startPosition = FlowToCanvas.getStartPointForLine(shartShapes[0]);
-					const endPosition = FlowToCanvas.getEndPointForLine(endShapes[0]);
+					const startPosition = FlowToCanvas.getStartPointForLine(shartShapes[0], shartShapes[0]);
+					const endPosition = FlowToCanvas.getEndPointForLine(endShapes[0], endShapes[0]);
 					return Object.assign({} , node , {
 						shapeType: "Line",
 						xstart: startPosition.x,
@@ -30,30 +30,30 @@ export class FlowToCanvas {
 		})
 	};
 
-	static getStartPointForLine(startShape) {
+	static getStartPointForLine(startShape, newPosition) {
 		if (startShape.shapeType == "Circle") {
 			return {
-				x: startShape.x + ShapeMeasures.circleSize,
-				y: startShape.y + (ShapeMeasures.circleSize/2)
+				x: newPosition.x + (ShapeMeasures.circleSize/2),
+				y: newPosition.y + (ShapeMeasures.circleSize/2)
 			}
 		} else {
 			return {
-				x: startShape.x + ShapeMeasures.rectWidht,
-				y: startShape.y + (ShapeMeasures.rectHeight/2)
+				x: newPosition.x + (ShapeMeasures.rectWidht/2),
+				y: newPosition.y + (ShapeMeasures.rectHeight/2)
 			}
 		}
 	}
 
-	static getEndPointForLine(endShape) {
+	static getEndPointForLine(endShape, newPosition) {
 		if (endShape.shapeType == "Circle") {
 			return {
-				x: endShape.x,
-				y: endShape.y + 40
+				x: newPosition.x + (ShapeMeasures.circleSize/2),
+				y: newPosition.y + (ShapeMeasures.circleSize/2)
 			}
 		} else {
 			return {
-				x: endShape.x,
-				y: endShape.y + 40
+				x: newPosition.x + (ShapeMeasures.rectWidht/2),
+				y: newPosition.y + (ShapeMeasures.rectHeight/2)
 			}
 		}
 	}
