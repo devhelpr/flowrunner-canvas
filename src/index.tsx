@@ -6,7 +6,8 @@ import { Provider } from 'react-redux';
 import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 
 import { reducers } from './redux/reducers';
-import { Canvas } from './components/canvas/canvas';
+import { Canvas } from './components/canvas';
+import { Toolbar } from './components/toolbar';
 
 let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	{
@@ -38,6 +39,7 @@ const flowEventRunner = getFlowEventRunner();
 startFlow(flowPackage, reducers).then((services : any) => {
 	ReactDom.render(<>
 		<Provider store={services.getStore()}>
+				<Toolbar></Toolbar>
 				<Canvas nodes={flowPackage.flow}></Canvas>
 		</Provider>
 	</>, document.getElementById('flowstudio-root'));

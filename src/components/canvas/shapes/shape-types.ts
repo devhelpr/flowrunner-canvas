@@ -5,7 +5,8 @@ export interface ShapeTypeProps {
 	y: number,
 	name: string,
 	onDragMove : any,
-	onDragEnd : any
+	onDragEnd : any,
+	onClickShape : any
 }
 
 export interface LineTypeProps {

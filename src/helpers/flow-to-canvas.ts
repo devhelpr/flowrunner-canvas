@@ -33,12 +33,12 @@ export class FlowToCanvas {
 	static getStartPointForLine(startShape, newPosition) {
 		if (startShape.shapeType == "Circle") {
 			return {
-				x: newPosition.x + (ShapeMeasures.circleSize/2),
+				x: newPosition.x + ShapeMeasures.circleSize,
 				y: newPosition.y + (ShapeMeasures.circleSize/2)
 			}
 		} else {
 			return {
-				x: newPosition.x + (ShapeMeasures.rectWidht/2),
+				x: newPosition.x + ShapeMeasures.rectWidht,
 				y: newPosition.y + (ShapeMeasures.rectHeight/2)
 			}
 		}
@@ -47,12 +47,12 @@ export class FlowToCanvas {
 	static getEndPointForLine(endShape, newPosition) {
 		if (endShape.shapeType == "Circle") {
 			return {
-				x: newPosition.x + (ShapeMeasures.circleSize/2),
+				x: newPosition.x ,
 				y: newPosition.y + (ShapeMeasures.circleSize/2)
 			}
 		} else {
 			return {
-				x: newPosition.x + (ShapeMeasures.rectWidht/2),
+				x: newPosition.x ,
 				y: newPosition.y + (ShapeMeasures.rectHeight/2)
 			}
 		}

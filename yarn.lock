@@ -711,12 +711,12 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@devhelpr/flowrunner-redux@0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-redux/-/flowrunner-redux-0.3.2.tgz#49dc1dd9081c4613009ac1913fb2937340ce3d66"
-  integrity sha512-rRGPNb6pZQ/t2a/qZqVO+qNE4nI8C0i4YQHRLgLTYilbG/UeClMHZvkm2oqvim5/qlYtQFSf+k6H3+ktC8Jj9Q==
+"@devhelpr/flowrunner-redux@0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-redux/-/flowrunner-redux-0.3.3.tgz#1d83e6862c709494bbaca46e39ce660a247efc1c"
+  integrity sha512-Yu5PbO2ihw3rwADPPUkDDsHd62+RS7Z0RTGOtscDblJnSTR39N22yhdn+6GvUFtTWRqO3kyr3uRW1qLVpFJgNA==
   dependencies:
-    "@devhelpr/flowrunner" "0.3.5"
+    "@devhelpr/flowrunner" "0.3.6"
     "@reactivex/rxjs" "^6.4.0"
     "@types/lodash" "^4.14.123"
     lodash "^4.17.11"
@@ -726,10 +726,10 @@
     rxjs "^6.4.0"
     rxjs-compat "^6.4.0"
 
-"@devhelpr/flowrunner@0.3.5":
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.3.5.tgz#2e4be5f1bb51a46f7eea8542201dcad60d6d1f97"
-  integrity sha512-UuyU/WI/VErbIsZyzHIIHfuytOYHdH5o+w5l2inoJZh4+YzKanvCqR4E92NqdfYQRWOtbNPycvXImi1bh3u3+w==
+"@devhelpr/flowrunner@0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.3.6.tgz#961ad9bf546ab97db495d51205fe511ea8b3627f"
+  integrity sha512-MiF2jZFo7tCcoUODw+1eoi3LazL336Vz38YEvJeCWub2wrOZOxp38YXTG+2QvJuVAZ+3+JRl1OH5NvDbB3ZycQ==
   dependencies:
     "@reactivex/rxjs" "^6.4.0"
     "@types/uuid" "^3.4.4"

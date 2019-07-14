@@ -1,18 +1,16 @@
 #TODO's
 
-- gulpfile : .watch reageert niet op ts EN tsx
+- FlowStudio opzetten mbv flow voor ophalen/opslaan/logica nodig voor de visuele editor
 
-- voorbereiden canvas lijst
+- TestRunner tbv testen van flows
+    - executeNode moet ook (optioneel) "scope" mee kunnen krijgen (flow stopt op bepaald punt)
 
-	- afhankelijk van types de start en eindpunten berekenen
-	- berekening voorbereiden en niet uitvoeren in render
+- Visuale meta data apart opslaan
 
-- onDragEnd etc.. :
+- Kleinste cross platform db meeleveren of zelf maken?
 
-	- x/y positie bijwerken in lijst
-	- connections automatisch herberekenen
 
-	makeUpdates.js:42 ReactKonva: You have a Konva node with draggable = true and position defined but no onDragMove or onDragEnd events are handled.
-Position of a node will be changed during drag&drop, so you should update state of the react app as well.
-Consider to add onDragMove or onDragEnd events.
-For more info see: https://github.com/konvajs/react-konva/issues/256
+
+
+- controlpoints kunnen op 4 punten vast "snappen" .. zowel output als input
+  - static functies maken op Circle/Rect etc die de berekening doen 	

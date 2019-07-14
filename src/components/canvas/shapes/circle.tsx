@@ -16,6 +16,7 @@ export const Circle = (props : ShapeTypeProps) => {
 		draggable={true}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
+		onClick={props.onClickShape}
 		>
 		<KonvaCircle 
 			x={ShapeMeasures.circleSize/2}

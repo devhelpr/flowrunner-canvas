@@ -3,14 +3,16 @@ import { Stage, Layer , Rect } from 'react-konva';
 import { connect } from "react-redux";
 import { Shapes } from './shapes'; 
 import { storeFlow, storeFlowNode } from '../../redux/actions/flow-actions';
+import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { constants } from 'perf_hooks';
 
 export interface CanvasProps {
 	nodes : any[];
+	flow: any[];
+
 	storeFlow : any;
 	storeFlowNode: any;
-	flow: any[];
+	selectNode: any;
 }
 const mapStateToProps = (state : any) => {
 	return {
@@ -21,7 +23,8 @@ const mapStateToProps = (state : any) => {
 const mapDispatchToProps = (dispatch : any) => {
 	return {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
-		storeFlowNode: (node) => dispatch(storeFlowNode(node))
+		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
+		selectNode: (name, node) => dispatch(selectNode(name, node))
 	}
 }
 
@@ -32,6 +35,7 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 
 		this.onDragEnd = this.onDragEnd.bind(this);
 		this.onDragMove = this.onDragMove.bind(this);
+		this.onClickShape = this.onClickShape.bind(this);
 	}
 
 	componentDidMount() {
@@ -82,6 +86,12 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 
 	}
 
+	onClickShape(node, event) {
+		console.log("onClickShape", node);
+
+		this.props.selectNode(node.name, node);
+	}
+
 	render() {
 		return <>
 			<Stage
@@ -113,6 +123,7 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 								name={node.name}
 								onDragEnd={this.onDragEnd.bind(this, node)}
 								onDragMove={this.onDragMove.bind(this, node)}
+								onClickShape={this.onClickShape.bind(this, node)}
 								></Shape>;
 						}
 						return null;
