@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function start(flowPackage, metaDataFile) {
 
 	const express = require('express');
@@ -8,8 +10,15 @@ function start(flowPackage, metaDataFile) {
 	app.use(express.static('lib'));
 	
 	app.get('/', (req, res) => res.render('pages/index'));
+	app.post('/save-node', (req, res) => res.send(JSON.stringify({})));
+	app.get('/get-flow', (req, res) => {
+			var flowPackage = fs.readFileSync('./data/flow-package.json').toString();
 
-	app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+			res.send(flowPackage);
+		}
+	);
+
+	app.listen(port, () => console.log(`FlowStudio app listening on port ${port}!`))
 }
 
 module.exports = {

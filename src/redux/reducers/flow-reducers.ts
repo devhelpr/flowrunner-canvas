@@ -1,4 +1,4 @@
-import { STORE_FLOW_NODE, STORE_FLOW } from '../actions/flow-actions';
+import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW } from '../actions/flow-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 
 export const flowReducer = (state : any = [], action : any) => {
@@ -14,6 +14,41 @@ export const flowReducer = (state : any = [], action : any) => {
 				}
 				return node;
 			})
+			return newState;
+		}
+		case ADD_FLOW: {
+			let loop = 0;
+			let max : any;
+			while (loop < state.length) {
+				if (state[loop].name.indexOf(action.payload.node.name) === 0) {
+					if (state[loop].name === action.payload.node.name) {
+						if (max === undefined) {
+							max = 0;
+						} else {
+							max = max + 1;
+						}
+					} else {
+						const last = state[loop].name.substring(action.payload.node.name.length);
+						const number = parseInt(last);
+						if (!isNaN(number)) {
+							if (max === undefined) {
+								max = number;
+							} else
+							if (number > max) {
+								max = number;
+							}
+						}
+					}
+				}
+				loop++;
+			}
+
+			const newNode = Object.assign({}, action.payload.node);
+			if (max !== undefined) {
+				newNode.name = newNode.name + (max + 1);
+			}
+
+			let newState = [...state, newNode];			
 			return newState;
 		}
 		default:

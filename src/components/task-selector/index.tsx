@@ -14,7 +14,7 @@ export class TaskSelector extends React.Component {
 		});
 
 		return <div className="task-selector">
-			<select defaultValue="">
+			<select className="form-control" defaultValue="">
 				<option value="" disabled>Kies een taak om toe te voegen</option>
 				{metaDataInfo.map((taskMetaData, index) => {
 					return <option key={"metadata-"+index} value={taskMetaData.className}>{taskMetaData.fullName}</option>
