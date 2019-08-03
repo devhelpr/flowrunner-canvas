@@ -2,13 +2,17 @@ import * as React from 'react';
 import { connect } from "react-redux";
 import { storeFlow, storeFlowNode, addFlowNode } from '../../redux/actions/flow-actions';
 import { TaskSelector } from '../task-selector';
-import { asapScheduler } from 'rxjs';
+import { EditPopup } from '../edit-popup';
 
 export interface ToolbarProps {
 	storeFlow : any;
 	storeFlowNode: any;
 	selectedNode : any;
 	addFlowNode: any;
+}
+
+export interface ToolbarState {
+	showEditPopup : boolean;
 }
 
 const mapStateToProps = (state : any) => {
@@ -25,7 +29,11 @@ const mapDispatchToProps = (dispatch : any) => {
 	}
 }
 
-class ContainedToolbar extends React.Component<ToolbarProps> {
+class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
+
+	state = {
+		showEditPopup : false
+	}
 
 	addNode = (e) => {
 		e.preventDefault();
@@ -39,20 +47,30 @@ class ContainedToolbar extends React.Component<ToolbarProps> {
 		return false;
 	}
 
+	editNode = (e) => {
+		e.preventDefault();
+		this.setState({showEditPopup : true});
+		return false;
+	}
+
 	render() {
 		const { selectedNode } = this.props;
 
-		return <div className="container-fluid bg-dark sticky-top">
-			<div className="container toolbar__container">
-				<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
-					<form className="form-inline">
-						<TaskSelector></TaskSelector>
-						<a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>
-						{selectedNode && <span className="navbar-text">{selectedNode.name}</span>}
-					</form>
+		return <>
+			<div className="container-fluid bg-dark sticky-top">
+				<div className="container toolbar__container">
+					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
+						<form className="form-inline">
+							<TaskSelector></TaskSelector>
+							<a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>
+							<a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>
+							{selectedNode && <span className="navbar-text">{selectedNode.name}</span>}
+						</form>
+					</div>
 				</div>
 			</div>
-		</div>
+			{this.state.showEditPopup && <EditPopup></EditPopup>}
+		</>
 	}
 
 }
