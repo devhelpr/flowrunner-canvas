@@ -1,5 +1,11 @@
 #TODO's
 
+- Voorlopig FlowStudio flow's laten opslaan in machine flow formaat
+
+- Kan de output file van webpack in combi met server files ook los gebruikt worden?
+    - toevoegen aan het fnv test project
+    
+
 - FlowStudio opzetten mbv flow voor ophalen/opslaan/logica nodig voor de visuele editor
 
 - TestRunner tbv testen van flows

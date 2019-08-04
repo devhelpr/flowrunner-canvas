@@ -87,14 +87,23 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 	}
 
 	onClickShape(node, event) {
-		console.log("onClickShape", node);
+		event.cancelBubble = true;
+		event.evt.preventDefault();
 
 		this.props.selectNode(node.name, node);
+		return false;		
+	}
+
+	clickStage = (event) => {
+		event.evt.preventDefault()		
+		this.props.selectNode(undefined, undefined);
+		return false;
 	}
 
 	render() {
 		return <>
 			<Stage
+				onClick={this.clickStage}
 				draggable={true}
 				pixelRatio={1} 
 				width={ 1024 } 
