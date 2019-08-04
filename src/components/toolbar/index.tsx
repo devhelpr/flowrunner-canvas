@@ -53,23 +53,27 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		return false;
 	}
 
-	render() {
-		const { selectedNode } = this.props;
+	onClose = () => {
+		this.setState({showEditPopup : false});
+	}
 
+	render() {
+		const selectedNode = this.props.selectedNode;
+		console.log(selectedNode);
 		return <>
 			<div className="container-fluid bg-dark sticky-top">
 				<div className="container toolbar__container">
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
 						<form className="form-inline">
-							<TaskSelector></TaskSelector>
-							<a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>
-							<a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>
-							{selectedNode && <span className="navbar-text">{selectedNode.name}</span>}
+							{!!!selectedNode.name && <TaskSelector></TaskSelector>}
+							{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
+							{!!selectedNode.name && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
+							{!!selectedNode.name && <span className="navbar-text">{selectedNode.name}</span>}
 						</form>
 					</div>
 				</div>
 			</div>
-			{this.state.showEditPopup && <EditPopup></EditPopup>}
+			{this.state.showEditPopup && <EditPopup onClose={this.onClose}></EditPopup>}
 		</>
 	}
 
