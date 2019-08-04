@@ -1,7 +1,19 @@
 import * as React from 'react';
+import { connect } from "react-redux";
+
 import { Modal, Button } from 'react-bootstrap';
 
-export class EditPopup extends React.Component {
+export interface EditPopupProps {
+	selectedNode : any;
+}
+
+const mapStateToProps = (state : any) => {
+	return {
+		selectedNode : state.selectedNode
+	}
+}
+
+class ContainedEditPopup extends React.Component<EditPopupProps> {
 	render() {
 		return <Modal show={true} centered size="lg">
 		<Modal.Header closeButton>
@@ -11,7 +23,7 @@ export class EditPopup extends React.Component {
 		<Modal.Body>
 			<div className="form-group">
 				<label>Node JSON</label>
-				<textarea className="form-control" rows={8}></textarea>
+				<textarea className="form-control" rows={8}>{JSON.stringify(this.props.selectedNode, null, 2)}</textarea>
 			</div>
 		</Modal.Body>
 	  
@@ -22,3 +34,5 @@ export class EditPopup extends React.Component {
 	  </Modal>;
 	}
 }
+
+export const EditPopup = connect(mapStateToProps)(ContainedEditPopup);
