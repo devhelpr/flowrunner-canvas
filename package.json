@@ -1,5 +1,5 @@
 {
-  "name": "@devhelpr/flowrunner-studio",
+  "name": "@devhelpr/flowrunner-canvas",
   "version": "0.0.1",
   "description": "Flow and UI designer for use during development of flowrunner projects",
   "main": "lib/index.js",
