@@ -5,13 +5,16 @@ import { TaskSelector } from '../task-selector';
 import { EditPopup } from '../edit-popup';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction } from '../../redux/actions/canvas-mode-actions';
+import fetch from 'cross-fetch';
 
 export interface ToolbarProps {
+	flow: any;
+	canvasMode: ICanvasMode;
+	selectedNode : any;
+
 	storeFlow : any;
 	storeFlowNode: any;
-	selectedNode : any;
 	addFlowNode: any;
-	canvasMode: ICanvasMode;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 }
 
@@ -23,7 +26,8 @@ export interface ToolbarState {
 const mapStateToProps = (state : any) => {
 	return {
 		selectedNode : state.selectedNode,
-		canvasMode : state.canvasMode
+		canvasMode : state.canvasMode,
+		flow: state.flow
 	}
 }
 
@@ -73,6 +77,30 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		return false;
 	}
 
+	saveFlow = (e) => {
+		e.preventDefault();
+		fetch('/save-flow', {
+			method: "POST",
+			body: JSON.stringify(this.props.flow),
+			headers: {
+			  "Content-Type": "application/json"
+			}
+		  })
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(status => {
+			console.log(status);
+		})
+		.catch(err => {
+			console.error(err);
+		});
+		return false;
+	}
+
 	onClose = () => {
 		this.setState({showEditPopup : false});
 	}
@@ -93,6 +121,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 							{!!selectedNode.name && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
 							{!!selectedNode.name && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
 							{!!selectedNode.name && <span className="navbar-text">{selectedNode.name}</span>}
+							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-outline-light">Save</a>
 						</form>
 					</div>
 				</div>

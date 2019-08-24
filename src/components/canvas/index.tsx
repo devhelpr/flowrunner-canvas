@@ -7,7 +7,6 @@ import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction } from '../../redux/actions/canvas-mode-actions';
-import { ShapeTypeProps } from './shapes/shape-types';
 
 export interface CanvasProps {
 	nodes : any[];

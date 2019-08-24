@@ -33,12 +33,12 @@ startFlow(flowPackage, reducers).then((services : any) => {
 	.then(flowPackage => {
 		console.log(flowPackage);	
 		
-		const convertedFlow = HumanFlowToMachineFlow.convert(flowPackage);
+		//const convertedFlow = HumanFlowToMachineFlow.convert(flowPackage);
 
 		ReactDom.render(<>
 			<Provider store={services.getStore()}>
 					<Toolbar></Toolbar>
-					<Canvas nodes={convertedFlow.flow}></Canvas>
+					<Canvas nodes={flowPackage}></Canvas>
 			</Provider>
 		</>, document.getElementById('flowstudio-root'));
 		})
