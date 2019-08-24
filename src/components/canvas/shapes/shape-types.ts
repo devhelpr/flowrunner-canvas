@@ -1,25 +1,25 @@
 export interface ShapeTypeProps {
-	x : number,
-	y : number,
-	name : string,
-	onDragMove : any,
-	onDragEnd : any,
-	onClickShape : any,
-	isSelected : boolean,
-	onMouseOver : any,
-	onMouseOut : any
+  x: number;
+  y: number;
+  name: string;
+  onDragMove: any;
+  onDragEnd: any;
+  onClickShape: any;
+  isSelected: boolean;
+  onMouseOver: any;
+  onMouseOut: any;
 }
 
 export interface LineTypeProps {
-	xstart : number,
-	ystart : number,
-	xend : number,
-	yend : number,
-	onMouseOver : any,
-	onMouseOut : any,
-	onClickLine : any,
-	isSelected : boolean 
+  xstart: number;
+  ystart: number;
+  xend: number;
+  yend: number;
+  onMouseOver: any;
+  onMouseOut: any;
+  onClickLine: any;
+  isSelected: boolean;
 }
 
-export const shapeBackgroundColor : string = "#f2f2f2";
-export const shapeSelectedBackgroundColor : string = "#a2a2a2";
+export const shapeBackgroundColor: string = '#f2f2f2';
+export const shapeSelectedBackgroundColor: string = '#a2a2a2';
