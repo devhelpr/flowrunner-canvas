@@ -2,10 +2,15 @@ import * as React from 'react';
 import { connect } from "react-redux";
 
 import { Modal, Button } from 'react-bootstrap';
+import { storeFlowNode } from '../../redux/actions/flow-actions';
+import { selectNode } from '../../redux/actions/node-actions';
 
 export interface EditPopupProps {
 	selectedNode : any;
-	onClose: () => void
+
+	onClose: () => void;
+	storeFlowNode: (node : any) => void;
+	selectNode: (name: string, node : any) => void;
 }
 
 export interface EditPopupState {
@@ -15,6 +20,13 @@ export interface EditPopupState {
 const mapStateToProps = (state : any) => {
 	return {
 		selectedNode : state.selectedNode
+	}
+}
+
+const mapDispatchToProps = (dispatch : any) => {
+	return {
+		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
+		selectNode: (name, node) => dispatch(selectNode(name, node))
 	}
 }
 
@@ -34,6 +46,25 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 
 		this.setState({value : JSON.stringify(node, null, 2)})
 	}
+
+	saveNode(e) {
+		try {
+			const changedProperties = JSON.parse(this.state.value);
+			
+			delete changedProperties.name;
+
+			const node = {...this.props.selectedNode.node, ...changedProperties};
+			this.props.storeFlowNode(node);
+			this.props.selectNode(node.name, node);
+			this.props.onClose();
+		} catch (err) {
+			alert("The json in the 'Node JSON' field is invalid");
+		}
+
+		e.preventDefault();
+		return false;
+	}
+
 	render() {
 		return <Modal show={true} centered size="lg">
 		<Modal.Header>
@@ -52,10 +83,10 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 	  
 		<Modal.Footer>
 		  <Button variant="secondary" onClick={this.props.onClose}>Close</Button>
-		  <Button variant="primary">Save</Button>
+		  <Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
 		</Modal.Footer>
 	  </Modal>;
 	}
 }
 
-export const EditPopup = connect(mapStateToProps)(ContainedEditPopup);
+export const EditPopup = connect(mapStateToProps, mapDispatchToProps)(ContainedEditPopup);
