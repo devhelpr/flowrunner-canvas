@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from "react-redux";
-import { storeFlow, storeFlowNode, addFlowNode } from '../../redux/actions/flow-actions';
+import { storeFlow, storeFlowNode, addFlowNode, deleteConnection } from '../../redux/actions/flow-actions';
 import { TaskSelector } from '../task-selector';
 import { EditPopup } from '../edit-popup';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
@@ -15,6 +15,7 @@ export interface ToolbarProps {
 	storeFlow : any;
 	storeFlowNode: any;
 	addFlowNode: any;
+	deleteConnection: any;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 }
 
@@ -36,6 +37,7 @@ const mapDispatchToProps = (dispatch : any) => {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
 		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
 		addFlowNode: (node) => dispatch(addFlowNode(node)),
+		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
 	}
 }
@@ -77,6 +79,12 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		return false;
 	}
 
+	deleteLine = (e) => {
+		e.preventDefault();
+		this.props.deleteConnection(this.props.selectedNode.node);
+		return false;
+	}
+
 	saveFlow = (e) => {
 		e.preventDefault();
 		fetch('/save-flow', {
@@ -115,13 +123,14 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			<div className="container-fluid bg-dark sticky-top">
 				<div className="container toolbar__container">
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
-						<form className="form-inline">
+						<form className="form-inline w-100">
 							{!!!selectedNode.name && <TaskSelector selectTask={this.onSelectTask}></TaskSelector>}
 							{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
-							{!!selectedNode.name && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
-							{!!selectedNode.name && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
-							{!!selectedNode.name && <span className="navbar-text">{selectedNode.name}</span>}
-							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-outline-light">Save</a>
+							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name}</span>}
+							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-primary">Save</a>
 						</form>
 					</div>
 				</div>

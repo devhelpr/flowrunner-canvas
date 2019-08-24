@@ -82,6 +82,15 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 		this.props.selectNode(node.name, node);
 	}
 
+	onMouseOver() {
+        document.body.style.cursor = 'pointer';
+	}
+	
+	onMouseOut() {
+        document.body.style.cursor = 'default';
+	}
+
+
 	onDragMove(node, event) {
 
 		this.setNewPositionForNode(node, event.currentTarget);
@@ -105,7 +114,9 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
 
-		if (this.props.canvasMode.isConnectingNodes && this.props.selectedNode !== undefined) {
+		if (this.props.canvasMode.isConnectingNodes && 
+			this.props.selectedNode !== undefined &&
+			this.props.selectedNode.shapeType !== "Line") {
 			this.props.addConnection(this.props.selectedNode.node, node);
 			this.props.setConnectiongNodeCanvasMode(false);
 		}
@@ -113,6 +124,16 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 		this.props.selectNode(node.name, node);
 
 		return false;		
+	}
+
+	onClickLine(node, event) {
+		event.cancelBubble = true;
+		event.evt.preventDefault();
+console.log("onClickLine", node);
+		this.props.setConnectiongNodeCanvasMode(false);
+		this.props.selectNode(node.name, node);
+
+		return false;
 	}
 
 	clickStage = (event) => {
@@ -138,7 +159,12 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 					{this.props.flow.map((node, index) => {
 						let Shape = Shapes[node.shapeType];
 						if (node.shapeType === "Line"  && Shape) {
+							console.log(this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name, node.name, this.props.selectedNode.name);
 							return <Shape key={"node-"+index}
+								onMouseOver={this.onMouseOver.bind(this)}
+								onMouseOut={this.onMouseOut.bind(this)}
+								onClickLine={this.onClickLine.bind(this, node)}
+								isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
 								xstart={node.xstart} 
 								ystart={node.ystart}
 								xend={node.xend} 
@@ -154,6 +180,8 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 								x={node.x} 
 								y={node.y} 
 								name={node.name}
+								onMouseOver={this.onMouseOver.bind(this)}
+								onMouseOut={this.onMouseOut.bind(this)}
 								onDragEnd={this.onDragEnd.bind(this, node)}
 								onDragMove={this.onDragMove.bind(this, node)}
 								onClickShape={this.onClickShape.bind(this, node)}

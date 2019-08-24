@@ -58,16 +58,20 @@ export const Line = (props : LineTypeProps) => {
 				controlPointx1, controlPointy1,
 				controlPointx2, controlPointy2,
 				props.xend, props.yend]}
-			stroke="#000000"
+			stroke={props.isSelected ? "#606060" : "#000000"} 
 			strokeWidth={4}
 			pointerLength={10}
 			pointerWidth={10}
 			lineCap="round"
 			lineJoin="round"
-			fill="#000000" 
+			fill={props.isSelected ? "#606060" : "#000000"} 
 			tension={0}
 			bezier={true}
-			perfectDrawEnabled={false}>
+			perfectDrawEnabled={false}
+			onMouseOver={props.onMouseOver}
+			onMouseOut={props.onMouseOut}
+			onClick={props.onClickLine}
+		>
 		</KonvaLine>		
 	</Group>
 }

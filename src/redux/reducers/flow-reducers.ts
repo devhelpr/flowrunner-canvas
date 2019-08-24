@@ -1,4 +1,4 @@
-import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW, ADD_CONNECTION } from '../actions/flow-actions';
+import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW, ADD_CONNECTION, DELETE_CONNECTION } from '../actions/flow-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -72,6 +72,11 @@ export const flowReducer = (state : any = [], action : any) => {
 			let newState = [...state, newNode];			
 			return newState;
 		}
+		case DELETE_CONNECTION: {
+			return [...state.filter((node) => {
+				return node.name !== action.payload.node.name
+			})];
+		} 
 		default:
 			return state;
 	}

@@ -15,6 +15,8 @@ export const Rect = (props: ShapeTypeProps) => {
 		onDragEnd={props.onDragEnd}
 		draggable={true}
 		onClick={props.onClickShape}
+		onMouseOver={props.onMouseOver}
+		onMouseOut={props.onMouseOut}
 		>
 		<KonvaRect 
 			x={0}
