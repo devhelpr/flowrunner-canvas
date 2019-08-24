@@ -2,9 +2,12 @@ import * as React from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
 import { connect } from "react-redux";
 import { Shapes } from './shapes'; 
-import { storeFlow, storeFlowNode } from '../../redux/actions/flow-actions';
+import { storeFlow, storeFlowNode, addConnection } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
+import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction } from '../../redux/actions/canvas-mode-actions';
+import { ShapeTypeProps } from './shapes/shape-types';
 
 export interface CanvasProps {
 	nodes : any[];
@@ -13,18 +16,29 @@ export interface CanvasProps {
 	storeFlow : any;
 	storeFlowNode: any;
 	selectNode: any;
+	addConnection: any;
+
+	selectedNode : any;
+	canvasMode: ICanvasMode;
+	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
+
 }
+
 const mapStateToProps = (state : any) => {
 	return {
-		flow: state.flow
+		flow: state.flow,
+		selectedNode : state.selectedNode,
+		canvasMode: state.canvasMode
 	}
 }
 
 const mapDispatchToProps = (dispatch : any) => {
 	return {
+		addConnection: (nodeFrom : any, nodeTo : any) => dispatch(addConnection(nodeFrom, nodeTo)),
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
 		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
-		selectNode: (name, node) => dispatch(selectNode(name, node))
+		selectNode: (name, node) => dispatch(selectNode(name, node)),
+		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
 	}
 }
 
@@ -65,6 +79,8 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 				this.props.storeFlowNode(Object.assign({}, node, {xend: newEndPosition.x, yend: newEndPosition.y} ));
 			})
 		}
+
+		this.props.selectNode(node.name, node);
 	}
 
 	onDragMove(node, event) {
@@ -90,13 +106,22 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
 
+		if (this.props.canvasMode.isConnectingNodes && this.props.selectedNode !== undefined) {
+			this.props.addConnection(this.props.selectedNode.node, node);
+			this.props.setConnectiongNodeCanvasMode(false);
+		}
+
 		this.props.selectNode(node.name, node);
+
 		return false;		
 	}
 
 	clickStage = (event) => {
 		event.evt.preventDefault()		
+		
 		this.props.selectNode(undefined, undefined);
+		this.props.setConnectiongNodeCanvasMode(false);
+
 		return false;
 	}
 
@@ -124,7 +149,7 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 					})}
 
 					{this.props.flow.map((node, index) => {
-						let Shape = Shapes[node.shapeType];
+						const Shape = Shapes[node.shapeType];
 						if (node.shapeType !== "Line" && Shape) {
 							return <Shape key={"node-"+index} 
 								x={node.x} 
@@ -133,6 +158,7 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 								onDragEnd={this.onDragEnd.bind(this, node)}
 								onDragMove={this.onDragMove.bind(this, node)}
 								onClickShape={this.onClickShape.bind(this, node)}
+								isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
 								></Shape>;
 						}
 						return null;

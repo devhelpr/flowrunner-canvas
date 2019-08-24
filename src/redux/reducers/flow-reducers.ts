@@ -1,5 +1,7 @@
-import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW } from '../actions/flow-actions';
+import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW, ADD_CONNECTION } from '../actions/flow-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
+import * as uuid from 'uuid';
+const uuidV4 = uuid.v4;
 
 export const flowReducer = (state : any = [], action : any) => {
 	switch (action.type) {
@@ -15,6 +17,25 @@ export const flowReducer = (state : any = [], action : any) => {
 				return node;
 			})
 			return newState;
+		}
+		case ADD_CONNECTION: {
+			const nodeFromPosition = FlowToCanvas.getStartPointForLine(action.payload.nodeFrom,
+				{x:action.payload.nodeFrom.x, y:action.payload.nodeFrom.y});
+			const nodeToPosition = FlowToCanvas.getEndPointForLine(action.payload.nodeTo,
+				{x:action.payload.nodeTo.x, y:action.payload.nodeTo.y});
+	
+			const connection = {
+				name: "connection-" + uuidV4(),
+				task: "Connection",
+				shapeType: "Line",
+				startshapeid: action.payload.nodeFrom.name,
+				endshapeid: action.payload.nodeTo.name,
+				xstart: nodeFromPosition.x,
+				ystart: nodeFromPosition.y,
+				xend: nodeToPosition.x,
+				yend: nodeToPosition.y
+			};
+			return [...state, connection];
 		}
 		case ADD_FLOW: {
 			let loop = 0;

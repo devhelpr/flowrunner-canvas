@@ -4,7 +4,7 @@ import * as Konva from 'react-konva';
 const KonvaRect = Konva.Rect;
 
 import { Group, Text } from 'react-konva';
-import { ShapeTypeProps } from './shape-types';
+import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 
 export const Rect = (props: ShapeTypeProps) => {
@@ -23,7 +23,7 @@ export const Rect = (props: ShapeTypeProps) => {
 			strokeWidth={4}
 			width={ShapeMeasures.rectWidht}
 			height={ShapeMeasures.rectHeight}
-			fill="#ff0000" 
+			fill={props.isSelected ? shapeSelectedBackgroundColor : shapeBackgroundColor}  
 			perfectDrawEnabled={false}>
 		</KonvaRect>
 		<Text

@@ -1,3 +1,8 @@
+#START
+
+- npx gulp
+
+
 #TODO's
 
 - Voorlopig FlowStudio flow's laten opslaan in machine flow formaat

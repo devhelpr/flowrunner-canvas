@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as Konva from 'react-konva';
 import Victor from "victor";
 
-const KonvaLine = Konva.Line;
+const KonvaLine = Konva.Arrow;
 
 import { Group, Text } from 'react-konva';
 

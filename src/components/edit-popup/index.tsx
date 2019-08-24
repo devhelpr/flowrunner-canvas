@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from "react-redux";
 
 import { Modal, Button } from 'react-bootstrap';
-import { StringLiteral } from '@babel/types';
 
 export interface EditPopupProps {
 	selectedNode : any;
