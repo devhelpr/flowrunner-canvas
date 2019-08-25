@@ -746,6 +746,19 @@
     rxjs-compat "^6.4.0"
     uuid "^3.3.2"
 
+"@devhelpr/flowrunner@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.7.0.tgz#97c8d314aa7ebf8dd3e21d6a5334f3680d179283"
+  integrity sha512-X2BFf7wAh64JvwGwvQEn/5UWgycGgJmykHdqLGbbg3mjF5b689kIubA/vUe3KtAXWuMCQquY+PHaT2ERzzyxLw==
+  dependencies:
+    "@reactivex/rxjs" "^6.4.0"
+    "@types/uuid" "^3.4.4"
+    moment "^2.24.0"
+    promise "^8.0.2"
+    rxjs "^6.4.0"
+    rxjs-compat "^6.4.0"
+    uuid "^3.3.2"
+
 "@jest/console@^24.7.1":
   version "24.7.1"
   resolved "https://registry.yarnpkg.com/@jest/console/-/console-24.7.1.tgz#32a9e42535a97aedfe037e725bd67e954b459545"

@@ -22,6 +22,7 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
+    "@devhelpr/flowrunner": "0.7.0",
     "@devhelpr/flowrunner-redux": "0.3.3",
     "@types/react": "^16.8.23",
     "@types/react-dom": "^16.8.4",
