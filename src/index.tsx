@@ -14,7 +14,7 @@ import { Toolbar } from './components/toolbar';
 let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	{
 		"name" : "dummyReducer",
-		"task": "ReduxPropertyStateType",
+		"taskType": "ReduxPropertyStateType",
 		"subtype": "registrate"
 	}
 ]});

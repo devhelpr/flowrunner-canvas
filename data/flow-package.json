@@ -2,7 +2,7 @@
 	"flow": [
 	{
 		"name" : "dummyReducer",
-		"task": "ReduxPropertyStateType",
+		"taskType": "ReduxPropertyStateType",
 		"subtype": "registrate"
 	},
 	{	

@@ -30,7 +30,7 @@ export const flowReducer = (state: any = [], action: any) => {
 
       const connection = {
         name: 'connection-' + uuidV4(),
-        task: 'Connection',
+        taskType: 'Connection',
         shapeType: 'Line',
         startshapeid: action.payload.nodeFrom.name,
         endshapeid: action.payload.nodeTo.name,
