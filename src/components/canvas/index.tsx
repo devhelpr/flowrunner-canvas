@@ -41,7 +41,11 @@ const mapDispatchToProps = (dispatch : any) => {
 	}
 }
 
-class ContainedCanvas extends React.Component<CanvasProps> {
+export interface CanvasState {
+	stageWidth : number;
+}
+
+class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	
 	constructor(props) {
 		super(props);
@@ -49,10 +53,28 @@ class ContainedCanvas extends React.Component<CanvasProps> {
 		this.onDragEnd = this.onDragEnd.bind(this);
 		this.onDragMove = this.onDragMove.bind(this);
 		this.onClickShape = this.onClickShape.bind(this);
+
+		this.wheelEvent = this.wheelEvent.bind(this);
+		this.updateDimensions = this.updateDimensions.bind(this);
+	}
+
+	state = {
+		stageWidth : 0
 	}
 
 	componentDidMount() {
 		this.props.storeFlow(this.props.nodes);
+
+		(this.refs.canvasWrapper as any).addEventListener('wheel', this.wheelEvent);
+		window.addEventListener("resize", this.updateDimensions);
+
+		this.updateDimensions();
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.updateDimensions);
+		(this.refs.canvasWrapper as any).removeEventListener('wheel', this.wheelEvent);
+
 	}
 
 	setNewPositionForNode = (node, group) => {
@@ -136,6 +158,42 @@ console.log("onClickLine", node);
 		return false;
 	}
 
+	wheelEvent(e) {
+		e.preventDefault();
+		if (this.refs.stage !== undefined) {
+
+			let scaleBy = 1.03;
+			let stage = (this.refs.stage as any).getStage();
+			if (stage !== undefined && stage.getPointerPosition() !== undefined) {
+				var oldScale = stage.scaleX();
+
+				var mousePointTo = {
+					x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
+					y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale,
+				};
+
+				var newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+				stage.scale({ x: newScale, y: newScale });
+				var newPos = {
+					x: -(mousePointTo.x - stage.getPointerPosition().x / newScale) * newScale,
+					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale
+				};
+				stage.position(newPos);
+				stage.batchDraw();
+			}
+		}
+	}
+
+	updateDimensions() {
+				
+		const stageContainerElement = document.querySelector(".stage-container");
+		if (stageContainerElement !== null) {
+			let widthCanvas = stageContainerElement.clientWidth;
+
+			this.setState({stageWidth: widthCanvas});
+		}
+	}
+
 	clickStage = (event) => {
 		event.evt.preventDefault()		
 		
@@ -147,52 +205,56 @@ console.log("onClickLine", node);
 
 	render() {
 		return <>
-			<Stage
-				onClick={this.clickStage}
-				draggable={true}
-				pixelRatio={1} 
-				width={ 1024 } 
-				height={ 750 } className="stage-container">
-				<Layer>
-					<Rect x={0} y={0} width={1024} height={750}></Rect>
-					
-					{this.props.flow.map((node, index) => {
-						let Shape = Shapes[node.shapeType];
-						if (node.shapeType === "Line"  && Shape) {
-							console.log(this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name, node.name, this.props.selectedNode.name);
-							return <Shape key={"node-"+index}
-								onMouseOver={this.onMouseOver.bind(this)}
-								onMouseOut={this.onMouseOut.bind(this)}
-								onClickLine={this.onClickLine.bind(this, node)}
-								isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
-								xstart={node.xstart} 
-								ystart={node.ystart}
-								xend={node.xend} 
-								yend={node.yend}></Shape>;
-						} 
-						return null;
-					})}
+			<div ref="canvasWrapper" className="canvas-controller__scroll-container ">
+				<Stage
+					onClick={this.clickStage}
+					draggable={true}
+					pixelRatio={1} 
+					width={this.state.stageWidth}
+					height={ 750 }
+					ref="stage" 
+					className="stage-container">
+					<Layer>
+						<Rect x={0} y={0} width={1024} height={750}></Rect>
+						
+						{this.props.flow.map((node, index) => {
+							let Shape = Shapes[node.shapeType];
+							if (node.shapeType === "Line"  && Shape) {
+								console.log(this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name, node.name, this.props.selectedNode.name);
+								return <Shape key={"node-"+index}
+									onMouseOver={this.onMouseOver.bind(this)}
+									onMouseOut={this.onMouseOut.bind(this)}
+									onClickLine={this.onClickLine.bind(this, node)}
+									isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
+									xstart={node.xstart} 
+									ystart={node.ystart}
+									xend={node.xend} 
+									yend={node.yend}></Shape>;
+							} 
+							return null;
+						})}
 
-					{this.props.flow.map((node, index) => {
-						const Shape = Shapes[node.shapeType];
-						if (node.shapeType !== "Line" && Shape) {
-							return <Shape key={"node-"+index} 
-								x={node.x} 
-								y={node.y} 
-								name={node.name}
-								onMouseOver={this.onMouseOver.bind(this)}
-								onMouseOut={this.onMouseOut.bind(this)}
-								onDragEnd={this.onDragEnd.bind(this, node)}
-								onDragMove={this.onDragMove.bind(this, node)}
-								onClickShape={this.onClickShape.bind(this, node)}
-								isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
-								></Shape>;
-						}
-						return null;
-					})}
-					
-				</Layer>
-			</Stage>
+						{this.props.flow.map((node, index) => {
+							const Shape = Shapes[node.shapeType];
+							if (node.shapeType !== "Line" && Shape) {
+								return <Shape key={"node-"+index} 
+									x={node.x} 
+									y={node.y} 
+									name={node.name}
+									onMouseOver={this.onMouseOver.bind(this)}
+									onMouseOut={this.onMouseOut.bind(this)}
+									onDragEnd={this.onDragEnd.bind(this, node)}
+									onDragMove={this.onDragMove.bind(this, node)}
+									onClickShape={this.onClickShape.bind(this, node)}
+									isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
+									></Shape>;
+							}
+							return null;
+						})}
+						
+					</Layer>
+				</Stage>
+			</div>
 		</>;
 	}
 } 
