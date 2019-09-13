@@ -52,7 +52,10 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 			const changedProperties = JSON.parse(this.state.value);
 			
 			delete changedProperties.name;
-
+			if (changedProperties.id !== undefined) {
+				delete changedProperties.id;
+			}
+			
 			const node = {...this.props.selectedNode.node, ...changedProperties};
 			this.props.storeFlowNode(node);
 			this.props.selectNode(node.name, node);

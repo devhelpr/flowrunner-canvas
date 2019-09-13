@@ -70,6 +70,7 @@ export const flowReducer = (state: any = [], action: any) => {
       const newNode = Object.assign({}, action.payload.node);
       if (max !== undefined) {
         newNode.name = newNode.name + (max + 1);
+        newNode.id = newNode.name;
       }
 
       let newState = [...state, newNode];
