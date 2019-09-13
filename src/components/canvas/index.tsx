@@ -7,6 +7,7 @@ import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction } from '../../redux/actions/canvas-mode-actions';
+import Victor from "victor";
 
 export interface CanvasProps {
 	nodes : any[];
@@ -69,6 +70,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		window.addEventListener("resize", this.updateDimensions);
 
 		this.updateDimensions();
+		setTimeout(() => {
+			this.fitStage();
+		}, 0);
+		
 	}
 
 	componentWillUnmount() {
@@ -194,6 +199,77 @@ console.log("onClickLine", node);
 		}
 	}
 
+	fitStage() {
+		let xMin;
+		let yMin;
+		let xMax;
+		let yMax;
+		let stage = (this.refs.stage as any).getStage();
+		if (stage !== undefined) {
+			this.props.nodes.map(function(shape, index) {
+				if (shape.shapeType != "Line") {
+					if (xMin === undefined) {
+						xMin = shape.x;
+					}
+					if (yMin === undefined) {
+						yMin = shape.y;
+					}
+					if (xMax === undefined) {
+						xMax = shape.x;
+					}
+					if (yMax === undefined) {
+						yMax = shape.y;
+					}
+
+					if (shape.x < xMin) {
+						xMin = shape.x;
+					}
+					if (shape.x > xMax) {
+						xMax = shape.x;
+					}
+					if (shape.y < yMin) {
+						yMin = shape.y;
+					}
+					if (shape.y > yMax) {
+						yMax = shape.y;
+					}
+				}
+			});
+		
+			if (xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
+				
+				let scale = 1;
+				
+				let flowWidth = Math.abs(xMax-xMin) + 200;
+				let flowHeight = Math.abs(yMax-yMin) + 200;
+
+				const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
+				if (stageContainerElement !== null) {
+					let realStageWidth = stageContainerElement.clientWidth;
+				
+					if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
+						scale = realStageWidth / flowWidth;
+					}
+					scale = scale * 0.75;
+					stage.scale({ x: scale, y: scale });
+
+					var newPos = {
+						x: 0 ,
+						y: 0 
+					};
+					
+					newPos.x = (-xMin*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
+					newPos.y = (-yMin*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
+
+					stage.position(newPos);
+					stage.batchDraw();
+
+					console.log(scale,flowWidth,realStageWidth,newPos,xMin,xMax,yMin,yMax, stage.getWidth(), stage.getHeight());
+				}
+			}
+		}
+	}
+
 	clickStage = (event) => {
 		event.evt.preventDefault()		
 		
@@ -220,7 +296,6 @@ console.log("onClickLine", node);
 						{this.props.flow.map((node, index) => {
 							let Shape = Shapes[node.shapeType];
 							if (node.shapeType === "Line"  && Shape) {
-								console.log(this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name, node.name, this.props.selectedNode.name);
 								return <Shape key={"node-"+index}
 									onMouseOver={this.onMouseOver.bind(this)}
 									onMouseOut={this.onMouseOut.bind(this)}
