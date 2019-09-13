@@ -53,8 +53,8 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		e.preventDefault();
 		if (!this.props.canvasMode.isConnectingNodes) {
 			this.props.addFlowNode({
-				name: "task",
-				id: "task",
+				name: this.state.selectedTask,
+				id: this.state.selectedTask,
 				taskType: this.state.selectedTask || "TraceConsoleTask",
 				shapeType: "Circle", 
 				x: 50,
