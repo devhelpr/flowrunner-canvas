@@ -56,7 +56,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				name: this.state.selectedTask,
 				id: this.state.selectedTask,
 				taskType: this.state.selectedTask || "TraceConsoleTask",
-				shapeType: "Circle", 
+				shapeType: this.state.selectedTask == "IfConditionTask" ? "Diamond" : "Circle", 
 				x: 50,
 				y: 50
 			})
