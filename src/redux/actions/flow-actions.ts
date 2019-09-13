@@ -18,4 +18,4 @@ export const addConnection = (nodeFrom: any, nodeTo: any) =>
 
 export const deleteConnection = (node: any) => action(DELETE_CONNECTION, { node: node });
 
-export const deleteNode = (node: any) => action(DELETE_NODE, {node: node});
+export const deleteNode = (node: any) => action(DELETE_NODE, { node: node });
