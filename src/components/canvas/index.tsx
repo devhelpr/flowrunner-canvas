@@ -156,7 +156,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	onClickLine(node, event) {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
-console.log("onClickLine", node);
 		this.props.setConnectiongNodeCanvasMode(false);
 		this.props.selectNode(node.name, node);
 

@@ -1,4 +1,4 @@
-import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW, ADD_CONNECTION, DELETE_CONNECTION } from '../actions/flow-actions';
+import { STORE_FLOW_NODE, STORE_FLOW, ADD_FLOW, ADD_CONNECTION, DELETE_CONNECTION, DELETE_NODE } from '../actions/flow-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -80,6 +80,17 @@ export const flowReducer = (state: any = [], action: any) => {
       return [
         ...state.filter(node => {
           return node.name !== action.payload.node.name;
+        }),
+      ];
+    }
+    case DELETE_NODE: {
+      return [
+        ...state.filter(node => {
+          if (node.shapeType !== "Line") {
+            return node.name !== action.payload.node.name;
+          }
+
+          return node.startshapeid !== action.payload.node.name && node.endshapeid !== action.payload.node.name;
         }),
       ];
     }
