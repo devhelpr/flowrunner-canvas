@@ -1,4 +1,4 @@
-#Publish and build
+# Publish and build
 
 - npx gulp 
 
@@ -7,7 +7,7 @@
 - npm version [new version number]
 - npm publish
 
-#How to use flowrunner-canvas in your own project
+# How to use flowrunner-canvas in your own project
 
 The following instructions assume yarn/node.js and/or gulp and the npm package @devhelpr/flowrunner-redux as project dependencies. Other variations are also possible but for now I focus on this.
 
