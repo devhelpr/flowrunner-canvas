@@ -9,12 +9,13 @@ export interface EditPopupProps {
 	selectedNode : any;
 
 	onClose: () => void;
-	storeFlowNode: (node : any) => void;
+	storeFlowNode: (node : any, orgNodeName : string) => void;
 	selectNode: (name: string, node : any) => void;
 }
 
 export interface EditPopupState {
 	value: string;
+	orgNodeName: string;
 }
 
 const mapStateToProps = (state : any) => {
@@ -25,14 +26,15 @@ const mapStateToProps = (state : any) => {
 
 const mapDispatchToProps = (dispatch : any) => {
 	return {
-		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
+		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		selectNode: (name, node) => dispatch(selectNode(name, node))
 	}
 }
 
 class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState> {
 	state = {
-		value: ""
+		value: "",
+		orgNodeName : ""
 	}
 
 	componentDidMount() {
@@ -44,20 +46,23 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 		delete node.y;
 		delete node.shapeType;
 
-		this.setState({value : JSON.stringify(node, null, 2)})
+		this.setState({
+			value : JSON.stringify(node, null, 2),
+			orgNodeName : this.props.selectedNode.node.name
+		})
 	}
 
 	saveNode(e) {
 		try {
 			const changedProperties = JSON.parse(this.state.value);
 			
-			delete changedProperties.name;
+			//delete changedProperties.name;
 			if (changedProperties.id !== undefined) {
 				delete changedProperties.id;
 			}
 			
 			const node = {...this.props.selectedNode.node, ...changedProperties};
-			this.props.storeFlowNode(node);
+			this.props.storeFlowNode(node, this.state.orgNodeName);
 			this.props.selectNode(node.name, node);
 			this.props.onClose();
 		} catch (err) {

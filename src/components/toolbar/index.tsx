@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch : any) => {
 	return {
 		selectNode: (name, node) => dispatch(selectNode(name, node)),
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
-		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
+		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		addFlowNode: (node) => dispatch(addFlowNode(node)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode:  (node) => dispatch(deleteNode(node)),

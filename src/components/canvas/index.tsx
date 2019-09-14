@@ -90,19 +90,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
 		const newPosition = {x:x, y:y};
-		this.props.storeFlowNode(Object.assign({}, node, newPosition ));
+		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
 
 		if (startLines) {
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition);
 			startLines.map((node) => {
-				this.props.storeFlowNode(Object.assign({}, node, {xstart: newStartPosition.x, ystart: newStartPosition.y} ));
+				this.props.storeFlowNode(Object.assign({}, node, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), node.name);
 			})
 		}
 
 		if (endLines) {
 			const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition);
 			endLines.map((node) => {
-				this.props.storeFlowNode(Object.assign({}, node, {xend: newEndPosition.x, yend: newEndPosition.y} ));
+				this.props.storeFlowNode(Object.assign({}, node, {xend: newEndPosition.x, yend: newEndPosition.y} ), node.name);
 			})
 		}
 

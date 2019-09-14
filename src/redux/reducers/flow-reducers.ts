@@ -18,8 +18,25 @@ export const flowReducer = (state: any = [], action: any) => {
     case STORE_FLOW_NODE: {
       let newState = [...state];
       newState = newState.map(node => {
-        if (node.name === action.payload.node.name) {
-          node = Object.assign({}, action.payload.node);
+        if (node.name === action.payload.orgNodeName) {
+          node = Object.assign({}, action.payload.node, {
+            name: action.payload.node.name,
+            id: action.payload.node.name
+          });
+        } else
+        if (node.startshapeid === action.payload.orgNodeName &&
+            action.payload.node.shapeType !== "Line") {
+          node = Object.assign({}, node, {
+              startshapeid : action.payload.node.name
+            }  
+          );
+        } else
+        if (node.endshapeid === action.payload.orgNodeName &&
+            action.payload.node.shapeType !== "Line") {
+          node = Object.assign({}, node, {
+              endshapeid : action.payload.node.name
+            }  
+          );
         }
         return node;
       });
