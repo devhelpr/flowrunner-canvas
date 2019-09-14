@@ -9,7 +9,8 @@ export const DELETE_NODE = 'DELETE_NODE';
 
 export const storeFlow = (flow: any) => action(STORE_FLOW, { flow: flow });
 
-export const storeFlowNode = (node: any, orgNodeName : string) => action(STORE_FLOW_NODE, { node: node, orgNodeName : orgNodeName });
+export const storeFlowNode = (node: any, orgNodeName: string) =>
+  action(STORE_FLOW_NODE, { node: node, orgNodeName: orgNodeName });
 
 export const addFlowNode = (node: any) => action(ADD_FLOW, { node: node });
 
