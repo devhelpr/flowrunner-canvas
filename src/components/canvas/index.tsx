@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch : any) => {
 	return {
 		addConnection: (nodeFrom : any, nodeTo : any) => dispatch(addConnection(nodeFrom, nodeTo)),
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
-		storeFlowNode: (node) => dispatch(storeFlowNode(node)),
+		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		selectNode: (name, node) => dispatch(selectNode(name, node)),
 		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
 	}
