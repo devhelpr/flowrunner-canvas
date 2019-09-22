@@ -7,8 +7,10 @@ import { Group, Text, RegularPolygon } from 'react-konva';
 
 import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
+import { ShapeSettings } from '../../../helpers/shape-settings';
 
 export const Diamond = (props: ShapeTypeProps) => {
+	const settings = ShapeSettings.getShapeSettings(props.taskType);
 	return <Group
 		x={props.x}
 		y={props.y}
@@ -22,13 +24,13 @@ export const Diamond = (props: ShapeTypeProps) => {
 		<RegularPolygon 
 			x={ShapeMeasures.circleSize/2}
 			y={ShapeMeasures.circleSize/2}
-			stroke="#000000"
+			stroke={settings.strokeColor}
 			strokeWidth={4}
 			sides={4}
 			radius={ShapeMeasures.circleSize}
 			width={ShapeMeasures.circleSize}
 			height={ShapeMeasures.circleSize}
-			fill={props.isSelected ? shapeSelectedBackgroundColor : shapeBackgroundColor}  
+			fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
 			perfectDrawEnabled={false}>
 		</RegularPolygon>
 		<Text
@@ -42,7 +44,7 @@ export const Diamond = (props: ShapeTypeProps) => {
 			listening={false}
 			wrap="none"
 			ellipsis={true}
-			fill='black' 
+			fill={settings.textColor}
 			perfectDrawEnabled={true}>
 		</Text>
 	</Group>

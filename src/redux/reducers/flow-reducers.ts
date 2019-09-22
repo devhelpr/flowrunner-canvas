@@ -4,7 +4,7 @@ import {
   ADD_FLOW,
   ADD_CONNECTION,
   DELETE_CONNECTION,
-  DELETE_NODE,
+  DELETE_NODE
 } from '../actions/flow-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import * as uuid from 'uuid';
@@ -59,40 +59,10 @@ export const flowReducer = (state: any = [], action: any) => {
       };
       return [...state, connection];
     }
-    case ADD_FLOW: {
-      let loop = 0;
-      let max: any;
-      while (loop < state.length) {
-        if (state[loop].name.indexOf(action.payload.node.name) === 0) {
-          if (state[loop].name === action.payload.node.name) {
-            if (max === undefined) {
-              max = 0;
-            } else {
-              max = max + 1;
-            }
-          } else {
-            const last = state[loop].name.substring(action.payload.node.name.length);
-            const number = parseInt(last);
-            if (!isNaN(number)) {
-              if (max === undefined) {
-                max = number;
-              } else if (number > max) {
-                max = number;
-              }
-            }
-          }
-        }
-        loop++;
-      }
-
-      const newNode = Object.assign({}, action.payload.node);
-      if (max !== undefined) {
-        newNode.name = newNode.name + (max + 1);
-        newNode.id = newNode.name;
-      }
-
-      let newState = [...state, newNode];
-      return newState;
+    
+    case ADD_FLOW: {      
+       let newState = [...state, action.payload.node];
+       return newState;
     }
     case DELETE_CONNECTION: {
       return [

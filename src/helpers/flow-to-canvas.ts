@@ -28,7 +28,7 @@ export class FlowToCanvas {
   }
 
   static getStartPointForLine(startShape, newPosition) {
-    if (startShape.shapeType == 'Circle') {
+    if (startShape.shapeType == 'Circle' || startShape.shapeType == 'Diamond') {
       return {
         x: newPosition.x + ShapeMeasures.circleSize,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
@@ -42,7 +42,7 @@ export class FlowToCanvas {
   }
 
   static getEndPointForLine(endShape, newPosition) {
-    if (endShape.shapeType == 'Circle') {
+    if (endShape.shapeType == 'Circle' || endShape.shapeType == 'Diamond') {
       return {
         x: newPosition.x,
         y: newPosition.y + ShapeMeasures.circleSize / 2,

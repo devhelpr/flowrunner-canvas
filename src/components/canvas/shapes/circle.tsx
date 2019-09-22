@@ -7,8 +7,10 @@ import { Group, Text } from 'react-konva';
 
 import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
+import { ShapeSettings } from '../../../helpers/shape-settings';
 
 export const Circle = (props : ShapeTypeProps) => {
+	const settings = ShapeSettings.getShapeSettings(props.taskType);
 	return <Group
 		x={props.x}
 		y={props.y}
@@ -24,11 +26,11 @@ export const Circle = (props : ShapeTypeProps) => {
 			x={ShapeMeasures.circleSize/2}
 			y={ShapeMeasures.circleSize/2}
 			radius={ShapeMeasures.circleSize}
-			stroke="#000000"
+			stroke={settings.strokeColor}
 			strokeWidth={4}
 			width={ShapeMeasures.circleSize}
 			height={ShapeMeasures.circleSize}
-			fill={props.isSelected ? shapeSelectedBackgroundColor : shapeBackgroundColor} 
+			fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor} 
 			perfectDrawEnabled={false}>
 		</KonvaCircle>
 		<Text
@@ -42,7 +44,7 @@ export const Circle = (props : ShapeTypeProps) => {
 			listening={false}
 			wrap="none"
 			ellipsis={true}
-			fill='black' 
+			fill={settings.textColor}
 			perfectDrawEnabled={true}>
 		</Text>
 	</Group>

@@ -22,10 +22,9 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/flowrunner": "0.7.0",
-    "@devhelpr/flowrunner-redux": "0.3.3",
-    "@types/react": "^16.8.23",
-    "@types/react-dom": "^16.8.4",
+    "@devhelpr/flowrunner-redux": "0.4.9",
+    "@types/react": "16.9.2",
+    "@types/react-dom": "^16.9.0",
     "@types/react-redux": "^7.1.1",
     "@types/victor": "^1.1.0",
     "body-parser": "^1.19.0",
@@ -37,12 +36,13 @@
     "konva": "^3.3.3",
     "lodash": "^4.17.13",
     "popper.js": "^1.15.0",
-    "react": "^16.8.6",
+    "react": "16.9.0",
     "react-bootstrap": "^1.0.0-beta.10",
     "react-dom": "^16.8.6",
-    "react-konva": "^16.8.7-3",
+    "react-konva": "16.9.0-1",
     "react-redux": "^7.1.0",
     "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
     "typesafe-actions": "^4.4.2",
     "uuid": "^3.3.3",
     "victor": "^1.1.0"
@@ -68,5 +68,9 @@
     "typescript": "^3.3.4000",
     "vinyl-named": "^1.1.0",
     "webpack-stream": "^5.2.1"
+  },
+  "resolutions": {
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0"
   }
 }

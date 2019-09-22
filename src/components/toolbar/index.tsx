@@ -1,11 +1,17 @@
 import * as React from 'react';
 import { connect } from "react-redux";
-import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
+import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode, addNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { TaskSelector } from '../task-selector';
 import { EditPopup } from '../edit-popup';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
-import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction } from '../../redux/actions/canvas-mode-actions';
+import { 
+	setConnectiongNodeCanvasMode , 
+	setConnectiongNodeCanvasModeFunction, 
+	setSelectedTask,
+	setSelectedTaskFunction 
+} from '../../redux/actions/canvas-mode-actions';
+
 import fetch from 'cross-fetch';
 
 export interface ToolbarProps {
@@ -16,10 +22,12 @@ export interface ToolbarProps {
 	storeFlow : any;
 	storeFlowNode: any;
 	addFlowNode: any;
+	addNode : any;
 	deleteConnection: any;
 	deleteNode : any;
 	selectNode : (name, node) => void;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
+	setSelectedTask: setSelectedTaskFunction;
 }
 
 export interface ToolbarState {
@@ -41,8 +49,10 @@ const mapDispatchToProps = (dispatch : any) => {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		addFlowNode: (node) => dispatch(addFlowNode(node)),
+		addNode: (node, flow) => dispatch(addNode(node, flow)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode:  (node) => dispatch(deleteNode(node)),
+		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask)),
 		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
 	}
 }
@@ -54,17 +64,21 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		selectedTask : ""
 	}
 
+	componentDidMount() {
+		this.props.setSelectedTask("");
+	}
+
 	addNode = (e) => {
 		e.preventDefault();
 		if (!this.props.canvasMode.isConnectingNodes) {
-			this.props.addFlowNode({
+			this.props.addNode({
 				name: this.state.selectedTask,
 				id: this.state.selectedTask,
 				taskType: this.state.selectedTask || "TraceConsoleTask",
 				shapeType: this.state.selectedTask == "IfConditionTask" ? "Diamond" : "Circle", 
 				x: 50,
 				y: 50
-			})
+			}, this.props.flow);
 		}
 		return false;
 	}
@@ -131,6 +145,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	onSelectTask = (taskClassName) => {
 		this.setState({selectedTask : taskClassName});
+		this.props.setSelectedTask(taskClassName);
 	}
 
 	render() {

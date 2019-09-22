@@ -15,12 +15,12 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	{
 		"name" : "dummyReducer",
 		"taskType": "ReduxPropertyStateType",
-		"subtype": "registrate"
+		"subtype": "registrate",
+		"variableName": "dummy"
 	}
 ]});
 
 const flowEventRunner = getFlowEventRunner();
-
 startFlow(flowPackage, reducers).then((services : any) => {
 
 	fetch('/get-flow')
@@ -31,10 +31,6 @@ startFlow(flowPackage, reducers).then((services : any) => {
 		return res.json();
 	})
 	.then(flowPackage => {
-		console.log(flowPackage);	
-		
-		//const convertedFlow = HumanFlowToMachineFlow.convert(flowPackage);
-
 		ReactDom.render(<>
 			<Provider store={services.getStore()}>
 					<Toolbar></Toolbar>
@@ -45,4 +41,6 @@ startFlow(flowPackage, reducers).then((services : any) => {
 	.catch(err => {
 		console.error(err);
 	});
+}).catch((err) => {
+	console.log("error during start flowunner (check internal startFlow error)", err);
 })

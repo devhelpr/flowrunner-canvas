@@ -2,12 +2,12 @@ import * as React from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
 import { connect } from "react-redux";
 import { Shapes } from './shapes'; 
-import { storeFlow, storeFlowNode, addConnection } from '../../redux/actions/flow-actions';
+import { storeFlow, storeFlowNode, addConnection, addFlowNode, addNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
-import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction } from '../../redux/actions/canvas-mode-actions';
-import Victor from "victor";
+import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
+import { taskTypeConfig } from "../../config";
 
 export interface CanvasProps {
 	nodes : any[];
@@ -15,12 +15,15 @@ export interface CanvasProps {
 
 	storeFlow : any;
 	storeFlowNode: any;
+	addFlowNode : any;
+	addNode : any;
 	selectNode: any;
 	addConnection: any;
 
 	selectedNode : any;
 	canvasMode: ICanvasMode;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
+	setSelectedTask: setSelectedTaskFunction;
 
 }
 
@@ -37,8 +40,11 @@ const mapDispatchToProps = (dispatch : any) => {
 		addConnection: (nodeFrom : any, nodeTo : any) => dispatch(addConnection(nodeFrom, nodeTo)),
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
+		addFlowNode: (node) => dispatch(addFlowNode(node)),
+		addNode: (node, flow) => dispatch(addNode(node, flow)),
 		selectNode: (name, node) => dispatch(selectNode(name, node)),
-		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
+		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
+		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask))
 	}
 }
 
@@ -119,9 +125,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 
 	onDragMove(node, event) {
-
 		this.setNewPositionForNode(node, event.currentTarget);
-
 	}
 
 	onDragEnd(node, event) {
@@ -272,9 +276,26 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	clickStage = (event) => {
 		event.evt.preventDefault()		
 		
+		const nodeIsSelected : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
+		
 		this.props.selectNode(undefined, undefined);
 		this.props.setConnectiongNodeCanvasMode(false);
-
+		
+		if (!nodeIsSelected && this.props.canvasMode.selectedTask !== "") {
+			if (!this.props.canvasMode.isConnectingNodes) {
+				const position = (this.refs.stage as any).getStage().getPointerPosition();
+				const scaleFactor = (this.refs.stage as any).getStage().scaleX();
+				
+				this.props.addNode({
+					name: this.props.canvasMode.selectedTask,
+					id: this.props.canvasMode.selectedTask,
+					taskType: this.props.canvasMode.selectedTask || "TraceConsoleTask",
+					shapeType: this.props.canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
+					x: (position.x - (this.refs.stage as any).getStage().x()) / scaleFactor, 
+					y: (position.y - (this.refs.stage as any).getStage().y()) / scaleFactor  
+				}, this.props.flow);				
+			}
+		}
 		return false;
 	}
 
@@ -309,12 +330,18 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						})}
 
 						{this.props.flow.map((node, index) => {
-							const Shape = Shapes[node.shapeType];
+							let shapeType = node.shapeType;
+							const shapeSetting = taskTypeConfig[node.taskType];
+							if (shapeSetting && shapeSetting.shapeType) {
+								shapeType = shapeSetting.shapeType;
+							}
+							const Shape = Shapes[shapeType];
 							if (node.shapeType !== "Line" && Shape) {
 								return <Shape key={"node-"+index} 
 									x={node.x} 
 									y={node.y} 
 									name={node.name}
+									taskType={node.taskType}
 									onMouseOver={this.onMouseOver.bind(this)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onDragEnd={this.onDragEnd.bind(this, node)}

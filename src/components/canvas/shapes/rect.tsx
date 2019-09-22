@@ -6,8 +6,10 @@ const KonvaRect = Konva.Rect;
 import { Group, Text } from 'react-konva';
 import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
+import { ShapeSettings } from '../../../helpers/shape-settings';
 
 export const Rect = (props: ShapeTypeProps) => {
+	const settings = ShapeSettings.getShapeSettings(props.taskType);
 	return <Group
 		x={props.x}
 		y={props.y}
@@ -21,11 +23,12 @@ export const Rect = (props: ShapeTypeProps) => {
 		<KonvaRect 
 			x={0}
 			y={0}
-			stroke="#000000"
+			stroke={settings.strokeColor}
 			strokeWidth={4}
+			cornerRadius={settings.cornerRadius}
 			width={ShapeMeasures.rectWidht}
 			height={ShapeMeasures.rectHeight}
-			fill={props.isSelected ? shapeSelectedBackgroundColor : shapeBackgroundColor}  
+			fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
 			perfectDrawEnabled={false}>
 		</KonvaRect>
 		<Text
@@ -39,7 +42,7 @@ export const Rect = (props: ShapeTypeProps) => {
 			listening={false}
 			wrap="none"
 			ellipsis={true}
-			fill='black' 
+			fill={settings.textColor}
 			perfectDrawEnabled={true}>
 		</Text>
 	</Group>
