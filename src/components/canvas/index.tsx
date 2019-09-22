@@ -335,6 +335,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							if (shapeSetting && shapeSetting.shapeType) {
 								shapeType = shapeSetting.shapeType;
 							}
+							if (node.isStartEnd) {
+								shapeType = "Ellipse";
+							}
 							const Shape = Shapes[shapeType];
 							if (node.shapeType !== "Line" && Shape) {
 								return <Shape key={"node-"+index} 
