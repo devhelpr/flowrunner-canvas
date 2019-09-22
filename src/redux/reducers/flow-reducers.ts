@@ -4,7 +4,7 @@ import {
   ADD_FLOW,
   ADD_CONNECTION,
   DELETE_CONNECTION,
-  DELETE_NODE
+  DELETE_NODE,
 } from '../actions/flow-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import * as uuid from 'uuid';
@@ -59,10 +59,10 @@ export const flowReducer = (state: any = [], action: any) => {
       };
       return [...state, connection];
     }
-    
-    case ADD_FLOW: {      
-       let newState = [...state, action.payload.node];
-       return newState;
+
+    case ADD_FLOW: {
+      let newState = [...state, action.payload.node];
+      return newState;
     }
     case DELETE_CONNECTION: {
       return [

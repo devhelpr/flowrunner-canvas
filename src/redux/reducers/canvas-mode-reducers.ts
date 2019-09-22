@@ -8,7 +8,7 @@ export interface ICanvasMode {
 export const canvasModeReducer = (
   state: ICanvasMode = {
     isConnectingNodes: false,
-    selectedTask : ""
+    selectedTask: '',
   },
   action: any,
 ) => {

@@ -16,8 +16,7 @@ export const storeFlowNode = (node: any, orgNodeName: string) =>
 
 export const addFlowNode = (node: any) => action(ADD_FLOW, { node: node });
 export const addNode = (node: any, flow: any[]) => {
-  return (dispatch : any) => {
-
+  return (dispatch: any) => {
     let loop = 0;
     let max: any;
     while (loop < flow.length) {
@@ -50,7 +49,7 @@ export const addNode = (node: any, flow: any[]) => {
     }
     dispatch(addFlowNode(newNode));
     dispatch(selectNode(newNode.name, newNode));
-  }
+  };
 };
 
 export const addConnection = (nodeFrom: any, nodeTo: any) =>
