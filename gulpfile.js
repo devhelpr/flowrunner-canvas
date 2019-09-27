@@ -14,7 +14,9 @@ flowRunner.start({flow: []}).then(function (services) {
     }
     return 0;
   });
+  metaDataInfo.push({fullName:"FetchTask", className:"FetchTask" })
   console.log(metaDataInfo);
+  
   var named = require('vinyl-named'),   
       path = require("path"),
       webpackIgnorePlugin = require('webpack').IgnorePlugin;

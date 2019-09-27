@@ -7,6 +7,7 @@ export interface IShapeSettings {
   fillSelectedColor: string;
   textColor: string;
   cornerRadius: number;
+  isSkewed: boolean;
 }
 
 export class ShapeSettings {
@@ -16,7 +17,8 @@ export class ShapeSettings {
       fillColor: shapeBackgroundColor,
       fillSelectedColor: shapeSelectedBackgroundColor,
       textColor: '#000000',
-      cornerRadius: 0,
+	  cornerRadius: 0,
+	  isSkewed : false
     };
     if (taskTypeConfig[taskType]) {
       settings = { ...settings, ...taskTypeConfig[taskType] };

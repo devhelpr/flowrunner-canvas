@@ -18,7 +18,7 @@
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
-  "repository": "https://www.github.com/devhelpr/flowrunner-studio",
+  "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {

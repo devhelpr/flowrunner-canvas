@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { useState, useEffect, RefObject } from 'react';
 
 import * as Konva from 'react-konva';
+import {KonvaNodeComponent} from 'react-konva';
 const KonvaRect = Konva.Rect;
 
 import { Group, Text } from 'react-konva';
@@ -10,6 +12,35 @@ import { ShapeSettings } from '../../../helpers/shape-settings';
 
 export const Rect = (props: ShapeTypeProps) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType);
+	let rect : any = undefined;	
+	let skewX = 0;
+	let skewXOffset = 0;
+
+	if (settings.isSkewed) {
+		skewX = -0.5;
+		skewXOffset = (ShapeMeasures.rectWidht/8);
+	}
+
+	useEffect(() => {
+		console.log("after render", rect);
+		if (rect) {
+			rect.skew({
+				x: skewX,
+				y: 0
+			});
+		}
+	});
+
+	const setRef = (ref) => {
+		rect = ref;
+		if (rect) {
+			rect.skew({
+				x: skewX,
+				y: 0
+			});
+		}
+	}
+
 	return <Group
 		x={props.x}
 		y={props.y}
@@ -20,8 +51,9 @@ export const Rect = (props: ShapeTypeProps) => {
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
 		>
-		<KonvaRect 
-			x={0}
+		<KonvaRect
+			ref={ref => (setRef(ref))}
+			x={skewXOffset}
 			y={0}
 			stroke={settings.strokeColor}
 			strokeWidth={4}
