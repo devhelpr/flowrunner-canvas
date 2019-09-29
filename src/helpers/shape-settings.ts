@@ -17,8 +17,8 @@ export class ShapeSettings {
       fillColor: shapeBackgroundColor,
       fillSelectedColor: shapeSelectedBackgroundColor,
       textColor: '#000000',
-	  cornerRadius: 0,
-	  isSkewed : false
+      cornerRadius: 0,
+      isSkewed: false,
     };
     if (taskTypeConfig[taskType]) {
       settings = { ...settings, ...taskTypeConfig[taskType] };

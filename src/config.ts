@@ -1,6 +1,6 @@
 export const taskTypeConfig: any = {
   AssignTask: {
-	shapeType: 'Rect'
+    shapeType: 'Rect',
   },
   InjectIntoPayloadTask: {
     shapeType: 'Rect',
@@ -12,8 +12,8 @@ export const taskTypeConfig: any = {
     cornerRadius: 10,
   },
   FetchTask: {
-	shapeType: 'Rect',
-	isSkewed: true
+    shapeType: 'Rect',
+    isSkewed: true,
   },
   TraceConsoleTask: {
     strokeColor: '#456443',
