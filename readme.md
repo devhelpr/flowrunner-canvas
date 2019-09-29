@@ -26,7 +26,7 @@ with contents an empty aray : []
 
 add the following to file 'flowrunner-canvas.js' in the root of your project (adding this to gulp is also possible):
 
-
+```
 let startFlowStudioServer = require('@devhelpr/flowrunner-canvas/server/startFlowStudioServer');
 
 let flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
@@ -37,21 +37,13 @@ startFlow({flow: []}, {
 	}
 }).then(function (services) {
 
-	const metaDataInfo = flowRunner.getTaskMetaData().sort((a, b) => {
-	  if (a.fullName < b.fullName) {
-		return -1;
-	  }
-	  if (a.fullName > b.fullName) {
-		return 1;
-	  }
-	  return 0;
-	});
-
+	const metaDataInfo = flowRunner.getTaskMetaData();
 	startFlowStudioServer.start('./assets/flow.json',metaDataInfo);
 
 }).catch((err) => {
 	console.log("error", err);
 });
+```
 
 - start flowrunner-canvas server via NodeJs directly:
 
