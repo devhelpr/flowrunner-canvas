@@ -315,6 +315,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		return null;
 	}
 
+	getNodeByVariableName = (nodeName) => {
+		const nodes = this.props.flow.filter((node, index) => {
+			return node.variableName === nodeName && node.taskType && node.taskType.indexOf("Type") >= 0;
+		});
+		if (nodes.length > 0) {
+			return nodes[0];
+		}
+		return null;
+	}
+
 	getDependentConnections = () => {
 	
 		// TODO : 
@@ -325,13 +335,37 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			this.props.flow.map((node, index) => {
 				if (node.shapeType !== "Line" ) {
 					const nodeJson = JSON.stringify(node);
-					const nodeMatches = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
+					let nodeMatches  = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
+					
+					
+					if (node.taskType && node.taskType.indexOf("Type") < 0) {
+						const variableNodeMatches = nodeJson.match(/("variableName":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (variableNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(variableNodeMatches);
+							} else {
+								nodeMatches = variableNodeMatches;
+							}
+						}
+					}
+
 					if (nodeMatches) {
 						nodeMatches.map((match, index) => {
+
+							const isNodeByName = true;//match.indexOf('"node":') >= 0;
+
 							let nodeName = match.replace('"node":', "");
+							nodeName = nodeName.replace('"variableName":', "");
 							nodeName = nodeName.replace(/\ /g,"");
 							nodeName = nodeName.replace(/\"/g,"");
-							const nodeEnd = this.getNodeByName(nodeName);
+							let nodeEnd;
+							
+							if (isNodeByName) {
+								nodeEnd = this.getNodeByName(nodeName);
+							} else {
+								nodeEnd = this.getNodeByVariableName(nodeName);
+							}
+
 							if (nodeEnd) {
 								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
 								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
@@ -381,7 +415,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	render() {
 		const connections = this.getDependentConnections();
-
 		return <>
 			<div ref="canvasWrapper" className="canvas-controller__scroll-container ">
 				<Stage
