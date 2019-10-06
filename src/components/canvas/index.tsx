@@ -352,7 +352,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					if (nodeMatches) {
 						nodeMatches.map((match, index) => {
 
-							const isNodeByName = true;//match.indexOf('"node":') >= 0;
+							const isNodeByName = match.indexOf('"node":') >= 0;
 
 							let nodeName = match.replace('"node":', "");
 							nodeName = nodeName.replace('"variableName":', "");
