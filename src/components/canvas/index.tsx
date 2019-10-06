@@ -115,7 +115,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.props.selectNode(node.name, node);
 	}
 
-	onMouseOver() {
+	onMouseOver(node, event) {
+		if (node.notSelectable) {
+			return false;
+		}
         document.body.style.cursor = 'pointer';
 	}
 	
@@ -160,6 +163,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	onClickLine(node, event) {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
+		if (node.notSelectable) {
+			return false;
+		}
 		this.props.setConnectiongNodeCanvasMode(false);
 		this.props.selectNode(node.name, node);
 
@@ -299,7 +305,83 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		return false;
 	}
 
+	getNodeByName = (nodeName) => {
+		const nodes = this.props.flow.filter((node, index) => {
+			return node.name === nodeName;
+		});
+		if (nodes.length > 0) {
+			return nodes[0];
+		}
+		return null;
+	}
+
+	getDependentConnections = () => {
+	
+		// TODO : 
+		// - search node with nodeName
+		// - get connetion between the two nodes via getStartPointForLine and getEndPointForLine
+		try {
+			let connections : any[] = [];
+			this.props.flow.map((node, index) => {
+				if (node.shapeType !== "Line" ) {
+					const nodeJson = JSON.stringify(node);
+					const nodeMatches = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (nodeMatches) {
+						nodeMatches.map((match, index) => {
+							let nodeName = match.replace('"node":', "");
+							nodeName = nodeName.replace(/\ /g,"");
+							nodeName = nodeName.replace(/\"/g,"");
+							const nodeEnd = this.getNodeByName(nodeName);
+							if (nodeEnd) {
+								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
+								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
+								let connection = {
+									shapeType : "Line",
+									name: "_dc" + index,
+									id: "_dc" + index,
+									xstart : startPosition.x,
+									ystart : startPosition.y,
+									xend: endPosition.x,
+									yend: endPosition.y,
+									notSelectable: true
+								};
+								connections.push(connection);
+							}
+						})
+					}
+				}
+			});
+			return connections;
+		} catch(err) {
+			console.log(err);
+			return [];
+		}
+	}
+
+	/*
+
+			{connections.map((node, index) => {
+	//console.log(node);
+	let Shape = Shapes[node.shapeType];
+	if (node.shapeType === "Line"  && Shape) {
+		return <Shape key={"cnode-"+index}
+			onMouseOver={this.onMouseOver.bind(this)}
+			onMouseOut={this.onMouseOut.bind(this)}
+			onClickLine={this.onClickLine.bind(this, node)}
+			isSelected={false}
+			xstart={node.xstart} 
+			ystart={node.ystart}
+			xend={node.xend} 
+			yend={node.yend}></Shape>;
+	} 
+	return null;
+})};			
+
+	*/
+
 	render() {
+		const connections = this.getDependentConnections();
+
 		return <>
 			<div ref="canvasWrapper" className="canvas-controller__scroll-container ">
 				<Stage
@@ -312,15 +394,27 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					className="stage-container">
 					<Layer>
 						<Rect x={0} y={0} width={1024} height={750}></Rect>
-						
+						{connections.length > 0 && connections.map((node, index) => {
+							return <Shapes.Line key={"cn-node-" + index}
+									onMouseOver={this.onMouseOver.bind(this, node)}
+									onMouseOut={this.onMouseOut.bind(this)}
+									onClickLine={this.onClickLine.bind(this, node)}
+									isSelected={false}
+									isAltColor={true}
+									xstart={node.xstart} 
+									ystart={node.ystart}
+									xend={node.xend} 
+									yend={node.yend}></Shapes.Line>})
+						}
+
 						{this.props.flow.map((node, index) => {
 							let Shape = Shapes[node.shapeType];
 							if (node.shapeType === "Line"  && Shape) {
 								return <Shape key={"node-"+index}
-									onMouseOver={this.onMouseOver.bind(this)}
+									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onClickLine={this.onClickLine.bind(this, node)}
-									isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
+									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									xstart={node.xstart} 
 									ystart={node.ystart}
 									xend={node.xend} 
@@ -345,12 +439,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									y={node.y} 
 									name={node.name}
 									taskType={node.taskType}
-									onMouseOver={this.onMouseOver.bind(this)}
+									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onDragEnd={this.onDragEnd.bind(this, node)}
 									onDragMove={this.onDragMove.bind(this, node)}
 									onClickShape={this.onClickShape.bind(this, node)}
-									isSelected={this.props.selectedNode !== undefined && this.props.selectedNode.name === node.name}
+									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									></Shape>;
 							}
 							return null;

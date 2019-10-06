@@ -20,6 +20,7 @@ export interface LineTypeProps {
   onMouseOut: any;
   onClickLine: any;
   isSelected: boolean;
+  isAltColor? : boolean;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';

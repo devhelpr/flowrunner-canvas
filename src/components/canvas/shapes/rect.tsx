@@ -22,7 +22,6 @@ export const Rect = (props: ShapeTypeProps) => {
 	}
 
 	useEffect(() => {
-		console.log("after render", rect);
 		if (rect) {
 			rect.skew({
 				x: skewX,

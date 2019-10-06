@@ -51,6 +51,15 @@ export const Line = (props : LineTypeProps) => {
 		controlPointx2 = props.xend-(distance);
 		controlPointy2 = props.yend; 
 	}
+	
+	let fillColor = props.isSelected ? "#606060" : "#000000";	
+	let strokeWidth = 4;
+
+	if (props.isAltColor) {
+		fillColor = "#a0a0a0";  
+		strokeWidth = 2;
+	}
+
 
 	return <Group>
 		<KonvaLine 
@@ -58,13 +67,13 @@ export const Line = (props : LineTypeProps) => {
 				controlPointx1, controlPointy1,
 				controlPointx2, controlPointy2,
 				props.xend, props.yend]}
-			stroke={props.isSelected ? "#606060" : "#000000"} 
-			strokeWidth={4}
+			stroke={fillColor} 
+			strokeWidth={strokeWidth}
 			pointerLength={10}
 			pointerWidth={10}
 			lineCap="round"
 			lineJoin="round"
-			fill={props.isSelected ? "#606060" : "#000000"} 
+			fill={fillColor} 
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}
