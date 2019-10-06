@@ -369,7 +369,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isConnectionWithVariable = true;
 								}
 
-								if (nodeEnd && nodeEnd.taskType && nodeEnd.taskType == "InjectIntoPayloadTask") {
+								if (node.taskType && node.taskType == "InjectIntoPayloadTask") {
 									startToEnd = false;
 								}
 							}
