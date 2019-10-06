@@ -60,6 +60,11 @@ export const Line = (props : LineTypeProps) => {
 		strokeWidth = 2;
 	}
 
+	if (props.isConnectionWithVariable) {
+		fillColor = "#0080e0";  
+		strokeWidth = 2;
+	}
+
 
 	return <Group>
 		<KonvaLine 

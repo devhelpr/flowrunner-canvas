@@ -327,9 +327,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	getDependentConnections = () => {
 	
-		// TODO : 
-		// - search node with nodeName
-		// - get connetion between the two nodes via getStartPointForLine and getEndPointForLine
 		try {
 			let connections : any[] = [];
 			this.props.flow.map((node, index) => {
@@ -359,25 +356,40 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							nodeName = nodeName.replace(/\ /g,"");
 							nodeName = nodeName.replace(/\"/g,"");
 							let nodeEnd;
-							
+							let startToEnd : boolean = true;
+							let isConnectionWithVariable = false;
+
 							if (isNodeByName) {
 								nodeEnd = this.getNodeByName(nodeName);
 							} else {
+								// TODO : if "variable" connection then use different color
 								nodeEnd = this.getNodeByVariableName(nodeName);
+
+								if (nodeEnd) {
+									isConnectionWithVariable = true;
+								}
+
+								if (nodeEnd && nodeEnd.taskType && nodeEnd.taskType == "InjectIntoPayloadTask") {
+									startToEnd = false;
+								}
 							}
 
 							if (nodeEnd) {
+
+								// TODO : if node.taskType === "InjecIntoPayloadTask" then turn the direction around
+
 								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
 								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
 								let connection = {
 									shapeType : "Line",
 									name: "_dc" + index,
 									id: "_dc" + index,
-									xstart : startPosition.x,
-									ystart : startPosition.y,
-									xend: endPosition.x,
-									yend: endPosition.y,
-									notSelectable: true
+									xstart : startToEnd ? startPosition.x : endPosition.x,
+									ystart : startToEnd ? startPosition.y : endPosition.y,
+									xend: startToEnd ? endPosition.x : startPosition.x,
+									yend: startToEnd ? endPosition.y : startPosition.y,
+									notSelectable: true,
+									isConnectionWithVariable: isConnectionWithVariable
 								};
 								connections.push(connection);
 							}
@@ -434,6 +446,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onClickLine={this.onClickLine.bind(this, node)}
 									isSelected={false}
 									isAltColor={true}
+									isConnectionWithVariable={node.isConnectionWithVariable}
 									xstart={node.xstart} 
 									ystart={node.ystart}
 									xend={node.xend} 

@@ -21,6 +21,7 @@ export interface LineTypeProps {
   onClickLine: any;
   isSelected: boolean;
   isAltColor?: boolean;
+  isConnectionWithVariable? : boolean;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';
