@@ -9,6 +9,10 @@ import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
 import { taskTypeConfig } from "../../config";
 
+import fetch from 'cross-fetch';
+import ThenPromise from 'promise';
+
+
 export interface CanvasProps {
 	nodes : any[];
 	flow: any[];
@@ -77,7 +81,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		this.updateDimensions();
 		setTimeout(() => {
-			this.fitStage();
+			
+			this.loadEditorState();
 		}, 0);
 		
 	}
@@ -172,6 +177,85 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		return false;
 	}
 
+
+	onDragStageEnd = (e) => {
+		console.log("onDragStageEnd", e);
+
+		let stage = (this.refs.stage as any).getStage();
+		if (stage) {
+			this.saveEditorState(stage.scale().x, stage.x(), stage.y())
+		}
+	}
+
+	loadEditorState = () => {
+		fetch('/get-editor-state', {
+			method: "GET",
+			headers: {
+			  "Content-Type": "application/json"
+			}
+		  })
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server get-editor-state");
+			}
+			return res.json();
+		})
+		.then(editorState => {
+			console.log(editorState);
+			if (editorState && editorState.x && editorState.y && editorState.scale) {
+				let stage = (this.refs.stage as any).getStage();
+				if (stage.getPointerPosition() !== undefined) {
+					console.log(stage.getPointerPosition().x,stage.getPointerPosition().y);
+				}
+
+				if (stage) {
+
+					// TODO : figure out how to restore position correctly
+					//     .. position is stored correcly after onDragStageEnd					
+
+					var newPos = {
+						x: editorState.x,
+						y: editorState.y
+					};
+					stage.scale({ x: editorState.scale, y: editorState.scale });
+					stage.position(newPos);
+					stage.batchDraw();
+				}
+			} else {
+				this.fitStage();
+			}
+		})
+		.catch(err => {
+			console.error(err);
+		});
+	}
+
+	saveEditorState = (scale, x ,y) => {
+		fetch('/save-editor-state', {
+			method: "POST",
+			body: JSON.stringify({
+				scale: scale,
+				x: x,
+				y: y
+			}),
+			headers: {
+			  "Content-Type": "application/json"
+			}
+		  })
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(status => {
+			console.log(status);
+		})
+		.catch(err => {
+			console.error(err);
+		});
+	}
+
 	wheelEvent(e) {
 		e.preventDefault();
 		if (this.refs.stage !== undefined) {
@@ -192,8 +276,20 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					x: -(mousePointTo.x - stage.getPointerPosition().x / newScale) * newScale,
 					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale
 				};
+
 				stage.position(newPos);
 				stage.batchDraw();
+
+				console.log(newPos, stage.getPointerPosition().x, stage.getPointerPosition().y);
+				/*this.saveEditorState(
+					newScale, 
+					stage.getPointerPosition().x, 
+					stage.getPointerPosition().y
+				);
+				*/
+				setTimeout(() => {
+					this.saveEditorState(stage.scale().x, stage.x(), stage.y())
+				}, 1);
 			}
 		}
 	}
@@ -436,6 +532,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					width={this.state.stageWidth}
 					height={ 750 }
 					ref="stage" 
+					onDragEnd={this.onDragStageEnd}
 					className="stage-container">
 					<Layer>
 						<Rect x={0} y={0} width={1024} height={750}></Rect>
@@ -448,7 +545,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isAltColor={true}
 									isConnectionWithVariable={node.isConnectionWithVariable}
 									xstart={node.xstart} 
-									ystart={node.ystart}
+									ystart={node.ystart}									
 									xend={node.xend} 
 									yend={node.yend}></Shapes.Line>})
 						}

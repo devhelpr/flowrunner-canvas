@@ -63,6 +63,20 @@ function start(flowFileName, taskPlugins, options) {
 			}
 		);
 
+		app.post('/save-editor-state', (req, res) => {
+			const bodyAsJsonString = JSON.stringify(req.body);
+			
+			fs.writeFileSync("./canvas-state.json", bodyAsJsonString);
+			res.send(JSON.stringify({status:true}));
+		});
+
+		app.get('/get-editor-state', (req, res) => {
+			var editorState = fs.readFileSync("./canvas-state.json").toString();
+
+			res.send(editorState);
+		}
+	);
+
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));
 	});
 
