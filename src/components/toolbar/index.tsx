@@ -115,6 +115,26 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		return false;
 	}
 
+	markAsUnHappyFlow = (e) => {
+		e.preventDefault();
+		this.props.storeFlowNode(
+			{...this.props.selectedNode.node, 
+				"followflow" : "onfailure"
+			}, 
+			this.props.selectedNode.node.name);
+		return false;
+	}
+
+	markAsHappyFlow = (e) => {
+		e.preventDefault();
+		this.props.storeFlowNode(
+			{...this.props.selectedNode.node, 
+				"followflow" : "onsuccess"
+			}, 
+			this.props.selectedNode.node.name);
+		return false;
+	}
+ 
 	saveFlow = (e) => {
 		e.preventDefault();
 		fetch('/save-flow', {
@@ -160,6 +180,10 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && 
+								selectedNode.node.followflow !== "onfailure" && <a href="#" onClick={this.markAsUnHappyFlow} className={"mx-2 btn btn-outline-danger"}>Mark as unhappy flow</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && 
+								selectedNode.node.followflow !== "onsuccess" && <a href="#" onClick={this.markAsHappyFlow} className={"mx-2 btn btn-outline-success"}>Mark as happy flow</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name}</span>}
 							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-primary">Save</a>

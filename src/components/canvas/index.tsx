@@ -461,6 +461,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onMouseOut={this.onMouseOut.bind(this)}
 									onClickLine={this.onClickLine.bind(this, node)}
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
+									isErrorColor={node.followflow === 'onfailure'}
+									isSuccessColor={node.followflow === 'onsuccess'}
 									xstart={node.xstart} 
 									ystart={node.ystart}
 									xend={node.xend} 

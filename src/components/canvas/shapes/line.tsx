@@ -55,6 +55,14 @@ export const Line = (props : LineTypeProps) => {
 	let fillColor = props.isSelected ? "#606060" : "#000000";	
 	let strokeWidth = 4;
 
+	if (props.isErrorColor) {
+		fillColor = props.isSelected ? "#800000" : "#e00000";  
+	}
+
+	if (props.isSuccessColor) {
+		fillColor = props.isSelected ? "#008000" : "#00d300";  
+	}
+
 	if (props.isAltColor) {
 		fillColor = "#a0a0a0";  
 		strokeWidth = 2;
