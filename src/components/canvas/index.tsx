@@ -496,14 +496,20 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
 								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
+
+								if (!startToEnd) {
+									startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
+									endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y});
+	
+								}
 								let connection = {
 									shapeType : "Line",
 									name: "_dc" + index,
 									id: "_dc" + index,
-									xstart : startToEnd ? startPosition.x : endPosition.x,
-									ystart : startToEnd ? startPosition.y : endPosition.y,
-									xend: startToEnd ? endPosition.x : startPosition.x,
-									yend: startToEnd ? endPosition.y : startPosition.y,
+									xstart : startPosition.x,
+									ystart : startPosition.y,
+									xend: endPosition.x,
+									yend: endPosition.y,
 									notSelectable: true,
 									isConnectionWithVariable: isConnectionWithVariable
 								};
