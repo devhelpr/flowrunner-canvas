@@ -82,8 +82,8 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 				}
 			}
 			*/
-			
-			const node = {...changedProperties, ...this.state.requiredNodeValues};
+
+			const node = {...this.state.requiredNodeValues, ...changedProperties};
 			this.props.storeFlowNode(node, this.state.orgNodeName);
 			this.props.selectNode(node.name, node);
 			this.props.onClose();

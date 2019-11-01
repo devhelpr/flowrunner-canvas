@@ -463,7 +463,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						nodeMatches.map((match, index) => {
 
 							const isNodeByName = match.indexOf('"node":') >= 0;
-							const isSetVariable = match.indexOf('"setVariable":') >= 0;
+							const isGetVariable = match.indexOf('"getVariable":') >= 0;
 
 							let nodeName = match.replace('"node":', "");
 							nodeName = nodeName.replace('"variableName":', "");
@@ -485,7 +485,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isConnectionWithVariable = true;
 								}
 
-								if (isSetVariable) {
+								if (isGetVariable) {
 									startToEnd = false;
 								}
 							}
