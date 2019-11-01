@@ -600,7 +600,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							if (shapeSetting && shapeSetting.shapeType) {
 								shapeType = shapeSetting.shapeType;
 							}
-							if (node.isStartEnd) {
+							if (node.isStartEnd && shapeType=="Rect") {
 								shapeType = "Ellipse";
 							}
 							const Shape = Shapes[shapeType];
