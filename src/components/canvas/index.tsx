@@ -83,7 +83,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		setTimeout(() => {
 			
 			this.loadEditorState();
-		}, 0);
+		}, 100);
 		
 	}
 
@@ -204,16 +204,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			console.log(editorState);
 			if (editorState && editorState.x && editorState.y && editorState.scale) {
 				let stage = (this.refs.stage as any).getStage();
-				if (stage.getPointerPosition() !== undefined) {
+				/*if (stage.getPointerPosition() !== undefined) {
 					console.log(stage.getPointerPosition().x,stage.getPointerPosition().y);
 				}
-
+				*/
 				if (stage) {
 
 					// TODO : figure out how to restore position correctly
 					//     .. position is stored correcly after onDragStageEnd					
 
-					var newPos = {
+					const newPos = {
 						x: editorState.x,
 						y: editorState.y
 					};
@@ -263,16 +263,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			let scaleBy = 1.03;
 			let stage = (this.refs.stage as any).getStage();
 			if (stage !== undefined && stage.getPointerPosition() !== undefined) {
-				var oldScale = stage.scaleX();
+				const oldScale = stage.scaleX();
 
-				var mousePointTo = {
+				const mousePointTo = {
 					x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
 					y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale,
 				};
 
-				var newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+				const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 				stage.scale({ x: newScale, y: newScale });
-				var newPos = {
+				const newPos = {
 					x: -(mousePointTo.x - stage.getPointerPosition().x / newScale) * newScale,
 					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale
 				};
@@ -358,7 +358,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					scale = scale * 0.75;
 					stage.scale({ x: scale, y: scale });
 
-					var newPos = {
+					const newPos = {
 						x: 0 ,
 						y: 0 
 					};
@@ -430,7 +430,24 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					const nodeJson = JSON.stringify(node);
 					let nodeMatches  = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
 					
-					
+					const getVariableNodeMatches = nodeJson.match(/("getVariable":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (getVariableNodeMatches) {
+						if (nodeMatches) {
+							nodeMatches = nodeMatches.concat(getVariableNodeMatches);
+						} else {
+							nodeMatches = getVariableNodeMatches;
+						}
+					}
+
+					const setVariableNodeMatches = nodeJson.match(/("setVariable":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (setVariableNodeMatches) {
+						if (nodeMatches) {
+							nodeMatches = nodeMatches.concat(setVariableNodeMatches);
+						} else {
+							nodeMatches = setVariableNodeMatches;
+						}
+					}
+
 					if (node.taskType && node.taskType.indexOf("Type") < 0) {
 						const variableNodeMatches = nodeJson.match(/("variableName":\ ?"[a-zA-Z0-9\- :]*")/g);
 						if (variableNodeMatches) {
@@ -446,9 +463,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						nodeMatches.map((match, index) => {
 
 							const isNodeByName = match.indexOf('"node":') >= 0;
+							const isSetVariable = match.indexOf('"setVariable":') >= 0;
 
 							let nodeName = match.replace('"node":', "");
 							nodeName = nodeName.replace('"variableName":', "");
+							nodeName = nodeName.replace('"getVariable":', "");
+							nodeName = nodeName.replace('"setVariable":', "");
 							nodeName = nodeName.replace(/\ /g,"");
 							nodeName = nodeName.replace(/\"/g,"");
 							let nodeEnd;
@@ -465,7 +485,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isConnectionWithVariable = true;
 								}
 
-								if (node.taskType && node.taskType == "InjectIntoPayloadTask") {
+								if (isSetVariable) {
 									startToEnd = false;
 								}
 							}
