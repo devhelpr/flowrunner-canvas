@@ -1,4 +1,5 @@
 import { ShapeMeasures } from './shape-measures';
+import { taskTypeConfig } from "../config";
 
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow) {
@@ -28,7 +29,10 @@ export class FlowToCanvas {
   }
 
   static getStartPointForLine(startShape, newPosition) {
-    if (startShape.shapeType == 'Circle' || startShape.shapeType == 'Diamond') {
+
+    const shapeType = FlowToCanvas.getShapeType(startShape.shapeType, startShape.taskType, startShape.isStartEnd);
+
+    if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
         x: newPosition.x + ShapeMeasures.circleSize,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
@@ -42,7 +46,10 @@ export class FlowToCanvas {
   }
 
   static getEndPointForLine(endShape, newPosition) {
-    if (endShape.shapeType == 'Circle' || endShape.shapeType == 'Diamond') {
+
+    const shapeType = FlowToCanvas.getShapeType(endShape.shapeType, endShape.taskType, endShape.isStartEnd);
+
+    if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
         x: newPosition.x,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
@@ -73,5 +80,17 @@ export class FlowToCanvas {
     return flow.filter(node => {
       return node.shapeType === 'Line' && node.endshapeid === endNode.name;
     });
+  }
+
+  static getShapeType(shapeType, taskType, isStartEnd) {
+    let resultShapeType = shapeType || "Rect";
+    const shapeSetting = taskTypeConfig[taskType];
+    if (shapeSetting && shapeSetting.shapeType) {
+      resultShapeType = shapeSetting.shapeType;
+    }
+    if (isStartEnd && resultShapeType=="Rect") {
+      resultShapeType = "Ellipse";
+    }
+    return resultShapeType;
   }
 }

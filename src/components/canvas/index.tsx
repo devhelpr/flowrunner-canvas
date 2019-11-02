@@ -595,14 +595,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						})}
 
 						{this.props.flow.map((node, index) => {
-							let shapeType = node.shapeType;
-							const shapeSetting = taskTypeConfig[node.taskType];
-							if (shapeSetting && shapeSetting.shapeType) {
-								shapeType = shapeSetting.shapeType;
-							}
-							if (node.isStartEnd && shapeType=="Rect") {
-								shapeType = "Ellipse";
-							}
+							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+							
 							const Shape = Shapes[shapeType];
 							if (node.shapeType !== "Line" && Shape) {
 								return <Shape key={"node-"+index} 
