@@ -1,5 +1,5 @@
 import { ShapeMeasures } from './shape-measures';
-import { taskTypeConfig } from "../config";
+import { taskTypeConfig } from '../config';
 
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow) {
@@ -29,7 +29,6 @@ export class FlowToCanvas {
   }
 
   static getStartPointForLine(startShape, newPosition) {
-
     const shapeType = FlowToCanvas.getShapeType(startShape.shapeType, startShape.taskType, startShape.isStartEnd);
 
     if (shapeType == 'Circle' || shapeType == 'Diamond') {
@@ -46,7 +45,6 @@ export class FlowToCanvas {
   }
 
   static getEndPointForLine(endShape, newPosition) {
-
     const shapeType = FlowToCanvas.getShapeType(endShape.shapeType, endShape.taskType, endShape.isStartEnd);
 
     if (shapeType == 'Circle' || shapeType == 'Diamond') {
@@ -83,13 +81,13 @@ export class FlowToCanvas {
   }
 
   static getShapeType(shapeType, taskType, isStartEnd) {
-    let resultShapeType = shapeType || "Rect";
+    let resultShapeType = shapeType || 'Rect';
     const shapeSetting = taskTypeConfig[taskType];
     if (shapeSetting && shapeSetting.shapeType) {
       resultShapeType = shapeSetting.shapeType;
     }
-    if (isStartEnd && resultShapeType=="Rect") {
-      resultShapeType = "Ellipse";
+    if (isStartEnd && resultShapeType == 'Rect') {
+      resultShapeType = 'Ellipse';
     }
     return resultShapeType;
   }
