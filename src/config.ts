@@ -15,11 +15,8 @@ export const taskTypeConfig: any = {
     shapeType: 'Rect',
     isSkewed: true,
   },
-  TraceConsoleTask: {
-    strokeColor: '#456443',
-    fillColor: '#a9f3a3',
-    fillSelectedColor: '#70a26c',
-    textColor: '#000000',
+  ExpressionTask: {
+    shapeType: 'Rect'
   },
   ObservableTask: {
     strokeColor: '#510a24',

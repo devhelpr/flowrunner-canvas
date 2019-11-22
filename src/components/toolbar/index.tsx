@@ -4,6 +4,7 @@ import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode, ad
 import { selectNode } from '../../redux/actions/node-actions';
 import { TaskSelector } from '../task-selector';
 import { EditPopup } from '../edit-popup';
+import { ShowSchemaPopup } from '../show-schema-popup';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { 
 	setConnectiongNodeCanvasMode , 
@@ -32,7 +33,8 @@ export interface ToolbarProps {
 
 export interface ToolbarState {
 	showEditPopup : boolean;
-	selectedTask : string;
+	showSchemaPopup : boolean;
+	selectedTask : string;	
 }
 
 const mapStateToProps = (state : any) => {
@@ -61,6 +63,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	state = {
 		showEditPopup : false,
+		showSchemaPopup : false,
 		selectedTask : ""
 	}
 
@@ -86,7 +89,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	editNode = (e) => {
 		e.preventDefault();
 		if (!this.props.canvasMode.isConnectingNodes) {
-			this.setState({showEditPopup : true});
+			this.setState({showEditPopup : true, showSchemaPopup : false});
 		}
 		return false;
 	}
@@ -160,12 +163,20 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	}
 
 	onClose = () => {
-		this.setState({showEditPopup : false});
+		this.setState({showEditPopup : false, showSchemaPopup : false});
 	}
 
 	onSelectTask = (taskClassName) => {
 		this.setState({selectedTask : taskClassName});
 		this.props.setSelectedTask(taskClassName);
+	}
+
+	showSchema = (e) => {
+		e.preventDefault();
+		if (!this.props.canvasMode.isConnectingNodes) {
+			this.setState({showEditPopup : false, showSchemaPopup : true});
+		}
+		return false;
 	}
 
 	render() {
@@ -185,6 +196,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && 
 								selectedNode.node.followflow !== "onsuccess" && <a href="#" onClick={this.markAsHappyFlow} className={"mx-2 btn btn-outline-success"}>Mark as happy flow</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name}</span>}
 							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-primary">Save</a>
 						</form>
@@ -192,6 +204,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				</div>
 			</div>
 			{this.state.showEditPopup && <EditPopup onClose={this.onClose}></EditPopup>}
+			{this.state.showSchemaPopup && <ShowSchemaPopup onClose={this.onClose}></ShowSchemaPopup>}
 		</>
 	}
 
