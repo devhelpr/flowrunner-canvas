@@ -16,7 +16,7 @@ export const taskTypeConfig: any = {
     isSkewed: true,
   },
   ExpressionTask: {
-    shapeType: 'Rect'
+    shapeType: 'Rect',
   },
   ObservableTask: {
     strokeColor: '#510a24',
