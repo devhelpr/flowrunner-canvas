@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Modal, Button } from 'react-bootstrap';
 import { storeFlowNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
-import { any } from 'prop-types';
 
 export interface ISchemaNode {
 	objectSchema: string;
@@ -154,7 +153,8 @@ class ContainedShowSchemaPopup extends React.Component<ShowSchemaPopupProps, Sho
 		requiredNodeValues: {},
 		node: {
 			objectSchema: "",
-			object: {}
+			object: {},
+			name: ""
 		}
 	}
 
