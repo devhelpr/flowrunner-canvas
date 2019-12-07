@@ -2,16 +2,15 @@ const stateTypeTask = {
   strokeColor: '#0080e0',
   fillColor: '#34a5fa',
   fillSelectedColor: '#065c9d',
-  textColor: '#ffffff'
-}
+  textColor: '#ffffff',
+};
 
 const actionTask = {
   strokeColor: '#0080e0',
   fillColor: '#34a5fa',
   fillSelectedColor: '#065c9d',
-  textColor: '#ffffff'
-}
-
+  textColor: '#ffffff',
+};
 
 export const taskTypeConfig: any = {
   AssignTask: {
@@ -54,5 +53,5 @@ export const taskTypeConfig: any = {
   ReduxClearArrayActionTask: actionTask,
   ReduxGetKeyTask: actionTask,
   ReduxGetTask: actionTask,
-  ReduxPushArrayActionTask: actionTask
+  ReduxPushArrayActionTask: actionTask,
 };
