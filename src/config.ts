@@ -1,15 +1,15 @@
 const stateTypeTask = {
   strokeColor: '#0080e0',
-  fillColor: '#f7a145',
+  fillColor: '#34a5fa',
   fillSelectedColor: '#065c9d',
-  textColor: '#000000',
+  textColor: '#ffffff',
 };
 
 const actionTask = {
   strokeColor: '#f78306',
-  fillColor: '#34a5fa',
+  fillColor: '#f7a145',
   fillSelectedColor: '#ce791f',
-  textColor: '#ffffff',
+  textColor: '#000000',
 };
 
 export const taskTypeConfig: any = {
