@@ -448,6 +448,34 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						}
 					}
 
+					const datasourceNodeMatches = nodeJson.match(/("datasourceNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (datasourceNodeMatches) {
+						if (nodeMatches) {
+							nodeMatches = nodeMatches.concat(datasourceNodeMatches);
+						} else {
+							nodeMatches = datasourceNodeMatches;
+						}
+					}
+
+					const detailNodeMatches = nodeJson.match(/("detailNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (detailNodeMatches) {
+						if (nodeMatches) {
+							nodeMatches = nodeMatches.concat(detailNodeMatches);
+						} else {
+							nodeMatches = detailNodeMatches;
+						}
+					}
+					const deleteNodeMatches = nodeJson.match(/("deleteNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (deleteNodeMatches) {
+						if (nodeMatches) {
+							nodeMatches = nodeMatches.concat(deleteNodeMatches);
+						} else {
+							nodeMatches = deleteNodeMatches;
+						}
+					}
+
+									
+
 					if (node.taskType && node.taskType.indexOf("Type") < 0) {
 						const variableNodeMatches = nodeJson.match(/("variableName":\ ?"[a-zA-Z0-9\- :]*")/g);
 						if (variableNodeMatches) {
@@ -469,6 +497,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							nodeName = nodeName.replace('"variableName":', "");
 							nodeName = nodeName.replace('"getVariable":', "");
 							nodeName = nodeName.replace('"setVariable":', "");
+							nodeName = nodeName.replace('"datasourceNode":', "");
+							nodeName = nodeName.replace('"detailNode":', "");
+							nodeName = nodeName.replace('"deleteNode":', "");
+							
+							
 							nodeName = nodeName.replace(/\ /g,"");
 							nodeName = nodeName.replace(/\"/g,"");
 							let nodeEnd;

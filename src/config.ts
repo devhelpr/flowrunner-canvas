@@ -1,3 +1,18 @@
+const stateTypeTask = {
+  strokeColor: '#0080e0',
+  fillColor: '#34a5fa',
+  fillSelectedColor: '#065c9d',
+  textColor: '#ffffff'
+}
+
+const actionTask = {
+  strokeColor: '#0080e0',
+  fillColor: '#34a5fa',
+  fillSelectedColor: '#065c9d',
+  textColor: '#ffffff'
+}
+
+
 export const taskTypeConfig: any = {
   AssignTask: {
     shapeType: 'Rect',
@@ -30,4 +45,14 @@ export const taskTypeConfig: any = {
     fillSelectedColor: '#921241',
     textColor: '#ffffff',
   },
+  ReduxArrayStateType: stateTypeTask,
+  ReduxPropertyStateType: stateTypeTask,
+  ReduxHashmapStateType: stateTypeTask,
+  ReduxActionTask: actionTask,
+  ReduxAssignArrayActionTask: actionTask,
+  ReduxSetItemByKeyArrayActionTask: actionTask,
+  ReduxClearArrayActionTask: actionTask,
+  ReduxGetKeyTask: actionTask,
+  ReduxGetTask: actionTask,
+  ReduxPushArrayActionTask: actionTask
 };

@@ -81,7 +81,7 @@ export const LayoutSchema = (props: ILayoutSchemaProps) => {
 			if (layoutBlock.type == "form") {
 				const headerContent = <strong>{layoutBlock[props.captionProperty] ? `${layoutBlock[props.captionProperty]}` : ""}</strong>;
 				const header = props.isInForm === true ? <><strong><i>Form (nested)</i></strong> {headerContent}</> :
-					<div className="rounded bg-dark text-white p-2"><strong>Form</strong> {headerContent}</div>;
+					<div className="rounded bg-dark text-white p-2 m-1"><strong>Form</strong> {headerContent}</div>;
 				Layout = <>
 					{header}
 					<div className="border m-1 p-1">
