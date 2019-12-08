@@ -19,12 +19,12 @@ export const taskTypeConfig: any = {
   },
   InjectIntoPayloadTask: {
     shapeType: 'Rect',
-    layout : {
+    layout: {
       strokeColor: '#d61bd8',
       fillColor: '#d550d7',
       fillSelectedColor: '#d32cd5',
-      textColor: '#ffffff'
-    }
+      textColor: '#ffffff',
+    },
   },
   ClearTask: {
     shapeType: 'Rect',

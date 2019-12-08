@@ -21,7 +21,7 @@ export class ShapeSettings {
       isSkewed: false,
     };
     if (taskTypeConfig[taskType]) {
-      if (node && node.objectSchema && taskTypeConfig[taskType][node.objectSchema]){
+      if (node && node.objectSchema && taskTypeConfig[taskType][node.objectSchema]) {
         settings = { ...settings, ...taskTypeConfig[taskType], ...taskTypeConfig[taskType][node.objectSchema] };
       } else {
         settings = { ...settings, ...taskTypeConfig[taskType] };
