@@ -1,4 +1,5 @@
 const stateTypeTask = {
+  shapeType: 'Circle',
   strokeColor: '#0080e0',
   fillColor: '#34a5fa',
   fillSelectedColor: '#065c9d',
@@ -18,6 +19,12 @@ export const taskTypeConfig: any = {
   },
   InjectIntoPayloadTask: {
     shapeType: 'Rect',
+    layout : {
+      strokeColor: '#d61bd8',
+      fillColor: '#d550d7',
+      fillSelectedColor: '#d32cd5',
+      textColor: '#ffffff'
+    }
   },
   ClearTask: {
     shapeType: 'Rect',

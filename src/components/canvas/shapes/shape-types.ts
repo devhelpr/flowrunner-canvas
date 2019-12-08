@@ -3,6 +3,7 @@ export interface ShapeTypeProps {
   y: number;
   name: string;
   taskType: string;
+  node: any;
   onDragMove: any;
   onDragEnd: any;
   onClickShape: any;

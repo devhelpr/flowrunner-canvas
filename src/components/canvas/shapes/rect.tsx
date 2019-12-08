@@ -11,7 +11,7 @@ import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
 export const Rect = (props: ShapeTypeProps) => {
-	const settings = ShapeSettings.getShapeSettings(props.taskType);
+	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	let rect : any = undefined;	
 	let skewX = 0;
 	let skewXOffset = 0;

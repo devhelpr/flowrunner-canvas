@@ -637,6 +637,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									y={node.y} 
 									name={node.name}
 									taskType={node.taskType}
+									node={node}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onDragEnd={this.onDragEnd.bind(this, node)}

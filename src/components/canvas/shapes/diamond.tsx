@@ -10,7 +10,7 @@ import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
 export const Diamond = (props: ShapeTypeProps) => {
-	const settings = ShapeSettings.getShapeSettings(props.taskType);
+	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	return <Group
 		x={props.x}
 		y={props.y}

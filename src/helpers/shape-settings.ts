@@ -11,7 +11,7 @@ export interface IShapeSettings {
 }
 
 export class ShapeSettings {
-  static getShapeSettings(taskType: string): IShapeSettings {
+  static getShapeSettings(taskType: string, node: any): IShapeSettings {
     let settings: IShapeSettings = {
       strokeColor: '#000000',
       fillColor: shapeBackgroundColor,
@@ -21,7 +21,11 @@ export class ShapeSettings {
       isSkewed: false,
     };
     if (taskTypeConfig[taskType]) {
-      settings = { ...settings, ...taskTypeConfig[taskType] };
+      if (node && node.objectSchema && taskTypeConfig[taskType][node.objectSchema]){
+        settings = { ...settings, ...taskTypeConfig[taskType], ...taskTypeConfig[taskType][node.objectSchema] };
+      } else {
+        settings = { ...settings, ...taskTypeConfig[taskType] };
+      }
     }
     return settings;
   }
