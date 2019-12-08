@@ -10,7 +10,7 @@ export interface ShapeTypeProps {
   isSelected: boolean;
   onMouseOver: any;
   onMouseOut: any;
-  canvasHasSelectedNode : boolean;
+  canvasHasSelectedNode: boolean;
 }
 
 export interface LineTypeProps {
@@ -26,8 +26,8 @@ export interface LineTypeProps {
   isConnectionWithVariable?: boolean;
   isErrorColor?: boolean;
   isSuccessColor?: boolean;
-  canvasHasSelectedNode : boolean;
-  selectedNodeName : string;
+  canvasHasSelectedNode: boolean;
+  selectedNodeName: string;
   startNodeName: string;
   endNodeName: string;
 }
