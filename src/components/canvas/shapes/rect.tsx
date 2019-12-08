@@ -49,6 +49,7 @@ export const Rect = (props: ShapeTypeProps) => {
 		onClick={props.onClickShape}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
+		opacity={props.canvasHasSelectedNode && !props.isSelected ? 0.15 : 1}
 		>
 		<KonvaRect
 			ref={ref => (setRef(ref))}

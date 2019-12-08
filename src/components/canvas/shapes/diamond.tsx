@@ -20,6 +20,7 @@ export const Diamond = (props: ShapeTypeProps) => {
 		onClick={props.onClickShape}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
+		opacity={props.canvasHasSelectedNode && !props.isSelected ? 0.15 : 1}
 		>
 		<RegularPolygon 
 			x={ShapeMeasures.circleSize/2}

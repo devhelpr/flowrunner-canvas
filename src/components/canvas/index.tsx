@@ -422,7 +422,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	getDependentConnections = () => {
-	
+		const nodeIsSelected : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
+
 		try {
 			let connections : any[] = [];
 			this.props.flow.map((node, index) => {
@@ -522,31 +523,36 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									startToEnd = false;
 								}
 							}
+														
+							if ((!nodeIsSelected) || 
+								(this.props.selectedNode.name == nodeName || 
+								 this.props.selectedNode.name == node.name)) {
+							
+								if (nodeEnd) {
 
-							if (nodeEnd) {
+									// TODO : if node.taskType === "InjecIntoPayloadTask" then turn the direction around
 
-								// TODO : if node.taskType === "InjecIntoPayloadTask" then turn the direction around
+									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
+									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
 
-								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
-								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
-
-								if (!startToEnd) {
-									startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
-									endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y});
-	
+									if (!startToEnd) {
+										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
+										endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y});
+		
+									}
+									let connection = {
+										shapeType : "Line",
+										name: "_dc" + index,
+										id: "_dc" + index,
+										xstart : startPosition.x,
+										ystart : startPosition.y,
+										xend: endPosition.x,
+										yend: endPosition.y,
+										notSelectable: true,
+										isConnectionWithVariable: isConnectionWithVariable
+									};
+									connections.push(connection);
 								}
-								let connection = {
-									shapeType : "Line",
-									name: "_dc" + index,
-									id: "_dc" + index,
-									xstart : startPosition.x,
-									ystart : startPosition.y,
-									xend: endPosition.x,
-									yend: endPosition.y,
-									notSelectable: true,
-									isConnectionWithVariable: isConnectionWithVariable
-								};
-								connections.push(connection);
 							}
 						})
 					}
@@ -581,6 +587,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	*/
 
 	render() {
+		const canvasHasSelectedNode : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
+
 		const connections = this.getDependentConnections();
 		return <>
 			<div ref="canvasWrapper" className="canvas-controller__scroll-container ">
@@ -616,13 +624,18 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onClickLine={this.onClickLine.bind(this, node)}
+									canvasHasSelectedNode={canvasHasSelectedNode}
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isErrorColor={node.followflow === 'onfailure'}
 									isSuccessColor={node.followflow === 'onsuccess'}
 									xstart={node.xstart} 
 									ystart={node.ystart}
 									xend={node.xend} 
-									yend={node.yend}></Shape>;
+									yend={node.yend}
+									selectedNodeName={canvasHasSelectedNode ? this.props.selectedNode.node.name : ""}
+									startNodeName={node.startshapeid}
+									endNodeName={node.endshapeid}									
+									></Shape>;
 							} 
 							return null;
 						})}
@@ -638,6 +651,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									name={node.name}
 									taskType={node.taskType}
 									node={node}
+									canvasHasSelectedNode={canvasHasSelectedNode}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onDragEnd={this.onDragEnd.bind(this, node)}

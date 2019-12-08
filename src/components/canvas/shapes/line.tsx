@@ -73,6 +73,13 @@ export const Line = (props : LineTypeProps) => {
 		strokeWidth = 2;
 	}
 
+	let opacity = 1;
+	if (!props.isSelected && props.canvasHasSelectedNode) {
+		if (props.selectedNodeName != props.startNodeName && 
+			props.selectedNodeName != props.endNodeName) {
+			opacity = 0.15;
+		}
+	}
 
 	return <Group>
 		<KonvaLine 
@@ -87,6 +94,7 @@ export const Line = (props : LineTypeProps) => {
 			lineCap="round"
 			lineJoin="round"
 			fill={fillColor} 
+			opacity={opacity}
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}

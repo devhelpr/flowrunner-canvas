@@ -10,6 +10,7 @@ export interface ShapeTypeProps {
   isSelected: boolean;
   onMouseOver: any;
   onMouseOut: any;
+  canvasHasSelectedNode : boolean;
 }
 
 export interface LineTypeProps {
@@ -25,6 +26,10 @@ export interface LineTypeProps {
   isConnectionWithVariable?: boolean;
   isErrorColor?: boolean;
   isSuccessColor?: boolean;
+  canvasHasSelectedNode : boolean;
+  selectedNodeName : string;
+  startNodeName: string;
+  endNodeName: string;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';
