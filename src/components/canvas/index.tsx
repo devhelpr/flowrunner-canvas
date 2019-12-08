@@ -524,9 +524,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 								}
 							}
 														
-							if ((!nodeIsSelected) || 
+							/*if ((!nodeIsSelected) || 
 								(this.props.selectedNode.name == nodeName || 
-								 this.props.selectedNode.name == node.name)) {
+								 this.props.selectedNode.name == node.name)) 
+							*/	 
+							{
 							
 								if (nodeEnd) {
 
@@ -549,6 +551,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										xend: endPosition.x,
 										yend: endPosition.y,
 										notSelectable: true,
+										startshapeid: (startToEnd ? node.name : nodeName),
+										endshapeid: (startToEnd ? nodeName : node.name),
 										isConnectionWithVariable: isConnectionWithVariable
 									};
 									connections.push(connection);
@@ -610,11 +614,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onClickLine={this.onClickLine.bind(this, node)}
 									isSelected={false}
 									isAltColor={true}
+									canvasHasSelectedNode={canvasHasSelectedNode}
 									isConnectionWithVariable={node.isConnectionWithVariable}
 									xstart={node.xstart} 
 									ystart={node.ystart}									
 									xend={node.xend} 
-									yend={node.yend}></Shapes.Line>})
+									yend={node.yend}
+									selectedNodeName={canvasHasSelectedNode ? this.props.selectedNode.node.name : ""}
+									startNodeName={node.startshapeid}
+									endNodeName={node.endshapeid}	
+									></Shapes.Line>})
 						}
 
 						{this.props.flow.map((node, index) => {
