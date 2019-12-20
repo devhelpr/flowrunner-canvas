@@ -1,4 +1,8 @@
-import { SET_CONNECTING_CANVAS_MODE_NODE, SET_SELECTED_TASK, SET_SHOWDEPENDENCIES } from '../actions/canvas-mode-actions';
+import {
+  SET_CONNECTING_CANVAS_MODE_NODE,
+  SET_SELECTED_TASK,
+  SET_SHOWDEPENDENCIES,
+} from '../actions/canvas-mode-actions';
 
 export interface ICanvasMode {
   isConnectingNodes: boolean;
@@ -10,7 +14,7 @@ export const canvasModeReducer = (
   state: ICanvasMode = {
     isConnectingNodes: false,
     selectedTask: '',
-    showDependencies: false
+    showDependencies: false,
   },
   action: any,
 ) => {
@@ -30,8 +34,8 @@ export const canvasModeReducer = (
     case SET_SHOWDEPENDENCIES: {
       return {
         ...state,
-        showDependencies: action.payload.showDependencies
-      }
+        showDependencies: action.payload.showDependencies,
+      };
     }
     default:
       return state;
