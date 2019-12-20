@@ -19,7 +19,7 @@ export const Ellipse = (props: ShapeTypeProps) => {
 		onClick={props.onClickShape}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
-		opacity={props.canvasHasSelectedNode && !props.isSelected ? 0.15 : 1}
+		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>
 		<KonvaEllipse 
 			x={ShapeMeasures.rectWidht/2}

@@ -474,9 +474,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							nodeMatches = deleteNodeMatches;
 						}
 					}
-
 									
-
 					if (node.taskType && node.taskType.indexOf("Type") < 0) {
 						const variableNodeMatches = nodeJson.match(/("variableName":\ ?"[a-zA-Z0-9\- :]*")/g);
 						if (variableNodeMatches) {
@@ -523,41 +521,33 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									startToEnd = false;
 								}
 							}
-														
-							/*if ((!nodeIsSelected) || 
-								(this.props.selectedNode.name == nodeName || 
-								 this.props.selectedNode.name == node.name)) 
-							*/	 
-							{
-							
-								if (nodeEnd) {
+																					
+							if (nodeEnd) {
 
-									// TODO : if node.taskType === "InjecIntoPayloadTask" then turn the direction around
+								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
+								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
 
-									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
-									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
-
-									if (!startToEnd) {
-										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
-										endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y});
-		
-									}
-									let connection = {
-										shapeType : "Line",
-										name: "_dc" + index,
-										id: "_dc" + index,
-										xstart : startPosition.x,
-										ystart : startPosition.y,
-										xend: endPosition.x,
-										yend: endPosition.y,
-										notSelectable: true,
-										startshapeid: (startToEnd ? node.name : nodeName),
-										endshapeid: (startToEnd ? nodeName : node.name),
-										isConnectionWithVariable: isConnectionWithVariable
-									};
-									connections.push(connection);
+								if (!startToEnd) {
+									startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
+									endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y});
+	
 								}
+								let connection = {
+									shapeType : "Line",
+									name: "_dc" + index,
+									id: "_dc" + index,
+									xstart : startPosition.x,
+									ystart : startPosition.y,
+									xend: endPosition.x,
+									yend: endPosition.y,
+									notSelectable: true,
+									startshapeid: (startToEnd ? node.name : nodeEnd.name),
+									endshapeid: (startToEnd ? nodeEnd.name : node.name),
+									isConnectionWithVariable: isConnectionWithVariable
+								};
+								connections.push(connection);
 							}
+							
 						})
 					}
 				}
@@ -569,31 +559,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
-	/*
-
-			{connections.map((node, index) => {
-	//console.log(node);
-	let Shape = Shapes[node.shapeType];
-	if (node.shapeType === "Line"  && Shape) {
-		return <Shape key={"cnode-"+index}
-			onMouseOver={this.onMouseOver.bind(this)}
-			onMouseOut={this.onMouseOut.bind(this)}
-			onClickLine={this.onClickLine.bind(this, node)}
-			isSelected={false}
-			xstart={node.xstart} 
-			ystart={node.ystart}
-			xend={node.xend} 
-			yend={node.yend}></Shape>;
-	} 
-	return null;
-})};			
-
-	*/
 
 	render() {
 		const canvasHasSelectedNode : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
 
-		const connections = this.getDependentConnections();
+		const connections = this.props.canvasMode.showDependencies ? this.getDependentConnections() : [];
+		let nodesConnectedToSelectedNode : any = {};
 		return <>
 			<div ref="canvasWrapper" className="canvas-controller__scroll-container ">
 				<Stage
@@ -608,6 +579,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					<Layer>
 						<Rect x={0} y={0} width={1024} height={750}></Rect>
 						{connections.length > 0 && connections.map((node, index) => {
+
+							if (canvasHasSelectedNode &&  this.props.selectedNode &&  this.props.selectedNode.node) {
+								if (node.startshapeid === this.props.selectedNode.node.name) {
+									nodesConnectedToSelectedNode[node.endshapeid] = true;
+								}
+
+								if (node.endshapeid === this.props.selectedNode.node.name) {
+									nodesConnectedToSelectedNode[node.startshapeid] = true;
+								}								
+							}
 							return <Shapes.Line key={"cn-node-" + index}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
@@ -629,6 +610,17 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						{this.props.flow.map((node, index) => {
 							let Shape = Shapes[node.shapeType];
 							if (node.shapeType === "Line"  && Shape) {
+
+								if (canvasHasSelectedNode &&  this.props.selectedNode &&  this.props.selectedNode.node) {
+									if (node.startshapeid === this.props.selectedNode.node.name) {
+										nodesConnectedToSelectedNode[node.endshapeid] = true;
+									}
+	
+									if (node.endshapeid === this.props.selectedNode.node.name) {
+										nodesConnectedToSelectedNode[node.startshapeid] = true;
+									}								
+								}
+
 								return <Shape key={"node-"+index}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
@@ -648,7 +640,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							} 
 							return null;
 						})}
-
 						{this.props.flow.map((node, index) => {
 							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
 							
@@ -667,6 +658,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onDragMove={this.onDragMove.bind(this, node)}
 									onClickShape={this.onClickShape.bind(this, node)}
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
+									isConnectedToSelectedNode={this.props.selectedNode && nodesConnectedToSelectedNode[node.name] === true}
 									></Shape>;
 							}
 							return null;

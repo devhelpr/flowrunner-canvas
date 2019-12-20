@@ -11,6 +11,7 @@ export interface ShapeTypeProps {
   onMouseOver: any;
   onMouseOut: any;
   canvasHasSelectedNode: boolean;
+  isConnectedToSelectedNode: boolean;
 }
 
 export interface LineTypeProps {
