@@ -6,5 +6,5 @@ export const reducers = {
   flow: flowReducer,
   selectedNode: nodeReducer,
   canvasMode: canvasModeReducer,
-  rawFlow: rawFlowReducer
+  rawFlow: rawFlowReducer,
 };

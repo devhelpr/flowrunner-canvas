@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Flow and UI designer for use during development of flowrunner projects",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
