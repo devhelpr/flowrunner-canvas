@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from "react-redux";
 import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode, addNode } from '../../redux/actions/flow-actions';
+import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { TaskSelector } from '../task-selector';
 import { EditPopup } from '../edit-popup';
@@ -32,6 +33,7 @@ export interface ToolbarProps {
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 	setShowDependencies: setShowDependenciesFunction;
+	storeRawFlow: (flow : any) => void;
 }
 
 export interface ToolbarState {
@@ -39,6 +41,8 @@ export interface ToolbarState {
 	showSchemaPopup: boolean;
 	selectedTask: string;
 	showDependencies: boolean;
+	flowFiles : string[];
+	selectedFlow : string;
 }
 
 const mapStateToProps = (state: any) => {
@@ -59,6 +63,7 @@ const mapDispatchToProps = (dispatch: any) => {
 		addNode: (node, flow) => dispatch(addNode(node, flow)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode: (node) => dispatch(deleteNode(node)),
+		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
 		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
 	}
@@ -70,11 +75,33 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		showEditPopup: false,
 		showSchemaPopup: false,
 		selectedTask: "",
-		showDependencies: false
+		showDependencies: false,
+		flowFiles: [],
+		selectedFlow: ""
 	}
 
 	componentDidMount() {
 		this.props.setSelectedTask("");
+		this.getFlows();
+	}
+
+	getFlows = () => {
+		fetch('/get-flows')
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(flows => {
+			if (flows.length > 0) {
+				this.setState({flowFiles : flows, selectedFlow : flows[0]});
+				this.loadFlow(flows[0]);
+			}
+		})
+		.catch(err => {
+			console.error(err);
+		});
 	}
 
 	addNode = (event) => {
@@ -148,7 +175,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	saveFlow = (event) => {
 		event.preventDefault();
-		fetch('/save-flow', {
+		fetch('/save-flow?flow=' + this.state.selectedFlow, {
 			method: "POST",
 			body: JSON.stringify(this.props.flow),
 			headers: {
@@ -195,6 +222,27 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		});
 	}
 
+	loadFlow = (flowName) => {
+		fetch('/get-flow?flow=' + flowName)
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(flowPackage => {
+			this.props.storeRawFlow(flowPackage);
+		})
+		.catch(err => {
+			console.error(err);
+		});
+	}
+
+	setSelectedFlow = (event) => {
+		this.setState({selectedFlow : event.target.value});
+		this.loadFlow(event.target.value);		
+	}
+
 	render() {
 		const selectedNode = this.props.selectedNode;
 		return <>
@@ -202,6 +250,14 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				<div className="container toolbar__container">
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
 						<form className="form-inline w-100">
+							<select className="form-control mr-2" 
+								value={this.state.selectedFlow}
+								onChange={this.setSelectedFlow}>
+								<option value="" disabled>Choose flow</option>
+								{this.state.flowFiles.map((flow, index) => {
+									return <option key={index} value={flow}>{flow}</option>;
+								})}								
+							</select>
 							{!!!selectedNode.name && <TaskSelector selectTask={this.onSelectTask}></TaskSelector>}
 							{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}

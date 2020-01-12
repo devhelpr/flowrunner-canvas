@@ -31,10 +31,11 @@ startFlow(flowPackage, reducers).then((services : any) => {
 		return res.json();
 	})
 	.then(flowPackage => {
+		// nodes={flowPackage}
 		ReactDom.render(<>
 			<Provider store={services.getStore()}>
 					<Toolbar></Toolbar>
-					<Canvas nodes={flowPackage}></Canvas>
+					<Canvas></Canvas>
 			</Provider>
 		</>, document.getElementById('flowstudio-root'));
 		})

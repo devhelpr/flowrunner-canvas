@@ -53,7 +53,7 @@ function buildTypescript() {
 };
 
 gulp.task('startFlowServer', function(cb) {
-  startFlowStudioServer.start('./data/stored-flow.json');
+  startFlowStudioServer.start(['./data/stored-flow.json','./data/test-flow.json']);
   cb();
 });
 

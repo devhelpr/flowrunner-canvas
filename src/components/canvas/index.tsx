@@ -7,11 +7,8 @@ import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
-import { taskTypeConfig } from "../../config";
 
 import fetch from 'cross-fetch';
-import ThenPromise from 'promise';
-
 
 export interface CanvasProps {
 	nodes : any[];
@@ -35,7 +32,8 @@ const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
 		selectedNode : state.selectedNode,
-		canvasMode: state.canvasMode
+		canvasMode: state.canvasMode,
+		nodes: state.rawFlow
 	}
 }
 
@@ -74,7 +72,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	componentDidMount() {
-		this.props.storeFlow(this.props.nodes);
+		//this.props.storeFlow(this.props.nodes);
 
 		(this.refs.canvasWrapper as any).addEventListener('wheel', this.wheelEvent);
 		window.addEventListener("resize", this.updateDimensions);
@@ -85,6 +83,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			this.loadEditorState();
 		}, 100);
 		
+	}
+
+	componentDidUpdate(prevProps : CanvasProps) {
+		if (prevProps.nodes != this.props.nodes) {
+			this.props.storeFlow(this.props.nodes);
+		}
 	}
 
 	componentWillUnmount() {

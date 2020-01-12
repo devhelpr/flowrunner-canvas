@@ -2,6 +2,13 @@ const fs = require('fs');
 const path = require('path');
 function start(flowFileName, taskPlugins, options) {
 
+	let flowFiles = [];
+	if (typeof flowFileName == "string") {
+		flowFiles.push(flowFileName);
+	} else {
+		flowFiles = flowFileName;
+	}
+
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
 		if (!taskPlugins) {
 			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
@@ -39,6 +46,9 @@ function start(flowFileName, taskPlugins, options) {
 		app.post('/save-flow', (req, res) => {
 			const bodyAsJsonString = JSON.stringify(req.body);
 
+			const flowFileName = req.query.flow || flowFiles[0];
+			console.log(req.query.flow);
+
 			fs.writeFileSync(flowFileName, bodyAsJsonString);
 			console.log("Flow file written to:", flowFileName);
 			res.send(JSON.stringify({ status: true }));
@@ -51,7 +61,14 @@ function start(flowFileName, taskPlugins, options) {
 			}
 		});
 
+
+		app.get('/get-flows', (req, res) => {			
+			res.send(flowFiles);
+		});
+
 		app.get('/get-flow', (req, res) => {
+			const flowFileName = req.query.flow || flowFiles[0];
+			console.log(req.query.flow);
 			var flowPackage = JSON.stringify({
 				flow: []
 			});
