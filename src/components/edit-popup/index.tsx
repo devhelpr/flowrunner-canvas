@@ -43,17 +43,43 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 
 	componentDidMount() {
 		const node = {...this.props.selectedNode.node};
-		const requiredNodeValues = {
-			_id : node._id,
-			id: node.id,
-			x: node.x,
-			y: node.y,
-			shapeType: node.shapeType
-		};
+		let requiredNodeValues;
+		if (node.shapeType !== "Line") {
+			requiredNodeValues = {
+				_id : node._id,
+				id: node.id,
+				x: node.x,
+				y: node.y,
+				shapeType: node.shapeType
+			};
+		
+			delete node.x;
+			delete node.y;
+		} else {
+			requiredNodeValues = {
+				_id : node._id,
+				id: node.id,
+				startshapeid: node.startshapeid,
+				endshapeid: node.endshapeid,
+				xstart: node.xstart,
+				ystart: node.ystart,
+				xend: node.xend,
+				yend: node.yend,
+				shapeType: node.shapeType,
+				taskType: node.taskType
+			};
+
+			delete node.startshapeid;
+			delete node.endshapeid;
+			delete node.xstart;
+			delete node.ystart;
+			delete node.xend;
+			delete node.yend;
+			delete node.taskType;
+		}
+		
 		delete node._id;
 		delete node.id;
-		delete node.x;
-		delete node.y;
 		delete node.shapeType;
 
 		this.setState({

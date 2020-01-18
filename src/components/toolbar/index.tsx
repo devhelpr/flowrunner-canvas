@@ -250,17 +250,18 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				<div className="container toolbar__container">
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
 						<form className="form-inline w-100">
-							<select className="form-control mr-2" 
+							{!!!selectedNode.name && <select className="form-control mr-2" 
 								value={this.state.selectedFlow}
 								onChange={this.setSelectedFlow}>
 								<option value="" disabled>Choose flow</option>
 								{this.state.flowFiles.map((flow, index) => {
 									return <option key={index} value={flow}>{flow}</option>;
 								})}								
-							</select>
+							</select>}
 							{!!!selectedNode.name && <TaskSelector selectTask={this.onSelectTask}></TaskSelector>}
 							{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
+							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit connection</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType === "Line" &&
