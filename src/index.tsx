@@ -10,6 +10,7 @@ import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 import { reducers } from './redux/reducers';
 import { Canvas } from './components/canvas';
 import { Toolbar } from './components/toolbar';
+import { FooterToolbar } from './components/footer-toolbar';
 
 let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	{
@@ -36,6 +37,7 @@ startFlow(flowPackage, reducers).then((services : any) => {
 			<Provider store={services.getStore()}>
 					<Toolbar></Toolbar>
 					<Canvas></Canvas>
+					<FooterToolbar></FooterToolbar>
 			</Provider>
 		</>, document.getElementById('flowstudio-root'));
 		})

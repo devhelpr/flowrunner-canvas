@@ -52,6 +52,7 @@ const mapDispatchToProps = (dispatch : any) => {
 
 export interface CanvasState {
 	stageWidth : number;
+	stageHeight: number;
 }
 
 class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
@@ -68,7 +69,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	state = {
-		stageWidth : 0
+		stageWidth : 0,
+		stageHeight : 0
 	}
 
 	componentDidMount() {
@@ -301,10 +303,14 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	updateDimensions() {
 				
 		const stageContainerElement = document.querySelector(".stage-container");
-		if (stageContainerElement !== null) {
+		const bodyElement = document.querySelector("body");
+		if (stageContainerElement !== null && bodyElement !== null) {
 			let widthCanvas = stageContainerElement.clientWidth;
-
-			this.setState({stageWidth: widthCanvas});
+			let heightCanvas = bodyElement.clientHeight - 112;
+			if (heightCanvas < 500) {
+				heightCanvas = 500;
+			}
+			this.setState({stageWidth: widthCanvas, stageHeight: heightCanvas});
 		}
 	}
 
@@ -576,7 +582,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					draggable={true}
 					pixelRatio={1} 
 					width={this.state.stageWidth}
-					height={ 750 }
+					height={ this.state.stageHeight }
 					ref="stage" 
 					onDragEnd={this.onDragStageEnd}
 					className="stage-container">
