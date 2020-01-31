@@ -7,6 +7,7 @@ import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
+import { taskTypeConfig } from '../../config';
 
 import fetch from 'cross-fetch';
 
@@ -397,14 +398,21 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			if (!this.props.canvasMode.isConnectingNodes) {
 				const position = (this.refs.stage as any).getStage().getPointerPosition();
 				const scaleFactor = (this.refs.stage as any).getStage().scaleX();
-				
+				const taskType = this.props.canvasMode.selectedTask || "TraceConsoleTask";
+				let presetValues = {};
+				const shapeSetting = taskTypeConfig[taskType];
+				if (shapeSetting && shapeSetting.presetValues) {
+					presetValues = shapeSetting.presetValues;
+				}
+
 				this.props.addNode({
 					name: this.props.canvasMode.selectedTask,
 					id: this.props.canvasMode.selectedTask,
-					taskType: this.props.canvasMode.selectedTask || "TraceConsoleTask",
+					taskType: taskType,
 					shapeType: this.props.canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
 					x: (position.x - (this.refs.stage as any).getStage().x()) / scaleFactor, 
-					y: (position.y - (this.refs.stage as any).getStage().y()) / scaleFactor  
+					y: (position.y - (this.refs.stage as any).getStage().y()) / scaleFactor,
+					...presetValues  
 				}, this.props.flow);				
 			}
 		}
@@ -655,6 +663,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							
 							const Shape = Shapes[shapeType];
 							if (node.shapeType !== "Line" && Shape) {
+								let isConnectedToSelectedNode = this.props.selectedNode && nodesConnectedToSelectedNode[node.name] === true;
+								if (this.props.selectedNode && 
+									this.props.selectedNode.node && 
+									this.props.selectedNode.node.shapeType === "Line") {
+
+									if (this.props.selectedNode.node.startshapeid === node.name) {
+										isConnectedToSelectedNode = true;
+									}
+	
+									if (this.props.selectedNode.node.endshapeid === node.name) {
+										isConnectedToSelectedNode = true;
+									}								
+								}
 								return <Shape key={"node-"+index} 
 									x={node.x} 
 									y={node.y} 
@@ -668,7 +689,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onDragMove={this.onDragMove.bind(this, node)}
 									onClickShape={this.onClickShape.bind(this, node)}
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
-									isConnectedToSelectedNode={this.props.selectedNode && nodesConnectedToSelectedNode[node.name] === true}
+									isConnectedToSelectedNode={isConnectedToSelectedNode}
 									></Shape>;
 							}
 							return null;

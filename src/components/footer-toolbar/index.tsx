@@ -28,6 +28,19 @@ class ContainedFooter extends React.Component<FooterProps, FooterState> {
 		if (!this.props.selectedNode || !this.props.selectedNode.name) {
 			return <></>
 		}
+		if (this.props.selectedNode.node.taskType == "connection") {
+			let additionalInfo = "";
+			const node = this.props.selectedNode.node;
+			if (node.tag) {
+				additionalInfo = " - tag : " + node.tag;
+			}
+			if (node.flowPath) {
+				additionalInfo = additionalInfo + " - " + "flowPath : " + node.flowPath; 
+			}
+			return <nav className="navbar fixed-bottom navbar-light bg-light">
+				<a className="navbar-brand" href="#">{this.props.selectedNode.node && this.props.selectedNode.node.taskType ? this.props.selectedNode.node.taskType : ""}{additionalInfo}</a>
+			</nav>;
+		}
 		let additionalInfo = "";
 		if (this.props.selectedNode.node) {
 			const node = this.props.selectedNode.node;
@@ -51,7 +64,7 @@ class ContainedFooter extends React.Component<FooterProps, FooterState> {
 			}		
 		}
 		return <nav className="navbar fixed-bottom navbar-light bg-light">
-			<a className="navbar-brand" href="#">{this.props.selectedNode.node && this.props.selectedNode.node.taskType ? this.props.selectedNode.node.taskType + " : " : ""}{this.props.selectedNode.name}{additionalInfo}</a>
+			<a className="navbar-brand" href="#">{this.props.selectedNode.node && this.props.selectedNode.node.taskType ? this.props.selectedNode.node.taskType + " - " : ""}{this.props.selectedNode.name}{additionalInfo}</a>
 		</nav>;
 	}
 }
