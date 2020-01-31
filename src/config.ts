@@ -16,20 +16,20 @@ const actionTask = {
 export const taskTypeConfig: any = {
   AssignTask: {
     shapeType: 'Rect',
-    presetValues : {
-      'assignToProperty': "",
-      'value' : ""
-    }
+    presetValues: {
+      assignToProperty: '',
+      value: '',
+    },
   },
   IfConditionTask: {
     shapeType: 'Diamond',
-    presetValues : {
-      'compareProperty': "",
-      'withProperty': "",
-      'withValue' : "",
-      'usingCondition' : "equals, not-equals, smaller, bigger, smaller-or-equal, bigger-or-equal",
-      'dataType': "string"
-    }
+    presetValues: {
+      compareProperty: '',
+      withProperty: '',
+      withValue: '',
+      usingCondition: 'equals, not-equals, smaller, bigger, smaller-or-equal, bigger-or-equal',
+      dataType: 'string',
+    },
   },
   InjectIntoPayloadTask: {
     shapeType: 'Rect',
@@ -39,9 +39,9 @@ export const taskTypeConfig: any = {
       fillSelectedColor: '#d32cd5',
       textColor: '#ffffff',
     },
-    presetValues : {
-      'object' : {}
-    }
+    presetValues: {
+      object: {},
+    },
   },
   ClearTask: {
     shapeType: 'Rect',
@@ -52,18 +52,18 @@ export const taskTypeConfig: any = {
   FetchTask: {
     shapeType: 'Rect',
     isSkewed: true,
-    presetValues : {
-      'url' : "",
-      'method' : "get"
-    }
+    presetValues: {
+      url: '',
+      method: 'get',
+    },
   },
   ExpressionTask: {
     shapeType: 'Rect',
-    presetValues : {
-      'expression' : "",
-      'assignToProperty' : "",
-      'forceNumeric': true
-    }
+    presetValues: {
+      expression: '',
+      assignToProperty: '',
+      forceNumeric: true,
+    },
   },
   ObservableTask: {
     strokeColor: '#510a24',
@@ -71,8 +71,8 @@ export const taskTypeConfig: any = {
     fillSelectedColor: '#921241',
     textColor: '#ffffff',
     presetValues: {
-      'observeProperty' : ""
-    }
+      observeProperty: '',
+    },
   },
   ObserverTask: {
     strokeColor: '#510a24',
@@ -80,30 +80,33 @@ export const taskTypeConfig: any = {
     fillSelectedColor: '#921241',
     textColor: '#ffffff',
     presetValues: {
-      'observe' : "[name of observable node to observe]"
-    }
+      observe: '[name of observable node to observe]',
+    },
   },
   ReduxArrayStateType: stateTypeTask,
-  ReduxPropertyStateType: {...stateTypeTask,
-    presetValues : {
-      'variableName': "",      
-    }
+  ReduxPropertyStateType: {
+    ...stateTypeTask,
+    presetValues: {
+      variableName: '',
+    },
   },
   ReduxHashmapStateType: stateTypeTask,
-  ReduxActionTask: {...actionTask,
+  ReduxActionTask: {
+    ...actionTask,
     presetValues: {
-      'setVariable': ""
-    }
+      setVariable: '',
+    },
   },
   ReduxAssignArrayActionTask: actionTask,
   ReduxSetItemByKeyArrayActionTask: actionTask,
   ReduxClearArrayActionTask: actionTask,
   ReduxGetKeyTask: actionTask,
-  ReduxGetTask: {...actionTask, 
-    presetValues : {
-      'getVariable': "",
-      'assignTo' : ""
-    }
+  ReduxGetTask: {
+    ...actionTask,
+    presetValues: {
+      getVariable: '',
+      assignTo: '',
+    },
   },
   ReduxPushArrayActionTask: actionTask,
 };
