@@ -88,7 +88,7 @@ export const taskTypeConfig: any = {
     presetValues: {
       subtype: 'registrate',
       variableName: '',
-    }
+    },
   },
   ReduxPropertyStateType: {
     ...stateTypeTask,
@@ -102,7 +102,7 @@ export const taskTypeConfig: any = {
     presetValues: {
       subtype: 'registrate',
       variableName: '',
-    }
+    },
   },
   ReduxActionTask: {
     ...actionTask,
@@ -127,12 +127,12 @@ export const taskTypeConfig: any = {
     subShapeType: 'Model',
     presetValues: {
       modelName: '',
-      primaryKeyFieldName : '[Field to use as visible text (not the id field)]',
+      primaryKeyFieldName: '[Field to use as visible text (not the id field)]',
       fields: [
         {
-          fieldName: ''
-        }
-      ]
-    }
-  }
+          fieldName: '',
+        },
+      ],
+    },
+  },
 };
