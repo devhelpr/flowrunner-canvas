@@ -83,14 +83,27 @@ export const taskTypeConfig: any = {
       observe: '[name of observable node to observe]',
     },
   },
-  ReduxArrayStateType: stateTypeTask,
+  ReduxArrayStateType: {
+    ...stateTypeTask,
+    presetValues: {
+      subtype: 'registrate',
+      variableName: '',
+    }
+  },
   ReduxPropertyStateType: {
     ...stateTypeTask,
     presetValues: {
+      subtype: 'registrate',
       variableName: '',
     },
   },
-  ReduxHashmapStateType: stateTypeTask,
+  ReduxHashmapStateType: {
+    ...stateTypeTask,
+    presetValues: {
+      subtype: 'registrate',
+      variableName: '',
+    }
+  },
   ReduxActionTask: {
     ...actionTask,
     presetValues: {
@@ -109,4 +122,17 @@ export const taskTypeConfig: any = {
     },
   },
   ReduxPushArrayActionTask: actionTask,
+  ModelTask: {
+    shapeType: 'Rect',
+    subShapeType: 'Model',
+    presetValues: {
+      modelName: '',
+      primaryKeyFieldName : '[Field to use as visible text (not the id field)]',
+      fields: [
+        {
+          fieldName: ''
+        }
+      ]
+    }
+  }
 };

@@ -5,6 +5,7 @@ import * as Konva from 'react-konva';
 import {KonvaNodeComponent} from 'react-konva';
 const KonvaRect = Konva.Rect;
 const KonvaImage = Konva.Image;
+const KonvaLine = Konva.Line;
 
 import * as KonvaDirect from 'konva';
 import useImage from 'use-image';
@@ -52,7 +53,7 @@ export const Rect = (props: ShapeTypeProps) => {
 			});
 		}
 	}
-
+console.log("settings.subShapeType", settings.subShapeType);
 	return <Group
 		x={props.x}
 		y={props.y}
@@ -77,6 +78,11 @@ export const Rect = (props: ShapeTypeProps) => {
 			fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
 			perfectDrawEnabled={false}>
 		</KonvaRect>
+		{settings.subShapeType && settings.subShapeType == "Model" && <KonvaLine
+			points={[skewXOffset,10,(skewXOffset+ShapeMeasures.rectWidht),10]}
+			stroke={settings.strokeColor} 
+			strokeWidth={4}
+		></KonvaLine>}
 		{includeSvgIcon && <KonvaImage image={image}
 			pathColor={settings.textColor} 		
 			width={Math.round(ShapeMeasures.rectWidht / 4)}

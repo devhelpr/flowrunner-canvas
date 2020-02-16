@@ -13,7 +13,9 @@ function start(flowFileName, taskPlugins, options) {
 		if (!taskPlugins) {
 			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
 			flowRunner.start({ flow: [] }).then(function (services) {
-				resolve(flowRunner.getTaskMetaData());
+				let tasks = flowRunner.getTaskMetaData();
+				tasks.push({className:"ModelTask", fullName:"Model"});
+				resolve(tasks);
 			}).catch((err) => {
 				console.log("Flowrunner-canvas couldn't be started because of problem with flowRunner getting default task-plugins");
 				reject();

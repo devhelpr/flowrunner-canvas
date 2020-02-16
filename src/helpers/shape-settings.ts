@@ -8,6 +8,7 @@ export interface IShapeSettings {
   textColor: string;
   cornerRadius: number;
   isSkewed: boolean;
+  subShapeType?: string;
 }
 
 export class ShapeSettings {
