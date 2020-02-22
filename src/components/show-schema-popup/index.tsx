@@ -38,7 +38,6 @@ export interface ILayoutSchemaProps {
 
 export const LayoutSchema = (props: ILayoutSchemaProps) => {
 	let layout = props.layout.layout ? props.layout.layout : props.layout;
-	console.log(layout);
 	let rowClassName = "";
 	let colClassName = "";
 

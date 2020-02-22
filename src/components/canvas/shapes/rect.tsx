@@ -53,7 +53,7 @@ export const Rect = (props: ShapeTypeProps) => {
 			});
 		}
 	}
-console.log("settings.subShapeType", settings.subShapeType);
+	
 	return <Group
 		x={props.x}
 		y={props.y}

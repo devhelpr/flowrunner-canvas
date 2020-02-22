@@ -138,13 +138,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
         document.body.style.cursor = 'default';
 	}
 
+	dragTime : any = undefined;
 
 	onDragMove(node, event) {
-		this.setNewPositionForNode(node, event.currentTarget);
+		const currentTime = new Date().getTime();
+		if (!this.dragTime || (currentTime - this.dragTime > 2)) {
+			this.dragTime = currentTime;
+			this.setNewPositionForNode(node, event.currentTarget);
+		}
+		
 	}
 
 	onDragEnd(node, event) {
-
+		this.dragTime = undefined;
 		this.setNewPositionForNode(node, event.currentTarget);
 
 		// event.currentTarget points to the "Group" in the actual shape component
@@ -186,7 +192,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 
 	onDragStageEnd = (e) => {
-		console.log("onDragStageEnd", e);
 
 		let stage = (this.refs.stage as any).getStage();
 		if (stage) {
@@ -208,7 +213,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			return res.json();
 		})
 		.then(editorState => {
-			console.log(editorState);
 			if (editorState && editorState.x && editorState.y && editorState.scale) {
 				let stage = (this.refs.stage as any).getStage();
 				/*if (stage.getPointerPosition() !== undefined) {
@@ -256,7 +260,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			return res.json();
 		})
 		.then(status => {
-			console.log(status);
+			//console.log(status);
 		})
 		.catch(err => {
 			console.error(err);
@@ -287,7 +291,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				stage.position(newPos);
 				stage.batchDraw();
 
-				console.log(newPos, stage.getPointerPosition().x, stage.getPointerPosition().y);
 				/*this.saveEditorState(
 					newScale, 
 					stage.getPointerPosition().x, 
@@ -380,7 +383,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					stage.position(newPos);
 					stage.batchDraw();
 
-					console.log(scale,flowWidth,realStageWidth,newPos,xMin,xMax,yMin,yMax, stage.getWidth(), stage.getHeight());
+					//console.log(scale,flowWidth,realStageWidth,newPos,xMin,xMax,yMin,yMax, stage.getWidth(), stage.getHeight());
 				}
 			}
 		}

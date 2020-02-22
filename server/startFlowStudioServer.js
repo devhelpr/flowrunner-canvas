@@ -8,7 +8,7 @@ function start(flowFileName, taskPlugins, options) {
 	} else {
 		flowFiles = flowFileName;
 	}
-
+	
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
 		if (!taskPlugins) {
 			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
