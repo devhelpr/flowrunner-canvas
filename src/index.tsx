@@ -1,6 +1,6 @@
 import { startFlow, getFlowEventRunner } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
-import * as ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import fetch from 'cross-fetch';
@@ -33,13 +33,14 @@ startFlow(flowPackage, reducers).then((services : any) => {
 	})
 	.then(flowPackage => {
 		// nodes={flowPackage}
-		ReactDom.render(<>
-			<Provider store={services.getStore()}>
+			(ReactDOM as any).createRoot(
+				document.getElementById('flowstudio-root')
+			).render(<Provider store={services.getStore()}>
 					<Toolbar></Toolbar>
 					<Canvas></Canvas>
 					<FooterToolbar></FooterToolbar>
-			</Provider>
-		</>, document.getElementById('flowstudio-root'));
+				</Provider>
+			);		
 		})
 	.catch(err => {
 		console.error(err);

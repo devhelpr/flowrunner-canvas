@@ -61,6 +61,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	constructor(props) {
 		super(props);
 
+		this.canvasWrapper = React.createRef();
+		this.stage = React.createRef();
+
 		this.onDragEnd = this.onDragEnd.bind(this);
 		this.onDragMove = this.onDragMove.bind(this);
 		this.onClickShape = this.onClickShape.bind(this);
@@ -74,10 +77,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		stageHeight : 0
 	}
 
+	canvasWrapper : any;
+	stage : any;
+
 	componentDidMount() {
 		//this.props.storeFlow(this.props.nodes);
 
-		(this.refs.canvasWrapper as any).addEventListener('wheel', this.wheelEvent);
+		//(this.refs.canvasWrapper as any).addEventListener('wheel', this.wheelEvent);
+		if (this.canvasWrapper && this.canvasWrapper.current) {
+			(this.canvasWrapper.current as any).addEventListener('wheel', this.wheelEvent);
+		}
 		window.addEventListener("resize", this.updateDimensions);
 
 		this.updateDimensions();
@@ -96,7 +105,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	componentWillUnmount() {
 		window.removeEventListener("resize", this.updateDimensions);
-		(this.refs.canvasWrapper as any).removeEventListener('wheel', this.wheelEvent);
+		//(this.refs.canvasWrapper as any).removeEventListener('wheel', this.wheelEvent);
+		if (this.canvasWrapper && this.canvasWrapper.current) {
+			(this.canvasWrapper.current).removeEventListener('wheel', this.wheelEvent);
+		}
 
 	}
 
@@ -193,9 +205,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	onDragStageEnd = (e) => {
 
-		let stage = (this.refs.stage as any).getStage();
-		if (stage) {
-			this.saveEditorState(stage.scale().x, stage.x(), stage.y())
+		//let stage = (this.refs.stage as any).getStage();
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+			if (stage) {
+				this.saveEditorState(stage.scale().x, stage.x(), stage.y())
+			}
 		}
 	}
 
@@ -214,23 +229,27 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		})
 		.then(editorState => {
 			if (editorState && editorState.x && editorState.y && editorState.scale) {
-				let stage = (this.refs.stage as any).getStage();
-				/*if (stage.getPointerPosition() !== undefined) {
-					console.log(stage.getPointerPosition().x,stage.getPointerPosition().y);
-				}
-				*/
-				if (stage) {
+				//let stage = (this.refs.stage as any).getStage();
 
-					// TODO : figure out how to restore position correctly
-					//     .. position is stored correcly after onDragStageEnd					
+				if (this.stage && this.stage.current) {
+					let stage = (this.stage.current as any).getStage();
+					/*if (stage.getPointerPosition() !== undefined) {
+						console.log(stage.getPointerPosition().x,stage.getPointerPosition().y);
+					}
+					*/
+					if (stage) {
 
-					const newPos = {
-						x: editorState.x,
-						y: editorState.y
-					};
-					stage.scale({ x: editorState.scale, y: editorState.scale });
-					stage.position(newPos);
-					stage.batchDraw();
+						// TODO : figure out how to restore position correctly
+						//     .. position is stored correcly after onDragStageEnd					
+
+						const newPos = {
+							x: editorState.x,
+							y: editorState.y
+						};
+						stage.scale({ x: editorState.scale, y: editorState.scale });
+						stage.position(newPos);
+						stage.batchDraw();
+					}
 				}
 			} else {
 				this.fitStage();
@@ -269,10 +288,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	wheelEvent(e) {
 		e.preventDefault();
-		if (this.refs.stage !== undefined) {
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+		//if (this.refs.stage !== undefined) {
 
 			let scaleBy = 1.03;
-			let stage = (this.refs.stage as any).getStage();
+			//let stage = (this.refs.stage as any).getStage();
 			if (stage !== undefined && stage.getPointerPosition() !== undefined) {
 				const oldScale = stage.scaleX();
 
@@ -323,67 +344,70 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		let yMin;
 		let xMax;
 		let yMax;
-		let stage = (this.refs.stage as any).getStage();
-		if (stage !== undefined) {
-			this.props.nodes.map(function(shape, index) {
-				if (shape.shapeType != "Line") {
-					if (xMin === undefined) {
-						xMin = shape.x;
-					}
-					if (yMin === undefined) {
-						yMin = shape.y;
-					}
-					if (xMax === undefined) {
-						xMax = shape.x;
-					}
-					if (yMax === undefined) {
-						yMax = shape.y;
-					}
+		//let stage = (this.refs.stage as any).getStage();
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+			if (stage !== undefined) {
+				this.props.nodes.map(function(shape, index) {
+					if (shape.shapeType != "Line") {
+						if (xMin === undefined) {
+							xMin = shape.x;
+						}
+						if (yMin === undefined) {
+							yMin = shape.y;
+						}
+						if (xMax === undefined) {
+							xMax = shape.x;
+						}
+						if (yMax === undefined) {
+							yMax = shape.y;
+						}
 
-					if (shape.x < xMin) {
-						xMin = shape.x;
+						if (shape.x < xMin) {
+							xMin = shape.x;
+						}
+						if (shape.x > xMax) {
+							xMax = shape.x;
+						}
+						if (shape.y < yMin) {
+							yMin = shape.y;
+						}
+						if (shape.y > yMax) {
+							yMax = shape.y;
+						}
 					}
-					if (shape.x > xMax) {
-						xMax = shape.x;
-					}
-					if (shape.y < yMin) {
-						yMin = shape.y;
-					}
-					if (shape.y > yMax) {
-						yMax = shape.y;
-					}
-				}
-			});
-		
-			if (xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
-				
-				let scale = 1;
-				
-				let flowWidth = Math.abs(xMax-xMin) + 200;
-				let flowHeight = Math.abs(yMax-yMin) + 200;
-
-				const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
-				if (stageContainerElement !== null) {
-					let realStageWidth = stageContainerElement.clientWidth;
-				
-					if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
-						scale = realStageWidth / flowWidth;
-					}
-					scale = scale * 0.75;
-					stage.scale({ x: scale, y: scale });
-
-					const newPos = {
-						x: 0 ,
-						y: 0 
-					};
+				});
+			
+				if (xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
 					
-					newPos.x = (-xMin*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
-					newPos.y = (-yMin*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
+					let scale = 1;
+					
+					let flowWidth = Math.abs(xMax-xMin) + 200;
+					let flowHeight = Math.abs(yMax-yMin) + 200;
 
-					stage.position(newPos);
-					stage.batchDraw();
+					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
+					if (stageContainerElement !== null) {
+						let realStageWidth = stageContainerElement.clientWidth;
+					
+						if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
+							scale = realStageWidth / flowWidth;
+						}
+						scale = scale * 0.75;
+						stage.scale({ x: scale, y: scale });
 
-					//console.log(scale,flowWidth,realStageWidth,newPos,xMin,xMax,yMin,yMax, stage.getWidth(), stage.getHeight());
+						const newPos = {
+							x: 0 ,
+							y: 0 
+						};
+						
+						newPos.x = (-xMin*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
+						newPos.y = (-yMin*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
+
+						stage.position(newPos);
+						stage.batchDraw();
+
+						//console.log(scale,flowWidth,realStageWidth,newPos,xMin,xMax,yMin,yMax, stage.getWidth(), stage.getHeight());
+					}
 				}
 			}
 		}
@@ -399,24 +423,27 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		
 		if (!nodeIsSelected && this.props.canvasMode.selectedTask !== "") {
 			if (!this.props.canvasMode.isConnectingNodes) {
-				const position = (this.refs.stage as any).getStage().getPointerPosition();
-				const scaleFactor = (this.refs.stage as any).getStage().scaleX();
-				const taskType = this.props.canvasMode.selectedTask || "TraceConsoleTask";
-				let presetValues = {};
-				const shapeSetting = taskTypeConfig[taskType];
-				if (shapeSetting && shapeSetting.presetValues) {
-					presetValues = shapeSetting.presetValues;
-				}
+				if (this.stage && this.stage.current) {
+					let stage = (this.stage.current as any).getStage();
+					const position = (stage as any).getPointerPosition();
+					const scaleFactor = (stage as any).scaleX();
+					const taskType = this.props.canvasMode.selectedTask || "TraceConsoleTask";
+					let presetValues = {};
+					const shapeSetting = taskTypeConfig[taskType];
+					if (shapeSetting && shapeSetting.presetValues) {
+						presetValues = shapeSetting.presetValues;
+					}
 
-				this.props.addNode({
-					name: this.props.canvasMode.selectedTask,
-					id: this.props.canvasMode.selectedTask,
-					taskType: taskType,
-					shapeType: this.props.canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
-					x: (position.x - (this.refs.stage as any).getStage().x()) / scaleFactor, 
-					y: (position.y - (this.refs.stage as any).getStage().y()) / scaleFactor,
-					...presetValues  
-				}, this.props.flow);				
+					this.props.addNode({
+						name: this.props.canvasMode.selectedTask,
+						id: this.props.canvasMode.selectedTask,
+						taskType: taskType,
+						shapeType: this.props.canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
+						x: (position.x - (stage).x()) / scaleFactor, 
+						y: (position.y - (stage).y()) / scaleFactor,
+						...presetValues  
+					}, this.props.flow);
+				}				
 			}
 		}
 		return false;
@@ -587,14 +614,14 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		const connections = this.props.canvasMode.showDependencies ? this.getDependentConnections() : [];
 		let nodesConnectedToSelectedNode : any = {};
 		return <>
-			<div ref="canvasWrapper" className="canvas-controller__scroll-container ">
+			<div ref={this.canvasWrapper} className="canvas-controller__scroll-container ">
 				<Stage
 					onClick={this.clickStage}
 					draggable={true}
 					pixelRatio={1} 
 					width={this.state.stageWidth}
 					height={ this.state.stageHeight }
-					ref="stage" 
+					ref={this.stage}
 					onDragEnd={this.onDragStageEnd}
 					className="stage-container">
 					<Layer>
