@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 	  "jsx":"react",
-	  "target": "es5",
+	  "target": "es2015",
 	  "noImplicitAny": false,
 	  "module": "esnext",
 	  "removeComments": true,
@@ -9,7 +9,7 @@
 	  "outDir": "./lib",
 	  "strict": true,
 	  "allowJs": true,
-	  "lib": ["dom", "es5", "es2015.promise"],
+	  "lib": ["dom", "es2015", "es2015.promise"],
 	  "esModuleInterop": true
 	},
 	"include": ["src"],
