@@ -83,6 +83,9 @@ export const taskTypeConfig: any = {
       observe: '[name of observable node to observe]',
     },
   },
+  PreviewTask: {
+    shapeType: 'Html'
+  },
   ReduxArrayStateType: {
     ...stateTypeTask,
     presetValues: {

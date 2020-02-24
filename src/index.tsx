@@ -21,6 +21,12 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	}
 ]});
 
+const renderHtmlNode = (node: any) => {
+	return <iframe width={node.width || 250}
+		height={node.height || 250}
+	src={node.url}></iframe>;
+}
+
 const flowEventRunner = getFlowEventRunner();
 startFlow(flowPackage, reducers).then((services : any) => {
 
@@ -37,7 +43,7 @@ startFlow(flowPackage, reducers).then((services : any) => {
 				document.getElementById('flowstudio-root')
 			).render(<Provider store={services.getStore()}>
 					<Toolbar></Toolbar>
-					<Canvas></Canvas>
+					<Canvas renderHtmlNode={renderHtmlNode}></Canvas>
 					<FooterToolbar></FooterToolbar>
 				</Provider>
 			);		

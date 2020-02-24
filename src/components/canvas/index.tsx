@@ -27,6 +27,8 @@ export interface CanvasProps {
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 
+	renderHtmlNode?: (node: any) => any;
+
 }
 
 const mapStateToProps = (state : any) => {
@@ -54,6 +56,7 @@ const mapDispatchToProps = (dispatch : any) => {
 export interface CanvasState {
 	stageWidth : number;
 	stageHeight: number;
+	canvasOpacity: number;
 }
 
 class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
@@ -63,6 +66,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		this.canvasWrapper = React.createRef();
 		this.stage = React.createRef();
+		this.htmlWrapper = React.createRef();
+		this.htmlElement = React.createRef();
 
 		this.onDragEnd = this.onDragEnd.bind(this);
 		this.onDragMove = this.onDragMove.bind(this);
@@ -74,11 +79,17 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	state = {
 		stageWidth : 0,
-		stageHeight : 0
+		stageHeight : 0,
+		canvasOpacity: 0
 	}
 
 	canvasWrapper : any;
 	stage : any;
+	htmlWrapper : any;
+	htmlElement : any;
+	stageScale = 1.0;
+	stageX = 0.0;
+	stageY = 0.0;
 
 	componentDidMount() {
 		//this.props.storeFlow(this.props.nodes);
@@ -101,6 +112,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (prevProps.nodes != this.props.nodes) {
 			this.props.storeFlow(this.props.nodes);
 		}
+
+		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
+
 	}
 
 	componentWillUnmount() {
@@ -120,7 +134,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
 		const newPosition = {x:x, y:y};
+		
 		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
+		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, x, y);						
 
 		if (startLines) {
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition);
@@ -153,12 +169,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	dragTime : any = undefined;
 
 	onDragMove(node, event) {
-		const currentTime = new Date().getTime();
-		if (!this.dragTime || (currentTime - this.dragTime > 2)) {
-			this.dragTime = currentTime;
-			this.setNewPositionForNode(node, event.currentTarget);
-		}
-		
+		this.setNewPositionForNode(node, event.currentTarget);		
 	}
 
 	onDragEnd(node, event) {
@@ -202,14 +213,31 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		return false;
 	}
 
+	onDragStageMove = (e) => {
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+			if (stage) {
+				this.stageX = stage.x();
+				this.stageY = stage.y();
+				this.stageScale = stage.scale().x;
+
+				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);						
+			}
+		}
+	}
 
 	onDragStageEnd = (e) => {
 
-		//let stage = (this.refs.stage as any).getStage();
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
 			if (stage) {
 				this.saveEditorState(stage.scale().x, stage.x(), stage.y())
+				this.stageX = stage.x();
+				this.stageY = stage.y();
+				this.stageScale = stage.scale().x;
+
+				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);						
+
 			}
 		}
 	}
@@ -229,18 +257,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		})
 		.then(editorState => {
 			if (editorState && editorState.x && editorState.y && editorState.scale) {
-				//let stage = (this.refs.stage as any).getStage();
-
 				if (this.stage && this.stage.current) {
 					let stage = (this.stage.current as any).getStage();
-					/*if (stage.getPointerPosition() !== undefined) {
-						console.log(stage.getPointerPosition().x,stage.getPointerPosition().y);
-					}
-					*/
 					if (stage) {
-
-						// TODO : figure out how to restore position correctly
-						//     .. position is stored correcly after onDragStageEnd					
 
 						const newPos = {
 							x: editorState.x,
@@ -249,6 +268,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						stage.scale({ x: editorState.scale, y: editorState.scale });
 						stage.position(newPos);
 						stage.batchDraw();
+
+						this.stageX = newPos.x;
+						this.stageY = newPos.y;
+						this.stageScale = editorState.scale;
+
+						this.setHtmlElementsPositionAndScale(editorState.x, editorState.y, editorState.scale);
+						this.setState({canvasOpacity : 1});						
 					}
 				}
 			} else {
@@ -286,6 +312,27 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		});
 	}
 
+	setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number) => {
+		let nodeElements = document.querySelectorAll(".canvas__html-shape");
+
+		const elements = Array.from(nodeElements);
+		for (var element of elements) {
+			let x = parseFloat(element.getAttribute("data-x") || "");
+			let y = parseFloat(element.getAttribute("data-y") || "");
+
+			if (newX && !isNaN(newX)) {
+				x = newX;
+			}
+			if (newY && !isNaN(newY)) {
+				y = newY;
+			}
+			(element as any).style.transform = 						
+				"translate(" + (stageX  + x * stageScale) + "px," + 
+					(stageY + y * stageScale) + "px) "+
+				"scale(" + (stageScale) + "," + (stageScale) + ") ";
+		}
+	}
+
 	wheelEvent(e) {
 		e.preventDefault();
 		if (this.stage && this.stage.current) {
@@ -309,15 +356,22 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale
 				};
 
+				const newPosHtml = {
+					x: -(mousePointTo.x - stage.getPointerPosition().x / newScale),
+					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale)
+				};
+
+
+
 				stage.position(newPos);
 				stage.batchDraw();
 
-				/*this.saveEditorState(
-					newScale, 
-					stage.getPointerPosition().x, 
-					stage.getPointerPosition().y
-				);
-				*/
+				this.stageX = newPos.x;
+				this.stageY = newPos.y;
+				this.stageScale = newScale;
+
+				this.setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
+
 				setTimeout(() => {
 					this.saveEditorState(stage.scale().x, stage.x(), stage.y())
 				}, 1);
@@ -406,7 +460,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						stage.position(newPos);
 						stage.batchDraw();
 
-						//console.log(scale,flowWidth,realStageWidth,newPos,xMin,xMax,yMin,yMax, stage.getWidth(), stage.getHeight());
+						this.stageX = newPos.x;
+						this.stageY = newPos.y;
+						this.stageScale = scale;
+						
+						this.setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
 					}
 				}
 			}
@@ -607,14 +665,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
-
 	render() {
 		const canvasHasSelectedNode : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
 
 		const connections = this.props.canvasMode.showDependencies ? this.getDependentConnections() : [];
 		let nodesConnectedToSelectedNode : any = {};
 		return <>
-			<div ref={this.canvasWrapper} className="canvas-controller__scroll-container ">
+			<div ref={this.canvasWrapper} style={{opacity: this.state.canvasOpacity}} className="canvas-controller__scroll-container ">
 				<Stage
 					onClick={this.clickStage}
 					draggable={true}
@@ -622,6 +679,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					width={this.state.stageWidth}
 					height={ this.state.stageHeight }
 					ref={this.stage}
+					onDragMove={this.onDragStageMove}
 					onDragEnd={this.onDragStageEnd}
 					className="stage-container">
 					<Layer>
@@ -727,6 +785,34 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						
 					</Layer>
 				</Stage>
+				<div ref={this.htmlWrapper} 
+					className="canvas__html-elements">
+					
+					{this.props.flow.map((node, index) => {
+							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+							
+							const Shape = Shapes[shapeType];
+
+							if (shapeType === "Html" && Shape) {
+								return <div key={"html" + index}
+								style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
+										(this.stageY + node.y * this.stageScale) + "px) " +
+										"scale(" + (this.stageScale) + "," + (this.stageScale) + ") ",
+										width: (node.width || 250)+"px",
+										height: (node.height || 250)+"px",
+										left: (-(node.width || 250)/2)+"px",
+										top: (-(node.height || 250)/2)+"px",
+										pointerEvents:this.props.canvasMode.allowInputToHtmlNodes ? "auto" : "none" 
+									}} 
+									data-x={node.x} 
+									data-y={node.y} 
+									ref={this.htmlElement} 
+									className="canvas__html-shape">{this.props.renderHtmlNode && this.props.renderHtmlNode(node)}</div>;
+							}
+							return null;
+						})
+					}
+				</div>
 			</div>
 		</>;
 	}

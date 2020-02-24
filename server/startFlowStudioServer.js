@@ -8,6 +8,11 @@ function start(flowFileName, taskPlugins, options) {
 	} else {
 		flowFiles = flowFileName;
 	}
+
+	let hasPreviewPlugin = true;
+	if (!!options && !!!options.hasPreviewPlugin) {
+		hasPreviewPlugin = false;
+	}
 	
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
 		if (!taskPlugins) {
@@ -15,6 +20,11 @@ function start(flowFileName, taskPlugins, options) {
 			flowRunner.start({ flow: [] }).then(function (services) {
 				let tasks = flowRunner.getTaskMetaData();
 				tasks.push({className:"ModelTask", fullName:"Model"});
+				
+				if (hasPreviewPlugin) {
+					tasks.push({className:"PreviewTask", fullName:"PreviewTask"});
+				}
+
 				resolve(tasks);
 			}).catch((err) => {
 				console.log("Flowrunner-canvas couldn't be started because of problem with flowRunner getting default task-plugins");

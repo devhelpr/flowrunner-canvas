@@ -31,6 +31,12 @@ export class FlowToCanvas {
   static getStartPointForLine(startShape, newPosition) {
     const shapeType = FlowToCanvas.getShapeType(startShape.shapeType, startShape.taskType, startShape.isStartEnd);
 
+    if (shapeType == 'Html') {
+      return {
+        x: newPosition.x + (startShape.width || ShapeMeasures.htmlWidth) / 2,
+        y: newPosition.y
+      };
+    } else
     if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
         x: newPosition.x + ShapeMeasures.circleSize,
@@ -47,6 +53,12 @@ export class FlowToCanvas {
   static getEndPointForLine(endShape, newPosition) {
     const shapeType = FlowToCanvas.getShapeType(endShape.shapeType, endShape.taskType, endShape.isStartEnd);
 
+    if (shapeType == 'Html') {
+      return {
+        x: newPosition.x - (endShape.width || ShapeMeasures.htmlWidth) / 2,
+        y: newPosition.y
+      };
+    } else
     if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
         x: newPosition.x,

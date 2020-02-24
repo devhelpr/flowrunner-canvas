@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode, addNode } from '../../redux/actions/flow-actions';
 import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
+import { FlowToCanvas } from '../../helpers/flow-to-canvas';
+
 import { TaskSelector } from '../task-selector';
 import { EditPopup } from '../edit-popup';
 import { ShowSchemaPopup } from '../show-schema-popup';
@@ -13,10 +15,13 @@ import {
 	setSelectedTask,
 	setSelectedTaskFunction,
 	setShowDependencies,
-	setShowDependenciesFunction
+	setShowDependenciesFunction,
+	setAllowInputToHtmlNodes,
+	setAllowInputToHtmlNodesFunction
 } from '../../redux/actions/canvas-mode-actions';
 
 import fetch from 'cross-fetch';
+import { EnumBooleanBody } from '@babel/types';
 
 export interface ToolbarProps {
 	flow: any;
@@ -34,6 +39,7 @@ export interface ToolbarProps {
 	setSelectedTask: setSelectedTaskFunction;
 	setShowDependencies: setShowDependenciesFunction;
 	storeRawFlow: (flow : any) => void;
+	setAllowInputToHtmlNodes: setAllowInputToHtmlNodesFunction;
 }
 
 export interface ToolbarState {
@@ -43,6 +49,7 @@ export interface ToolbarState {
 	showDependencies: boolean;
 	flowFiles : string[];
 	selectedFlow : string;
+	allowInputToHtmlNodes: boolean;
 }
 
 const mapStateToProps = (state: any) => {
@@ -65,7 +72,8 @@ const mapDispatchToProps = (dispatch: any) => {
 		deleteNode: (node) => dispatch(deleteNode(node)),
 		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
-		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
+		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
+		setAllowInputToHtmlNodes: (allowInputToHtmlNodes) => dispatch(setAllowInputToHtmlNodes(allowInputToHtmlNodes))
 	}
 }
 
@@ -77,7 +85,8 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		selectedTask: "",
 		showDependencies: false,
 		flowFiles: [],
-		selectedFlow: ""
+		selectedFlow: "",
+		allowInputToHtmlNodes: false
 	}
 
 	componentDidMount() {
@@ -222,6 +231,14 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		});
 	}
 
+	onAllowInputToHtmlNodesChange = (event) => {
+		this.setState({
+			allowInputToHtmlNodes: !this.state.allowInputToHtmlNodes
+		}, () => {
+			this.props.setAllowInputToHtmlNodes(this.state.allowInputToHtmlNodes);
+		});
+	}
+
 	loadFlow = (flowName) => {
 		fetch('/get-flow?flow=' + flowName)
 		.then(res => {
@@ -245,6 +262,10 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	render() {
 		const selectedNode = this.props.selectedNode;
+		let shapeType = "";
+		if (selectedNode && selectedNode.node) {
+			shapeType = FlowToCanvas.getShapeType(selectedNode.node.shapeType, selectedNode.node.taskType, selectedNode.node.isStartEnd);
+		}
 		return <>
 			<div className="container-fluid bg-dark sticky-top">
 				<div className="container toolbar__container">
@@ -271,9 +292,12 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name} &nbsp;</span>}
-							<input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
-							<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>
-								<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-primary">Save</a>
+							{!!!selectedNode.name && <><input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
+								<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>							
+								<input className={"ml-2"} id="allowInputToHtmlNodes" type="checkbox" checked={this.state.allowInputToHtmlNodes} onChange={this.onAllowInputToHtmlNodesChange} />
+								<label className="text-white" htmlFor="allowInputToHtmlNodes">&nbsp;Allow input to html nodes</label>
+							</>}							
+							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-primary">Save</a>
 						</form>
 					</div>
 					</div>
