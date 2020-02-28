@@ -7,7 +7,8 @@
   "files": [
     "lib/**/*",
     "server/**/*",
-    "views/**/*"
+    "views/**/*",
+    "assets/**/*"
   ],
   "scripts": {
     "test": "jest --config jestconfig.json",
@@ -22,7 +23,9 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
+    "@devhelpr/flowrunner": "0.7.9",
     "@devhelpr/flowrunner-redux": "0.5.8",
+    "@reactivex/rxjs": "^6.5.4",
     "@types/react": "16.9.22",
     "@types/react-dom": "^16.9.5",
     "@types/react-redux": "^7.1.7",
@@ -46,7 +49,17 @@
     "typesafe-actions": "^5.1.0",
     "use-image": "^1.0.5",
     "uuid": "^3.3.3",
-    "victor": "^1.1.0"
+    "victor": "^1.1.0",
+    "workbox-background-sync": "5.0.0",
+    "workbox-broadcast-update": "5.0.0",
+    "workbox-cacheable-response": "5.0.0",
+    "workbox-core": "5.0.0",
+    "workbox-expiration": "5.0.0",
+    "workbox-navigation-preload": "5.0.0",
+    "workbox-precaching": "5.0.0",
+    "workbox-routing": "5.0.0",
+    "workbox-strategies": "5.0.0",
+    "workbox-window": "5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -55,6 +68,7 @@
     "@babel/preset-react": "^7.8.3",
     "@babel/types": "^7.8.3",
     "@types/jest": "^25.1.3",
+    "clean-webpack-plugin": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-notify": "3.2.0",
     "gulp-typescript": "^6.0.0-alpha.1",
@@ -68,7 +82,10 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.8.2",
     "vinyl-named": "^1.1.0",
-    "webpack-stream": "^5.2.1"
+    "webpack-stream": "^5.2.1",
+    "workbox-build": "5.0.0",
+    "workbox-webpack-plugin": "^5.0.0",
+    "worker-loader": "^2.0.0"
   },
   "resolutions": {
     "@types/react": "^16.9.22",

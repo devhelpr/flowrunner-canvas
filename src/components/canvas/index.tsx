@@ -8,6 +8,7 @@ import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
 import { taskTypeConfig } from '../../config';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import fetch from 'cross-fetch';
 
@@ -27,8 +28,8 @@ export interface CanvasProps {
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 
-	renderHtmlNode?: (node: any) => any;
-
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector) => any;
+	flowrunnerConnector : IFlowrunnerConnector;
 }
 
 const mapStateToProps = (state : any) => {
@@ -256,7 +257,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			return res.json();
 		})
 		.then(editorState => {
-			if (editorState && editorState.x && editorState.y && editorState.scale) {
+			if (!editorState.reset && editorState && editorState.x && editorState.y && editorState.scale) {
 				if (this.stage && this.stage.current) {
 					let stage = (this.stage.current as any).getStage();
 					if (stage) {
@@ -792,7 +793,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
 							
 							const Shape = Shapes[shapeType];
-
+// pointerEvents:this.props.canvasMode.allowInputToHtmlNodes ? "auto" : "none"
 							if (shapeType === "Html" && Shape) {
 								return <div key={"html" + index}
 								style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
@@ -802,12 +803,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										height: (node.height || 250)+"px",
 										left: (-(node.width || 250)/2)+"px",
 										top: (-(node.height || 250)/2)+"px",
-										pointerEvents:this.props.canvasMode.allowInputToHtmlNodes ? "auto" : "none" 
+										opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
 									}} 
 									data-x={node.x} 
 									data-y={node.y} 
 									ref={this.htmlElement} 
-									className="canvas__html-shape">{this.props.renderHtmlNode && this.props.renderHtmlNode(node)}</div>;
+									className="canvas__html-shape">
+										<div className="canvas__html-shape-bar">{node.name}</div>
+										<div className="canvas__html-shape-body">
+										{this.props.renderHtmlNode && this.props.renderHtmlNode(node, this.props.flowrunnerConnector)}</div>
+										</div>;
 							}
 							return null;
 						})

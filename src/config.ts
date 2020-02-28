@@ -86,6 +86,9 @@ export const taskTypeConfig: any = {
   PreviewTask: {
     shapeType: 'Html'
   },
+  DebugTask: {
+    shapeType: 'Html'
+  },
   ReduxArrayStateType: {
     ...stateTypeTask,
     presetValues: {

@@ -22,7 +22,20 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"ModelTask", fullName:"Model"});
 				
 				if (hasPreviewPlugin) {
+					/*
+						split into preview and standalone mode
+
+						- rename previewtask to htmltask
+						- standalone mode also needs expression and fetch
+						- fetch should use backend-api as proxy
+						- "trigger" cannot autostart currently?
+						- debug2 still shows wrong output when retriggering?? 
+
+					*/
 					tasks.push({className:"PreviewTask", fullName:"PreviewTask"});
+					tasks.push({className:"DebugTask", fullName:"DebugTask"});
+					tasks.push({className:"RandomTask", fullName:"RandomTask"});
+					tasks.push({className:"TimerTask", fullName:"TimerTask"});
 				}
 
 				resolve(tasks);
@@ -52,6 +65,7 @@ function start(flowFileName, taskPlugins, options) {
 		app.set('views', path.join(__dirname, '../views'));
 		app.set('view engine', 'ejs');
 		app.use(express.static(path.join(__dirname, '../lib')));
+		app.use(express.static(path.join(__dirname, '../assets')));
 		app.use(bodyParser.json());
 
 		app.get('/', (req, res) => res.render('./pages/index'));

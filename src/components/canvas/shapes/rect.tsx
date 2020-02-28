@@ -20,7 +20,7 @@ export const Rect = (props: ShapeTypeProps) => {
 	let skewX = 0;
 	let skewXOffset = 0;
 	let includeSvgIcon = false;
-	const [image] = useImage("/assets/svg/layout.svg");
+	const [image] = useImage("/svg/layout.svg");
 
 	if (settings.isSkewed) {
 		skewX = -0.5;

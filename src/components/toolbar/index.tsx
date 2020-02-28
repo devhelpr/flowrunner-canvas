@@ -22,6 +22,7 @@ import {
 
 import fetch from 'cross-fetch';
 import { EnumBooleanBody } from '@babel/types';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface ToolbarProps {
 	flow: any;
@@ -40,6 +41,7 @@ export interface ToolbarProps {
 	setShowDependencies: setShowDependenciesFunction;
 	storeRawFlow: (flow : any) => void;
 	setAllowInputToHtmlNodes: setAllowInputToHtmlNodesFunction;
+	flowrunnerConnector : IFlowrunnerConnector;
 }
 
 export interface ToolbarState {
@@ -184,6 +186,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	saveFlow = (event) => {
 		event.preventDefault();
+		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
 		fetch('/save-flow?flow=' + this.state.selectedFlow, {
 			method: "POST",
 			body: JSON.stringify(this.props.flow),
@@ -195,6 +198,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				if (res.status >= 400) {
 					throw new Error("Bad response from server");
 				}
+				
 				return res.json();
 			})
 			.then(status => {
@@ -248,6 +252,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			return res.json();
 		})
 		.then(flowPackage => {
+			this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage);
 			this.props.storeRawFlow(flowPackage);
 		})
 		.catch(err => {

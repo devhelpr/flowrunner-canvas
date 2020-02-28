@@ -11,6 +11,16 @@ import { reducers } from './redux/reducers';
 import { Canvas } from './components/canvas';
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
+import { FlowConnector } from './flow-connector';
+import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
+
+import { ExecuteNodeHtmlPlugin } from './components/html-plugins/execute-node';
+import { DebugNodeHtmlPlugin } from './components/html-plugins/debug-node';
+
+import Worker from "worker-loader!./service-worker";
+
+const worker = new Worker();
+
 
 let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	{
@@ -21,13 +31,36 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	}
 ]});
 
-const renderHtmlNode = (node: any) => {
-	return <iframe width={node.width || 250}
-		height={node.height || 250}
-	src={node.url}></iframe>;
+const flowrunnerConnector = new FlowConnector();
+flowrunnerConnector.registerWorker(worker);
+
+
+const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) => {
+	if (node.htmlPlugin == "iframe") {
+		return <iframe width={node.width || 250}
+			height={node.height || 250}
+		src={node.url}></iframe>;
+	} else
+	if (node.htmlPlugin == "executeNode") {
+		return <ExecuteNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+		></ExecuteNodeHtmlPlugin>;
+	}else
+	if (node.htmlPlugin == "debugNode") {
+		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+		></DebugNodeHtmlPlugin>;
+	}
+
+	return <div style={{
+			width:node.width || 250,
+			height:node.height || 250,
+			backgroundColor: "white"
+		}}></div>;
 }
 
 const flowEventRunner = getFlowEventRunner();
+
 startFlow(flowPackage, reducers).then((services : any) => {
 
 	fetch('/get-flow')
@@ -42,8 +75,10 @@ startFlow(flowPackage, reducers).then((services : any) => {
 			(ReactDOM as any).createRoot(
 				document.getElementById('flowstudio-root')
 			).render(<Provider store={services.getStore()}>
-					<Toolbar></Toolbar>
-					<Canvas renderHtmlNode={renderHtmlNode}></Canvas>
+					<Toolbar flowrunnerConnector={flowrunnerConnector}></Toolbar>
+					<Canvas renderHtmlNode={renderHtmlNode}
+						flowrunnerConnector={flowrunnerConnector}
+					></Canvas>
 					<FooterToolbar></FooterToolbar>
 				</Provider>
 			);		
