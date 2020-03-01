@@ -98,3 +98,12 @@ canvas,.konvajs-content,
 	height: 100%;
 	width: 100%;
 }
+
+.html-plugin-node > div {
+	height: 100%;
+}
+
+.html-plugin-node .konvajs-content {
+	margin-bottom: 0;
+	background: #ffffff;
+}

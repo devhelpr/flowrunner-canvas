@@ -23,8 +23,11 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/flowrunner": "0.7.9",
+    "@devhelpr/flowrunner": "0.8.0",
+    "@devhelpr/flowrunner-expression": "^0.0.5",
     "@devhelpr/flowrunner-redux": "0.5.8",
+    "@material-ui/core": "^4.9.5",
+    "@material-ui/icons": "^4.9.1",
     "@reactivex/rxjs": "^6.5.4",
     "@types/react": "16.9.22",
     "@types/react-dom": "^16.9.5",

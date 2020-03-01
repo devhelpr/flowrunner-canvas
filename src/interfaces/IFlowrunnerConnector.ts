@@ -4,4 +4,5 @@ export interface IFlowrunnerConnector {
 	updateFlowNode : () => void;
 	pushFlowToFlowrunner : (flow : any) => void;
 	executeFlowNode : (nodeName : string, payload: any) => void;
+	modifyFlowNode : (nodeName : string, propertyName: string, value : any, executeNode: string) => void;
 }

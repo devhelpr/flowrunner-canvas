@@ -86,8 +86,22 @@ export const taskTypeConfig: any = {
   PreviewTask: {
     shapeType: 'Html'
   },
+  OutputValueTask : {
+    shapeType: 'Rect',
+    presetValues: {
+      propertyName: "outputValue",
+      startValue: 0,
+      maxValue: 100,
+      increment: 1
+    }
+  },
+  SliderTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'sliderNode'
+  },
   DebugTask: {
-    shapeType: 'Html'
+    shapeType: 'Html',
+    htmlPlugin: "debugNode"
   },
   ReduxArrayStateType: {
     ...stateTypeTask,

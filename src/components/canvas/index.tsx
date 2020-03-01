@@ -9,6 +9,7 @@ import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
 import { taskTypeConfig } from '../../config';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { ShapeSettings } from '../../helpers/shape-settings';
 
 import fetch from 'cross-fetch';
 
@@ -748,8 +749,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							return null;
 						})}
 						{this.props.flow.map((node, index) => {
-							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-							
+							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
+
 							const Shape = Shapes[shapeType];
 							if (node.shapeType !== "Line" && Shape) {
 								let isConnectedToSelectedNode = this.props.selectedNode && nodesConnectedToSelectedNode[node.name] === true;
@@ -791,10 +792,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					
 					{this.props.flow.map((node, index) => {
 							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-							
+							const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 							const Shape = Shapes[shapeType];
-// pointerEvents:this.props.canvasMode.allowInputToHtmlNodes ? "auto" : "none"
 							if (shapeType === "Html" && Shape) {
+								
+								node.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
+								
 								return <div key={"html" + index}
 								style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
 										(this.stageY + node.y * this.stageScale) + "px) " +

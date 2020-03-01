@@ -34,8 +34,11 @@ function start(flowFileName, taskPlugins, options) {
 					*/
 					tasks.push({className:"PreviewTask", fullName:"PreviewTask"});
 					tasks.push({className:"DebugTask", fullName:"DebugTask"});
+					tasks.push({className:"SliderTask", fullName:"SliderTask"});
 					tasks.push({className:"RandomTask", fullName:"RandomTask"});
 					tasks.push({className:"TimerTask", fullName:"TimerTask"});
+					tasks.push({className:"ExpressionTask", fullName:"ExpressionTask"});
+					tasks.push({className:"OutputValueTask", fullName:"OutputValueTask"});
 				}
 
 				resolve(tasks);

@@ -16,6 +16,7 @@ import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 
 import { ExecuteNodeHtmlPlugin } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPlugin } from './components/html-plugins/debug-node';
+import { SliderNodeHtmlPlugin } from './components/html-plugins/slider-node';
 
 import Worker from "worker-loader!./service-worker";
 
@@ -45,7 +46,12 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) =>
 		return <ExecuteNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 		></ExecuteNodeHtmlPlugin>;
-	}else
+	} else
+	if (node.htmlPlugin == "sliderNode") {
+		return <SliderNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+		></SliderNodeHtmlPlugin>;
+	} else
 	if (node.htmlPlugin == "debugNode") {
 		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}

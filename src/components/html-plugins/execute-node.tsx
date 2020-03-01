@@ -11,21 +11,17 @@ export class ExecuteNodeHtmlPlugin extends React.Component<ExecuteNodeHtmlPlugin
 	click = (event) => {
 		event.preventDefault();
 		if (this.props.node) {
-			// TODO : refactor to this.props.node.name... when flow is running in worker
 			this.props.flowrunnerConnector.executeFlowNode(this.props.node.name, {});
 		}
 		return false;
 	}
-/*
-width:this.props.node.width || 250,
-			height:this.props.node.height || 250,
-			*/
+	
 	render() {
 		return <div className="html-plugin-node" style={{
 			
 			backgroundColor: "white"
 		}}>
-			<a href="#" onClick={this.click}>Click to Execute</a>
+			<a href="#" className="btn btn-primary" onClick={this.click}>Click to Execute</a>
 		</div>;
 	}
 }
