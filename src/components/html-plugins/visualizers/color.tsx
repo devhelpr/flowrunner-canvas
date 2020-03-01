@@ -25,7 +25,8 @@ export class Color extends React.Component<ColorProps, ColorState> {
 		}
 		//console.log("color", background);
 		return <div className="h-100 w-100" style={{
-			background : background
+			backgroundColor : background,
+			transition: "background-color ease-in-out .1s"
 		}}></div>;
 	}
 }
