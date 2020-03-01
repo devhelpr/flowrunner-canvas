@@ -86,6 +86,14 @@ export const taskTypeConfig: any = {
   PreviewTask: {
     shapeType: 'Html'
   },
+  ConditionalTriggerTask: {
+    shapeType: 'Diamond',
+    presetValues: {
+      propertyName: "outputValue",
+      minValue: -1,
+      maxValue: -1
+    }
+  },
   OutputValueTask : {
     shapeType: 'Rect',
     presetValues: {

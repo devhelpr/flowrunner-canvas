@@ -39,6 +39,7 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"TimerTask", fullName:"TimerTask"});
 					tasks.push({className:"ExpressionTask", fullName:"ExpressionTask"});
 					tasks.push({className:"OutputValueTask", fullName:"OutputValueTask"});
+					tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask"});
 				}
 
 				resolve(tasks);

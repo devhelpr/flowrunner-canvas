@@ -6,6 +6,31 @@ import { ExpressionTask } from '@devhelpr/flowrunner-expression';
 let flow : FlowEventRunner;
 let observables = {};
 
+export class ConditionalTriggerTask extends FlowTask {
+	public execute(node: any, services: any) {
+		console.log("ConditionalTriggerTask", node);
+		try {
+			if (node.propertyName) {
+				if (node.minValue && node.maxValue) {		
+					let value = node.payload[node.propertyName];
+					console.log("ConditionalTriggerTask v", value, node.minValue, node.maxValue);
+					if (!isNaN(value)) {
+						if (value >= node.minValue && value < node.maxValue) {
+							return Object.assign({}, node.payload);
+						}
+					}
+				}
+			}			
+		} catch (err) {
+			console.log("ConditionalTriggerTask error" , err);
+		}
+		return false;
+	}
+	
+	public getName() {
+		return 'ConditionalTriggerTask';
+	}
+}
 export class PreviewTask extends FlowTask {
 	public execute(node: any, services: any) {
 		console.log("previewtask", node);		
@@ -74,7 +99,8 @@ export class SliderTask extends FlowTask {
 
 export class DebugTask extends ObservableTask {
 	public execute(node: any, services: any) {
-		return super.execute({...node, sendNodeName: true} , services);
+		super.execute({...node, sendNodeName: true} , services);
+		return node.payload;
 	}
 	public getName() {
 		return 'DebugTask';
@@ -218,6 +244,7 @@ const startFlow = (flowPackage? : any) => {
 	flow.registerTask("RandomTask", RandomTask);
 	flow.registerTask("ExpressionTask", ExpressionTask);
 	flow.registerTask("OutputValueTask", OutputValueTask);
+	flow.registerTask("ConditionalTriggerTask", ConditionalTriggerTask);
 
 	let value : boolean = false;
 	flow.start(flowPackage).then((services: any) => {

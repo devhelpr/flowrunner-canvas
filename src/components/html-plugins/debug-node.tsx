@@ -2,6 +2,7 @@ import * as React from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { XYCanvas } from './visualizers/xy-canvas';
 import { Number } from './visualizers/number';
+import { Color } from './visualizers/color';
 
 export interface DebugNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -34,12 +35,20 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 	}
 
 	render() {
-		if (this.state.receivedPayload.length == 0) {
-			return <></>;
-		}
+
 		let visualizer = <></>;
+
+		if (this.state.receivedPayload.length == 0) {
+			visualizer = <div style={{		
+				backgroundColor: "#f2f2f2"
+			}}></div>;
+		}
+		
 		if (this.props.node.visualizer == "number") {
 			visualizer = <Number node={this.props.node} payloads={this.state.receivedPayload}></Number>
+		} else
+		if (this.props.node.visualizer == "color") {
+			visualizer = <Color node={this.props.node} payloads={this.state.receivedPayload}></Color>
 		} else 
 		if (this.props.node.visualizer == "xycanvas") {
 			visualizer = <XYCanvas node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
