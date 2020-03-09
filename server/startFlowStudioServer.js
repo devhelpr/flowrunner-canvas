@@ -1,21 +1,43 @@
 const fs = require('fs');
 const path = require('path');
+const fetch = require('cross-fetch');
+
 function start(flowFileName, taskPlugins, options) {
+
+	let flowsFileName = "";
 
 	let flowFiles = [];
 	if (typeof flowFileName == "string") {
-		flowFiles.push(flowFileName);
+		let flows = JSON.parse(fs.readFileSync(flowFileName));
+		flowsFileName = flowFileName;
+		//flowFiles.push({name:flowFileName,id:0});
+		flowFiles = flows;
 	} else {
-		flowFiles = flowFileName;
+		flowFiles = flowFileName.map((flow, index) => {
+			return {
+				name: flow,
+				id: index
+			}
+		});
 	}
 
-	let hasPreviewPlugin = true;
-	if (!!options && !!!options.hasPreviewPlugin) {
-		hasPreviewPlugin = false;
+	let hasPreviewPlugin = false;
+	if (!!options && !!options.hasPreviewPlugin) {
+		hasPreviewPlugin = true;
 	}
-	
+
+	let isStandalone = false;
+	if (!!options && !!options.isStandalone) {
+		isStandalone = true;
+	}
+
+	let defaultPlugins = false;
+	if (!!options && !!options.defaultPlugins) {
+		defaultPlugins = true;
+	}
+
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
-		if (!taskPlugins) {
+		if (defaultPlugins) {
 			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
 			flowRunner.start({ flow: [] }).then(function (services) {
 				let tasks = flowRunner.getTaskMetaData();
@@ -23,16 +45,20 @@ function start(flowFileName, taskPlugins, options) {
 				
 				if (hasPreviewPlugin) {
 					/*
-						split into preview and standalone mode
+
+						TODO:
+
+						- implement "add-flow"
+
+						- why are there 2 parallel tasks? bug in flowrunner-redux??
 
 						- rename previewtask to htmltask
-						- standalone mode also needs expression and fetch
-						- fetch should use backend-api as proxy
-						- "trigger" cannot autostart currently?
-						- debug2 still shows wrong output when retriggering?? 
 
 					*/
 					tasks.push({className:"PreviewTask", fullName:"PreviewTask"});
+				}
+
+				if (isStandalone) {
 					tasks.push({className:"DebugTask", fullName:"DebugTask"});
 					tasks.push({className:"SliderTask", fullName:"SliderTask"});
 					tasks.push({className:"RandomTask", fullName:"RandomTask"});
@@ -40,6 +66,9 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"ExpressionTask", fullName:"ExpressionTask"});
 					tasks.push({className:"OutputValueTask", fullName:"OutputValueTask"});
 					tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask"});
+					tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask"});
+					tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask"});
+					tasks.push({className:"InputTask", fullName: "InputTask"});
 				}
 
 				resolve(tasks);
@@ -72,12 +101,28 @@ function start(flowFileName, taskPlugins, options) {
 		app.use(express.static(path.join(__dirname, '../assets')));
 		app.use(bodyParser.json());
 
+		let hasLogin = false;
+		if (!!options && !!!options.hasLogin) {
+			hasLogin = true;
+		}
+		app.locals.hasLogin = hasLogin;
+
 		app.get('/', (req, res) => res.render('./pages/index'));
 		app.post('/save-flow', (req, res) => {
-			const bodyAsJsonString = JSON.stringify(req.body);
+			const bodyAsJsonString = JSON.stringify(req.body.flow);
 
-			const flowFileName = req.query.flow || flowFiles[0];
-			console.log(req.query.flow);
+			//const flowFileName = flowFiles[req.query.id].name || flowFiles[0].name;
+			console.log(req.query.id);
+			const flowFilesFound = flowFiles.filter((flowFile) => {
+				return flowFile.id == req.query.id;
+			});
+
+			if (flowFilesFound.length == 0) {
+				throw new Error("flow not found");
+			}
+
+			//const flowFileName = flowFiles[req.query.flow].name || flowFiles[0].name;
+			const flowFileName = flowFilesFound[0].fileName;
 
 			fs.writeFileSync(flowFileName, bodyAsJsonString);
 			console.log("Flow file written to:", flowFileName);
@@ -97,8 +142,15 @@ function start(flowFileName, taskPlugins, options) {
 		});
 
 		app.get('/get-flow', (req, res) => {
-			const flowFileName = req.query.flow || flowFiles[0];
-			console.log(req.query.flow);
+			const flowFilesFound = flowFiles.filter((flowFile) => {
+				return flowFile.id == req.query.flow;
+			});
+
+			if (flowFilesFound.length == 0) {
+				throw new Error("flow not found");
+			}
+
+			const flowFileName = flowFilesFound[0].fileName;
 			var flowPackage = JSON.stringify({
 				flow: []
 			});
@@ -116,10 +168,16 @@ function start(flowFileName, taskPlugins, options) {
 		});
 
 		app.post('/save-editor-state', (req, res) => {
-			const bodyAsJsonString = JSON.stringify(req.body);
+			const bodyAsJsonString = JSON.stringify(req.body.state);
 
 			fs.writeFileSync("./canvas-state.json", bodyAsJsonString);
 			res.send(JSON.stringify({ status: true }));
+		});
+
+		app.post('/api/login', (req, res) => {
+			//const bodyAsJsonString = JSON.stringify(req.body);
+
+			res.send(JSON.stringify({ hasAuthenticated: true, hasAuthorized: true, jwt: "dummy" }));
 		});
 
 		app.get('/get-editor-state', (req, res) => {
@@ -130,6 +188,46 @@ function start(flowFileName, taskPlugins, options) {
 				console.log("error in get-editor-state api: ", err);
 			}
 			res.send(editorState);
+		});
+
+		app.post('/add-flow', (req, res) => {
+			if (flowsFileName == "") {
+				throw new Error("no flows-file specified");
+			}
+			let newId = -1;			
+			flowFiles.map((flowFile) => {
+				if (flowFile.id > newId) {
+					newId = flowFile.id;
+				}
+			});
+			
+			newId++;
+			const fileName = "./data/" + req.query.flow + ".json";
+			flowFiles.push({
+				id: newId,
+				name: req.query.flow,
+				fileName:fileName
+			});
+
+			fs.writeFileSync(fileName, "[]");
+			fs.writeFileSync(flowsFileName, JSON.stringify(flowFiles));
+
+			res.send(JSON.stringify({ status: true, id: newId }));
+		});
+
+		app.all('/api/proxy', (req, res) => {
+			fetch(req.body.url, {
+				method: req.body.httpMethod	|| "get"
+			}).then((response) => {
+			
+				// TODO make this configurable and also check non-happy path
+				return response.json();
+				
+			}).then(json => {
+				console.log("api proxy", json);
+				res.send(json);
+			})
+			
 		});
 
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));

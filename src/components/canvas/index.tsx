@@ -10,6 +10,7 @@ import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, se
 import { taskTypeConfig } from '../../config';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
+import { Observable, Subject } from '@reactivex/rxjs';
 
 import fetch from 'cross-fetch';
 
@@ -28,6 +29,7 @@ export interface CanvasProps {
 	canvasMode: ICanvasMode;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
+	canvasToolbarsubject : Subject<string>;
 
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -108,6 +110,15 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			this.loadEditorState();
 		}, 100);
 		
+		if (this.props.canvasToolbarsubject) {
+			this.props.canvasToolbarsubject.subscribe({
+				next: (message: string) => {
+					if (message == "fitStage") {
+						this.fitStage();
+					}
+				}
+			});
+		}
 	}
 
 	componentDidUpdate(prevProps : CanvasProps) {
@@ -291,10 +302,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	saveEditorState = (scale, x ,y) => {
 		fetch('/save-editor-state', {
 			method: "POST",
-			body: JSON.stringify({
-				scale: scale,
-				x: x,
-				y: y
+			body: JSON.stringify({state:{
+					scale: scale,
+					x: x,
+					y: y
+				}
 			}),
 			headers: {
 			  "Content-Type": "application/json"
@@ -458,7 +470,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						
 						newPos.x = (-xMin*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
 						newPos.y = (-yMin*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
-
+console.log(newPos, scale);
 						stage.position(newPos);
 						stage.batchDraw();
 
@@ -467,6 +479,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						this.stageScale = scale;
 						
 						this.setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
+						this.setState({canvasOpacity : 1});	
 					}
 				}
 			}

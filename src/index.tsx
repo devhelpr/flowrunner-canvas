@@ -1,7 +1,9 @@
 import { startFlow, getFlowEventRunner } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
+import { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { Observable, Subject } from '@reactivex/rxjs';
 
 import fetch from 'cross-fetch';
 
@@ -11,12 +13,15 @@ import { reducers } from './redux/reducers';
 import { Canvas } from './components/canvas';
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
+import { Login } from './components/login';
+
 import { FlowConnector } from './flow-connector';
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 
 import { ExecuteNodeHtmlPlugin } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPlugin } from './components/html-plugins/debug-node';
 import { SliderNodeHtmlPlugin } from './components/html-plugins/slider-node';
+import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
 
 import Worker from "worker-loader!./service-worker";
 
@@ -52,6 +57,11 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) =>
 			node={node}
 		></SliderNodeHtmlPlugin>;
 	} else
+	if (node.htmlPlugin == "inputNode") {
+		return <InputNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+		></InputNodeHtmlPlugin>;
+	} else	
 	if (node.htmlPlugin == "debugNode") {
 		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
@@ -66,32 +76,69 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) =>
 }
 
 const flowEventRunner = getFlowEventRunner();
+const root = document.getElementById('flowstudio-root');
+const hasLogin = root && root.getAttribute("data-has-login") === "true";
+
+
+let canvasToolbarsubject = new Subject<string>();
+
+interface IAppProps {
+	isLoggedIn : boolean;
+}
+const App = (props : IAppProps) => {
+	const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
+	
+	const onClose = () => {
+		setLoggedIn(true);
+		return true;
+	}
+
+	return <>
+		{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
+			<>
+				<Toolbar canvasToolbarsubject={canvasToolbarsubject} flowrunnerConnector={flowrunnerConnector}></Toolbar>
+				<Canvas canvasToolbarsubject={canvasToolbarsubject} renderHtmlNode={renderHtmlNode}
+					flowrunnerConnector={flowrunnerConnector}
+				></Canvas>
+				<FooterToolbar></FooterToolbar>
+			</>
+		}
+	</>;
+}
+
 
 startFlow(flowPackage, reducers).then((services : any) => {
 
-	fetch('/get-flow')
+	fetch('/api/verify-token', {
+		method: "GET",			
+		headers: {
+		  "Content-Type": "application/json"
+		}
+	  })
 	.then(res => {
 		if (res.status >= 400) {
-			throw new Error("Bad response from server");
+			return {
+				isLoggedIn : false
+			}
 		}
-		return res.json();
+		return {
+			isLoggedIn : true
+		}
 	})
-	.then(flowPackage => {
-		// nodes={flowPackage}
-			(ReactDOM as any).createRoot(
-				document.getElementById('flowstudio-root')
-			).render(<Provider store={services.getStore()}>
-					<Toolbar flowrunnerConnector={flowrunnerConnector}></Toolbar>
-					<Canvas renderHtmlNode={renderHtmlNode}
-						flowrunnerConnector={flowrunnerConnector}
-					></Canvas>
-					<FooterToolbar></FooterToolbar>
-				</Provider>
-			);		
-		})
+	.then(response => {
+		(ReactDOM as any).createRoot(
+			root
+		).render(<Provider store={services.getStore()}>
+				<App isLoggedIn={(response as any).isLoggedIn}></App>
+			</Provider>
+		);	
+	})
 	.catch(err => {
 		console.error(err);
 	});
+
+				
+		
 }).catch((err) => {
 	console.log("error during start flowunner (check internal startFlow error)", err);
 })

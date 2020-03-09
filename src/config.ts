@@ -57,6 +57,14 @@ export const taskTypeConfig: any = {
       method: 'get',
     },
   },
+  ApiProxyTask : {
+    shapeType: 'Rect',
+    isSkewed: true,
+    presetValues: {
+      url: '',
+      method: 'get',
+    },
+  },
   ExpressionTask: {
     shapeType: 'Rect',
     presetValues: {
@@ -106,6 +114,10 @@ export const taskTypeConfig: any = {
   SliderTask: {
     shapeType: 'Html',
     htmlPlugin: 'sliderNode'
+  },
+  InputTask : {
+    shapeType: 'Html',
+    htmlPlugin: 'inputNode'
   },
   DebugTask: {
     shapeType: 'Html',

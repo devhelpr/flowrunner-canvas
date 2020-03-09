@@ -47,7 +47,7 @@ function buildTypescript() {
           
         },
         plugins:[
-          
+          new cleanPlugin(),
           new webpackIgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/
@@ -57,11 +57,17 @@ function buildTypescript() {
   
   return task.pipe(gulp.dest('./lib'));
 };
-// new cleanPlugin(), // this removes also all assets....
-// TODO : place them in a separate assets file also static...
 
 gulp.task('startFlowServer', function(cb) {
-  startFlowStudioServer.start(['./data/stored-flow.json','./data/test-flow.json','./data/flow.json']);
+  // ['./data/stored-flow.json','./data/test-flow.json','./data/flow.json']
+  startFlowStudioServer.start('./data/flows.json', 
+  [], 
+  {
+    hasPreviewPlugin: true,
+    isStandalone: true,
+    defaultPlugins: true,
+
+  });
   cb();
 });
 

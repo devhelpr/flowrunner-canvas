@@ -2,6 +2,8 @@ const ctx: Worker = self as any;
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { ExpressionTask } from '@devhelpr/flowrunner-expression';
+import fetch from 'cross-fetch';
+import { replaceValues } from './helpers/replace-values';
 
 let flow : FlowEventRunner;
 let observables = {};
@@ -96,6 +98,35 @@ export class SliderTask extends FlowTask {
 	
 }
 
+export class InputTask extends FlowTask {
+	public execute(node: any, services: any) {
+		
+		if (node.propertyName) {	
+			node.payload = Object.assign({}, node.payload);
+			let value = node.defaultValue || "";
+			try {
+				value = services.flowEventRunner.getPropertyFromNode(node.name, 
+					node.propertyName);
+				if (value === undefined) {
+					value = node.defaultValue || "";
+				}
+				console.log("InputTask" , value, node);
+			} catch (err) {
+				console.log("InputTask" , err, node);
+				value = node.defaultValue || "";
+			}
+			node.payload[node.propertyName] = value;
+			return node.payload;
+		}
+		
+		return node.payload;
+	  }
+	
+	  public getName() {
+		return 'InputTask';
+	  }
+}
+
 
 export class DebugTask extends ObservableTask {
 	public execute(node: any, services: any) {
@@ -153,12 +184,69 @@ export class RandomTask extends ObservableTask {
 	}
 }
 
-/*
+export class ApiProxyTask extends FlowTask {
+	public execute(node: any, services: any) {
+		const promise = new Promise((resolve , reject) => {
+			node.payload = Object.assign({}, node.payload);
+			try {
+				fetch("/api/proxy", {
+					method: "post",	
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						url: replaceValues(node.url, node.payload),
+						body: node.payload,
+						httpMethod: node.httpMethod || "get"
+					})
+				})
+				.then(res => {
+					if (res.status >= 400) {
+						throw new Error("Api-proxy : Bad response from server (" + node.name + ")" );
+					}
+					return res.json();
+				})
+				.then(response => {
+					resolve(response);
+				})
+				.catch(err => {
+					console.error(err);
+					reject("Api-proxy : Bad response from server (" + node.name + ") : " + err);
+				});
+			} catch (err) {
+				reject("Api-proxy : Bad response from server (" + node.name + ") : " + err);
+			} 
+		})
+		
+		return promise;
+	}
 
-ervices.flowEventRunner.setPropertyOnNode(node.nodeName, 
-			node.modifyProperty,
-			node.value);
-*/
+	public getName() {
+		return 'ApiProxyTask';
+	}
+}
+
+export class MapPayloadTask extends FlowTask {
+
+	public execute(node: any, services: any) {
+		/*
+			TODO :
+				- loop through all properties of "node.map"-property
+				- each value can contain mustache's {} .. 
+					.. if value is a string: the contents should be mapped on the payload and contain nested properties
+					.. value can also be an object.. treat that as a map
+						.. and so on
+				 - return the new result as a new payload
+
+				 - how to treat arrays?
+				 
+		*/
+		return true;
+	}
+	public getName() {
+		return 'MapPayloadTask';
+	}
+}
 
 const onWorkerMessage = (event) => {
 
@@ -192,7 +280,7 @@ const onWorkerMessage = (event) => {
 		} else
 		if (event.data.command == "pushFlowToFlowrunner") {
 			(flow as any) = undefined;
-			//console.log("pushFlowToFlowrunner", event.data);
+
 			startFlow(
 				{flow: event.data.flow}
 			)
@@ -206,7 +294,6 @@ const onWorkerMessage = (event) => {
 				
 				let subscribtion = observable.subscribe({
 					next: (payload: any) => {
-						//console.log("SendObservableNodePayload in registerFlowNodeObserver", payload);
 						ctx.postMessage({
 							"command" : "SendObservableNodePayload",
 							"payload" : payload.payload,
@@ -240,12 +327,15 @@ const startFlow = (flowPackage? : any) => {
 	flow.registerTask("PreviewTask", PreviewTask);
 	flow.registerTask("DebugTask", DebugTask);
 	flow.registerTask("SliderTask", SliderTask);
+	flow.registerTask("InputTask", InputTask);
 	flow.registerTask("TimerTask", TimerTask);
 	flow.registerTask("RandomTask", RandomTask);
 	flow.registerTask("ExpressionTask", ExpressionTask);
 	flow.registerTask("OutputValueTask", OutputValueTask);
 	flow.registerTask("ConditionalTriggerTask", ConditionalTriggerTask);
-
+	flow.registerTask("ApiProxyTask", ApiProxyTask);
+	flow.registerTask("MapPayloadTask", MapPayloadTask);
+	
 	let value : boolean = false;
 	flow.start(flowPackage).then((services: any) => {
 		//services.logMessage = (arg1, arg2) => { console.log(arg1,arg2 )};
@@ -256,7 +346,6 @@ const startFlow = (flowPackage? : any) => {
 				
 				let subscribtion = observable.subscribe({
 					next: (payload: any) => {
-						//console.log("SendObservableNodePayload after start", key, payload);
 						ctx.postMessage({
 							"command" : "SendObservableNodePayload",
 							"payload" : payload,
@@ -277,5 +366,4 @@ const startFlow = (flowPackage? : any) => {
 
 ctx.addEventListener("message", onWorkerMessage);
 
-//ctx.postMessage({ foo: "foo" });
-console.log("service-worker started");
+console.log("flow service-worker started");

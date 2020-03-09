@@ -16,18 +16,24 @@ import {
 	setSelectedTaskFunction,
 	setShowDependencies,
 	setShowDependenciesFunction,
-	setAllowInputToHtmlNodes,
-	setAllowInputToHtmlNodesFunction
 } from '../../redux/actions/canvas-mode-actions';
 
 import fetch from 'cross-fetch';
 import { EnumBooleanBody } from '@babel/types';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { Observable, Subject } from '@reactivex/rxjs';
+import { NewFlow } from '../new-flow';
+
+export interface IFlowFile {
+	name: string;
+	id : number;
+}
 
 export interface ToolbarProps {
 	flow: any;
 	canvasMode: ICanvasMode;
 	selectedNode: any;
+	canvasToolbarsubject : Subject<string>;
 
 	storeFlow: any;
 	storeFlowNode: any;
@@ -40,7 +46,6 @@ export interface ToolbarProps {
 	setSelectedTask: setSelectedTaskFunction;
 	setShowDependencies: setShowDependenciesFunction;
 	storeRawFlow: (flow : any) => void;
-	setAllowInputToHtmlNodes: setAllowInputToHtmlNodesFunction;
 	flowrunnerConnector : IFlowrunnerConnector;
 }
 
@@ -49,9 +54,9 @@ export interface ToolbarState {
 	showSchemaPopup: boolean;
 	selectedTask: string;
 	showDependencies: boolean;
+	showNewFlow: boolean;
 	flowFiles : string[];
 	selectedFlow : string;
-	allowInputToHtmlNodes: boolean;
 }
 
 const mapStateToProps = (state: any) => {
@@ -74,8 +79,7 @@ const mapDispatchToProps = (dispatch: any) => {
 		deleteNode: (node) => dispatch(deleteNode(node)),
 		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
-		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
-		setAllowInputToHtmlNodes: (allowInputToHtmlNodes) => dispatch(setAllowInputToHtmlNodes(allowInputToHtmlNodes))
+		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
 	}
 }
 
@@ -84,11 +88,11 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	state = {
 		showEditPopup: false,
 		showSchemaPopup: false,
+		showNewFlow: false,
 		selectedTask: "",
 		showDependencies: false,
 		flowFiles: [],
-		selectedFlow: "",
-		allowInputToHtmlNodes: false
+		selectedFlow: ""
 	}
 
 	componentDidMount() {
@@ -96,7 +100,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		this.getFlows();
 	}
 
-	getFlows = () => {
+	getFlows = (id? : number) => {
 		fetch('/get-flows')
 		.then(res => {
 			if (res.status >= 400) {
@@ -106,13 +110,20 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		})
 		.then(flows => {
 			if (flows.length > 0) {
-				this.setState({flowFiles : flows, selectedFlow : flows[0]});
-				this.loadFlow(flows[0]);
+				const flowId = isNaN(id as number) ? flows[0].id : id;
+				this.setState({flowFiles : flows, selectedFlow : flowId});
+				this.loadFlow(flowId);
 			}
 		})
 		.catch(err => {
 			console.error(err);
 		});
+	}
+
+	addNewFlow = (event) => {
+		event.preventDefault();
+		this.setState({showNewFlow : true});
+		return false;
 	}
 
 	addNode = (event) => {
@@ -187,9 +198,9 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	saveFlow = (event) => {
 		event.preventDefault();
 		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
-		fetch('/save-flow?flow=' + this.state.selectedFlow, {
+		fetch('/save-flow?id=' + this.state.selectedFlow, {
 			method: "POST",
-			body: JSON.stringify(this.props.flow),
+			body: JSON.stringify({flow:this.props.flow}),
 			headers: {
 				"Content-Type": "application/json"
 			}
@@ -211,7 +222,21 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	}
 
 	onClose = () => {
-		this.setState({ showEditPopup: false, showSchemaPopup: false });
+		this.setState({
+			showEditPopup: false,
+			showSchemaPopup: false,
+			showNewFlow: false 
+		});
+	}
+
+	onCloseNewFlowPopup = (id : number) => {
+		this.setState({
+			showEditPopup: false,
+			showSchemaPopup: false,
+			showNewFlow: false 
+		}, () => {
+			this.getFlows(id);
+		});
 	}
 
 	onSelectTask = (taskClassName) => {
@@ -235,16 +260,8 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		});
 	}
 
-	onAllowInputToHtmlNodesChange = (event) => {
-		this.setState({
-			allowInputToHtmlNodes: !this.state.allowInputToHtmlNodes
-		}, () => {
-			this.props.setAllowInputToHtmlNodes(this.state.allowInputToHtmlNodes);
-		});
-	}
-
-	loadFlow = (flowName) => {
-		fetch('/get-flow?flow=' + flowName)
+	loadFlow = (flowId) => {
+		fetch('/get-flow?flow=' + flowId)
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -265,6 +282,14 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		this.loadFlow(event.target.value);		
 	}
 
+	fitStage = (event) => {
+		event.preventDefault();
+		if (this.props.canvasToolbarsubject) {
+			this.props.canvasToolbarsubject.next("fitStage");
+		}
+		return false;
+	}
+
 	render() {
 		const selectedNode = this.props.selectedNode;
 		let shapeType = "";
@@ -276,14 +301,17 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				<div className="container toolbar__container">
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
 						<form className="form-inline w-100">
-							{!!!selectedNode.name && <select className="form-control mr-2" 
-								value={this.state.selectedFlow}
-								onChange={this.setSelectedFlow}>
-								<option value="" disabled>Choose flow</option>
-								{this.state.flowFiles.map((flow, index) => {
-									return <option key={index} value={flow}>{flow}</option>;
-								})}								
-							</select>}
+							{!!!selectedNode.name && <>
+								<select className="form-control mr-2" 
+									value={this.state.selectedFlow}
+									onChange={this.setSelectedFlow}>
+									<option value="" disabled>Choose flow</option>
+									{this.state.flowFiles.map((flow : IFlowFile, index) => {
+										return <option key={index} value={flow.id}>{flow.name}</option>;
+									})}								
+								</select>
+								<a href="#" onClick={this.addNewFlow} className="mr-4 text-light text-decoration-none" title="Add new flow"><span>New</span></a>
+							</>}
 							{!!!selectedNode.name && <TaskSelector selectTask={this.onSelectTask}></TaskSelector>}
 							{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
@@ -298,17 +326,17 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>}
 							{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name} &nbsp;</span>}
 							{!!!selectedNode.name && <><input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
-								<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>							
-								<input className={"ml-2"} id="allowInputToHtmlNodes" type="checkbox" checked={this.state.allowInputToHtmlNodes} onChange={this.onAllowInputToHtmlNodesChange} />
-								<label className="text-white" htmlFor="allowInputToHtmlNodes">&nbsp;Allow input to html nodes</label>
+								<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 							</>}							
-							<a href="#" onClick={this.saveFlow} className="ml-auto btn btn-primary">Save</a>
+							<a href="#" onClick={this.fitStage} className="ml-auto btn btn-outline-light">Fit stage</a>
+							<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
 						</form>
 					</div>
 					</div>
 				</div>
 				{this.state.showEditPopup && <EditPopup onClose={this.onClose}></EditPopup>}
 				{this.state.showSchemaPopup && <ShowSchemaPopup onClose={this.onClose}></ShowSchemaPopup>}
+				{this.state.showNewFlow && <NewFlow onClose={this.onCloseNewFlowPopup}></NewFlow>}
 		</>
 			}
 		

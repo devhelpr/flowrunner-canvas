@@ -30,8 +30,12 @@ export class Number extends React.Component<NumberProps, NumberState> {
 				}
 			}
 		}
+		let afterLabel = "";
+		if (this.props.node.afterLabel) {
+			afterLabel = this.props.node.afterLabel;
+		}
 		return <div className="h-auto">
-			<strong className="h1 font-weight-bolder">{data}</strong>
+			<strong className="h1 font-weight-bolder">{data}{afterLabel}</strong>
 		</div>;
 	}
 }

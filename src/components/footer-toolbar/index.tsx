@@ -26,7 +26,9 @@ class ContainedFooter extends React.Component<FooterProps, FooterState> {
 
 	render() {
 		if (!this.props.selectedNode || !this.props.selectedNode.name) {
-			return <></>
+			return <nav className="navbar fixed-bottom navbar-light bg-light">
+				<span>(c) Devhelpr 2020</span>
+			</nav>;
 		}
 		if (this.props.selectedNode.node.taskType == "connection") {
 			let additionalInfo = "";
