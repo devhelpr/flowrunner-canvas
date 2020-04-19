@@ -3,10 +3,13 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { XYCanvas } from './visualizers/xy-canvas';
 import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
+import { Text } from './visualizers/text';
 
 export interface DebugNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
+	nodes : any;
+	flow: any;
 }
 
 export interface DebugNodeHtmlPluginState {
@@ -18,8 +21,23 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 		receivedPayload : []
 	}
 	componentDidMount() {
-		//console.log("registerFlowNodeObserver", this.props.node.name);
+		console.log("registerFlowNodeObserver", this.props.node.name);
 		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.receivePayloadFromNode);
+	}
+
+	componentDidUpdate(prevProps : any) {
+		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
+			console.log("DebugNodeHtmlPlugin nodes diff");
+			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name);
+			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.receivePayloadFromNode);
+		}
+
+		if (!prevProps || !prevProps.node || 
+			(prevProps.node.name != this.props.node.name)) {
+			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name);
+			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.receivePayloadFromNode);
+		}
+
 	}
 
 	componentWillUnmount() {
@@ -46,6 +64,9 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 		
 		if (this.props.node.visualizer == "number") {
 			visualizer = <Number node={this.props.node} payloads={this.state.receivedPayload}></Number>
+		} else
+		if (this.props.node.visualizer == "text") {
+			visualizer = <Text node={this.props.node} payloads={this.state.receivedPayload}></Text>
 		} else
 		if (this.props.node.visualizer == "color") {
 			visualizer = <Color node={this.props.node} payloads={this.state.receivedPayload}></Color>

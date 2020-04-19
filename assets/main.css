@@ -108,3 +108,62 @@ canvas,.konvajs-content,
 	margin-bottom: 0;
 	background: #ffffff;
 }
+
+.taskbar {
+	position: fixed;
+    top: 70px;
+    width: 48px;
+    background: #f8f8f8;
+    left: 0;
+    height: calc(100vh - 125px);
+	z-index: 10000;
+	
+	display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+	align-items: center;
+	padding-top: 10px;
+
+	overflow: hidden;
+    overflow-y: scroll;
+}
+
+.taskbar__task {
+	background: transparent;	
+	cursor: pointer;
+}
+
+.taskbar__task-text {
+	fill: #000000;
+}
+
+.taskbar__task-circle {
+	fill: #ffffff;
+	stroke-width: 2;
+	stroke: #000000;
+}
+
+@media only screen and (max-width: 1023px) {
+	.toolbar__container .form-inline {
+		flex-direction: column;
+		align-items: flex-start;		
+	}
+
+	.toolbar__container .form-control:first-child {
+		margin-top: 10px;
+	}
+	
+	.toolbar__container .form-control {
+		margin-bottom: 10px;
+	}
+
+	.toolbar__container .btn {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		margin-bottom: 10px;
+	}
+
+	.toolbar__container .task-selector {
+		margin-bottom: 10px;
+	}
+}

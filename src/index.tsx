@@ -14,6 +14,7 @@ import { Canvas } from './components/canvas';
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
+import { Taskbar } from './components/Taskbar';
 
 import { FlowConnector } from './flow-connector';
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
@@ -41,7 +42,7 @@ const flowrunnerConnector = new FlowConnector();
 flowrunnerConnector.registerWorker(worker);
 
 
-const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) => {
+const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
 	if (node.htmlPlugin == "iframe") {
 		return <iframe width={node.width || 250}
 			height={node.height || 250}
@@ -55,6 +56,8 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) =>
 	if (node.htmlPlugin == "sliderNode") {
 		return <SliderNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
+			nodes={nodes}
+			flow={flow}
 		></SliderNodeHtmlPlugin>;
 	} else
 	if (node.htmlPlugin == "inputNode") {
@@ -65,6 +68,8 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector) =>
 	if (node.htmlPlugin == "debugNode") {
 		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
+			nodes={nodes}
+			flow={flow}
 		></DebugNodeHtmlPlugin>;
 	}
 
@@ -96,6 +101,7 @@ const App = (props : IAppProps) => {
 	return <>
 		{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 			<>
+				<Taskbar></Taskbar>
 				<Toolbar canvasToolbarsubject={canvasToolbarsubject} flowrunnerConnector={flowrunnerConnector}></Toolbar>
 				<Canvas canvasToolbarsubject={canvasToolbarsubject} renderHtmlNode={renderHtmlNode}
 					flowrunnerConnector={flowrunnerConnector}

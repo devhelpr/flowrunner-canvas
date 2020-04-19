@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { Slider } from '@material-ui/core';
+
 export interface SliderNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
+	nodes : any;
+	flow: any;
 }
 
 export interface SliderNodeHtmlPluginState {
@@ -25,6 +28,20 @@ export class SliderNodeHtmlPlugin extends React.Component<SliderNodeHtmlPluginPr
 				""
 			);
 			this.setState({value : this.props.node.defaultValue || 0});
+		}
+	}
+
+	componentDidUpdate(prevProps : any) {
+		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
+			if (this.props.node) {
+				this.props.flowrunnerConnector.modifyFlowNode(
+					this.props.node.name, 
+					this.props.node.propertyName, 
+					this.state.value,
+					this.props.node.onChange || ""
+				);
+	
+			}
 		}
 	}
 	

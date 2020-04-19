@@ -54,7 +54,9 @@ export class FlowConnector implements IFlowrunnerConnector {
 
 	}
 	pushFlowToFlowrunner = (flow : any) => {
-		if (this.worker) {
+		if (this.worker) {			
+			this.observables={};
+
 			this.worker.postMessage({  
 				command : "pushFlowToFlowrunner",
 				flow : flow

@@ -94,7 +94,7 @@ export const Rect = (props: ShapeTypeProps) => {
 		<Text
 			x={0}
 			y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
-			text={props.name}
+			text={props.node && props.node.label ? props.node.label : props.name}
 			align='center'
 			width={ShapeMeasures.rectWidht}
 			height={ShapeMeasures.rectHeight}

@@ -19,7 +19,7 @@ export class TaskSelector extends React.Component<TaskSelectorProps, TaskSelecto
 	}
 
 	componentDidMount() {
-		fetch('/get-tasks')
+		fetch('/tasks')
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -57,7 +57,7 @@ export class TaskSelector extends React.Component<TaskSelectorProps, TaskSelecto
 			<select className="form-control" value={this.state.selectedTaskClassName}
 				onChange={this.selectTask}
 			>
-				<option value="" disabled>Kies een taak om toe te voegen</option>
+				<option value="" disabled>Select task</option>
 				{this.state.metaDataInfo.map((taskMetaData : any, index) => {
 					return <option key={"metadata-"+index} value={taskMetaData.className}>{taskMetaData.fullName}</option>
 				})}

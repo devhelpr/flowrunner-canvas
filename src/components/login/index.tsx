@@ -140,13 +140,13 @@ class ContainedLoginPopup extends React.Component<LoginPopupProps, LoginPopupSta
 	}
 
 	render() {
-		return <Modal show={true} centered size="lg">
+		return <Modal show={true} centered size="sm">
 			<Modal.Header>
 				<Modal.Title>{this.state.isRegistratingNewUser ? "Register" : "Login"}</Modal.Title>
 			</Modal.Header>
 
 			<Modal.Body>
-				<form className="form w-50 mx-auto" onSubmit={this.onSubmit}>
+				<form className="form mx-auto" onSubmit={this.onSubmit}>
 					<div className="form-group">
 						<label htmlFor="userName">Username</label>
 						<input type="text" 

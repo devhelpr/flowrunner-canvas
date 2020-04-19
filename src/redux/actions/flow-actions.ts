@@ -17,6 +17,7 @@ export const storeFlowNode = (node: any, orgNodeName: string) =>
 export const addFlowNode = (node: any) => action(ADD_FLOW, { node: node });
 export const addNode = (node: any, flow: any[]) => {
   return (dispatch: any) => {
+    /*
     let loop = 0;
     let max: any;
     while (loop < flow.length) {
@@ -47,13 +48,17 @@ export const addNode = (node: any, flow: any[]) => {
       newNode.name = newNode.name + (max + 1);
       newNode.id = newNode.name;
     }
-    dispatch(addFlowNode(newNode));
-    dispatch(selectNode(newNode.name, newNode));
+    */
+    
+    dispatch(addFlowNode(node));
+    dispatch(selectNode(node.name, node));
+
+    //dispatch(selectNode(newNode.name, newNode));
   };
 };
 
-export const addConnection = (nodeFrom: any, nodeTo: any) =>
-  action(ADD_CONNECTION, { nodeFrom: nodeFrom, nodeTo: nodeTo });
+export const addConnection = (connection: any) =>
+  action(ADD_CONNECTION, { connection: connection });
 
 export const deleteConnection = (node: any) => action(DELETE_CONNECTION, { node: node });
 

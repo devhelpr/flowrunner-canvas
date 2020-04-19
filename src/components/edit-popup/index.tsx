@@ -4,13 +4,18 @@ import { connect } from "react-redux";
 import { Modal, Button } from 'react-bootstrap';
 import { storeFlowNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
+import { modifyRawFlow, storeRawNode } from '../../redux/actions/raw-flow-actions';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface EditPopupProps {
 	selectedNode : any;
-
-	onClose: () => void;
+	flowrunnerConnector : IFlowrunnerConnector;
+	
+	onClose: (pushFlow? : boolean) => void;
 	storeFlowNode: (node : any, orgNodeName : string) => void;
 	selectNode: (name: string, node : any) => void;
+	modifyRawFlow: (node : any, orgNodeName : string) => void;
+	storeRawNode: (node : any, orgNodeName : string) => void;
 }
 
 export interface EditPopupState {
@@ -29,9 +34,13 @@ const mapStateToProps = (state : any) => {
 const mapDispatchToProps = (dispatch : any) => {
 	return {
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		selectNode: (name, node) => dispatch(selectNode(name, node))
+		selectNode: (name, node) => dispatch(selectNode(name, node)),
+		modifyRawFlow: (node, orgNodeName) => dispatch(modifyRawFlow(node, orgNodeName)),
+		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName))
 	}
 }
+
+// 
 
 class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState> {
 	state = {
@@ -110,14 +119,22 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 			*/
 
 			const node = {...this.state.requiredNodeValues, ...changedProperties};
+			this.props.modifyRawFlow(node, this.state.orgNodeName);
 			this.props.storeFlowNode(node, this.state.orgNodeName);
+			
 			this.props.selectNode(node.name, node);
-			this.props.onClose();
+			this.props.onClose(true);
 		} catch (err) {
 			alert("The json in the 'Node JSON' field is invalid");
 		}
 
 		e.preventDefault();
+		return false;
+	}
+
+	onCloseClick = (event) => {
+		event.preventDefault();
+		this.props.onClose();
 		return false;
 	}
 
@@ -138,7 +155,7 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 		</Modal.Body>
 	  
 		<Modal.Footer>
-		  <Button variant="secondary" onClick={this.props.onClose}>Close</Button>
+		  <Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
 		  <Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
 		</Modal.Footer>
 	  </Modal>;

@@ -13,7 +13,17 @@ const actionTask = {
   textColor: '#000000',
 };
 
+const variableAttached = {
+  strokeColor: '#0080e0',
+  fillColor: '#34a5fa',
+  fillSelectedColor: '#065c9d',
+  textColor: '#ffffff',
+};
+
 export const taskTypeConfig: any = {
+  _variable: {
+    ...variableAttached
+  },
   AssignTask: {
     shapeType: 'Rect',
     presetValues: {
@@ -46,8 +56,14 @@ export const taskTypeConfig: any = {
   ClearTask: {
     shapeType: 'Rect',
   },
+  TraceConsoleTask: {
+    shapeType: 'Circle',
+  },
   FunctionCallTask: {
     cornerRadius: 10,
+  },
+  FunctionInputTask: {
+    isStartEnd : true
   },
   FetchTask: {
     shapeType: 'Rect',
@@ -91,8 +107,20 @@ export const taskTypeConfig: any = {
       observe: '[name of observable node to observe]',
     },
   },
+  RouteEndpointTask: {
+    presetValues: {
+      "url": "",
+      "isStartEnd": true
+    }
+  },
+  ValidateModelTask : {
+    shapeType: 'Diamond'
+  },
   PreviewTask: {
-    shapeType: 'Html'
+    shapeType: 'Html',
+    presetValues: {
+      "htmlPlugin": "[executeNode,inputNode,sliderNode]"
+    }
   },
   ConditionalTriggerTask: {
     shapeType: 'Diamond',

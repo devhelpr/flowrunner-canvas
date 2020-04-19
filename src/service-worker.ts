@@ -45,6 +45,92 @@ export class PreviewTask extends FlowTask {
 	
 }
 
+export class ListTask extends FlowTask {
+	public execute(node: any, services: any) {
+		if (node.propertyName) {
+			let nodeName = node.name;
+			if (node.useListFromNode) {
+				nodeName = node.useListFromNode;
+			}
+
+			let list : any[] = services.flowEventRunner.getPropertyFromNode(nodeName, 
+				node.propertyName) || [];
+//console.log(list, node.payload.action);
+			const payload = Object.assign({}, node.payload);
+			if (payload.action) {
+				if (payload.action == "clear") {
+					list = [];
+				} else 
+				if (payload.action == "assign") {
+					list = [];
+					if (payload.listFromProperty) {
+						list = payload[payload.listFromProperty];
+					}
+					delete payload.listFromProperty;
+				} else 
+				if (payload.action == "getCount") {
+					if (payload.assignToProperty) {
+						node.payload[payload.assignToProperty] = list.length;
+					}
+					delete payload.assignToProperty;
+					return node.payload;
+				} else 
+				if (payload.action == "getIndex") {
+					if (payload.assignToProperty && payload.indexProperty) {
+						node.payload[payload.assignToProperty] = list[payload[payload.indexProperty]];
+					}
+					delete payload.assignToProperty;
+					delete payload.indexProperty;
+					return node.payload;
+				} else 
+				if (payload.action == "swap") {
+
+					console.log(list, node.payload.action, payload.item1, payload.item2, list.length, "condition", (payload.item1 !== undefined && payload.item2 !== undefined && 
+						!isNaN(payload.item1) && !isNaN(payload.item2) &&
+						payload.item1 >= 0 && payload.item2 >= 0 &&
+						payload.item1 < list.length && payload.item2 < list.length), node.payload);
+
+					if (payload.item1 !== undefined && payload.item2 !== undefined && 
+						!isNaN(payload.item1) && !isNaN(payload.item2) &&
+						payload.item1 >= 0 && payload.item2 >= 0 &&
+						payload.item1 < list.length && payload.item2 < list.length) {
+						
+						[list[payload.item1], list[payload.item2]] = [list[payload.item2], list[payload.item1]];
+						console.log(list, "after swap");	
+						delete payload.item1;
+						delete payload.item2;
+
+						services.flowEventRunner.setPropertyOnNode(nodeName, 
+							node.propertyName,
+							list);
+						
+						return node.payload;
+					}
+					return node.payload;
+				} else
+				if (payload.action == "get") {
+					// dummy action
+				}
+				delete payload.action;
+			} else {			
+				list.push(node.payload);
+			}
+
+			services.flowEventRunner.setPropertyOnNode(nodeName, 
+				node.propertyName,
+				list);
+			
+			return list;
+		}
+		return [];
+	}
+	
+	public getName() {
+		return 'ListTask';
+	}
+}
+
+
 export class OutputValueTask extends FlowTask {
 	public execute(node: any, services: any) {
 		if (node.propertyName && node.maxValue) {	
@@ -100,7 +186,6 @@ export class SliderTask extends FlowTask {
 
 export class InputTask extends FlowTask {
 	public execute(node: any, services: any) {
-		
 		if (node.propertyName) {	
 			node.payload = Object.assign({}, node.payload);
 			let value = node.defaultValue || "";
@@ -279,8 +364,6 @@ const onWorkerMessage = (event) => {
 			}
 		} else
 		if (event.data.command == "pushFlowToFlowrunner") {
-			(flow as any) = undefined;
-
 			startFlow(
 				{flow: event.data.flow}
 			)
@@ -313,6 +396,7 @@ const startFlow = (flowPackage? : any) => {
 		for (var key of Object.keys(observables)) {
 			observables[key].unsubscribe();
 		}
+		observables={};
 
 		for (var timer of Object.keys(timers)) {
 			clearInterval(timers[timer]);
@@ -335,10 +419,11 @@ const startFlow = (flowPackage? : any) => {
 	flow.registerTask("ConditionalTriggerTask", ConditionalTriggerTask);
 	flow.registerTask("ApiProxyTask", ApiProxyTask);
 	flow.registerTask("MapPayloadTask", MapPayloadTask);
-	
+	flow.registerTask("ListTask", ListTask);
+
 	let value : boolean = false;
 	flow.start(flowPackage).then((services: any) => {
-		//services.logMessage = (arg1, arg2) => { console.log(arg1,arg2 )};
+		services.logMessage = (arg1, arg2) => { console.log(arg1,arg2 )};
 
 		for (var key of Object.keys(observables)) {
 			const observable = flow.getObservableNode(key);

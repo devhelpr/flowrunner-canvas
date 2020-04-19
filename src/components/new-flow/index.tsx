@@ -8,8 +8,8 @@ import { selectNode } from '../../redux/actions/node-actions';
 
 export interface NewFlowProps {
 	selectedNode : any;
-
-	onClose: (id : number) => void;
+	onClose : () => void;
+	onSave: (id : number) => void;
 	storeFlowNode: (node : any, orgNodeName : string) => void;
 	selectNode: (name: string, node : any) => void;
 }
@@ -48,7 +48,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 
 	saveNode(e) {
 		try {
-			fetch('/add-flow?flow=' + this.state.value, {
+			fetch('/flow?flow=' + this.state.value, {
 				method : "post"
 			}).then((response) => {
 				if (response.status >= 400) {
@@ -56,11 +56,11 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 				}
 				return response.json();
 			}).then((result) => {
-				this.props.onClose(result.id);
+				this.props.onSave(result.id);
 			});
 			
 		} catch (err) {
-			alert("The flow couldn't be added");
+			alert("Error while adding flow");
 		}
 
 		e.preventDefault();

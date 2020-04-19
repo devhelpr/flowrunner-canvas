@@ -100,6 +100,9 @@ export class FlowToCanvas {
     }
     if (isStartEnd && resultShapeType == 'Rect') {
       resultShapeType = 'Ellipse';
+    } else 
+    if (shapeSetting && !!shapeSetting.isStartEnd) {
+      resultShapeType = 'Ellipse';
     }
     return resultShapeType;
   }

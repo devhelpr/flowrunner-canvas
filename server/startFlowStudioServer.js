@@ -48,7 +48,8 @@ function start(flowFileName, taskPlugins, options) {
 
 						TODO:
 
-						- implement "add-flow"
+						- implement presets
+						- implement plugin/task help
 
 						- why are there 2 parallel tasks? bug in flowrunner-redux??
 
@@ -69,6 +70,7 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask"});
 					tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask"});
 					tasks.push({className:"InputTask", fullName: "InputTask"});
+					tasks.push({className:"ListTask", fullName: "ListTask"});					
 				}
 
 				resolve(tasks);
@@ -141,7 +143,7 @@ function start(flowFileName, taskPlugins, options) {
 			res.send(flowFiles);
 		});
 
-		app.get('/get-flow', (req, res) => {
+		app.get('/flow', (req, res) => {
 			const flowFilesFound = flowFiles.filter((flowFile) => {
 				return flowFile.id == req.query.flow;
 			});
@@ -163,7 +165,7 @@ function start(flowFileName, taskPlugins, options) {
 		}
 		);
 
-		app.get('/get-tasks', (req, res) => {
+		app.get('/tasks', (req, res) => {
 			res.send(JSON.stringify(taskPluginsSortedList));
 		});
 
@@ -190,7 +192,7 @@ function start(flowFileName, taskPlugins, options) {
 			res.send(editorState);
 		});
 
-		app.post('/add-flow', (req, res) => {
+		app.post('/flow', (req, res) => {
 			if (flowsFileName == "") {
 				throw new Error("no flows-file specified");
 			}
@@ -229,6 +231,23 @@ function start(flowFileName, taskPlugins, options) {
 			})
 			
 		});
+
+		app.get('/api/taskdoc/:taskname', (request, response) => {
+			
+			if (!request.params.taskname) {
+				response.send(JSON.stringify({
+					"content":"",
+					"taskname":""
+				}));
+				return;
+			}
+
+			var taskname = request.params.taskname;
+			response.send(JSON.stringify({
+				"content":"Task documentation",
+				"taskname":taskname
+			}));
+		});		
 
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));
 	});

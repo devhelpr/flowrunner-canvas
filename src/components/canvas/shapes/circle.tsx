@@ -37,7 +37,7 @@ export const Circle = (props : ShapeTypeProps) => {
 		<Text
 			x={0}
 			y={0}
-			text={props.name}
+			text={props.node && props.node.label ? props.node.label : props.name}
 			align='center'
 			width={ShapeMeasures.circleSize}
 			height={ShapeMeasures.circleSize}

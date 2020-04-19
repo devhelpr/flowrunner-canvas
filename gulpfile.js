@@ -25,6 +25,17 @@ function buildTypescript() {
         module: {
           rules: [
             {
+              test: /\.(png|jp(e*)g|svg|gif)$/,
+              use: [
+                {
+                  loader: 'file-loader',
+                  options: {
+                    name: 'images/[hash]-[name].[ext]',
+                  },
+                },
+              ],
+            },
+            {
               test: /\.tsx?$/,
               loader: "ts-loader",
               options: {
@@ -43,6 +54,7 @@ function buildTypescript() {
         {
           extensions: [".ts", ".tsx", ".js", ".json"],
           alias: {
+            
           },
           
         },
