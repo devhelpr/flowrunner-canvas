@@ -34,10 +34,9 @@ export class FlowToCanvas {
     if (shapeType == 'Html') {
       return {
         x: newPosition.x + (startShape.width || ShapeMeasures.htmlWidth) / 2,
-        y: newPosition.y
+        y: newPosition.y,
       };
-    } else
-    if (shapeType == 'Circle' || shapeType == 'Diamond') {
+    } else if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
         x: newPosition.x + ShapeMeasures.circleSize,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
@@ -56,10 +55,9 @@ export class FlowToCanvas {
     if (shapeType == 'Html') {
       return {
         x: newPosition.x - (endShape.width || ShapeMeasures.htmlWidth) / 2,
-        y: newPosition.y
+        y: newPosition.y,
       };
-    } else
-    if (shapeType == 'Circle' || shapeType == 'Diamond') {
+    } else if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
         x: newPosition.x,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
@@ -100,8 +98,7 @@ export class FlowToCanvas {
     }
     if (isStartEnd && resultShapeType == 'Rect') {
       resultShapeType = 'Ellipse';
-    } else 
-    if (shapeSetting && !!shapeSetting.isStartEnd) {
+    } else if (shapeSetting && !!shapeSetting.isStartEnd) {
       resultShapeType = 'Ellipse';
     }
     return resultShapeType;

@@ -2,7 +2,7 @@ import {
   SET_CONNECTING_CANVAS_MODE_NODE,
   SET_SELECTED_TASK,
   SET_SHOWDEPENDENCIES,
-  SET_ALLOWINPUTTOHTMLNODES
+  SET_ALLOWINPUTTOHTMLNODES,
 } from '../actions/canvas-mode-actions';
 
 export interface ICanvasMode {
@@ -17,7 +17,7 @@ export const canvasModeReducer = (
     isConnectingNodes: false,
     selectedTask: '',
     showDependencies: false,
-    allowInputToHtmlNodes: false
+    allowInputToHtmlNodes: false,
   },
   action: any,
 ) => {

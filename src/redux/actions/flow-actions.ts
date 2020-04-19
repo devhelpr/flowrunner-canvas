@@ -49,7 +49,7 @@ export const addNode = (node: any, flow: any[]) => {
       newNode.id = newNode.name;
     }
     */
-    
+
     dispatch(addFlowNode(node));
     dispatch(selectNode(node.name, node));
 
@@ -57,8 +57,7 @@ export const addNode = (node: any, flow: any[]) => {
   };
 };
 
-export const addConnection = (connection: any) =>
-  action(ADD_CONNECTION, { connection: connection });
+export const addConnection = (connection: any) => action(ADD_CONNECTION, { connection: connection });
 
 export const deleteConnection = (node: any) => action(DELETE_CONNECTION, { node: node });
 

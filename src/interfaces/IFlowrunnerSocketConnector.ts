@@ -1,3 +1,3 @@
 export interface IFlowrunnerSocketConnector {
-	registerFlowNodeObserver : () => void;
+  registerFlowNodeObserver: () => void;
 }

@@ -24,10 +24,15 @@ export class ShapeSettings {
     if (taskTypeConfig[taskType]) {
       let variableSettings = {};
       if (node && !!node.hasVariableAttached) {
-        variableSettings = taskTypeConfig["_variable"];
+        variableSettings = taskTypeConfig['_variable'];
       }
       if (node && node.objectSchema && taskTypeConfig[taskType][node.objectSchema]) {
-        settings = { ...settings, ...taskTypeConfig[taskType], ...variableSettings, ...taskTypeConfig[taskType][node.objectSchema] };
+        settings = {
+          ...settings,
+          ...taskTypeConfig[taskType],
+          ...variableSettings,
+          ...taskTypeConfig[taskType][node.objectSchema],
+        };
       } else {
         settings = { ...settings, ...taskTypeConfig[taskType], ...variableSettings };
       }

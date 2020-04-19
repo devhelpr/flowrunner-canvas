@@ -88,5 +88,5 @@ export const flowReducer = (state: any = [], action: any) => {
       default:
         return draft;
     }
-  })
+  });
 };

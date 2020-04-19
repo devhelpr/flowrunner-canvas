@@ -22,7 +22,7 @@ const variableAttached = {
 
 export const taskTypeConfig: any = {
   _variable: {
-    ...variableAttached
+    ...variableAttached,
   },
   AssignTask: {
     shapeType: 'Rect',
@@ -63,7 +63,7 @@ export const taskTypeConfig: any = {
     cornerRadius: 10,
   },
   FunctionInputTask: {
-    isStartEnd : true
+    isStartEnd: true,
   },
   FetchTask: {
     shapeType: 'Rect',
@@ -73,7 +73,7 @@ export const taskTypeConfig: any = {
       method: 'get',
     },
   },
-  ApiProxyTask : {
+  ApiProxyTask: {
     shapeType: 'Rect',
     isSkewed: true,
     presetValues: {
@@ -109,47 +109,47 @@ export const taskTypeConfig: any = {
   },
   RouteEndpointTask: {
     presetValues: {
-      "url": "",
-      "isStartEnd": true
-    }
+      url: '',
+      isStartEnd: true,
+    },
   },
-  ValidateModelTask : {
-    shapeType: 'Diamond'
+  ValidateModelTask: {
+    shapeType: 'Diamond',
   },
   PreviewTask: {
     shapeType: 'Html',
     presetValues: {
-      "htmlPlugin": "[executeNode,inputNode,sliderNode]"
-    }
+      htmlPlugin: '[executeNode,inputNode,sliderNode]',
+    },
   },
   ConditionalTriggerTask: {
     shapeType: 'Diamond',
     presetValues: {
-      propertyName: "outputValue",
+      propertyName: 'outputValue',
       minValue: -1,
-      maxValue: -1
-    }
+      maxValue: -1,
+    },
   },
-  OutputValueTask : {
+  OutputValueTask: {
     shapeType: 'Rect',
     presetValues: {
-      propertyName: "outputValue",
+      propertyName: 'outputValue',
       startValue: 0,
       maxValue: 100,
-      increment: 1
-    }
+      increment: 1,
+    },
   },
   SliderTask: {
     shapeType: 'Html',
-    htmlPlugin: 'sliderNode'
+    htmlPlugin: 'sliderNode',
   },
-  InputTask : {
+  InputTask: {
     shapeType: 'Html',
-    htmlPlugin: 'inputNode'
+    htmlPlugin: 'inputNode',
   },
   DebugTask: {
     shapeType: 'Html',
-    htmlPlugin: "debugNode"
+    htmlPlugin: 'debugNode',
   },
   ReduxArrayStateType: {
     ...stateTypeTask,

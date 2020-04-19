@@ -1,9 +1,15 @@
-import { STORE_RAW_FLOW, MODIFY_RAW_FLOW, ADD_RAW_FLOW, 
-  ADD_RAW_CONNECTION, DELETE_CONNECTION, DELETE_NODE, STORE_RAW_NODE } from '../actions/raw-flow-actions';
+import {
+  STORE_RAW_FLOW,
+  MODIFY_RAW_FLOW,
+  ADD_RAW_FLOW,
+  ADD_RAW_CONNECTION,
+  DELETE_CONNECTION,
+  DELETE_NODE,
+  STORE_RAW_NODE,
+} from '../actions/raw-flow-actions';
 import produce from 'immer';
 
 export const rawFlowReducer = (state: any = [], action: any) => {
-
   return produce(state, draft => {
     switch (action.type) {
       case STORE_RAW_FLOW: {
@@ -30,11 +36,11 @@ export const rawFlowReducer = (state: any = [], action: any) => {
         });
         return newDraft;
       }
-      case ADD_RAW_FLOW : {
+      case ADD_RAW_FLOW: {
         draft.push(action.payload.node);
         return draft;
       }
-      case ADD_RAW_CONNECTION : {
+      case ADD_RAW_CONNECTION: {
         draft.push(action.payload.node);
         return draft;
       }
@@ -80,5 +86,5 @@ export const rawFlowReducer = (state: any = [], action: any) => {
       default:
         return draft;
     }
-  })
+  });
 };
