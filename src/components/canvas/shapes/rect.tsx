@@ -57,12 +57,19 @@ export const Rect = (props: ShapeTypeProps) => {
 	return <Group
 		x={props.x}
 		y={props.y}
+		onTouchStart={props.onTouchStart}
+		onTouchMove={props.onTouchMove}
+		onTouchEnd={props.onTouchEnd}
+		onDragStart={props.onDragStart}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
-		draggable={true}
+		draggable={false}
 		onClick={props.onClickShape}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
+		onMouseDown={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseUp={props.onMouseEnd}
 		
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>

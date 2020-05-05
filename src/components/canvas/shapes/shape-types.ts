@@ -4,10 +4,20 @@ export interface ShapeTypeProps {
   name: string;
   taskType: string;
   node: any;
+
+  onDragStart: any;
   onDragMove: any;
   onDragEnd: any;
+  onTouchStart: any;
+  onTouchMove: any;
+  onTouchEnd: any;
+
   onClickShape: any;
   isSelected: boolean;
+  onMouseStart : any;
+  onMouseMove : any;
+  onMouseEnd : any;
+
   onMouseOver: any;
   onMouseOut: any;
   canvasHasSelectedNode: boolean;

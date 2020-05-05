@@ -337,7 +337,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			shapeType = FlowToCanvas.getShapeType(selectedNode.node.shapeType, selectedNode.node.taskType, selectedNode.node.isStartEnd);
 		}
 		return <>
-			<div className="bg-dark sticky-top">
+			<div className="bg-dark sticky-top toolbar__root">
 				<div className="toolbar__container">
 					<Navbar bg="dark" expand="lg">
 						<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">

@@ -13,8 +13,10 @@ import { ShapeSettings } from '../../helpers/shape-settings';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { addRawFlow, addRawConnection, storeRawNode } from '../../redux/actions/raw-flow-actions';
+import { ShapeMeasures } from '../../helpers/shape-measures';
 
 import fetch from 'cross-fetch';
+import { timestamp } from 'rxjs/operators';
 
 export interface CanvasProps {
 	nodes : any[];
@@ -142,11 +144,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 		if (prevProps.nodes != this.props.nodes) {
 			this.props.storeFlow(this.props.nodes);
-			console.log("componentDidUpdate nodes diff");
+			//console.log("componentDidUpdate nodes diff");
 		}
 
 		if (prevState.canvasKey !== this.state.canvasKey) {
-			console.log("componentDidUpdate", prevState.canvasKey, this.state.canvasKey);
+			//console.log("componentDidUpdate", prevState.canvasKey, this.state.canvasKey);
 			this.updateDimensions();
 
 			if (this.canvasWrapper && this.canvasWrapper.current) {
@@ -170,18 +172,36 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	}
 
-	setNewPositionForNode = (node, group) => {
+	setNewPositionForNode = (node, group, position? : any) => {
 
 		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
 		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(this.props.flow, node);
 
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
-		const newPosition = {x:x, y:y};
+		let newPosition = position || {x:x, y:y};
 		
+		if (newPosition) {
+			if (this.stage && this.stage.current) {
+				let stage = (this.stage.current as any).getStage();
+				if (stage) {
+					var touchPos = stage.getPointerPosition();
+					const scaleFactor = (stage as any).scaleX();
+
+					newPosition.x = ((touchPos.x - (stage).x()) / scaleFactor) - this.mouseStartX;
+					newPosition.y = ((touchPos.y - (stage).y()) / scaleFactor) - this.mouseStartY;
+						
+					console.log("touchPos", touchPos, newPosition);
+				}
+			}
+
+			group.x(newPosition.x);
+			group.y(newPosition.y);
+		}
+
 		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
 		this.props.storeRawNode(Object.assign({}, node, newPosition ), node.name);
-		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, x, y);						
+		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, x, y, node);						
 
 		if (startLines) {
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition);
@@ -215,11 +235,261 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	dragTime : any = undefined;
 
+	touching : boolean = false;
+	touchNode : any = undefined;
+	touchNodeGroup : any = undefined;
+
+	mouseStartX : number = 0;
+	mouseStartY : number = 0;
+
+	determineStartPosition(group) {
+		const x = group.attrs["x"];
+		const y = group.attrs["y"];
+		let newPosition = {x:x, y:y};
+		
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+			if (stage) {
+				var touchPos = stage.getPointerPosition();
+				const scaleFactor = (stage as any).scaleX();
+
+				newPosition.x = ((touchPos.x - (stage).x()) / scaleFactor);
+				newPosition.y = ((touchPos.y - (stage).y()) / scaleFactor);
+					
+				this.mouseStartX = newPosition.x - x;
+				this.mouseStartY = newPosition.y - y;
+
+				console.log("this.mouseStart" , this.mouseStartX, this.mouseStartY);
+			}
+		}
+	}
+
+	onMouseStart(node, event) {
+		this.touching = true;
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		
+
+		this.touchNode = node;
+		this.touchNodeGroup = event.currentTarget;
+		this.cancelDragStage();
+
+		if (event.currentTarget) {
+			this.determineStartPosition(event.currentTarget);
+		}
+
+		return false;
+
+	}
+
+	onMouseMove(node, event) {
+		
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+
+		if (this.touching) {
+			//console.log("onMouseMove", node, event);
+			if (event.currentTarget) {
+				
+				this.setNewPositionForNode(node, event.currentTarget, event.evt.screenX ? {
+					x: event.evt.screenX,
+					y: event.evt.screenY
+				} : undefined);
+			}
+		}
+		
+		return false;
+	}
+
+	onMouseEnd(node, event) {
+		this.touching = false;
+		this.dragTime = undefined;
+		this.touchNode = undefined;
+		this.touchNodeGroup = undefined;
+
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		
+		if (event.currentTarget) {
+			this.setNewPositionForNode(node, event.currentTarget, undefined);
+		}
+		return false;
+	}
+
+	isPinching : boolean = false;
+	startDistance : number = 0;
+	onStageTouchStart(event) {
+		if (this.touchNode && this.touchNodeGroup) {
+
+		} else {
+			if (event.evt.touches.length > 1) {
+				this.isPinching = true;
+				console.log("event.evt.touches.length start" , event.evt.touches.length);
+
+				if (event.evt.touches.length == 2) {
+
+					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
+					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
+
+					this.startDistance = Math.sqrt( x*x + y*y );
+				}
+			}
+		}
+	}
+	onStageTouchMove(event) {
+		
+		
+		if (this.touchNode && this.touchNodeGroup) {			
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
+			this.setNewPositionForNode(this.touchNode, this.touchNodeGroup);
+			this.cancelDragStage();
+		} else {
+			if (event.evt.touches && event.evt.touches.length > 1) {
+				console.log("event.evt.touches.length move" , event.evt.touches.length);
+				event.evt.preventDefault();
+				event.evt.cancelBubble = true;
+
+				/*
+					deltaY
+					toElement
+				*/
+
+				if (event.evt.touches.length == 2) {
+					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
+					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
+
+					let newDistance = Math.sqrt( x*x + y*y );
+					this.wheelEvent(
+						{
+							deltaY: newDistance - this.startDistance,
+							toElement: undefined
+						}
+					)
+				}
+
+				
+				return false;
+			}
+		}
+	}
+
+	onStageTouchEnd(event) {
+		this.isPinching = false;
+	}
+
+	cancelDragStage() {
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+			if (stage) {
+				stage.stopDrag();
+			}
+		}
+	}
+
+	onTouchStart(node, event) {
+
+		if (this.isPinching) {
+			return;			
+		}
+
+		this.touching = true;
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		
+		this.touchNode = node;
+		this.touchNodeGroup = event.currentTarget;
+
+		this.cancelDragStage();	
+		
+		if (event.currentTarget) {
+			this.determineStartPosition(event.currentTarget);
+		}
+
+		return false;
+	}
+
+	onTouchMove(node, event) {
+
+		if (this.isPinching) {
+			return;			
+		}
+
+		this.touching = true;
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		if (event.currentTarget) {
+			
+			this.setNewPositionForNode(node, event.currentTarget, event.evt.touches.length > 0 ? {
+				x: event.evt.touches[0].screenX,
+				y: event.evt.touches[0].screenY
+			} : undefined);
+		}
+		return false;
+	}
+
+	onTouchEnd(node, event) {
+
+		if (this.isPinching) {
+			return;			
+		}
+
+		this.touching = false;
+		this.dragTime = undefined;
+		this.touchNode = undefined;
+		this.touchNodeGroup = undefined;
+
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		
+		if (event.currentTarget) {
+			this.setNewPositionForNode(node, event.currentTarget, event.evt.changedTouches.length > 0 ? {
+				x: event.evt.changedTouches[0].screenX,
+				y: event.evt.changedTouches[0].screenY
+			} : undefined);
+		}
+		return false;
+	}
+
+
+	draggingWhileTouching : boolean = false;
+	onDragStart(node, event) {
+		if (this.touching) {
+			this.draggingWhileTouching = true;
+			console.log("onDragStart", event);
+			if (event.evt && event.evt.cancelBubble) {
+				event.evt.cancelBubble = true;
+			}
+			if (event && event.cancelBubble) {
+				event.cancelBubble = true;
+			}
+			//event.target.stopDrag();
+			//event.evt.preventDefault();
+			return false;
+		}
+		console.log("onDragStart", event);
+	}
 	onDragMove(node, event) {
+		if (this.touching) {
+			this.draggingWhileTouching = true;
+			//event.target.stopDrag();
+			//event.evt.preventDefault();
+			return false;
+		}
+		console.log("onDragMove", node, event);
 		this.setNewPositionForNode(node, event.currentTarget);		
 	}
 
 	onDragEnd(node, event) {
+		if (this.touching || this.draggingWhileTouching) {
+			//event.evt.preventDefault();
+			//event.preventDefault();
+			//event.target.stopDrag();
+			this.draggingWhileTouching = false;
+			return false;
+		}
+
+		console.log("onDragEnd", node, event);
 		this.dragTime = undefined;
 		this.setNewPositionForNode(node, event.currentTarget);
 
@@ -235,6 +505,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	onClickShape(node, event) {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
+		console.log("onClickShape", node, event);
+		this.cancelDragStage();
 
 		if (this.props.canvasMode.isConnectingNodes && 
 			this.props.selectedNode !== undefined &&
@@ -253,6 +525,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	onClickLine(node, event) {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
+		this.cancelDragStage();
 		if (node.notSelectable) {
 			return false;
 		}
@@ -262,7 +535,30 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		return false;
 	}
 
-	onDragStageMove = (e) => {
+	onDragStageMove = (event) => {
+
+		if (this.isPinching) {
+			return;			
+		}
+
+		console.log("onDragStageMove", event);
+
+		if (this.touching || this.draggingWhileTouching) {
+			if (event.target && event.target.stopDrag) {
+				//event.target.stopDrag();
+			}
+
+			if (event.evt && event.evt.cancelBubble) {
+				event.evt.cancelBubble = true;
+			}
+			if (event && event.cancelBubble) {
+				event.cancelBubble = true;
+			}
+
+			return false;
+		}
+		
+		
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
 			if (stage) {
@@ -275,8 +571,23 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
-	onDragStageEnd = (e) => {
+	onDragStageEnd = (event) => {
 
+		if (this.isPinching) {
+			return;			
+		}
+
+		if (event.evt && event.evt.cancelBubble) {
+			event.evt.cancelBubble = true;
+		}
+		if (event && event.cancelBubble) {
+			event.cancelBubble = true;
+		}
+
+		if (this.touching || this.draggingWhileTouching) {
+			return false;
+		}
+console.log("onDragStageEnd", event);
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
 			if (stage) {
@@ -362,7 +673,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		});
 	}
 
-	setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number) => {
+	setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any) => {
 		let nodeElements = document.querySelectorAll(".canvas__html-shape");
 
 		const elements = Array.from(nodeElements);
@@ -370,11 +681,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			let x = parseFloat(element.getAttribute("data-x") || "");
 			let y = parseFloat(element.getAttribute("data-y") || "");
 
-			if (newX && !isNaN(newX)) {
-				x = newX;
-			}
-			if (newY && !isNaN(newY)) {
-				y = newY;
+			if (node && element.getAttribute("data-node") == node.name) {
+				if (newX && !isNaN(newX)) {
+					x = newX;
+				}
+				if (newY && !isNaN(newY)) {
+					y = newY;
+				}
 			}
 			(element as any).style.transform = 						
 				"translate(" + (stageX  + x * stageScale) + "px," + 
@@ -384,10 +697,23 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	wheelEvent(e) {
-		e.preventDefault();
+
+		if (e.toElement && e.toElement.closest) {
+			// TODO : make this work on IE11 (do we need to support IE11??)
+			let element = e.toElement.closest(".no-wheel");
+			if (element) {
+				return true;
+			}
+		}
+		
+		console.log("wheelEvent", e);
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+		
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
-		//if (this.refs.stage !== undefined) {
+			//if (this.refs.stage !== undefined) {
 
 			let scaleBy = 1.03;
 			//let stage = (this.refs.stage as any).getStage();
@@ -410,8 +736,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					x: -(mousePointTo.x - stage.getPointerPosition().x / newScale),
 					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale)
 				};
-
-
 
 				stage.position(newPos);
 				stage.batchDraw();
@@ -524,8 +848,12 @@ console.log(newPos, scale);
 	}
 
 	clickStage = (event) => {
-		event.evt.preventDefault()		
-		
+
+		if (this.touchNode && this.touchNodeGroup) {
+			event.evt.preventDefault()		
+			return false;
+		}
+
 		const nodeIsSelected : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
 		
 		this.props.selectNode(undefined, undefined);
@@ -554,15 +882,35 @@ console.log(newPos, scale);
 						...presetValues  
 					}, this.props.flow);
 					*/
+
+
 					let newNode = getNewNode({
 						name: this.props.canvasMode.selectedTask,
 						id: this.props.canvasMode.selectedTask,
 						taskType: taskType,
 						shapeType: this.props.canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
-						x: (position.x - (stage).x()) / scaleFactor, 
-						y: (position.y - (stage).y()) / scaleFactor,
+						x: ((position.x - (stage).x()) / scaleFactor), 
+						y: ((position.y - (stage).y()) / scaleFactor),
 						...presetValues
 					},this.props.flow);
+
+					let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
+
+					let centerXCorrection = 0;
+					let centerYCorrection = 0;
+					
+					if (shapeType == "Rect" || shapeType == "Ellipse") {
+						centerXCorrection = ShapeMeasures.rectWidht / 2;
+						centerYCorrection = ShapeMeasures.rectHeight / 2;
+					} else
+					if (shapeType == "Circle" || shapeType == "Diamond") {
+						centerXCorrection = ShapeMeasures.circleSize / 2;
+						centerYCorrection = ShapeMeasures.circleSize / 2;
+					}
+
+					newNode.x = newNode.x - centerXCorrection;
+					newNode.y = newNode.y - centerYCorrection;
+					 
 					this.props.addNode(newNode, this.props.flow);
 					this.props.addRawFlow(newNode);
 				}				
@@ -792,6 +1140,24 @@ console.log("taskClassName", event.target, taskClassName);
 						y: (position.y - (stage).y()) / scaleFactor,
 						...presetValues
 					},this.props.flow);
+
+					let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
+
+					let centerXCorrection = 0;
+					let centerYCorrection = 0;
+					
+					if (shapeType == "Rect" || shapeType == "Ellipse") {
+						centerXCorrection = ShapeMeasures.rectWidht / 2;
+						centerYCorrection = ShapeMeasures.rectHeight / 2;
+					} else
+					if (shapeType == "Circle" || shapeType == "Diamond") {
+						centerXCorrection = ShapeMeasures.circleSize / 2;
+						centerYCorrection = ShapeMeasures.circleSize / 2;
+					}
+
+					newNode.x = newNode.x - centerXCorrection;
+					newNode.y = newNode.y - centerYCorrection;
+					
 					this.props.addNode(newNode, this.props.flow);
 					this.props.addRawFlow(newNode);
 				}				
@@ -804,6 +1170,8 @@ console.log("taskClassName", event.target, taskClassName);
 	}
 	onAllowDrop = (event) => {
 		event.preventDefault();
+		// onDragOver={this.onAllowDrop}
+		// onDrop={this.onDropTask}
 	}
 
 	render() {
@@ -815,8 +1183,8 @@ console.log("taskClassName", event.target, taskClassName);
 			<div key={"stage-layer-" + this.state.canvasKey} ref={this.canvasWrapper} 
 				style={{opacity: this.state.canvasOpacity}} 
 				className="canvas-controller__scroll-container"
-				onDrop={this.onDropTask}
 				onDragOver={this.onAllowDrop}
+				onDrop={this.onDropTask}
 				>
 				<Stage					
 					onClick={this.clickStage}
@@ -825,8 +1193,12 @@ console.log("taskClassName", event.target, taskClassName);
 					width={this.state.stageWidth}
 					height={ this.state.stageHeight }
 					ref={this.stage}
-					onDragMove={this.onDragStageMove}
-					onDragEnd={this.onDragStageEnd}
+					onDragMove={this.onDragStageMove.bind(this)}
+					onDragEnd={this.onDragStageEnd.bind(this)}
+					onTouchStart={this.onStageTouchStart.bind(this)}
+					onTouchMove={this.onStageTouchMove.bind(this)}
+					onMouseMove={this.onStageTouchMove.bind(this)}
+					onTouchEnd={this.onStageTouchEnd.bind(this)}
 					className="stage-container">
 					<Layer key={"stage-layer-" + this.state.canvasKey} >
 						<Rect x={0} y={0} width={1024} height={750}></Rect>
@@ -919,9 +1291,17 @@ console.log("taskClassName", event.target, taskClassName);
 									canvasHasSelectedNode={canvasHasSelectedNode}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
+									onDragStart={this.onDragStart.bind(this, node)}
 									onDragEnd={this.onDragEnd.bind(this, node)}
 									onDragMove={this.onDragMove.bind(this, node)}
+									onTouchStart={this.onTouchStart.bind(this,node)}
+									onTouchEnd={this.onTouchEnd.bind(this, node)}
+									onTouchMove={this.onTouchMove.bind(this, node)}
 									onClickShape={this.onClickShape.bind(this, node)}
+									onMouseStart={this.onMouseStart.bind(this,node)}
+									onMouseMove={this.onMouseMove.bind(this,node)}
+									onMouseEnd={this.onMouseEnd.bind(this,node)}
+
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
 									></Shape>;
@@ -943,15 +1323,16 @@ console.log("taskClassName", event.target, taskClassName);
 								nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
 								
 								return <div key={"html" + index}
-								style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
-										(this.stageY + node.y * this.stageScale) + "px) " +
-										"scale(" + (this.stageScale) + "," + (this.stageScale) + ") ",
-										width: (node.width || 250)+"px",
-										height: (node.height || 250)+"px",
-										left: (-(node.width || 250)/2)+"px",
-										top: (-(node.height || 250)/2)+"px",
-										opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
-									}} 
+									style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
+											(this.stageY + node.y * this.stageScale) + "px) " +
+											"scale(" + (this.stageScale) + "," + (this.stageScale) + ") ",
+											width: (node.width || 250)+"px",
+											height: (node.height || 250)+"px",
+											left: (-(node.width || 250)/2)+"px",
+											top: (-(node.height || 250)/2)+"px",
+											opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
+										}}
+									data-node={node.name}	 
 									data-x={node.x} 
 									data-y={node.y} 
 									ref={this.htmlElement} 

@@ -15,6 +15,7 @@ import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { Taskbar } from './components/Taskbar';
+import { UIControlsBar} from './components/ui-controls-bar';
 
 import { FlowConnector } from './flow-connector';
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
@@ -83,7 +84,7 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 const flowEventRunner = getFlowEventRunner();
 const root = document.getElementById('flowstudio-root');
 const hasLogin = root && root.getAttribute("data-has-login") === "true";
-
+const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
 let canvasToolbarsubject = new Subject<string>();
 
@@ -102,6 +103,8 @@ const App = (props : IAppProps) => {
 		{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 			<>
 				<Taskbar></Taskbar>
+				{!!hasUIControlsBar && <UIControlsBar renderHtmlNode={renderHtmlNode}
+					flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
 				<Toolbar canvasToolbarsubject={canvasToolbarsubject} flowrunnerConnector={flowrunnerConnector}></Toolbar>
 				<Canvas canvasToolbarsubject={canvasToolbarsubject} renderHtmlNode={renderHtmlNode}
 					flowrunnerConnector={flowrunnerConnector}

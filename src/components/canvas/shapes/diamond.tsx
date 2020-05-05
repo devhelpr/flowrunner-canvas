@@ -16,10 +16,17 @@ export const Diamond = (props: ShapeTypeProps) => {
 		y={props.y}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
-		draggable={true}
+		draggable={false}
 		onClick={props.onClickShape}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
+		onTouchStart={props.onTouchStart}
+		onTouchMove={props.onTouchMove}
+		onTouchEnd={props.onTouchEnd}
+		onMouseDown={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseUp={props.onMouseEnd}
+
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>
 		<RegularPolygon 

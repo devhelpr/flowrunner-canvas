@@ -5,6 +5,10 @@ import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';
 
+import * as uuid from 'uuid';
+const uuidV4 = uuid.v4;
+
+
 export interface DebugNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
@@ -20,29 +24,33 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 	state = {
 		receivedPayload : []
 	}
+
+	observableId = uuidV4();
+
 	componentDidMount() {
-		console.log("registerFlowNodeObserver", this.props.node.name);
-		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.receivePayloadFromNode);
+		console.log("registerFlowNodeObserver", this.props.node.name, this.observableId);
+		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 	}
 
 	componentDidUpdate(prevProps : any) {
 		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
 			console.log("DebugNodeHtmlPlugin nodes diff");
-			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name);
-			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.receivePayloadFromNode);
+			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
+			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
 
 		if (!prevProps || !prevProps.node || 
 			(prevProps.node.name != this.props.node.name)) {
-			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name);
-			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.receivePayloadFromNode);
+			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
+			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
 
 	}
 
 	componentWillUnmount() {
-		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name);
+		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
 	}
+
 	receivePayloadFromNode = (payload : any) => {
 		//console.log("receivePayloadFromNode", this.props.node.name, payload);
 		let receivedPayloads : any[] = this.state.receivedPayload;
