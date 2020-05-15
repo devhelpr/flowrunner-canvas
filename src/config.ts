@@ -143,15 +143,15 @@ export const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'sliderNode',
     presetValues: {
-      htmlPlugin: "sliderNode",
-      propertyName: "",
+      htmlPlugin: 'sliderNode',
+      propertyName: '',
       maxValue: 100,
-      onChange: "",
-      title: "",
-      preLabel: "",
-      afterLabel: "",
+      onChange: '',
+      title: '',
+      preLabel: '',
+      afterLabel: '',
       defaultValue: 50,
-    }
+    },
   },
   InputTask: {
     shapeType: 'Html',
@@ -161,14 +161,14 @@ export const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'debugNode',
     presetValues: {
-      htmlPlugin: "debugNode",
-      visualizer: "",
-      propertyName: "",
-      format: "toFixed",
+      htmlPlugin: 'debugNode',
+      visualizer: '',
+      propertyName: '',
+      format: 'toFixed',
       fixed: 2,
-      decimalSeparator: ",",
-      afterLabel: ""
-    }
+      decimalSeparator: ',',
+      afterLabel: '',
+    },
   },
   ReduxArrayStateType: {
     ...stateTypeTask,

@@ -14,9 +14,9 @@ export interface ShapeTypeProps {
 
   onClickShape: any;
   isSelected: boolean;
-  onMouseStart : any;
-  onMouseMove : any;
-  onMouseEnd : any;
+  onMouseStart: any;
+  onMouseMove: any;
+  onMouseEnd: any;
 
   onMouseOver: any;
   onMouseOut: any;

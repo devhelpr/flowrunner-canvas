@@ -189,9 +189,8 @@ export class InputTask extends FlowTask {
       node.payload = Object.assign({}, node.payload);
       let value = node.defaultValue || '';
       try {
-
-        if (node.nodeDatasource && node.nodeDatasource === "flow") {
-          if (node.mode && node.mode === "list") {
+        if (node.nodeDatasource && node.nodeDatasource === 'flow') {
+          if (node.mode && node.mode === 'list') {
             value = node.values;
           } else {
             value = node.value;
@@ -390,16 +389,16 @@ const onWorkerMessage = event => {
   }
 };
 
-const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime : any) => {
+const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
   ctx.postMessage({
     command: 'SendNodeExecution',
     result: result,
     dateTime: dateTime,
     payload: payload,
     name: id,
-    nodeType: nodeType
+    nodeType: nodeType,
   });
-}
+};
 
 const startFlow = (flowPackage?: any) => {
   if (flow !== undefined) {

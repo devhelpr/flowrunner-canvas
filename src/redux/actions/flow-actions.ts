@@ -54,7 +54,6 @@ export const addNode = (node: any, flow: any[]) => {
 
     // TODO : should this be done or not
     //dispatch(selectNode(node.name, node));
-
   };
 };
 
