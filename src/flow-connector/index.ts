@@ -1,9 +1,68 @@
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
 import { IWorker } from '../interfaces/IWorker';
 
+export class EmptyFlowConnector implements IFlowrunnerConnector {
+
+  getNodeExecutions() {
+    return [];
+  }
+
+  getNodeExecutionsByNodeName(nodeName) {
+    return [];
+  }
+
+  registerWorker(worker: IWorker) {
+  }
+
+  onMessage = (event: any) => {
+  }
+  registerFlowNodeObserver = (nodeName: string, observableId: string, callback: (payload: any) => void) => {
+  }
+
+  unregisterFlowNodeObserver = (nodeName, observableId) => {
+  }
+
+  registerFlowExecutionObserver = (observableId: string, callback: () => void) => {
+  }
+
+  unregisterFlowExecuteObserver = (observableId) => {
+  }
+
+  updateFlowNode = () => {
+  }
+
+  pushFlowToFlowrunner = (flow: any) => {
+  }
+
+  executeFlowNode = (nodeName: string, payload: any) => {
+  }
+
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode: string) => {    
+  }
+
+  isActiveFlowRunner = () => {
+    return false;
+  }
+   
+}
+
 export class FlowConnector implements IFlowrunnerConnector {
   worker?: IWorker = undefined;
   observables : any[] = [];
+  
+  nodeExecutions : any[] = [];
+  nodeExecutionsByNode : any = {};
+
+  getNodeExecutions() {
+    return this.nodeExecutions;
+  }
+  
+  getNodeExecutionsByNodeName(nodeName) {
+    if (this.nodeExecutionsByNode[nodeName]) {
+      return this.nodeExecutionsByNode[nodeName];
+    }
+    return [];
+  }
 
   registerWorker(worker: IWorker) {
     this.worker = worker;
@@ -15,6 +74,21 @@ export class FlowConnector implements IFlowrunnerConnector {
   onMessage = (event: any) => {
     //console.log("event from worker", event);
     if (event && event.data) {
+
+      if (event.data.command == 'SendNodeExecution') {
+        this.nodeExecutions.push(event.data);
+        this.nodeExecutions.splice(0, this.nodeExecutions.length - 1000);
+        if (!this.nodeExecutionsByNode[event.data.name]) {
+          this.nodeExecutionsByNode[event.data.name] = [];
+        }
+        this.nodeExecutionsByNode[event.data.name].push(event.data);
+        this.nodeExecutionsByNode[event.data.name].splice(0, this.nodeExecutionsByNode[event.data.name].length - 5);
+
+        this.executionObservables.map((exectutionObservable) => {
+          exectutionObservable.callback();
+        });
+
+      } else
       if (event.data.command == 'SendObservableNodePayload') {
 
         // TODO : de eerst keer gaat dit niet goed...
@@ -87,10 +161,37 @@ export class FlowConnector implements IFlowrunnerConnector {
    
   };
 
+  executionObservables : any[] = [];
+
+  registerFlowExecutionObserver = (observableId: string, callback: () => void) => {
+    this.executionObservables.push({
+      callback : callback,
+      id: observableId
+    });
+  };
+
+  unregisterFlowExecuteObserver = (observableId) => {
+
+    let indexes = this.executionObservables.filter((observable) => {
+      return observable.observableId === observableId;
+    }).map((observable, index) => {
+       return index;
+    });
+
+    indexes.map((indexInObservables : number) => {
+      this.observables[indexInObservables] = undefined;
+      delete this.observables[indexInObservables];
+    });
+   
+  };
+
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any) => {
     if (this.worker) {
-      this.observables = [];//{};
+      this.observables = [];
+
+      this.nodeExecutions = [];
+      this.nodeExecutionsByNode = {};
 
       this.worker.postMessage({
         command: 'pushFlowToFlowrunner',
@@ -119,4 +220,8 @@ export class FlowConnector implements IFlowrunnerConnector {
       });
     }
   };
+
+  isActiveFlowRunner = () => {
+    return true;
+  }
 }

@@ -10,12 +10,12 @@ let observables = {};
 
 export class ConditionalTriggerTask extends FlowTask {
   public execute(node: any, services: any) {
-    console.log('ConditionalTriggerTask', node);
+    //console.log('ConditionalTriggerTask', node);
     try {
       if (node.propertyName) {
         if (node.minValue && node.maxValue) {
           let value = node.payload[node.propertyName];
-          console.log('ConditionalTriggerTask v', value, node.minValue, node.maxValue);
+          //console.log('ConditionalTriggerTask v', value, node.minValue, node.maxValue);
           if (!isNaN(value)) {
             if (value >= node.minValue && value < node.maxValue) {
               return Object.assign({}, node.payload);
@@ -35,7 +35,7 @@ export class ConditionalTriggerTask extends FlowTask {
 }
 export class PreviewTask extends FlowTask {
   public execute(node: any, services: any) {
-    console.log('previewtask', node);
+    //console.log('previewtask', node);
     return true;
   }
 
@@ -189,11 +189,20 @@ export class InputTask extends FlowTask {
       node.payload = Object.assign({}, node.payload);
       let value = node.defaultValue || '';
       try {
-        value = services.flowEventRunner.getPropertyFromNode(node.name, node.propertyName);
+
+        if (node.nodeDatasource && node.nodeDatasource === "flow") {
+          if (node.mode && node.mode === "list") {
+            value = node.values;
+          } else {
+            value = node.value;
+          }
+        } else {
+          value = services.flowEventRunner.getPropertyFromNode(node.name, node.propertyName);
+        }
         if (value === undefined) {
           value = node.defaultValue || '';
         }
-        console.log('InputTask', value, node);
+        //console.log('InputTask', value, node);
       } catch (err) {
         console.log('InputTask', err, node);
         value = node.defaultValue || '';
@@ -340,7 +349,7 @@ const onWorkerMessage = event => {
       flow
         .executeNode(event.data.nodeName, event.data.payload || {})
         .then(result => {
-          console.log('result after executeNode', result);
+          //console.log('result after executeNode', result);
         })
         .catch(error => {
           console.log('executeNode failed', error);
@@ -352,7 +361,7 @@ const onWorkerMessage = event => {
         flow
           .executeNode(event.data.executeNode, {})
           .then(result => {
-            console.log('result after modifyFlowNode executeNode', result);
+            //console.log('result after modifyFlowNode executeNode', result);
           })
           .catch(error => {
             console.log('modifyFlowNode executeNode failed', error);
@@ -380,6 +389,17 @@ const onWorkerMessage = event => {
     }
   }
 };
+
+const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime : any) => {
+  ctx.postMessage({
+    command: 'SendNodeExecution',
+    result: result,
+    dateTime: dateTime,
+    payload: payload,
+    name: id,
+    nodeType: nodeType
+  });
+}
 
 const startFlow = (flowPackage?: any) => {
   if (flow !== undefined) {
@@ -411,12 +431,14 @@ const startFlow = (flowPackage?: any) => {
   flow.registerTask('MapPayloadTask', MapPayloadTask);
   flow.registerTask('ListTask', ListTask);
 
+  flow.registerMiddleware(onExecuteNode);
+
   let value: boolean = false;
   flow
     .start(flowPackage)
     .then((services: any) => {
       services.logMessage = (arg1, arg2) => {
-        console.log(arg1, arg2);
+        //console.log(arg1, arg2);
       };
 
       for (var key of Object.keys(observables)) {

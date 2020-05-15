@@ -125,7 +125,7 @@ export const taskTypeConfig: any = {
   ConditionalTriggerTask: {
     shapeType: 'Diamond',
     presetValues: {
-      propertyName: 'outputValue',
+      propertyName: '',
       minValue: -1,
       maxValue: -1,
     },
@@ -142,6 +142,16 @@ export const taskTypeConfig: any = {
   SliderTask: {
     shapeType: 'Html',
     htmlPlugin: 'sliderNode',
+    presetValues: {
+      htmlPlugin: "sliderNode",
+      propertyName: "",
+      maxValue: 100,
+      onChange: "",
+      title: "",
+      preLabel: "",
+      afterLabel: "",
+      defaultValue: 50,
+    }
   },
   InputTask: {
     shapeType: 'Html',
@@ -150,6 +160,15 @@ export const taskTypeConfig: any = {
   DebugTask: {
     shapeType: 'Html',
     htmlPlugin: 'debugNode',
+    presetValues: {
+      htmlPlugin: "debugNode",
+      visualizer: "",
+      propertyName: "",
+      format: "toFixed",
+      fixed: 2,
+      decimalSeparator: ",",
+      afterLabel: ""
+    }
   },
   ReduxArrayStateType: {
     ...stateTypeTask,

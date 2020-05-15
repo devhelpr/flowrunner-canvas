@@ -23,8 +23,14 @@ export const Html = (props: ShapeTypeProps) => {
 		y={props.y}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
-		draggable={true}
+		draggable={false}
 		onClick={props.onClickShape}
+		onTouchStart={props.onTouchStart}
+		onTouchMove={props.onTouchMove}
+		onTouchEnd={props.onTouchEnd}
+		onMouseDown={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseUp={props.onMouseEnd}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}				
 		><KonvaRect

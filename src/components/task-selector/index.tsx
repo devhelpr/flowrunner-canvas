@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { getFlowEventRunner } from '@devhelpr/flowrunner-redux';
 import fetch from 'cross-fetch';
+import { connect } from "react-redux";
 
 export interface TaskSelectorProps {
-	selectTask : (taskClassName : string) => void
+	selectTask : (taskClassName : string) => void;
+	canvasMode : any;
 }
 
 export interface TaskSelectorState {
@@ -11,7 +13,14 @@ export interface TaskSelectorState {
 	metaDataInfo: any[];
 }
 
-export class TaskSelector extends React.Component<TaskSelectorProps, TaskSelectorState> {
+const mapStateToProps = (state: any) => {
+	return {
+		canvasMode: state.canvasMode
+	}
+}
+
+
+class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelectorState> {
 
 	state = {
 		selectedTaskClassName : "",
@@ -54,7 +63,7 @@ export class TaskSelector extends React.Component<TaskSelectorProps, TaskSelecto
 		*/
 
 		return <div className="task-selector">
-			<select className="form-control" value={this.state.selectedTaskClassName}
+			<select className="form-control" value={this.props.canvasMode.selectedTask}
 				onChange={this.selectTask}
 			>
 				<option value="" disabled>Select task</option>
@@ -65,3 +74,5 @@ export class TaskSelector extends React.Component<TaskSelectorProps, TaskSelecto
 		</div>
 	}
 }
+
+export const TaskSelector = connect(mapStateToProps)(ContainedTaskSelector);

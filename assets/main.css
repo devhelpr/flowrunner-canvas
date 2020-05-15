@@ -11,6 +11,10 @@ body, html {
 	height: 72px;
 }
 
+.sticky-top.toolbar__root {
+	z-index: 10000 !important;
+}
+
 .toolbar__container {
 	height: 72px;
 }
@@ -197,6 +201,105 @@ canvas,.konvajs-content,
 	padding: 10px;
 	padding-left: 5px;
 	padding-right: 15px;
+}
+
+.ui-controls-bar__small-width {
+	width: 48px;
+	overflow: visible;
+}
+
+.MuiSlider-valueLabel {
+	transform: translateY(9px) translateX(-20px) rotate(-90deg) !important;
+	z-index: 100000;
+}
+
+.MuiSlider-valueLabel span span {
+	transform: rotate(135deg);
+}
+
+.ui-controls-bar::-webkit-scrollbar {
+	display: none;
+}
+
+.ui-controls-bar__debug-info {
+	white-space: pre-wrap;
+	color: white;
+	font-size: 12px;
+	overflow-x: scroll;
+	width: 100%;
+	height: 100%;
+}
+
+.ui-controls-bar__debug-info::-webkit-scrollbar {
+	display: none;
+}
+
+.ui-controls-bar__debug-info-content {
+	width: auto;
+    display: block;
+    white-space: pre;
+}
+
+
+.debug-info {
+	position: fixed;
+    bottom: 72px;
+    width: 150px;
+    background: #000000;
+    right: 60px;
+    height: 200px;
+	z-index: 9990;
+	
+	display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+	align-items: center;
+	padding-top: 10px;
+
+	overflow: hidden;
+	overflow-y: scroll;
+	
+	-ms-overflow-style: none;
+	padding: 10px;
+	padding-left: 5px;
+	padding-right: 15px;
+}
+
+.debug-info::-webkit-scrollbar {
+	display: none;
+}
+
+.debug-info__debug-info {
+	white-space: pre-wrap;
+	color: white;
+	font-size: 12px;
+	overflow-x: scroll;
+	width: 100%;
+	height: 100%;
+}
+
+.debug-info__debug-info::-webkit-scrollbar {
+	display: none;
+}
+
+.debug-info__debug-info-content {
+	width: auto;
+    display: block;
+    white-space: pre;
+}
+
+@media only screen and (max-width: 1023px) {
+
+	.taskbar {
+		bottom: 56px;
+		height: auto;
+		display: none;
+	}
+
+	.ui-controls-bar {
+		bottom: 56px;
+		height: auto;
+	}
 }
 
 .ui-controls-bar  .canvas__html-shape--in-bar {

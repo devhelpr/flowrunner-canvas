@@ -191,7 +191,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					newPosition.x = ((touchPos.x - (stage).x()) / scaleFactor) - this.mouseStartX;
 					newPosition.y = ((touchPos.y - (stage).y()) / scaleFactor) - this.mouseStartY;
 						
-					console.log("touchPos", touchPos, newPosition);
+					let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
+					if (shapeType == "Html") {
+						//newPosition.y += ((node.height || ShapeMeasures.htmlHeight)/2);
+						//newPosition.x += 125;
+					}
+					//console.log("touchPos", touchPos, newPosition, this.mouseStartX, this.mouseStartY);
 				}
 			}
 
@@ -201,7 +206,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
 		this.props.storeRawNode(Object.assign({}, node, newPosition ), node.name);
-		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, x, y, node);						
+		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, newPosition.x, newPosition.y, node);						
 
 		if (startLines) {
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition);
@@ -219,7 +224,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			})
 		}
 
+
 		this.props.selectNode(node.name, node);
+		this.props.setConnectiongNodeCanvasMode(false);
+
 	}
 
 	onMouseOver(node, event) {
@@ -259,21 +267,25 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				this.mouseStartX = newPosition.x - x;
 				this.mouseStartY = newPosition.y - y;
 
-				console.log("this.mouseStart" , this.mouseStartX, this.mouseStartY);
+				//console.log("this.mouseStart" , this.mouseStartX, this.mouseStartY);
 			}
 		}
 	}
 
 	onMouseStart(node, event) {
-		this.touching = true;
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
 		
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			this.cancelDragStage();
+			return false;
+		}
 
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;		
+
+		this.touching = true;
 		this.touchNode = node;
 		this.touchNodeGroup = event.currentTarget;
-		this.cancelDragStage();
-
+//console.log("onMouseStart", event);
 		if (event.currentTarget) {
 			this.determineStartPosition(event.currentTarget);
 		}
@@ -284,13 +296,21 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	onMouseMove(node, event) {
 		
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			this.cancelDragStage();
+			return false;
+		}
+
 		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
+		event.evt.cancelBubble = true;	
+
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			return false;
+		}
 
 		if (this.touching) {
 			//console.log("onMouseMove", node, event);
 			if (event.currentTarget) {
-				
 				this.setNewPositionForNode(node, event.currentTarget, event.evt.screenX ? {
 					x: event.evt.screenX,
 					y: event.evt.screenY
@@ -302,14 +322,22 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	onMouseEnd(node, event) {
+
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		
+		if (this.touchNodeGroup != event.currentTarget) {
+			return false;
+		}
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			return false;
+		}
+
 		this.touching = false;
 		this.dragTime = undefined;
 		this.touchNode = undefined;
 		this.touchNodeGroup = undefined;
 
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
-		
 		if (event.currentTarget) {
 			this.setNewPositionForNode(node, event.currentTarget, undefined);
 		}
@@ -319,12 +347,15 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	isPinching : boolean = false;
 	startDistance : number = 0;
 	onStageTouchStart(event) {
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			this.cancelDragStage();
+			return false;
+		}
 		if (this.touchNode && this.touchNodeGroup) {
-
+			this.cancelDragStage();
 		} else {
 			if (event.evt.touches.length > 1) {
 				this.isPinching = true;
-				console.log("event.evt.touches.length start" , event.evt.touches.length);
 
 				if (event.evt.touches.length == 2) {
 
@@ -338,15 +369,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 	onStageTouchMove(event) {
 		
-		
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			this.cancelDragStage();
+			return false;
+		}
+
 		if (this.touchNode && this.touchNodeGroup) {			
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
 			this.setNewPositionForNode(this.touchNode, this.touchNodeGroup);
 			this.cancelDragStage();
+			return false;
 		} else {
 			if (event.evt.touches && event.evt.touches.length > 1) {
-				console.log("event.evt.touches.length move" , event.evt.touches.length);
 				event.evt.preventDefault();
 				event.evt.cancelBubble = true;
 
@@ -392,6 +427,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (this.isPinching) {
 			return;			
 		}
+		if (!!this.props.canvasMode.isConnectingNodes) {			
+			return false;
+		}
 
 		this.touching = true;
 		event.evt.preventDefault();
@@ -411,15 +449,22 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	onTouchMove(node, event) {
 
+		if (!!this.props.canvasMode.isConnectingNodes) {			
+			return false;
+		}
+		
 		if (this.isPinching) {
 			return;			
+		}
+
+		if (this.touchNodeGroup != event.currentTarget) {
+			return false;
 		}
 
 		this.touching = true;
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
 		if (event.currentTarget) {
-			
 			this.setNewPositionForNode(node, event.currentTarget, event.evt.touches.length > 0 ? {
 				x: event.evt.touches[0].screenX,
 				y: event.evt.touches[0].screenY
@@ -432,6 +477,14 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		if (this.isPinching) {
 			return;			
+		}
+		
+		if (!!this.props.canvasMode.isConnectingNodes) {			
+			return false;
+		}
+		
+		if (this.touchNodeGroup != event.currentTarget) {
+			return false;
 		}
 
 		this.touching = false;
@@ -456,7 +509,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	onDragStart(node, event) {
 		if (this.touching) {
 			this.draggingWhileTouching = true;
-			console.log("onDragStart", event);
+			//console.log("onDragStart", event);
 			if (event.evt && event.evt.cancelBubble) {
 				event.evt.cancelBubble = true;
 			}
@@ -467,7 +520,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			//event.evt.preventDefault();
 			return false;
 		}
-		console.log("onDragStart", event);
+		//console.log("onDragStart", event);
 	}
 	onDragMove(node, event) {
 		if (this.touching) {
@@ -476,7 +529,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			//event.evt.preventDefault();
 			return false;
 		}
-		console.log("onDragMove", node, event);
+		//console.log("onDragMove", node, event);
 		this.setNewPositionForNode(node, event.currentTarget);		
 	}
 
@@ -489,7 +542,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			return false;
 		}
 
-		console.log("onDragEnd", node, event);
+		//console.log("onDragEnd", node, event);
 		this.dragTime = undefined;
 		this.setNewPositionForNode(node, event.currentTarget);
 
@@ -505,12 +558,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	onClickShape(node, event) {
 		event.cancelBubble = true;
 		event.evt.preventDefault();
-		console.log("onClickShape", node, event);
 		this.cancelDragStage();
 
-		if (this.props.canvasMode.isConnectingNodes && 
+		if (!!this.props.canvasMode.isConnectingNodes && 
 			this.props.selectedNode !== undefined &&
+			this.props.selectedNode.node !== undefined &&
 			this.props.selectedNode.shapeType !== "Line") {
+
 			const connection = getNewConnection(this.props.selectedNode.node, node);
 			this.props.addConnection(connection);
 			this.props.addRawConnection(connection);
@@ -518,6 +572,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 
 		this.props.selectNode(node.name, node);
+		this.props.setConnectiongNodeCanvasMode(false);
 
 		return false;		
 	}
@@ -541,7 +596,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			return;			
 		}
 
-		console.log("onDragStageMove", event);
+		if (!!this.props.canvasMode.isConnectingNodes) {			
+			return false;
+		}
+
 
 		if (this.touching || this.draggingWhileTouching) {
 			if (event.target && event.target.stopDrag) {
@@ -557,7 +615,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 			return false;
 		}
-		
 		
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
@@ -577,6 +634,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			return;			
 		}
 
+		if (!!this.props.canvasMode.isConnectingNodes) {			
+			return false;
+		}
+
 		if (event.evt && event.evt.cancelBubble) {
 			event.evt.cancelBubble = true;
 		}
@@ -587,7 +648,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (this.touching || this.draggingWhileTouching) {
 			return false;
 		}
-console.log("onDragStageEnd", event);
+
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
 			if (stage) {
@@ -596,8 +657,7 @@ console.log("onDragStageEnd", event);
 				this.stageY = stage.y();
 				this.stageScale = stage.scale().x;
 
-				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);						
-
+				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
 			}
 		}
 	}
@@ -706,7 +766,7 @@ console.log("onDragStageEnd", event);
 			}
 		}
 		
-		console.log("wheelEvent", e);
+		//console.log("wheelEvent", e);
 		if (e.preventDefault) {
 			e.preventDefault();
 		}
@@ -831,7 +891,7 @@ console.log("onDragStageEnd", event);
 						
 						newPos.x = (-xMin*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
 						newPos.y = (-yMin*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
-console.log(newPos, scale);
+
 						stage.position(newPos);
 						stage.batchDraw();
 
@@ -855,11 +915,10 @@ console.log(newPos, scale);
 		}
 
 		const nodeIsSelected : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
+			
 		
-		this.props.selectNode(undefined, undefined);
-		this.props.setConnectiongNodeCanvasMode(false);
-		
-		if (!nodeIsSelected && this.props.canvasMode.selectedTask !== "") {
+		if (!nodeIsSelected && this.props.canvasMode.selectedTask !== undefined &&
+			this.props.canvasMode.selectedTask !== "") {
 			if (!this.props.canvasMode.isConnectingNodes) {
 				if (this.stage && this.stage.current) {
 					let stage = (this.stage.current as any).getStage();
@@ -871,18 +930,6 @@ console.log(newPos, scale);
 					if (shapeSetting && shapeSetting.presetValues) {
 						presetValues = shapeSetting.presetValues;
 					}
-
-					/*this.props.addNode({
-						name: this.props.canvasMode.selectedTask,
-						id: this.props.canvasMode.selectedTask,
-						taskType: taskType,
-						shapeType: this.props.canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
-						x: (position.x - (stage).x()) / scaleFactor, 
-						y: (position.y - (stage).y()) / scaleFactor,
-						...presetValues  
-					}, this.props.flow);
-					*/
-
 
 					let newNode = getNewNode({
 						name: this.props.canvasMode.selectedTask,
@@ -913,9 +960,18 @@ console.log(newPos, scale);
 					 
 					this.props.addNode(newNode, this.props.flow);
 					this.props.addRawFlow(newNode);
+
+
 				}				
 			}
 		}
+
+		// TODO : do we need to select the added node or dont? (see also the flow-actions)
+		this.props.selectNode(undefined, undefined);
+
+		this.props.setConnectiongNodeCanvasMode(false);
+		this.props.setSelectedTask("");		
+		
 		return false;
 	}
 

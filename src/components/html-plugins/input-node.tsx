@@ -1,31 +1,68 @@
 import * as React from 'react';
+import { connect } from "react-redux";
+
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+
+import { storeFlowNode } from '../../redux/actions/flow-actions';
+import { modifyRawFlow } from '../../redux/actions/raw-flow-actions';
+
 export interface InputNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
+	flow: any;
+
+	selectedNode: any;
+
+	storeFlowNode: (node, orgNodeName) => void;
+	modifyRawFlow: (node, orgNodeName) => void;	
 }
 
 export interface InputNodeHtmlPluginState {
 	value : string;
 	values : string[];
+	node : any;
 }
 
-export class InputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProps, InputNodeHtmlPluginState> {
+const mapStateToProps = (state : any) => {
+	return {
+		selectedNode : state.selectedNode,
+		flow: state.flow
+	}
+}
+
+const mapDispatchToProps = (dispatch : any) => {
+	return {
+		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
+		modifyRawFlow: (node, orgNodeName) => dispatch(modifyRawFlow(node, orgNodeName)),
+	}
+}
+
+class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProps, InputNodeHtmlPluginState> {
 
 	state = {
 		value : "",
-		values : []
+		values : [],
+		node : {}
 	};
 
 	componentDidMount() {
 		if (this.props.node) {
-			this.props.flowrunnerConnector.modifyFlowNode(
-				this.props.node.name, 
-				this.props.node.propertyName, 
-				this.props.node.defaultValue || "",
-				""
-			);
-			this.setState({value : this.props.node.defaultValue || ""});
+
+			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
+				if (this.props.node.mode && this.props.node.mode === "list") {
+					this.setState({node: this.props.node, values : this.props.node.values || this.props.node.defaultValues || []});
+				} else {
+					this.setState({node: this.props.node, value : this.props.node.value || this.props.node.defaultValue || ""});
+				}
+			} else {
+				this.props.flowrunnerConnector.modifyFlowNode(
+					this.props.node.name, 
+					this.props.node.propertyName, 
+					this.props.node.defaultValue || "",
+					""
+				);
+				this.setState({node: this.props.node, value : this.props.node.defaultValue || ""});
+			}
 		}
 	}
 	
@@ -37,18 +74,37 @@ export class InputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProp
 		return false;
 	}
 
+	storeNode = () => {
+		this.props.modifyRawFlow(this.state.node, this.props.node.name);
+		this.props.storeFlowNode(this.state.node, this.props.node.name);
+
+		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
+	}
+
 	onChange = (event: any) => {
 		console.log("input", event.target.value, this.props.node);
 		if (this.props.node) {
+			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
 
-			this.props.flowrunnerConnector.modifyFlowNode(
-				this.props.node.name, 
-				this.props.node.propertyName, 
-				event.target.value,
-				this.props.node.onChange || ""
-			);
+				this.setState({
+					node : {...this.props.node, value: this.props.node.value }, 
+					value: this.props.node.value}, 
+					() => {
+					this.storeNode();
+				});
+				
+			} else {
+				this.props.flowrunnerConnector.modifyFlowNode(
+					this.props.node.name, 
+					this.props.node.propertyName, 
+					event.target.value,
+					this.props.node.onChange || ""
+				);
 
-			this.setState({value : event.target.value});
+				this.setState({value : event.target.value});
+			}
+
+			
 		}
 	}
 
@@ -57,20 +113,32 @@ export class InputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProp
 		if (this.props.node) {
 
 			if (this.props.node.mode && this.props.node.mode === "list") {
-							
-				let newState : string[] = this.state.values;
-				newState[parseInt(index)] = event.target.value;
-
+				let newState : string[] = [...this.state.values];
 				console.log("newState", newState);
+				newState[parseInt(index)] = event.target.value;
+			
+				if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
+					this.setState({
+						node : {...this.props.node, values: newState }, 
+						values: newState}, 
+						() => {
+						this.storeNode();
+					});
+	
+				} else {
+				
+					console.log("newState", newState);
 
-				this.props.flowrunnerConnector.modifyFlowNode(
-					this.props.node.name, 
-					this.props.node.propertyName, 
-					newState,
-					this.props.node.onChange || ""
-				);
-
-				this.setState({values : newState});
+					this.props.flowrunnerConnector.modifyFlowNode(
+						this.props.node.name, 
+						this.props.node.propertyName, 
+						newState,
+						this.props.node.onChange || ""
+					);
+					this.setState({values : newState});
+				
+				}
+				
 			}
 		}
 	}
@@ -80,18 +148,29 @@ export class InputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProp
 		if (this.props.node) {
 
 			if (this.props.node.mode && this.props.node.mode === "list") {
-				let newState : string[] = this.state.values;
+				let newState : string[] = [...this.state.values];
 				if (index > -1) {
 					newState.splice(index, 1);
 
-					this.props.flowrunnerConnector.modifyFlowNode(
-						this.props.node.name, 
-						this.props.node.propertyName, 
-						newState,
-						this.props.node.onChange || ""
-					);
+					if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
+						this.setState({
+							node : {...this.props.node, values: newState }, 
+							values: newState} , 
+							() => {
+							this.storeNode();
+						});
 	
-					this.setState({values : newState});
+					} else {						
+						this.props.flowrunnerConnector.modifyFlowNode(
+							this.props.node.name, 
+							this.props.node.propertyName, 
+							newState,
+							this.props.node.onChange || ""
+						);
+						this.setState({values : newState});
+					}
+	
+					
 				}
 			}
 		}
@@ -101,17 +180,28 @@ export class InputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProp
 	onAddValue = (event) => {
 		event.preventDefault();
 		if (this.props.node) {
-			let newState : string[] = this.state.values;
+			let newState : string[] = [...this.state.values];
 			newState.push("");
 
-			this.props.flowrunnerConnector.modifyFlowNode(
-				this.props.node.name, 
-				this.props.node.propertyName, 
-				newState,
-				this.props.node.onChange || ""
-			);
+			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
 
-			this.setState({values : newState});
+				this.setState({
+					node : {...this.props.node, values: newState}, 
+					values: newState } , 
+					() => {
+					this.storeNode();
+				});
+
+			} else {
+				this.props.flowrunnerConnector.modifyFlowNode(
+					this.props.node.name, 
+					this.props.node.propertyName, 
+					newState,
+					this.props.node.onChange || ""
+				);
+				this.setState({values : newState});
+			}
+			
 		}
 		return false;
 	}
@@ -169,3 +259,5 @@ export class InputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProp
 		</div>;
 	}
 }
+
+export const InputNodeHtmlPlugin = connect(mapStateToProps, mapDispatchToProps)(ContainedInputNodeHtmlPlugin);

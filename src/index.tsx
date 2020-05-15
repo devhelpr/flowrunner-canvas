@@ -16,8 +16,8 @@ import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { Taskbar } from './components/Taskbar';
 import { UIControlsBar} from './components/ui-controls-bar';
-
-import { FlowConnector } from './flow-connector';
+import { DebugInfo } from './components/debug-info';
+import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 
 import { ExecuteNodeHtmlPlugin } from './components/html-plugins/execute-node';
@@ -27,7 +27,21 @@ import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
 
 import Worker from "worker-loader!./service-worker";
 
-const worker = new Worker();
+const root = document.getElementById('flowstudio-root');
+
+const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
+
+let worker : Worker;
+
+let flowrunnerConnector : any = undefined;
+
+if (!!hasRunningFlowRunner) {
+	flowrunnerConnector = new FlowConnector();
+	worker = new Worker();
+ 	flowrunnerConnector.registerWorker(worker);
+} else {
+	flowrunnerConnector = new EmptyFlowConnector();
+}
 
 
 let flowPackage = HumanFlowToMachineFlow.convert({flow: [
@@ -38,9 +52,6 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 		"variableName": "dummy"
 	}
 ]});
-
-const flowrunnerConnector = new FlowConnector();
-flowrunnerConnector.registerWorker(worker);
 
 
 const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
@@ -82,7 +93,6 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 }
 
 const flowEventRunner = getFlowEventRunner();
-const root = document.getElementById('flowstudio-root');
 const hasLogin = root && root.getAttribute("data-has-login") === "true";
 const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
@@ -103,8 +113,11 @@ const App = (props : IAppProps) => {
 		{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 			<>
 				<Taskbar></Taskbar>
-				{!!hasUIControlsBar && <UIControlsBar renderHtmlNode={renderHtmlNode}
+				{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
 					flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
+				{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+					flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+
 				<Toolbar canvasToolbarsubject={canvasToolbarsubject} flowrunnerConnector={flowrunnerConnector}></Toolbar>
 				<Canvas canvasToolbarsubject={canvasToolbarsubject} renderHtmlNode={renderHtmlNode}
 					flowrunnerConnector={flowrunnerConnector}

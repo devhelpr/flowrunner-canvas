@@ -166,8 +166,12 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	connectNode = (event) => {
 		event.preventDefault();
+
+		console.log("connectNode connect button oldstate", this.props.canvasMode.isConnectingNodes, this.props.selectedNode);
+
 		if (!this.state.showEditPopup) {
-			this.props.setConnectiongNodeCanvasMode(!this.props.canvasMode.isConnectingNodes);
+			this.props.setConnectiongNodeCanvasMode(true);
+			console.log("connectNode connect button newstate", this.props.canvasMode.isConnectingNodes, this.props.selectedNode);
 		}
 		return false;
 	}

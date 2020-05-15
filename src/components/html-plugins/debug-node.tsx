@@ -34,7 +34,6 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 
 	componentDidUpdate(prevProps : any) {
 		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
-			console.log("DebugNodeHtmlPlugin nodes diff");
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
 			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
@@ -47,12 +46,16 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 
 	}
 
+	unmounted = false;
 	componentWillUnmount() {
+		this.unmounted = true;
 		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
 	}
 
 	receivePayloadFromNode = (payload : any) => {
-		//console.log("receivePayloadFromNode", this.props.node.name, payload);
+		if (this.unmounted) {
+			return;
+		}
 		let receivedPayloads : any[] = this.state.receivedPayload;
 		receivedPayloads.push(payload);
 		receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (this.props.node.maxPayloads || 1), 0));

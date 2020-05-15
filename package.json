@@ -23,7 +23,7 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/flowrunner": "0.8.5",
+    "@devhelpr/flowrunner": "0.8.6",
     "@devhelpr/flowrunner-expression": "0.0.6",
     "@devhelpr/flowrunner-redux": "0.5.8",
     "@material-ui/core": "^4.9.5",
@@ -46,8 +46,6 @@
     "popper.js": "^1.15.0",
     "react": "^0.0.0-experimental-5de5b6150",
     "react-bootstrap": "^1.0.0-beta.16",
-    "react-dnd": "^10.0.2",
-    "react-dnd-html5-backend": "^10.0.2",
     "react-dom": "^0.0.0-experimental-5de5b6150",
     "react-konva": "16.12.0-0",
     "react-redux": "^7.2.0",

@@ -51,9 +51,10 @@ export const addNode = (node: any, flow: any[]) => {
     */
 
     dispatch(addFlowNode(node));
-    dispatch(selectNode(node.name, node));
 
-    //dispatch(selectNode(newNode.name, newNode));
+    // TODO : should this be done or not
+    //dispatch(selectNode(node.name, node));
+
   };
 };
 

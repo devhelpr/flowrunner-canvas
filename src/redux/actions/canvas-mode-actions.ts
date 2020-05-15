@@ -9,6 +9,7 @@ export type setConnectiongNodeCanvasModeFunction = (enabled: boolean) => void;
 export type setSelectedTaskFunction = (selectedTask: string) => void;
 export type setShowDependenciesFunction = (showDependencies: boolean) => void;
 export type setAllowInputToHtmlNodesFunction = (allowInputToHtmlNodes: boolean) => void;
+
 export const setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction = enabled =>
   action(SET_CONNECTING_CANVAS_MODE_NODE, { enabled: enabled });
 
