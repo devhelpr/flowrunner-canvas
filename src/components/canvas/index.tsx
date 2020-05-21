@@ -1074,6 +1074,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 							let isNodeByName = match.indexOf('"node":') >= 0;
 							let isGetVariable = match.indexOf('"getVariable":') >= 0;
+							let isSetVariable = match.indexOf('"setVariable":') >= 0;
 							isNodeByName = isNodeByName || match.indexOf('"useListFromNode":') >= 0;
 
 							let nodeName = match.replace('"node":', "");
@@ -1091,7 +1092,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							let startToEnd : boolean = true;
 							let isConnectionWithVariable = false;
 
-							if (isNodeByName && !isGetVariable) {
+							if (isNodeByName && !isGetVariable && !isSetVariable) {
 								nodeEnd = this.getNodeByName(nodeName);
 								if (nodeEnd && !!nodeEnd.hasVariableAttached) {
 									isConnectionWithVariable = true;
@@ -1100,9 +1101,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 								if (nodeEnd && nodeEnd.variableName && node.getVariable) {
 									nodeEnd = undefined;
 								}
-							}
+							}							
 
-							if (isGetVariable) {
+							if (isGetVariable || isSetVariable) {
 								nodeEnd = this.getNodeByVariableName(nodeName);
 
 								if (nodeEnd) {

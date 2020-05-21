@@ -23,7 +23,7 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/flowrunner": "0.8.6",
+    "@devhelpr/flowrunner": "0.8.8",
     "@devhelpr/flowrunner-expression": "0.0.6",
     "@devhelpr/flowrunner-redux": "0.5.8",
     "@material-ui/core": "^4.9.5",
@@ -79,8 +79,6 @@
     "typescript": "^3.8.2",
     "vinyl-named": "^1.1.0",
     "webpack-stream": "^5.2.1",
-    "workbox-build": "5.0.0",
-    "workbox-webpack-plugin": "^5.0.0",
     "worker-loader": "^2.0.0"
   },
   "resolutions": {
