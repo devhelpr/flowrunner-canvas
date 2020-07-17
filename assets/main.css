@@ -117,12 +117,20 @@ canvas,.konvajs-content,
 	background: #c2c2c2;
 }
 
+.canvas__html-shape-bar--selected {
+	background: #a2a2a2;
+}
+
 .canvas__html-shape-body {
 	position: relative;
 	pointer-events: auto;
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
+}
+
+.mouse--moving .canvas__html-shape-body {
+	pointer-events: none;
 }
 
 .html-plugin-node > div {
@@ -344,4 +352,8 @@ canvas,.konvajs-content,
 	.toolbar__container .task-selector {
 		margin-bottom: 10px;
 	}
+}
+
+.html-plugin-node--xycanvas .konvajs-content {
+	left: 1px;
 }

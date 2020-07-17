@@ -854,10 +854,10 @@
     rxjs-compat "^6.4.0"
     uuid "^3.3.2"
 
-"@devhelpr/flowrunner@0.8.8":
-  version "0.8.8"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.8.8.tgz#7b833550858c2859d9d0e928d845258fa39a7fcb"
-  integrity sha512-DWZN8Z4C2cqMaXsjRmQKJ3KFNpWHAIQ7DzLdzyHuAqZrMTdQpTWMH4e9+91R7Aclqiu4usQx2H5DSkfB2+MycA==
+"@devhelpr/flowrunner@0.9.3":
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.9.3.tgz#39663338847fb7ae4644fb9de2a758447d34381f"
+  integrity sha512-uoZmkvzrWQriFjxHAdHrGnHTYXGsvfs18W60GgNktbDZ8F/I/qSlMfFXfQ75qY46TAhDgJFzq64h5b2nSgfPZQ==
   dependencies:
     "@reactivex/rxjs" "^6.4.0"
     "@types/uuid" "^3.4.4"

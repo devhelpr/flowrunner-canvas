@@ -1,4 +1,4 @@
-import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector, IExecutionEvent } from '../interfaces/IFlowrunnerConnector';
 import { IWorker } from '../interfaces/IWorker';
 
 export class EmptyFlowConnector implements IFlowrunnerConnector {
@@ -17,7 +17,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   unregisterFlowNodeObserver = (nodeName, observableId) => {};
 
-  registerFlowExecutionObserver = (observableId: string, callback: () => void) => {};
+  registerFlowExecutionObserver = (observableId: string, callback: (executionEvent : IExecutionEvent) => void) => {};
 
   unregisterFlowExecuteObserver = observableId => {};
 
@@ -27,11 +27,17 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode: string) => {};
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any,  executeNode?: string, eventName? : string) => {};
 
   isActiveFlowRunner = () => {
     return false;
   };
+
+  setPluginRegistry = (pluginRegistry : any) => {};
+
+  getPluginRegistry = () => {
+    return {};
+  }
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -40,6 +46,8 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   nodeExecutions: any[] = [];
   nodeExecutionsByNode: any = {};
+
+  pluginRegistry : any = {};
 
   getNodeExecutions() {
     return this.nodeExecutions;
@@ -72,8 +80,9 @@ export class FlowConnector implements IFlowrunnerConnector {
         this.nodeExecutionsByNode[event.data.name].splice(0, this.nodeExecutionsByNode[event.data.name].length - 5);
 
         this.executionObservables.map(exectutionObservable => {
-          exectutionObservable.callback();
+          exectutionObservable.callback(event.data);
         });
+        
       } else if (event.data.command == 'SendObservableNodePayload') {
         // TODO : de eerst keer gaat dit niet goed...
         //console.log("SendObservableNodePayload", event.data);
@@ -113,14 +122,37 @@ export class FlowConnector implements IFlowrunnerConnector {
               observable.callback(event.data.payload);
             });
         }
+      } else if (event.data.command == "ExecuteFlowPlugin") {
+        /*
+          event.data.nodeName
+          event.data.payload
+          event.data.pluginName
+
+          // return ResultFlowPlugin with the same data properties
+        */
+        //console.log("ExecuteFlowPlugin", event);
+
+        let pluginInfo = this.pluginRegistry[event.data.pluginName];
+        if (pluginInfo) {
+          let pluginInstance = new pluginInfo.FlowTaskPlugin();
+          let result = pluginInstance.execute({payload: {...event.data.payload}}, {
+            flowrunnerConnector : this
+          });
+          if (this.worker) {
+            this.worker.postMessage({
+              command: 'ResultFlowPlugin',
+              nodeName: event.data.nodeName,
+              payload: result,
+              pluginName: event.data.pluginName
+            });
+          }
+        }
       }
     }
     return;
   };
 
   registerFlowNodeObserver = (nodeName: string, observableId: string, callback: (payload: any) => void) => {
-    //console.log("registerFlowNodeObserver", nodeName);
-    //this.observables[nodeName] = callback;
 
     this.observables.push({
       nodeName: nodeName,
@@ -137,23 +169,29 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   unregisterFlowNodeObserver = (nodeName, observableId) => {
-    let indexes = this.observables
-      .filter(observable => {
-        return observable.observableId === observableId;
-      })
+    let indexes : number[] = [];
+
+    // TODO : refactor this to a better way !!
+    this.observables
       .map((observable, index) => {
-        return index;
+        if (observable.id === observableId) {
+          if (indexes.length === 0) {
+            indexes.push(index);
+          }
+        }
       });
 
     indexes.map((indexInObservables: number) => {
       this.observables[indexInObservables] = undefined;
       delete this.observables[indexInObservables];
+      this.observables.splice(indexInObservables);
     });
+
   };
 
   executionObservables: any[] = [];
 
-  registerFlowExecutionObserver = (observableId: string, callback: () => void) => {
+  registerFlowExecutionObserver = (observableId: string, callback: (executionEvent : IExecutionEvent) => void) => {
     this.executionObservables.push({
       callback: callback,
       id: observableId,
@@ -161,17 +199,23 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   unregisterFlowExecuteObserver = observableId => {
-    let indexes = this.executionObservables
-      .filter(observable => {
-        return observable.observableId === observableId;
-      })
+   
+    let indexes : number[] = [];
+  
+    // TODO : refactor this to a better way !!
+    this.executionObservables
       .map((observable, index) => {
-        return index;
+        if (observable.id === observableId) {
+          if (indexes.length === 0) {
+            indexes.push(index);
+          }
+        }
       });
 
     indexes.map((indexInObservables: number) => {
-      this.observables[indexInObservables] = undefined;
-      delete this.observables[indexInObservables];
+      this.executionObservables[indexInObservables] = undefined;
+      delete this.executionObservables[indexInObservables];
+      this.executionObservables.splice(indexInObservables);
     });
   };
 
@@ -183,9 +227,16 @@ export class FlowConnector implements IFlowrunnerConnector {
       this.nodeExecutions = [];
       this.nodeExecutionsByNode = {};
 
+      let pluginRegistryTaskNames : string[] = [];
+      for (var pluginName of Object.keys(this.pluginRegistry)) {
+        let plugin : any = this.pluginRegistry[pluginName];
+        pluginRegistryTaskNames.push(plugin.FlowTaskPluginClassName);
+      }
+
       this.worker.postMessage({
         command: 'pushFlowToFlowrunner',
         flow: flow,
+        pluginRegistry: pluginRegistryTaskNames
       });
     }
   };
@@ -199,14 +250,15 @@ export class FlowConnector implements IFlowrunnerConnector {
     }
   };
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode: string) => {
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName? : string) => {
     if (this.worker) {
       this.worker.postMessage({
         command: 'modifyFlowNode',
         nodeName: nodeName,
         propertyName: propertyName,
         value: value,
-        executeNode: executeNode,
+        executeNode: executeNode || "",
+        triggerEvent : eventName || ""
       });
     }
   };
@@ -214,4 +266,12 @@ export class FlowConnector implements IFlowrunnerConnector {
   isActiveFlowRunner = () => {
     return true;
   };
+
+  setPluginRegistry = (pluginRegistry : any) => {
+    this.pluginRegistry = pluginRegistry;
+  };
+
+  getPluginRegistry = () => {
+    return this.pluginRegistry;
+  }
 }

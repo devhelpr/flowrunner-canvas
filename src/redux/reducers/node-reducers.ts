@@ -1,4 +1,4 @@
-import { SELECT_NODE } from '../actions/node-actions';
+import { SELECT_NODE, SET_PAYLOAD } from '../actions/node-actions';
 
 export const nodeReducer = (state: any = {}, action: any) => {
   switch (action.type) {
@@ -6,8 +6,16 @@ export const nodeReducer = (state: any = {}, action: any) => {
       return {
         name: action.payload.nodeName,
         node: action.payload.node,
+        payload: undefined
       };
     }
+    case SET_PAYLOAD: {
+      return {
+        ...state,
+        payload: action.payload.payload
+      }
+    }
+
     default:
       return state;
   }

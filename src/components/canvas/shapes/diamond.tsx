@@ -51,6 +51,7 @@ export const Diamond = (props: ShapeTypeProps) => {
 			verticalAlign="middle"
 			listening={false}
 			wrap="none"
+			fontSize={18}
 			ellipsis={true}
 			fill={settings.textColor}
 			perfectDrawEnabled={true}>

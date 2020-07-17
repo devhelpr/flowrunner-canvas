@@ -1,5 +1,5 @@
 import { shapeBackgroundColor, shapeSelectedBackgroundColor } from '../components/canvas/shapes/shape-types';
-import { taskTypeConfig } from '../config';
+import { getTaskConfigForTask} from '../config';
 
 export interface IShapeSettings {
   strokeColor: string;
@@ -9,6 +9,7 @@ export interface IShapeSettings {
   cornerRadius: number;
   isSkewed: boolean;
   subShapeType?: string;
+  events? : any[];
 }
 
 export class ShapeSettings {
@@ -21,20 +22,21 @@ export class ShapeSettings {
       cornerRadius: 0,
       isSkewed: false,
     };
-    if (taskTypeConfig[taskType]) {
+    const taskTypeConfig = getTaskConfigForTask(taskType);
+    if (taskTypeConfig) {
       let variableSettings = {};
       if (node && !!node.hasVariableAttached) {
         variableSettings = taskTypeConfig['_variable'];
       }
-      if (node && node.objectSchema && taskTypeConfig[taskType][node.objectSchema]) {
+      if (node && node.objectSchema && taskTypeConfig[node.objectSchema]) {
         settings = {
           ...settings,
-          ...taskTypeConfig[taskType],
+          ...taskTypeConfig,
           ...variableSettings,
-          ...taskTypeConfig[taskType][node.objectSchema],
+          ...taskTypeConfig[node.objectSchema],
         };
       } else {
-        settings = { ...settings, ...taskTypeConfig[taskType], ...variableSettings };
+        settings = { ...settings, ...taskTypeConfig, ...variableSettings };
       }
     }
     return settings;

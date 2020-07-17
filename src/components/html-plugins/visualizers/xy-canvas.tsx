@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { Stage, Layer , Circle } from 'react-konva';
+import { Stage, Layer , Circle, Line, Text, Label, Tag, Rect} from 'react-konva';
+import { min } from 'rxjs/operators';
+
+const heightCorrection = 42;
 
 export interface XYCanvasProps {
 	node : any;
@@ -10,6 +13,13 @@ export interface XYCanvasState {
 	
 }
 
+interface IMinMax {
+	min? : number;
+	max? : number;
+	ratio : number;
+	correction : number;
+}
+
 export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 	state = {
 				
@@ -17,35 +27,232 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 	componentDidMount() {
 	}
 
-	render() {
-		let circles : any = null;
-		const {node, payloads} = this.props;
-		circles = payloads.map((payload, index) => {
-			let circle : any = null;
-			if (node.xProperty && node.yProperty) {
-				if (!isNaN(payload[node.xProperty]) && !isNaN(payload[node.yProperty])) {
-					circle = <Circle 
-						key={"xycanvas-" + index}
-						x={payload[node.xProperty]}
-						y={payload[node.yProperty]}
-						radius={4}
-						stroke={"#000000"}
-						strokeWidth={2}
-						width={4}
-						height={4}
-						fill={"#000000"} 
-						perfectDrawEnabled={false}>
-					</Circle>
+	getMinMax = (payloads : any[], series : any[], height: number, node) => {
+		let result : IMinMax = {
+			min: undefined,
+			max: undefined,
+			ratio : 1,
+			correction : 0
+		};
+		payloads.map((payload) => {
+			series.map((serie) => {
+				if (payload[serie.yProperty]) {
+					if (result.min === undefined || payload[serie.yProperty] < result.min) {
+						result.min = payload[serie.yProperty];
+					}
+
+					if (result.max === undefined || payload[serie.yProperty] > result.max) {
+						result.max = payload[serie.yProperty];
+					}
+				}
+			})
+		});
+
+		if (node.minValue !== undefined) {
+			result.min = result.min !== undefined && node.minValue > result.min ? result.min : node.minValue ;
+		}
+		if (node.maxValue !== undefined) {
+			result.max = result.max !== undefined && node.maxValue < result.max ? result.max : node.maxValue ;
+		}
+
+		if (result.min !== undefined && result.max !== undefined) {
+			if (result.max - result.min != 0 && height != 0) {
+				result.ratio = 1 / ((result.max - result.min) / (height - 2));
+			}
+
+			if (result.min < 0) {
+				result.correction = -(result.min * result.ratio) + 1;
+			} else {
+				// ok
+				result.correction = -(result.min * result.ratio) + 1;
+			}
+		}
+		return result;
+	}
+
+	getLineChart = (node: any, xProperty, yProperty, payload: any, index: number, payloads : any[], color : string, serieIndex : number, title: string, fill: string, minmax: IMinMax) => {
+		let circle : any = null;
+		let height = (this.props.node.height || 250) - heightCorrection;
+
+		let xPosition = index;
+		if (payloads.length < 250) {
+			xPosition = index + (250 - payloads.length);
+		}
+
+		if ((xProperty == "index" || !isNaN(payload[xProperty])) && 
+			!isNaN(payload[yProperty])) {
+
+			let x = 0;
+			if (xProperty == "index") {
+				x = xPosition;
+			} else {					
+				x = payload[xProperty];				
+			}
+			let y = 2 + ((height-2) - ((payload[yProperty] * minmax.ratio) + (minmax.correction)));
+
+			let xNext = 0;
+			let yNext = 0;
+			if (!!node.includeLines && (index < payloads.length - 1)) {
+				if (xProperty == "index") {
+					xNext = xPosition + 1;
+				} else {
+					xNext = payloads[index+1][xProperty];
+				}
+				yNext = 2 + ((height-2) - ((payloads[index+1][yProperty] * minmax.ratio) + (minmax.correction)));
+			}
+
+			circle = <React.Fragment key={"xycanvas-wrapper-" + index + "-" + serieIndex}>
+				{!node.includeLines &&
+				<Circle 
+					key={"xycanvas-" + index + "-" + serieIndex}
+					x={x}
+					y={y}
+					radius={4}
+					stroke={color}
+					strokeWidth={2}
+					width={4}
+					height={4}
+					fill={color} 
+					perfectDrawEnabled={false}>
+				</Circle>}
+				{fill !== "" && !!node.includeLines && (index < payloads.length - 1) && <Line							
+					points={[x, y,
+						xNext,
+						yNext,
+						xNext,height,
+						x,height						
+					]}
+					tension={0}
+					closed
+					strokeWidth={1}
+					fill={fill}							
+				/>}
+				{!!node.includeLines && (index < payloads.length - 1) && <Line							
+					points={[x, y,
+						xNext,
+						yNext							
+					]}
+					tension={0}
+					closed
+					stroke={color}
+					strokeWidth={1}							
+				/>}
+				<Label x={4}
+						y={serieIndex * 24}
+						>
+					<Text 
+						text={title}
+						fontSize={18}
+						align='left'
+						height={24}
+						verticalAlign="middle"
+						listening={false}
+						wrap="none"
+						ellipsis={true}
+						fill={color}
+						perfectDrawEnabled={true}></Text>
+				</Label>
+			</React.Fragment>
+		}
+		return circle;
+	}
+
+	getCurved = (node: any, xProperty, yProperty, payloads : any[],minmax: IMinMax) => {
+
+		let height = (this.props.node.height || 250) - heightCorrection;
+		let points : number[] = [];
+		payloads.map((payload, index) => {
+			if (index % (node.sample || 10) == 0) {
+				if ((xProperty == "index" || !isNaN(payload[xProperty])) && 
+					!isNaN(payload[yProperty])) {
+					let xPosition = index;
+					if (payloads.length < 250) {
+						xPosition = index + (250 - payloads.length);
+					}
+
+					let x = 0;
+					if (xProperty == "index") {
+						x = xPosition;
+					} else {					
+						x = payload[xProperty];				
+					}
+					let y = 2 + ((height-2) - ((payload[yProperty] * minmax.ratio) + (minmax.correction)));
+					points.push(x);
+					points.push(y);
 				}
 			}
-			return circle;
-		});
-		return <Stage
+		})
+// tension={node.tension || 1}
+		return <Line							
+				points={points}
+				
+				stroke={"#000000"}
+				bezier={true}
+				strokeWidth={1}></Line>;
+	}
+
+	render() {
+		let height = (this.props.node.height || 250) - heightCorrection;
+		let circles : any = null;
+		const {node, payloads} = this.props;
+		let minmax = this.getMinMax(payloads, 
+			node.series ? node.series : [{xProperty : node.xProperty, yProperty: node.yProperty}],
+			height,
+			this.props.node);
+		//console.log(payloads);
+		// somehow.. some payloads are missing here, but they are received by debug-node
+
+		if (!!node.showCurved) {
+			circles = this.getCurved(node, node.xProperty, node.yProperty, payloads, minmax);
+			
+		} else {
+			circles = payloads.map((payload, index) => {
+				let circle : any = null;
+				if (node.series) {
+					circle = node.series.map((serie, serieIndex) => {
+						if (serie.xProperty && serie.yProperty && serie.color) {
+							return this.getLineChart(node, serie.xProperty, serie.yProperty, payload, index, payloads, serie.color, serieIndex, serie.title || "", serie.fill || "", minmax);
+						}
+						return null;
+					});
+				} else
+				if (node.xProperty && node.yProperty) {				
+					circle = this.getLineChart(node, node.xProperty, node.yProperty, payload, index, payloads, node.color || "#000000", 0, node.lineTitle || "", node.fill || "", minmax);
+				}
+				return circle;
+			});
+		}
+		const yAdd = 6;
+		return <Stage				
 				pixelRatio={1} 
-				width={this.props.node.width || 250}
-				height={this.props.node.height || 250}>		
+				width={(this.props.node.width || 250) + 1}
+				height={height}>		
 			<Layer>
 			{circles}
+			<Text width={(this.props.node.width || 250) - 12}
+				align="right"
+				fontSize={18}
+				y={yAdd + 0 * 24}
+				text={"min:" + minmax.min?.toFixed(2)}
+			></Text>
+			<Text width={(this.props.node.width || 250) - 12}
+				align="right"
+				fontSize={18}
+				y={yAdd + 1 * 24}
+				text={"max:" + minmax.max?.toFixed(2)}
+			></Text>
+			<Text width={(this.props.node.width || 250) - 12}
+				align="right"
+				fontSize={18}
+				y={yAdd + 2 * 24}
+				text={"ratio:" + minmax.ratio?.toFixed(2)}
+			></Text>
+			<Text width={(this.props.node.width || 250) - 12}
+				align="right"
+				fontSize={18}
+				y={yAdd + 3 * 24}
+				text={"correction:" + minmax.correction?.toFixed(2)}
+			></Text>
 			</Layer>
 		</Stage>;
 	}

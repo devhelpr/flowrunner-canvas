@@ -7,7 +7,7 @@ import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
-import { taskTypeConfig } from '../../config';
+import { getTaskConfigForTask } from '../../config';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
 import { Observable, Subject } from '@reactivex/rxjs';
@@ -40,6 +40,8 @@ export interface CanvasProps {
 	
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
+	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => any;
+	
 }
 
 const mapStateToProps = (state : any) => {
@@ -174,8 +176,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	setNewPositionForNode = (node, group, position? : any) => {
 
-		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
-		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(this.props.flow, node);
 
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
@@ -208,19 +208,28 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.props.storeRawNode(Object.assign({}, node, newPosition ), node.name);
 		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, newPosition.x, newPosition.y, node);						
 
-		if (startLines) {
-			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition);
-			startLines.map((node) => {
-				this.props.storeFlowNode(Object.assign({}, node, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), node.name);
-				this.props.storeRawNode(Object.assign({}, node, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), node.name);
+		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
+
+		let lines = {};
+		if (startLines) {			
+			startLines.map((lineNode) => {				
+				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode);
+				this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
+				this.props.storeRawNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
+				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
 			})
 		}
 
+		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(this.props.flow, node);
 		if (endLines) {
 			const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition);
-			endLines.map((node) => {
-				this.props.storeFlowNode(Object.assign({}, node, {xend: newEndPosition.x, yend: newEndPosition.y} ), node.name);
-				this.props.storeRawNode(Object.assign({}, node, {xend: newEndPosition.x, yend: newEndPosition.y} ), node.name);
+			endLines.map((lineNode) => {
+				let startPos = {};
+				if (lines[lineNode.name]) {
+					startPos = lines[lineNode.name];
+				}
+				this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
+				this.props.storeRawNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
 			})
 		}
 
@@ -311,6 +320,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (this.touching) {
 			//console.log("onMouseMove", node, event);
 			if (event.currentTarget) {
+				(this.canvasWrapper.current).classList.add("mouse--moving");
 				this.setNewPositionForNode(node, event.currentTarget, event.evt.screenX ? {
 					x: event.evt.screenX,
 					y: event.evt.screenY
@@ -322,6 +332,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	onMouseEnd(node, event) {
+
+		(this.canvasWrapper.current).classList.remove("mouse--moving");
 
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
@@ -926,7 +938,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					const scaleFactor = (stage as any).scaleX();
 					const taskType = this.props.canvasMode.selectedTask || "TraceConsoleTask";
 					let presetValues = {};
-					const shapeSetting = taskTypeConfig[taskType];
+					const shapeSetting = getTaskConfigForTask(taskType);
 					if (shapeSetting && shapeSetting.presetValues) {
 						presetValues = shapeSetting.presetValues;
 					}
@@ -1182,7 +1194,7 @@ console.log("taskClassName", event.target, taskClassName);
 					const scaleFactor = (stage as any).scaleX();
 					const taskType = taskClassName;
 					let presetValues = {};
-					const shapeSetting = taskTypeConfig[taskType];
+					const shapeSetting = getTaskConfigForTask(taskType);
 					if (shapeSetting && shapeSetting.presetValues) {
 						presetValues = shapeSetting.presetValues;
 					}
@@ -1314,6 +1326,7 @@ console.log("taskClassName", event.target, taskClassName);
 									ystart={node.ystart}
 									xend={node.xend} 
 									yend={node.yend}
+									isEventNode={node.event !== undefined && node.event !== ""}
 									selectedNodeName={canvasHasSelectedNode ? this.props.selectedNode.node.name : ""}
 									startNodeName={node.startshapeid}
 									endNodeName={node.endshapeid}									
@@ -1361,6 +1374,8 @@ console.log("taskClassName", event.target, taskClassName);
 
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
+
+									getNodeInstance={this.props.getNodeInstance}
 									></Shape>;
 							}
 							return null;
@@ -1377,16 +1392,31 @@ console.log("taskClassName", event.target, taskClassName);
 							const Shape = Shapes[shapeType];
 							if (shapeType === "Html" && Shape) {
 								const nodeClone = {...node};
+
+								const isSelected = this.props.selectedNode && this.props.selectedNode.name === node.name;
 								nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
 								
+								let width = undefined;
+								let height = undefined;
+
+								if (this.props.getNodeInstance) {
+									const instance = this.props.getNodeInstance(node, this.props.flowrunnerConnector, this.props.nodes, this.props.flow);
+									if (instance) {
+										if (instance.getWidth && instance.getHeight) {
+											width = instance.getWidth(node);
+											height = instance.getHeight(node);
+										}
+									}
+								}
+
 								return <div key={"html" + index}
 									style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
 											(this.stageY + node.y * this.stageScale) + "px) " +
 											"scale(" + (this.stageScale) + "," + (this.stageScale) + ") ",
-											width: (node.width || 250)+"px",
-											height: (node.height || 250)+"px",
-											left: (-(node.width || 250)/2)+"px",
-											top: (-(node.height || 250)/2)+"px",
+											width: (width || node.width || 250)+"px",
+											height: (height || node.height || 250)+"px",
+											left: (-(width || node.width || 250)/2)+"px",
+											top: (-(height || node.height || 250)/2)+"px",
 											opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
 										}}
 									data-node={node.name}	 
@@ -1394,7 +1424,7 @@ console.log("taskClassName", event.target, taskClassName);
 									data-y={node.y} 
 									ref={this.htmlElement} 
 									className="canvas__html-shape">
-										<div className="canvas__html-shape-bar">{node.label ? node.label : node.name}</div>
+										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>{node.label ? node.label : node.name}</div>
 										<div className="canvas__html-shape-body">
 										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow)}</div>
 										</div>;

@@ -1,38 +1,21 @@
 const ctx: Worker = self as any;
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
-import { Observable, Subject } from '@reactivex/rxjs';
+import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 import { ExpressionTask } from '@devhelpr/flowrunner-expression';
 import fetch from 'cross-fetch';
 import { replaceValues } from './helpers/replace-values';
+import * as uuid from 'uuid';
+
+import { ConditionalTriggerTask } from './flowrunner-plugins/conditional-trigger-task';
+import { MatrixTask } from './flowrunner-plugins/matrix-task';
+import { SliderTask } from './flowrunner-plugins/slider-task';
+
+const uuidV4 = uuid.v4;
 
 let flow: FlowEventRunner;
 let observables = {};
 
-export class ConditionalTriggerTask extends FlowTask {
-  public execute(node: any, services: any) {
-    //console.log('ConditionalTriggerTask', node);
-    try {
-      if (node.propertyName) {
-        if (node.minValue && node.maxValue) {
-          let value = node.payload[node.propertyName];
-          //console.log('ConditionalTriggerTask v', value, node.minValue, node.maxValue);
-          if (!isNaN(value)) {
-            if (value >= node.minValue && value < node.maxValue) {
-              return Object.assign({}, node.payload);
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.log('ConditionalTriggerTask error', err);
-    }
-    return false;
-  }
 
-  public getName() {
-    return 'ConditionalTriggerTask';
-  }
-}
 export class PreviewTask extends FlowTask {
   public execute(node: any, services: any) {
     //console.log('previewtask', node);
@@ -43,6 +26,8 @@ export class PreviewTask extends FlowTask {
     return 'PreviewTask';
   }
 }
+
+
 
 export class ListTask extends FlowTask {
   public execute(node: any, services: any) {
@@ -139,47 +124,22 @@ export class ListTask extends FlowTask {
 export class OutputValueTask extends FlowTask {
   public execute(node: any, services: any) {
     if (node.propertyName && node.maxValue) {
-      node.payload = Object.assign({}, node.payload);
+      const payload = Object.assign({}, node.payload);
       let value = services.flowEventRunner.getPropertyFromNode(node.name, node.propertyName) || node.startValue || 0;
       value += node.increment || 1;
       if (value > node.maxValue) {
         value = node.startValue;
       }
-      node.payload[node.propertyName] = value;
+      payload[node.propertyName] = value;
       services.flowEventRunner.setPropertyOnNode(node.name, node.propertyName, value);
 
-      return node.payload;
+      return payload;
     }
     return node.payload;
   }
 
   public getName() {
     return 'OutputValueTask';
-  }
-}
-
-export class SliderTask extends FlowTask {
-  public execute(node: any, services: any) {
-    if (node.propertyName) {
-      node.payload = Object.assign({}, node.payload);
-      let value = node.defaultValue || 0;
-      try {
-        value = services.flowEventRunner.getPropertyFromNode(node.name, node.propertyName);
-        if (value === undefined || isNaN(value)) {
-          value = node.defaultValue || 0;
-        }
-      } catch (err) {
-        value = node.defaultValue || 0;
-      }
-      node.payload[node.propertyName] = value;
-      return node.payload;
-    }
-
-    return node.payload;
-  }
-
-  public getName() {
-    return 'SliderTask';
   }
 }
 
@@ -228,10 +188,99 @@ export class DebugTask extends ObservableTask {
   }
 }
 
+let flowPluginNodes = {
+
+};
+
+const FlowPluginWrapperTask = (pluginName) => {
+
+  class FlowPluginWrapperTaskInternal extends FlowTask {
+    public execute(node: any, services: any) {
+
+      if (node.observable) {
+        new Promise((resolve, reject) => {
+          const executeId = uuidV4();
+          //console.log("FlowPluginWrapperTaskInternal", pluginName, node.name, executeId, node.payload);
+          flowPluginNodes[node.name] = {
+            resolve,executeId
+          }
+          const payload = {...node.payload, executeId: executeId};
+          ctx.postMessage({
+              command: 'ExecuteFlowPlugin',
+              payload: payload,
+              nodeName: node.name,
+              pluginName: pluginName
+          });        
+        }).then((payload) => {
+          //console.log("payload FlowPluginWrapperTask", node, payload);
+          node.observable.next({
+            nodeName: node.name,
+            payload: Object.assign({}, payload),
+          });          
+        });
+
+        return node.observable;
+      }
+      return false;
+    }
+
+    public getName() {
+      return pluginName;
+    }
+
+    public getObservable(node: any) {
+      if (node.observable === undefined) {
+        node.observable = new BehaviorSubject<any>({ nodeName: node.name, payload: {} });
+      }
+      return node.observable;
+    }
+
+    public isAttachedToExternalObservable() {
+      return false;
+    }
+  }
+
+  return FlowPluginWrapperTaskInternal;
+}
+
 let timers: any = {};
 
 export class TimerTask extends FlowTask {
+  isExecuting : boolean = false;
+  clearTimeout : any = undefined;
+  node : any = undefined;
+
+  public timer = () => {
+    if (!this.isExecuting) {
+      this.isExecuting = true;
+      if (this.node.executeNode) {
+        flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
+          this.isExecuting = false;
+          this.clearTimeout = setTimeout(this.timer, this.node.interval);
+        });
+      } else {
+        flow.triggerEventOnNode(this.node.name, "onTimer" , {}).then(() => {
+          this.isExecuting = false;
+          this.clearTimeout = setTimeout(this.timer, this.node.interval);
+        });
+
+      }
+    } else {
+      this.clearTimeout = setTimeout(this.timer, this.node.interval);
+    }
+  }
+
   public execute(node: any, services: any) {
+    this.node = node;
+
+    if (node.mode === "executeNode") {
+      if (this.clearTimeout) {
+        clearTimeout(this.clearTimeout);
+        this.clearTimeout = undefined;
+      }
+      this.clearTimeout = setTimeout(this.timer, node.interval);
+      return;
+    }
     if (timers[node.name]) {
       clearInterval(timers[node.name]);
       timers[node.name] = undefined;
@@ -340,39 +389,54 @@ const onWorkerMessage = event => {
   //console.log("event from flow", event);
 
   if (event && event.data) {
-    if (event.data.command == 'executeFlowNode' && event.data.nodeName) {
+    let data : any = event.data;
+    let command = data.command;
+    if (command == 'executeFlowNode' && data.nodeName) {
       if (!flow) {
         return;
       }
-
+      let payload = {...data.payload};
       flow
-        .executeNode(event.data.nodeName, event.data.payload || {})
+        .executeNode(data.nodeName, payload || {})
         .then(result => {
           //console.log('result after executeNode', result);
         })
         .catch(error => {
           console.log('executeNode failed', error);
         });
-    } else if (event.data.command == 'modifyFlowNode' && event.data.nodeName) {
-      flow.setPropertyOnNode(event.data.nodeName, event.data.propertyName, event.data.value);
+      payload = null;
+    } else if (command == 'modifyFlowNode' && data.nodeName) {
+      flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value);
 
-      if (event.data.executeNode !== undefined && event.data.executeNode !== '') {
+      if (data.executeNode !== undefined && data.executeNode !== '') {
         flow
-          .executeNode(event.data.executeNode, {})
+          .executeNode(data.executeNode, {})
           .then(result => {
             //console.log('result after modifyFlowNode executeNode', result);
           })
           .catch(error => {
-            console.log('modifyFlowNode executeNode failed', error);
+            console.log('modifyFlowNode executeNode failed', data, error);
           });
       }
-    } else if (event.data.command == 'pushFlowToFlowrunner') {
-      startFlow({ flow: event.data.flow });
-    } else if (event.data.command == 'registerFlowNodeObserver') {
-      if (observables[event.data.nodeName]) {
-        (observables[event.data.nodeName] as any).unsubscribe();
+
+      if (data.triggerEvent !== undefined && data.triggerEvent !== '') {
+        flow
+          .triggerEventOnNode(data.nodeName, data.triggerEvent, {})
+          .then(result => {
+            //console.log('result after modifyFlowNode executeNode', result);
+          })
+          .catch(error => {
+            console.log('modifyFlowNode triggerEventOnNode failed', data, error);
+          });
       }
-      const observable = flow.getObservableNode(event.data.nodeName);
+    } else if (command == 'pushFlowToFlowrunner') {
+      startFlow({ flow: data.flow}, data.pluginRegistry);
+    } else if (command == 'registerFlowNodeObserver') {
+      if (observables[data.nodeName]) {
+        (observables[data.nodeName] as any).unsubscribe();
+        observables[data.nodeName] = undefined;
+      }
+      const observable = flow.getObservableNode(data.nodeName);
       if (observable) {
         let subscribtion = observable.subscribe({
           next: (payload: any) => {
@@ -383,9 +447,21 @@ const onWorkerMessage = event => {
             });
           },
         });
-        observables[event.data.nodeName] = subscribtion;
+        observables[data.nodeName] = subscribtion;
+      }
+    } else if (command == 'ResultFlowPlugin') {
+      // send payload to resolve method from promise in FlowPluginTask?
+      const resolve = flowPluginNodes[data.nodeName];
+      if (resolve && resolve.resolve && resolve.executeId === data.payload.executeId) {
+        let payload = {...data.payload}; 
+        resolve.resolve(payload);
+        flowPluginNodes[data.nodeName] = undefined;
+        payload = null;
       }
     }
+
+    data = null;
+
   }
 };
 
@@ -400,7 +476,7 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
   });
 };
 
-const startFlow = (flowPackage?: any) => {
+const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
   if (flow !== undefined) {
     for (var key of Object.keys(observables)) {
       observables[key].unsubscribe();
@@ -429,12 +505,42 @@ const startFlow = (flowPackage?: any) => {
   flow.registerTask('ApiProxyTask', ApiProxyTask);
   flow.registerTask('MapPayloadTask', MapPayloadTask);
   flow.registerTask('ListTask', ListTask);
+  flow.registerTask('MatrixTask', MatrixTask);
+
+  if (pluginRegistry) {
+    pluginRegistry.map(pluginName => {
+      console.log("pluginName", pluginName);
+      flow.registerTask(pluginName, FlowPluginWrapperTask(pluginName));
+    })
+  }
+  /*
+  
+  ... TODO : send pluginRegistry as serializable data .. not classes/instances etc
+  ... TODO : use special "Task" which :
+      - has a promise
+      - postmessage to main thread
+      - execute task on main thread
+      - post result to worker
+      - worker sends payload to resolve method from promise
+  
+  console.log("pluginRegistry in worker", (window as any).pluginRegistry);
+
+  if ((window as any).pluginRegistry) {
+    
+    for (var key of Object.keys((window as any).pluginRegistry)) {
+      const plugin = (window as any).pluginRegistry[key];
+      if (plugin && plugin.FlowTaskPlugin) {
+        flow.registerTask(key, plugin.FlowTaskPlugin);
+      }
+    }
+  }
+  */
 
   flow.registerMiddleware(onExecuteNode);
 
   let value: boolean = false;
   flow
-    .start(flowPackage)
+    .start(flowPackage, undefined, true, true)
     .then((services: any) => {
       services.logMessage = (arg1, arg2) => {
         //console.log(arg1, arg2);
@@ -447,7 +553,7 @@ const startFlow = (flowPackage?: any) => {
             next: (payload: any) => {
               ctx.postMessage({
                 command: 'SendObservableNodePayload',
-                payload: payload,
+                payload: {...(payload || {})},
                 nodeName: key,
               });
             },

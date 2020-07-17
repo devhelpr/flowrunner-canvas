@@ -4,6 +4,15 @@ const fetch = require('cross-fetch');
 
 function start(flowFileName, taskPlugins, options) {
 
+	/*
+		taskPlugins : ITaskPlugin[]
+
+		ITaskPlugin interface
+			fullName
+			className
+			config? : any
+
+	*/	
 	let flowsFileName = "";
 
 	let flowFiles = [];
@@ -71,8 +80,15 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask"});
 					tasks.push({className:"InputTask", fullName: "InputTask"});
 					tasks.push({className:"ListTask", fullName: "ListTask"});					
+					tasks.push({className:"MatrixTask", fullName: "MatrixTask"});
+					
+					//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
+					//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});
 				}
 
+				if (taskPlugins) {
+					tasks = [...tasks, ...taskPlugins];
+				}
 				resolve(tasks);
 			}).catch((err) => {
 				console.log("Flowrunner-canvas couldn't be started because of problem with flowRunner getting default task-plugins");

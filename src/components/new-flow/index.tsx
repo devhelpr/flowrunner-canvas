@@ -82,6 +82,14 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 					onChange={(e) => {this.setState({value: e.target.value})}}
 				></input>
 			</div>
+			<div className="form-group">
+				<label>Flow type</label>
+				<select className="form-control">
+					<option value="playground">Playground</option>
+					<option value="mobile-app">Mobile app</option>
+					<option value="backend">Backend</option>
+				</select>
+			</div>
 		</Modal.Body>
 	  
 		<Modal.Footer>

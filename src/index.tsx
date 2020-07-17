@@ -21,11 +21,21 @@ import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 
 import { ExecuteNodeHtmlPlugin } from './components/html-plugins/execute-node';
-import { DebugNodeHtmlPlugin } from './components/html-plugins/debug-node';
-import { SliderNodeHtmlPlugin } from './components/html-plugins/slider-node';
+import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
+import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin } from './components/html-plugins/slider-node';
 import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
 
-import Worker from "worker-loader!./service-worker";
+import { setCustomConfig } from './config';
+
+import Worker from "worker-loader!./flow-worker";
+
+// TODO : improve this.. currently needed to be able to use react in an external script
+// which is used by the online editor to provide external defined tasks
+// solution could be to import flowrunner-canvas and build/package it like that by
+// the webpack-build pipeline from the online editor it self
+(window as any).react = React;
+
+let pluginRegistry = {};
 
 const root = document.getElementById('flowstudio-root');
 
@@ -53,6 +63,32 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	}
 ]});
 
+const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
+	
+	if (node.htmlPlugin == "executeNode") {
+		return new ExecuteNodeHtmlPlugin({
+			node: node,
+			flowrunnerConnector: flowrunnerConnector
+		});
+	} else
+	if (node.htmlPlugin == "sliderNode") {
+		return new ContainedSliderNodeHtmlPlugin({
+			selectedNode: undefined,
+			flowrunnerConnector: flowrunnerConnector,
+			node: node,
+			nodes: nodes,
+			flow: flow
+		});
+	} else
+	if (node.htmlPlugin == "inputNode") {
+		return;	
+	} else	
+	if (node.htmlPlugin == "debugNode") {
+		return new DebugNodeHtmlPluginInfo();
+	}
+
+	return;
+}
 
 const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
 	if (node.htmlPlugin == "iframe") {
@@ -83,6 +119,17 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 			nodes={nodes}
 			flow={flow}
 		></DebugNodeHtmlPlugin>;
+	} else
+	if (pluginRegistry[node.htmlPlugin]) {
+		const Plugin = pluginRegistry[node.htmlPlugin].VisualizationComponent;
+		
+		node.visualizer = "children";
+		
+		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+			nodes={nodes}
+			flow={flow}
+		><Plugin></Plugin></DebugNodeHtmlPlugin>;
 	}
 
 	return <div style={{
@@ -101,6 +148,11 @@ let canvasToolbarsubject = new Subject<string>();
 interface IAppProps {
 	isLoggedIn : boolean;
 }
+
+interface DefaultProps {
+
+}
+
 const App = (props : IAppProps) => {
 	const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
 	
@@ -108,6 +160,15 @@ const App = (props : IAppProps) => {
 		setLoggedIn(true);
 		return true;
 	}
+
+	/*let Plugin : React.FunctionComponent<DefaultProps>;
+	
+	Plugin = React.Fragment;
+
+	if (pluginRegistry["piechart"]) {
+		Plugin = pluginRegistry["piechart"];
+	}
+	*/
 
 	return <>
 		{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
@@ -119,10 +180,12 @@ const App = (props : IAppProps) => {
 					flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
 				<Toolbar canvasToolbarsubject={canvasToolbarsubject} flowrunnerConnector={flowrunnerConnector}></Toolbar>
-				<Canvas canvasToolbarsubject={canvasToolbarsubject} renderHtmlNode={renderHtmlNode}
+				<Canvas canvasToolbarsubject={canvasToolbarsubject} 
+					renderHtmlNode={renderHtmlNode}
 					flowrunnerConnector={flowrunnerConnector}
+					getNodeInstance={getNodeInstance}
 				></Canvas>
-				<FooterToolbar></FooterToolbar>
+				<FooterToolbar></FooterToolbar>	
 			</>
 		}
 	</>;
@@ -130,6 +193,8 @@ const App = (props : IAppProps) => {
 
 
 startFlow(flowPackage, reducers).then((services : any) => {
+	
+	flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 	fetch('/api/verify-token', {
 		method: "GET",			
@@ -148,6 +213,7 @@ startFlow(flowPackage, reducers).then((services : any) => {
 		}
 	})
 	.then(response => {
+		console.log("pluginRegistry", pluginRegistry);
 		(ReactDOM as any).createRoot(
 			root
 		).render(<Provider store={services.getStore()}>
@@ -164,3 +230,23 @@ startFlow(flowPackage, reducers).then((services : any) => {
 }).catch((err) => {
 	console.log("error during start flowunner (check internal startFlow error)", err);
 })
+
+
+function registerFlowRunnerCanvasPlugin(name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) {
+	pluginRegistry[FlowTaskPluginClassName] = {
+		VisualizationComponent: VisualizationComponent,
+		FlowTaskPlugin: FlowTaskPlugin,
+		FlowTaskPluginClassName: FlowTaskPluginClassName
+	}
+	console.log(pluginRegistry);
+
+	setCustomConfig(FlowTaskPluginClassName, {
+		shapeType: 'Html',
+		presetValues : {
+			htmlPlugin: FlowTaskPluginClassName
+		}
+	})
+	flowrunnerConnector.setPluginRegistry(pluginRegistry);
+}
+
+(window as any).registerFlowRunnerCanvasPlugin = registerFlowRunnerCanvasPlugin;

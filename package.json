@@ -17,13 +17,14 @@
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "buildplugins": "tsc src-plugins/index.tsx --jsx react"
   },
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/flowrunner": "0.8.8",
+    "@devhelpr/flowrunner": "0.9.3",
     "@devhelpr/flowrunner-expression": "0.0.6",
     "@devhelpr/flowrunner-redux": "0.5.8",
     "@material-ui/core": "^4.9.5",

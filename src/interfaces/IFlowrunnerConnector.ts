@@ -4,13 +4,21 @@ export interface IFlowrunnerConnector {
   updateFlowNode: () => void;
   pushFlowToFlowrunner: (flow: any) => void;
   executeFlowNode: (nodeName: string, payload: any) => void;
-  modifyFlowNode: (nodeName: string, propertyName: string, value: any, executeNode: string) => void;
+  modifyFlowNode: (nodeName: string, propertyName: string, value: any,  executeNode?: string, eventName? : string) => void;
 
   getNodeExecutions: () => any[];
   getNodeExecutionsByNodeName: (nodeName: string) => any[];
 
-  registerFlowExecutionObserver: (observableId: string, callback: () => void) => void;
+  registerFlowExecutionObserver: (observableId: string, callback: (executionEvent : IExecutionEvent) => void) => void;
   unregisterFlowExecuteObserver: (observableId) => void;
 
   isActiveFlowRunner: () => boolean;
-}
+
+  setPluginRegistry: (pluginRegistry : any) => void;
+  getPluginRegistry: () => any;
+  }
+
+  export interface IExecutionEvent {
+    name: string;
+    payload: any;
+  }

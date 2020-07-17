@@ -2,10 +2,13 @@ import * as React from 'react';
 import { getFlowEventRunner } from '@devhelpr/flowrunner-redux';
 import fetch from 'cross-fetch';
 import { connect } from "react-redux";
+import { setCustomConfig } from "../../config";
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface TaskSelectorProps {
 	selectTask : (taskClassName : string) => void;
 	canvasMode : any;
+	flowrunnerConnector : IFlowrunnerConnector;
 }
 
 export interface TaskSelectorState {
@@ -28,6 +31,9 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 	}
 
 	componentDidMount() {
+		
+		console.log("taskselector", this.props.flowrunnerConnector.getPluginRegistry());
+
 		fetch('/tasks')
 		.then(res => {
 			if (res.status >= 400) {
@@ -36,6 +42,26 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 			return res.json();
 		})
 		.then(metaDataInfo => {
+			if (metaDataInfo) {
+				metaDataInfo.map((taskPlugin) => {
+					if (taskPlugin.config) {
+						setCustomConfig(taskPlugin.className, taskPlugin.config);
+					}
+				})
+			}
+			const pluginRegistry = this.props.flowrunnerConnector.getPluginRegistry();
+			if (pluginRegistry) {
+
+				for (var key of Object.keys(pluginRegistry)) {
+					const plugin = pluginRegistry[key];
+					if (plugin) {
+						metaDataInfo.push({className:key, fullName: key});
+					}
+				  }
+
+			  }
+
+			// tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
 			this.setState({metaDataInfo:metaDataInfo});
 		})
 		.catch(err => {

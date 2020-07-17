@@ -35,21 +35,26 @@ export const Line = (props : LineTypeProps) => {
 	var vec2 = new Victor(props.xend, props.yend);
 	
 	var distance = vec1.distance(vec2) * factor;
-
+	let yadjust = 0;
+	let xadjust = 0;
+	if (props.xend < props.xstart && Math.abs(props.ystart - props.yend) < 32) {
+		yadjust = Math.abs(props.xstart - props.xend) * 0.5;
+		xadjust = 200;
+	}
 	/*if (this.props.shape.outputSnap == "bottom") {
 		controlPointx1 = xStart;
 		controlPointy1 = yStart+(distance); 
 	} else*/ {
-		controlPointx1 = props.xstart + (distance);
-		controlPointy1 = props.ystart; 
+		controlPointx1 = props.xstart + (distance) + xadjust;
+		controlPointy1 = props.ystart + yadjust; 
 	}
 	
 	/*if (this.props.shape.inputSnap == "top") {
 		controlPointx2 = xEnd;
 		controlPointy2 = yEnd-(distance); 
 	} else */ {
-		controlPointx2 = props.xend-(distance);
-		controlPointy2 = props.yend; 
+		controlPointx2 = props.xend - (distance) - xadjust;
+		controlPointy2 = props.yend + yadjust; 
 	}
 	
 	let fillColor = props.isSelected ? "#606060" : "#000000";	
@@ -71,6 +76,11 @@ export const Line = (props : LineTypeProps) => {
 	if (props.isConnectionWithVariable) {
 		fillColor = "#0080e0";  
 		strokeWidth = 2;
+	}
+
+	if (props.isEventNode) {
+		fillColor = "#a000a0";  
+		strokeWidth = 4;
 	}
 
 	let opacity = 1;

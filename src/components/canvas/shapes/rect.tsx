@@ -103,6 +103,7 @@ export const Rect = (props: ShapeTypeProps) => {
 			y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
 			text={props.node && props.node.label ? props.node.label : props.name}
 			align='center'
+			fontSize={18}
 			width={ShapeMeasures.rectWidht}
 			height={ShapeMeasures.rectHeight}
 			verticalAlign="middle"
@@ -112,5 +113,39 @@ export const Rect = (props: ShapeTypeProps) => {
 			fill={settings.textColor}
 			perfectDrawEnabled={true}>
 		</Text>
+		{settings.events && settings.events.map((event ,index) => {
+			return <React.Fragment key={index}>
+				<KonvaRect
+					x={ShapeMeasures.rectWidht + 10}
+					y={index * 10}
+					strokeWidth={2}
+					stroke="#000000"
+					cornerRadius={settings.cornerRadius}
+					width={8}
+					height={8}
+					fill="#e2e2e2"
+					title={event.eventName}
+					opacity={1}  
+					perfectDrawEnabled={false}></KonvaRect>				
+			</React.Fragment>
+		})}		
 	</Group>
 }
+
+/*
+
+<Text x={ShapeMeasures.rectWidht + 10 + 12}
+					y={(index * 10) - 4}
+					text={event.eventName}
+					align='left'
+					fontSize={12}
+					lineHeight={20}
+					height={20}
+					verticalAlign="middle"
+					listening={false}
+					wrap="none"
+					ellipsis={true}
+					fill="#000000"
+					perfectDrawEnabled={true}></Text>
+
+					*/

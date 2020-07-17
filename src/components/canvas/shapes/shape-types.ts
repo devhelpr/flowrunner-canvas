@@ -1,3 +1,5 @@
+import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+
 export interface ShapeTypeProps {
   x: number;
   y: number;
@@ -22,6 +24,8 @@ export interface ShapeTypeProps {
   onMouseOut: any;
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
+  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, nodes? : any, flow?: any) => any;
+
 }
 
 export interface LineTypeProps {
@@ -37,6 +41,7 @@ export interface LineTypeProps {
   isConnectionWithVariable?: boolean;
   isErrorColor?: boolean;
   isSuccessColor?: boolean;
+  isEventNode? : boolean;
   canvasHasSelectedNode: boolean;
   selectedNodeName: string;
   startNodeName: string;

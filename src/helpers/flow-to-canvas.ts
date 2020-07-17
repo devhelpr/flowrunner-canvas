@@ -1,5 +1,5 @@
 import { ShapeMeasures } from './shape-measures';
-import { taskTypeConfig } from '../config';
+import { getTaskConfigForTask } from '../config';
 
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow) {
@@ -12,7 +12,7 @@ export class FlowToCanvas {
         const endShapes = flow.filter(endnode => endnode.name === node.endshapeid);
 
         if (shartShapes.length >= 1 && endShapes.length >= 1) {
-          const startPosition = FlowToCanvas.getStartPointForLine(shartShapes[0], shartShapes[0]);
+          const startPosition = FlowToCanvas.getStartPointForLine(shartShapes[0], shartShapes[0], node);
           const endPosition = FlowToCanvas.getEndPointForLine(endShapes[0], endShapes[0]);
           return Object.assign({}, node, {
             shapeType: 'Line',
@@ -28,23 +28,27 @@ export class FlowToCanvas {
     });
   }
 
-  static getStartPointForLine(startShape, newPosition) {
+  static getStartPointForLine(startShape, newPosition, node? : any) {
     const shapeType = FlowToCanvas.getShapeType(startShape.shapeType, startShape.taskType, startShape.isStartEnd);
+    let isEvent : boolean = false;
+    if (node && node.event && node.event !== "") {
+      isEvent = true;
+    }
 
     if (shapeType == 'Html') {
       return {
-        x: newPosition.x + (startShape.width || ShapeMeasures.htmlWidth) / 2,
-        y: newPosition.y,
+        x: newPosition.x + ((startShape.width || ShapeMeasures.htmlWidth) / 2) + (isEvent ? 18 : 0),
+        y: newPosition.y - (isEvent ? -4 - 32 + ((startShape.height || ShapeMeasures.htmlHeight) / 2) : 0),
       };
     } else if (shapeType == 'Circle' || shapeType == 'Diamond') {
       return {
-        x: newPosition.x + ShapeMeasures.circleSize,
+        x: newPosition.x + ShapeMeasures.circleSize ,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
       };
     } else {
       return {
-        x: newPosition.x + ShapeMeasures.rectWidht,
-        y: newPosition.y + ShapeMeasures.rectHeight / 2,
+        x: newPosition.x + ShapeMeasures.rectWidht + (isEvent ? 18 : 0),
+        y: newPosition.y + (isEvent ? 4 : ShapeMeasures.rectHeight / 2),
       };
     }
   }
@@ -92,7 +96,7 @@ export class FlowToCanvas {
 
   static getShapeType(shapeType, taskType, isStartEnd) {
     let resultShapeType = shapeType || 'Rect';
-    const shapeSetting = taskTypeConfig[taskType];
+    const shapeSetting = getTaskConfigForTask(taskType);
     if (shapeSetting && shapeSetting.shapeType) {
       resultShapeType = shapeSetting.shapeType;
     }

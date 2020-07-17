@@ -70,10 +70,76 @@ function buildTypescript() {
   return task.pipe(gulp.dest('./lib'));
 };
 
+function buildPluginTypescript() {
+
+  const webpack = require('webpack-stream');
+  var task = gulp.src('src-plugins/index.tsx')
+      .pipe(named())
+      .pipe(webpack({
+        mode:"development",
+        output: {
+          path: path.join(__dirname, "assets"),
+          pathinfo: false,
+          filename:'[name].plugin.bundle.js',
+          chunkFilename: "[name].plugin.chunk.js",
+          publicPath: "",
+          jsonpFunction: 'webpackJsonpPlugin'
+        } ,
+        module: {
+          rules: [
+            {
+              test: /\.(png|jp(e*)g|svg|gif)$/,
+              use: [
+                {
+                  loader: 'file-loader',
+                  options: {
+                    name: 'images/[hash]-[name].[ext]',
+                  },
+                },
+              ],
+            },
+            {
+              test: /\.tsx?$/,
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+                experimentalWatchApi: true,
+              },
+              exclude: /(node_modules|bower_components)/ 
+            }           
+          ]
+        },
+        resolve:
+        {
+          extensions: [".ts", ".tsx", ".js", ".json"],
+          alias: {
+            
+          },
+          
+        },
+        plugins:[
+          new webpackIgnorePlugin({
+            resourceRegExp: /^\.\/locale$/,
+            contextRegExp: /moment$/
+          })
+        ]        
+      }));
+  
+  return task.pipe(gulp.dest('./assets'));
+};
+
 gulp.task('startFlowServer', function(cb) {
   // ['./data/stored-flow.json','./data/test-flow.json','./data/flow.json']
   startFlowStudioServer.start('./data/flows.json', 
-  [], 
+  [{
+    className: "TestCustomConfigTask",
+    fullName:"TestCustomConfigTask",
+    config: {
+      presetValues: {
+        "hello" : "custom"
+      }
+    }
+  }], 
   {
     hasPreviewPlugin: true,
     isStandalone: true,
@@ -84,7 +150,9 @@ gulp.task('startFlowServer', function(cb) {
 });
 
 gulp.task('build', function() { return buildTypescript() } );
+gulp.task('build-plugins', function() { return buildPluginTypescript() } );
 
-gulp.task('default', gulp.series('build', 'startFlowServer', function () {
+gulp.task('default', gulp.series('build', 'build-plugins', 'startFlowServer', function () {
   gulp.watch('src/**/*.{ts,tsx}', buildTypescript);
+  gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
 }));

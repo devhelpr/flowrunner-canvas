@@ -20,7 +20,12 @@ const variableAttached = {
   textColor: '#ffffff',
 };
 
-export const taskTypeConfig: any = {
+const customConfig = {
+
+};
+
+
+const taskTypeConfig: any = {
   _variable: {
     ...variableAttached,
   },
@@ -152,6 +157,25 @@ export const taskTypeConfig: any = {
       afterLabel: '',
       defaultValue: 50,
     },
+    events: [
+      {
+        "eventName" : "onChange"
+      }
+    ]
+  },
+  TimerTask: {
+    events: [
+      {
+        "eventName" : "onTimer"
+      }
+    ]
+  },
+  MatrixTask: {
+    events: [
+      {
+        "eventName" : "onCalculateNewGenerationForEachCell"
+      }
+    ]
   },
   InputTask: {
     shapeType: 'Html',
@@ -221,5 +245,22 @@ export const taskTypeConfig: any = {
         },
       ],
     },
-  },
+  }
 };
+
+let fullConfig = {...taskTypeConfig};
+
+export const setCustomConfig = (className : string, config : any) => {
+  if (config) {
+    customConfig[className] = config;
+  }
+  fullConfig = getTaskConfig();
+}
+
+export const getTaskConfig = () => {
+  return {...taskTypeConfig, ...customConfig};
+}
+
+export const getTaskConfigForTask = (className) => {
+  return fullConfig[className] || {};
+}

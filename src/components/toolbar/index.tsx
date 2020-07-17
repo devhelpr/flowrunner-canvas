@@ -23,7 +23,7 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
-import { addRawFlow, deleteRawConnection, deleteRawNode } from '../../redux/actions/raw-flow-actions';
+import { addRawFlow, deleteRawConnection, deleteRawNode, storeRawNode } from '../../redux/actions/raw-flow-actions';
 
 import Navbar from 'react-bootstrap/Navbar';
 
@@ -47,6 +47,7 @@ export interface ToolbarProps {
 	deleteNode: any;
 	deleteRawConnection: any;
 	deleteRawNode: any;
+	storeRawNode: any;
 
 	selectNode: (name, node) => void;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
@@ -88,6 +89,7 @@ const mapDispatchToProps = (dispatch: any) => {
 		deleteNode: (node) => dispatch(deleteNode(node)),
 		deleteRawConnection: (node) => dispatch(deleteRawConnection(node)),
 		deleteRawNode: (node) => dispatch(deleteRawNode(node)),
+		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName)),
 		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
 		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
@@ -202,6 +204,12 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				"followflow": "onfailure"
 			},
 			this.props.selectedNode.node.name);
+		this.props.storeRawNode(
+			{
+				...this.props.selectedNode.node,
+				"followflow": "onfailure"
+			},
+			this.props.selectedNode.node.name);
 		return false;
 	}
 
@@ -211,6 +219,12 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			{
 				...this.props.selectedNode.node,
 				"followflow": "onsuccess"
+			},
+			this.props.selectedNode.node.name);
+		this.props.storeRawNode(
+			{
+				...this.props.selectedNode.node,
+				"followflow": "onfailure"
 			},
 			this.props.selectedNode.node.name);
 		return false;
@@ -359,7 +373,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 										</select>
 										<a href="#" onClick={this.addNewFlow} className="mr-4 text-light text-decoration-none" title="Add new flow"><span>New</span></a>
 									</>}
-									{!!!selectedNode.name && <TaskSelector selectTask={this.onSelectTask}></TaskSelector>}
+									{!!!selectedNode.name && <TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>}
 									{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit connection</a>}
