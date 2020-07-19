@@ -135,7 +135,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						this.fitStage();
 					} else 
 					if (message == "reload") {
-						console.log("canvasKey", this.state.canvasKey);
+						console.log("canvasKey", this.state.canvasKey);						
 						this.setState({canvasKey : this.state.canvasKey + 1});
 					}
 				}
@@ -149,14 +149,18 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			//console.log("componentDidUpdate nodes diff");
 		}
 
+		if (prevProps.flow != this.props.flow) {
+			this.fitStage();
+		}
+
 		if (prevState.canvasKey !== this.state.canvasKey) {
 			//console.log("componentDidUpdate", prevState.canvasKey, this.state.canvasKey);
-			this.updateDimensions();
+			this.updateDimensions();			
 
 			if (this.canvasWrapper && this.canvasWrapper.current) {
 				(this.canvasWrapper.current).removeEventListener('wheel', this.wheelEvent);
 				(this.canvasWrapper.current as any).addEventListener('wheel', this.wheelEvent);
-			}
+			}			
 		}
 
 		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
@@ -839,7 +843,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
-	fitStage() {
+	fitStage = () => {
 		let xMin;
 		let yMin;
 		let xMax;
@@ -848,52 +852,99 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
 			if (stage !== undefined) {
-				this.props.nodes.map(function(shape, index) {
+
+				this.props.nodes.map((shape, index) => {
 					if (shape.shapeType != "Line") {
-						if (xMin === undefined) {
-							xMin = shape.x;
-						}
-						if (yMin === undefined) {
-							yMin = shape.y;
-						}
-						if (xMax === undefined) {
-							xMax = shape.x;
-						}
-						if (yMax === undefined) {
-							yMax = shape.y;
+
+						let shapeType = FlowToCanvas.getShapeType(shape.shapeType, shape.taskType, shape.isStartEnd);
+						//const settings = ShapeSettings.getShapeSettings(shape.taskType, shape);
+						const RealShape = Shapes[shapeType];
+
+						let addWidth = 0;
+						let addHeight = 0;
+
+						let subtractWidth = 0;
+						let subtractHeight = 0;
+
+						if (shapeType === "Html" && RealShape) {
+							
+							let width = undefined;
+							let height = undefined;
+
+							if (this.props.getNodeInstance) {
+								const instance = this.props.getNodeInstance(shape, this.props.flowrunnerConnector, this.props.nodes, this.props.flow);
+								if (instance) {
+									if (instance.getWidth && instance.getHeight) {
+										width = instance.getWidth(shape);
+										height = instance.getHeight(shape);
+									}
+								}
+							}
+// subWidth needed here ... html nodes start at x-width/2
+							subtractWidth = (width || shape.width || 250) / 2;
+							subtractHeight = (height || shape.height || 250) / 2
+							addWidth = (width || shape.width || 250) / 2;
+							addHeight = (height || shape.height || 250) /2;
+							//console.log(shape.name, addWidth, addHeight);
+						} else {
+							addWidth = 100;
+							addHeight = 50;
 						}
 
-						if (shape.x < xMin) {
-							xMin = shape.x;
+						if (xMin === undefined) {
+							xMin = shape.x - subtractWidth;
 						}
-						if (shape.x > xMax) {
-							xMax = shape.x;
+						if (yMin === undefined) {
+							yMin = shape.y - subtractHeight;
 						}
-						if (shape.y < yMin) {
-							yMin = shape.y;
+						if (xMax === undefined) {
+							xMax = shape.x + addWidth;
 						}
-						if (shape.y > yMax) {
-							yMax = shape.y;
+						if (yMax === undefined) {
+							yMax = shape.y + addHeight;
 						}
+
+						if (shape.x - subtractWidth < xMin) {
+							xMin = shape.x - subtractWidth;
+						}
+						if (shape.x + addWidth > xMax) {
+							xMax = shape.x + addWidth;
+						}
+						if (shape.y - subtractHeight < yMin) {
+							yMin = shape.y - subtractHeight;
+						}
+						if (shape.y + addHeight > yMax) {
+							yMax = shape.y + addHeight;
+						}
+						
+						//console.log(shape.name, shape.x, shape.y, addWidth, addHeight, xMin, xMax, yMin ,yMax);
 					}
 				});
 			
 				if (xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
-					
+					console.log(xMin, xMax, yMin ,yMax);
 					let scale = 1;
 					
-					let flowWidth = Math.abs(xMax-xMin) + 200;
-					let flowHeight = Math.abs(yMax-yMin) + 200;
+					let flowWidth = Math.abs(xMax-xMin) ;//+ 200;
+					let flowHeight = Math.abs(yMax-yMin) ;//+ 200;
 
 					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
 					if (stageContainerElement !== null) {
+
 						let realStageWidth = stageContainerElement.clientWidth;
 						let realStageHeight = stageContainerElement.clientHeight;
-					
+											
 						if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
 							scale = realStageWidth / flowWidth;
 						}
-						scale = scale * 0.65;
+
+						scale = scale * 0.65;						
+
+						if (flowHeight * scale > realStageHeight) {							
+							scale = realStageHeight / flowHeight;
+							scale = scale * 0.85;
+						} 
+
 						stage.scale({ x: scale, y: scale });
 
 						const newPos = {
@@ -901,8 +952,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							y: 0 
 						};
 						
-						newPos.x = (-xMin*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-yMin*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
+						newPos.x = (-(xMin)*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
+						newPos.y = (-(yMin)*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
+
+						//console.log(stage.getWidth(), stage.getHeight(), realStageWidth,realStageHeight,flowWidth,flowHeight,flowWidth * scale, flowHeight * scale , scale, newPos.x, newPos.y);
 
 						stage.position(newPos);
 						stage.batchDraw();

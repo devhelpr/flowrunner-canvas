@@ -1,1 +1,920 @@
-[{"name":"dummyReducer","task":"ReduxPropertyStateType","subtype":"registrate","title":"dummyReducer","shapeType":"ReduxPropertyStateType","id":"dummyReducer","_id":"dummyReducer"},{"name":"test1","shapeType":"Circle","x":410.34509528032163,"y":30.108850357684787,"_outputs":["test2"],"title":"test1","id":"test1","_id":"test1"},{"name":"testbla","shapeType":"Rect","x":744.9880307104645,"y":230.45548059252826,"title":"test2","id":"testbla","_id":"test2","node":"TraceConsoleTask"},{"name":"test4","shapeType":"Circle","x":336.31348530869434,"y":227.03112333763704,"title":"test4","id":"test4","_id":"test4"},{"name":"testwhohoo5","shapeType":"Rect","x":1215.0910799669002,"y":42.047733250424415,"title":"test5","id":"testwhohoo5","_id":"test5"},{"name":"connection-eccd66a5-b789-4179-ac2b-5cea6aba5c9a","task":"Connection","shapeType":"Line","startshapeid":"test4","endshapeid":"test1","xstart":416.31348530869434,"ystart":267.03112333763704,"xend":410.34509528032163,"yend":70.10885035768479},{"id":"task","x":-159.62363332015514,"y":-557.4492240252873,"shapeType":"Circle","name":"task","taskType":"TraceConsoleTaskType","variableName":"test","isStartEnd":true},{"name":"IfConditionTask","id":"IfConditionTask","taskType":"IfConditionTask","shapeType":"Diamond","x":571.313452696983,"y":-103.59195596866687},{"name":"connection-bb88e588-da99-421d-9121-bf150ba079d0","taskType":"connection","shapeType":"Line","startshapeid":"testbla","endshapeid":"testwhohoo5","xstart":904.9880307104645,"ystart":270.45548059252826,"xend":1215.0910799669002,"yend":82.04773325042441,"id":"connection-bb88e588-da99-421d-9121-bf150ba079d0"},{"name":"connection-2cb046c4-02d6-4c6f-a84e-9154ba841429","taskType":"connection","shapeType":"Line","startshapeid":"test1","endshapeid":"IfConditionTask","xstart":490.34509528032163,"ystart":70.10885035768479,"xend":571.313452696983,"yend":-63.591955968666866,"id":"connection-2cb046c4-02d6-4c6f-a84e-9154ba841429"},{"name":"connection-f60ec5e0-fcf4-4ca6-9943-9d308ddd7320","taskType":"connection","shapeType":"Line","startshapeid":"IfConditionTask","endshapeid":"testbla","xstart":651.313452696983,"ystart":-63.591955968666866,"xend":744.9880307104645,"yend":270.45548059252826,"id":"connection-f60ec5e0-fcf4-4ca6-9943-9d308ddd7320","followflow":"onfailure"},{"name":"TraceConsoleTask","id":"TraceConsoleTask","taskType":"TraceConsoleTask","shapeType":"Circle","x":730.7940532684997,"y":-337.3102394264236},{"name":"ObservableTask","id":"ObservableTask","taskType":"ObservableTask","shapeType":"Circle","x":938.0997337396034,"y":-242.25092488944256},{"name":"ObserverTask","id":"ObserverTask","taskType":"ObserverTask","shapeType":"Circle","x":1079.4957251059036,"y":-100.79937381832946},{"id":"AssignTask","x":-184.89361361160923,"y":-124.86242363624874,"name":"AssignTask","taskType":"AssignTask","isStartEnd":true,"node":"IfConditionTask","test":{"node":"testwhohoo5"}},{"id":"ClearTask","x":-94.66698119369858,"y":-297.72937191187543,"name":"ClearTask","taskType":"ClearTask","node":"TraceConsoleTask","isStartEnd":true},{"id":"FunctionCallTask","x":241.52001000183486,"y":-430.9184016818714,"shapeType":"Rect","name":"FunctionCallTask","taskType":"FunctionCallTask","getVariable":"test"},{"id":"AssignTask1","x":650.0659317793896,"y":-688.2563592615691,"shapeType":"Rect","name":"AssignTask1","taskType":"AssignTask","setVariable":"test"},{"id":"connection-874fd235-805d-4bb4-b3b0-ac185343bae4","startshapeid":"FunctionCallTask","endshapeid":"AssignTask1","xstart":401.52001000183486,"ystart":-390.9184016818714,"xend":650.0659317793896,"yend":-648.2563592615691,"shapeType":"Line","name":"connection-874fd235-805d-4bb4-b3b0-ac185343bae4","taskType":"connection","tag":"test","weight":5,"tagProperty":"TestTextField","tags":["test","tes1"],"activationFunction":"sigmoid","activationThreshold":10,"flowPath":"default"},{"id":"FetchTask2","x":-20.26919357629791,"y":-891.3786476595069,"shapeType":"Rect","name":"FetchTask2","taskType":"FetchTask","test":"hello"},{"name":"connection-1667313a-5fae-4a44-9401-77254de7fdbc","taskType":"connection","shapeType":"Line","startshapeid":"FetchTask2","endshapeid":"AssignTask1","xstart":139.7308064237021,"ystart":-851.3786476595069,"xend":650.0659317793896,"yend":-648.2563592615691,"id":"connection-1667313a-5fae-4a44-9401-77254de7fdbc"},{"name":"connection-240dc158-3910-496c-8724-3d0ebcf1aab8","taskType":"connection","shapeType":"Line","startshapeid":"IfConditionTask","endshapeid":"testwhohoo5","xstart":651.313452696983,"ystart":-63.591955968666866,"xend":1215.0910799669002,"yend":82.04773325042441,"followflow":"onsuccess","id":"connection-240dc158-3910-496c-8724-3d0ebcf1aab8"},{"name":"connection-d7de77eb-7bab-4d04-977b-bdcd88ab6597","taskType":"connection","shapeType":"Line","startshapeid":"ClearTask","endshapeid":"FunctionCallTask","xstart":65.33301880630142,"ystart":-257.72937191187543,"xend":241.52001000183486,"yend":-390.9184016818714,"id":"connection-d7de77eb-7bab-4d04-977b-bdcd88ab6597"},{"id":"personalInfo","x":-950.4869951300241,"y":-755.6718482686133,"shapeType":"Rect","name":"personalInfo","taskType":"InjectIntoPayloadTask","objectSchema":"layout","object":{"caption":"Personal info","layout":[{"type":"2columns","caption":"2columns","layout":[{"caption":"Personal info","type":"form","datasourceNode":"getPersonalInfo","form":[{"fieldName":"Firstname","type":"textbox"},{"type":"layout","layout":{"type":"2columns","layout":[{"type":"form","form":[{"fieldName":"Middlename","type":"textbox"}]},{"type":"form","form":[{"fieldName":"Lastname","type":"textbox"}]}]}},{"fieldName":"Gender","type":"checkbox","options":[{"value":"1","label":"Men"},{"value":"2","label":"Woman"},{"value":"3","label":"Neutral"}]},{"fieldName":"Field1","type":"textbox","visibility":"Fields('Gender') == '2'"},{"fieldName":"Field2","type":"textbox"},{"fieldName":"Field3","type":"textbox"},{"fieldName":"Field5","type":"dropdown","datasourceNode":"FetchTask","node":"AssignDropdownValue"},{"fieldName":"Field6","type":"dropdown","getVariable":"dropdown1Variable","datasourceNode":"getDependentOptions"}]},{"caption":"Products","type":"layout","layout":[{"type":"form","caption":"Search","form":[{"fieldName":"SearchProduct","type":"textbox","node":"AssignSearchProductValue"}]},{"caption":"Products","type":"visualelements","elements":[{"type":"list","name":"productList","datasourceNode":"getProducts","getVariable":"searchProductVariable","fieldNames":["name","price"]},{"type":"image","url":"http://localhost:3000/assets/img/nasa-Q1p7bh3SHj8-unsplash.jpg"}]}]}]},{"caption":"","type":"visualelements","elements":[{"fieldName":"Close","type":"flowButton","node":"appStart"}]}]}},{"id":"InjectIntoPayloadTask","x":527.3704890773345,"y":-1005.4792056667999,"shapeType":"Rect","name":"InjectIntoPayloadTask","taskType":"InjectIntoPayloadTask","objectSchema":"layout","datasourceNode":"personalInfo"},{"name":"ModelTask","id":"ModelTask","taskType":"ModelTask","shapeType":"Rect","x":1547.1366284442252,"y":-931.5576364742976,"modelName":"","primaryKeyFieldName":"[Field to use as visible text (not the id field)]","fields":[{"fieldName":""}]},{"name":"AssignTask2","id":"AssignTask2","taskType":"AssignTask","shapeType":"Rect","x":-737.1225863537795,"y":282.1087708294301,"assignToProperty":"","value":""},{"name":"AssignTask3","id":"AssignTask3","taskType":"AssignTask","shapeType":"Rect","x":-774.6249967522723,"y":557.1264470850441,"assignToProperty":"","value":""},{"name":"AssignTask4","id":"AssignTask4","taskType":"AssignTask","shapeType":"Rect","x":-418.35209796659046,"y":807.1425164083297,"assignToProperty":"","value":""},{"name":"AssignTask5","id":"AssignTask5","taskType":"AssignTask","shapeType":"Rect","x":94.18084414614484,"y":932.1505510699724,"assignToProperty":"","value":""},{"name":"AssignTask6","id":"AssignTask6","taskType":"AssignTask","shapeType":"Rect","x":437.95293946566244,"y":719.6368921451798,"assignToProperty":"","value":""},{"name":"AssignTask7","id":"AssignTask7","taskType":"AssignTask","shapeType":"Rect","x":1000.4890954430548,"y":819.643319874494,"assignToProperty":"","value":""},{"name":"connection-552142c8-cc92-47be-b3e0-ea6ad7f4f9ce","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask2","endshapeid":"AssignTask","xstart":-577.1225863537795,"ystart":322.1087708294301,"xend":-184.89361361160923,"yend":-84.86242363624874},{"name":"connection-a7c404e6-39cd-4e44-ab74-43ee09e93056","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask3","endshapeid":"AssignTask","xstart":-614.6249967522723,"ystart":597.1264470850441,"xend":-184.89361361160923,"yend":-84.86242363624874},{"name":"connection-494ce562-378d-473e-b30d-ec358b4d24fe","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask4","endshapeid":"test4","xstart":-258.35209796659046,"ystart":847.1425164083297,"xend":336.31348530869434,"yend":267.03112333763704},{"name":"connection-401693b5-45e4-44e1-b861-0669bf1326f5","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask5","endshapeid":"testbla","xstart":254.18084414614484,"ystart":972.1505510699724,"xend":744.9880307104645,"yend":270.45548059252826,"id":"connection-401693b5-45e4-44e1-b861-0669bf1326f5"},{"name":"connection-642b9858-1153-4b44-9f58-1be32dff7c9f","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask6","endshapeid":"testbla","xstart":597.9529394656624,"ystart":759.6368921451798,"xend":744.9880307104645,"yend":270.45548059252826,"id":"connection-642b9858-1153-4b44-9f58-1be32dff7c9f"},{"name":"connection-29781e90-2919-4eab-b433-12590ceb087e","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask7","endshapeid":"testwhohoo5","xstart":1160.4890954430548,"ystart":859.643319874494,"xend":1215.0910799669002,"yend":82.04773325042441,"id":"connection-29781e90-2919-4eab-b433-12590ceb087e"},{"name":"connection-37b8b5f2-f201-4f9e-9d53-cbd27bac1e90","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask1","endshapeid":"TraceConsoleTask","xstart":810.0659317793896,"ystart":-648.2563592615691,"xend":730.7940532684997,"yend":-297.3102394264236,"id":"connection-37b8b5f2-f201-4f9e-9d53-cbd27bac1e90"},{"name":"connection-03782ea8-2892-448f-b7f8-f11a28b8b8f2","taskType":"connection","shapeType":"Line","startshapeid":"TraceConsoleTask","endshapeid":"ObservableTask","xstart":810.7940532684997,"ystart":-297.3102394264236,"xend":938.0997337396034,"yend":-202.25092488944256,"id":"connection-03782ea8-2892-448f-b7f8-f11a28b8b8f2"},{"name":"connection-a6f79c48-0674-4c9c-9b32-f1c3c52a6321","taskType":"connection","shapeType":"Line","startshapeid":"ObservableTask","endshapeid":"ObserverTask","xstart":1018.0997337396034,"ystart":-202.25092488944256,"xend":1079.4957251059036,"yend":-60.79937381832946,"id":"connection-a6f79c48-0674-4c9c-9b32-f1c3c52a6321"},{"name":"connection-4b47125d-72ae-4004-b991-7fa53cfa9a2f","taskType":"connection","shapeType":"Line","startshapeid":"personalInfo","endshapeid":"FetchTask2","xstart":-790.4869951300241,"ystart":-715.6718482686133,"xend":-20.26919357629791,"yend":-851.3786476595069,"id":"connection-4b47125d-72ae-4004-b991-7fa53cfa9a2f"},{"name":"connection-5d93ca16-cdfa-4b5b-b3ac-e92d0995656f","taskType":"connection","shapeType":"Line","startshapeid":"FetchTask2","endshapeid":"task","xstart":139.7308064237021,"ystart":-851.3786476595069,"xend":-159.62363332015514,"yend":-517.4492240252873,"id":"connection-5d93ca16-cdfa-4b5b-b3ac-e92d0995656f"},{"name":"connection-137b827e-3148-4053-aec6-2c84929ca96e","taskType":"connection","shapeType":"Line","startshapeid":"personalInfo","endshapeid":"task","xstart":-790.4869951300241,"ystart":-715.6718482686133,"xend":-159.62363332015514,"yend":-517.4492240252873,"id":"connection-137b827e-3148-4053-aec6-2c84929ca96e"},{"name":"connection-9879a306-11f1-4b7b-bf4f-ff4587d2b32e","taskType":"connection","shapeType":"Line","startshapeid":"task","endshapeid":"ClearTask","xstart":-79.62363332015514,"ystart":-517.4492240252873,"xend":-94.66698119369858,"yend":-257.72937191187543},{"name":"AssignTask8","id":"AssignTask8","taskType":"AssignTask","shapeType":"Rect","x":2081.8085952662645,"y":-774.2091220614512,"assignToProperty":"","value":""},{"name":"AssignTask9","id":"AssignTask9","taskType":"AssignTask","shapeType":"Rect","x":2138.062210864004,"y":-536.69385620433,"assignToProperty":"","value":""},{"name":"AssignTask10","id":"AssignTask10","taskType":"AssignTask","shapeType":"Rect","x":2106.810202198592,"y":-242.92497474946947,"assignToProperty":"","value":""},{"name":"AssignTask11","id":"AssignTask11","taskType":"AssignTask","shapeType":"Rect","x":2219.3174333940715,"y":57.09430843847312,"assignToProperty":"","value":""},{"name":"AssignTask12","id":"AssignTask12","taskType":"AssignTask","shapeType":"Rect","x":2256.8198437925644,"y":375.86479682566215,"assignToProperty":"","value":""},{"name":"AssignTask13","id":"AssignTask13","taskType":"AssignTask","shapeType":"Rect","x":2275.571048991811,"y":563.3768488181263,"assignToProperty":"","value":""},{"name":"AssignTask14","id":"AssignTask14","taskType":"AssignTask","shapeType":"Rect","x":2375.577476721125,"y":832.1441233406582,"assignToProperty":"","value":""},{"name":"AssignTask15","id":"AssignTask15","taskType":"AssignTask","shapeType":"Rect","x":2438.0814940519467,"y":1025.9065770662046,"assignToProperty":"","value":""},{"name":"connection-2708c123-8393-4cc2-9b71-cdb683b4b693","taskType":"connection","shapeType":"Line","startshapeid":"TraceConsoleTask","endshapeid":"AssignTask8","xstart":810.7940532684997,"ystart":-297.3102394264236,"xend":2081.8085952662645,"yend":-734.2091220614512},{"name":"connection-71e2514d-60f5-4b6c-84f1-e319339e6d57","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask8","endshapeid":"AssignTask9","xstart":2241.8085952662645,"ystart":-734.2091220614512,"xend":2138.062210864004,"yend":-496.69385620433},{"name":"connection-ceb9bae2-5e1c-4ba3-a04f-ec5c4b0f50f1","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask9","endshapeid":"AssignTask10","xstart":2298.062210864004,"ystart":-496.69385620433,"xend":2106.810202198592,"yend":-202.92497474946947,"id":"connection-ceb9bae2-5e1c-4ba3-a04f-ec5c4b0f50f1"},{"name":"connection-44f1cb00-ee18-403d-ad2d-2f49361c3b75","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask10","endshapeid":"AssignTask11","xstart":2266.810202198592,"ystart":-202.92497474946947,"xend":2219.3174333940715,"yend":97.09430843847312,"id":"connection-44f1cb00-ee18-403d-ad2d-2f49361c3b75"},{"name":"connection-76e8a03d-d13a-4dbc-b0b3-dfd9b0229813","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask11","endshapeid":"AssignTask12","xstart":2379.3174333940715,"ystart":97.09430843847312,"xend":2256.8198437925644,"yend":415.86479682566215},{"name":"connection-9138ca00-ac3e-4b0f-a27a-f545f71e1094","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask12","endshapeid":"AssignTask13","xstart":2416.8198437925644,"ystart":415.86479682566215,"xend":2275.571048991811,"yend":603.3768488181263},{"name":"connection-191c900c-61e7-49fe-89b3-ad6276241a98","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask13","endshapeid":"AssignTask14","xstart":2435.571048991811,"ystart":603.3768488181263,"xend":2375.577476721125,"yend":872.1441233406582},{"name":"connection-d2b80192-a025-4a93-8478-54676ba1112a","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask14","endshapeid":"AssignTask15","xstart":2535.577476721125,"ystart":872.1441233406582,"xend":2438.0814940519467,"yend":1065.9065770662046},{"id":"PreviewTask","x":3004.1143555684284,"y":-751.2443270108979,"shapeType":"Rect","name":"PreviewTask","taskType":"PreviewTask","htmlPlugin":"iframe","width":384,"height":600,"url":"http://localhost:3000/homepage.html"},{"name":"connection-b11e8bdb-3f92-4a00-9cde-87d5f1ba5772","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask8","endshapeid":"PreviewTask","xstart":2241.8085952662645,"ystart":-734.2091220614512,"xend":2812.1143555684284,"yend":-751.2443270108979,"id":"connection-b11e8bdb-3f92-4a00-9cde-87d5f1ba5772"},{"id":"PreviewTask1","x":4637.518810669773,"y":-500.33685430203747,"shapeType":"Rect","name":"PreviewTask1","taskType":"PreviewTask","htmlPlugin":"executeNode","nodeName":"TestAssignTask"},{"id":"TestAssignTask","x":5083.428816465721,"y":-536.9355775025928,"shapeType":"Rect","name":"TestAssignTask","taskType":"AssignTask","assignToProperty":"value","value":"Hello from worker"},{"name":"connection-41b686e0-cb9d-4a81-9780-1a30d29f90e3","taskType":"connection","shapeType":"Line","startshapeid":"PreviewTask1","endshapeid":"TestAssignTask","xstart":4762.518810669773,"ystart":-500.33685430203747,"xend":5083.428816465721,"yend":-496.93557750259276},{"name":"AssignTask16","id":"AssignTask16","taskType":"AssignTask","shapeType":"Rect","x":-1757.8814891049103,"y":-1284.0182715644867,"assignToProperty":"","value":""},{"name":"AssignTask17","id":"AssignTask17","taskType":"AssignTask","shapeType":"Rect","x":824.6964970168331,"y":-992.5889289497006,"assignToProperty":"","value":""},{"name":"AssignTask18","id":"AssignTask18","taskType":"AssignTask","shapeType":"Rect","x":-776.6851981960135,"y":-1468.0192170796868,"assignToProperty":"","value":""},{"name":"AssignTask19","id":"AssignTask19","taskType":"AssignTask","shapeType":"Rect","x":-975.2253603872227,"y":-1694.9222595839258,"assignToProperty":"","value":""},{"name":"AssignTask20","id":"AssignTask20","taskType":"AssignTask","shapeType":"Rect","x":-1941.447005305019,"y":-1572.475466108231,"assignToProperty":"","value":""},{"name":"AssignTask21","id":"AssignTask21","taskType":"AssignTask","shapeType":"Rect","x":-1015.2604245809251,"y":-1419.0421999988382,"assignToProperty":"","value":""},{"name":"connection-4fdfe90f-b4ec-4341-83ba-bfbd493d3853","taskType":"connection","shapeType":"Line","startshapeid":"AssignTask19","endshapeid":"AssignTask18","xstart":-815.2253603872227,"ystart":-1654.9222595839258,"xend":-776.6851981960135,"yend":-1428.0192170796868}]
+[
+	{
+		"name": "test1",
+		"shapeType": "Circle",
+		"x": 410.34509528032163,
+		"y": 30.108850357684787,
+		"_outputs": [
+			"test2"
+		],
+		"title": "test1",
+		"id": "test1",
+		"_id": "test1"
+	},
+	{
+		"name": "testbla",
+		"shapeType": "Rect",
+		"x": 744.9880307104645,
+		"y": 230.45548059252826,
+		"title": "test2",
+		"id": "testbla",
+		"_id": "test2",
+		"node": "TraceConsoleTask"
+	},
+	{
+		"name": "test4",
+		"shapeType": "Circle",
+		"x": 336.31348530869434,
+		"y": 227.03112333763704,
+		"title": "test4",
+		"id": "test4",
+		"_id": "test4"
+	},
+	{
+		"name": "testwhohoo5",
+		"shapeType": "Rect",
+		"x": 1215.0910799669002,
+		"y": 42.047733250424415,
+		"title": "test5",
+		"id": "testwhohoo5",
+		"_id": "test5"
+	},
+	{
+		"name": "connection-eccd66a5-b789-4179-ac2b-5cea6aba5c9a",
+		"task": "Connection",
+		"shapeType": "Line",
+		"startshapeid": "test4",
+		"endshapeid": "test1",
+		"xstart": 416.31348530869434,
+		"ystart": 267.03112333763704,
+		"xend": 410.34509528032163,
+		"yend": 70.10885035768479
+	},
+	{
+		"id": "task",
+		"x": -159.62363332015514,
+		"y": -557.4492240252873,
+		"shapeType": "Circle",
+		"name": "task",
+		"taskType": "TraceConsoleTaskType",
+		"variableName": "test",
+		"isStartEnd": true
+	},
+	{
+		"name": "IfConditionTask",
+		"id": "IfConditionTask",
+		"taskType": "IfConditionTask",
+		"shapeType": "Diamond",
+		"x": 571.313452696983,
+		"y": -103.59195596866687
+	},
+	{
+		"name": "connection-bb88e588-da99-421d-9121-bf150ba079d0",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "testbla",
+		"endshapeid": "testwhohoo5",
+		"xstart": 904.9880307104645,
+		"ystart": 270.45548059252826,
+		"xend": 1215.0910799669002,
+		"yend": 82.04773325042441,
+		"id": "connection-bb88e588-da99-421d-9121-bf150ba079d0"
+	},
+	{
+		"name": "connection-2cb046c4-02d6-4c6f-a84e-9154ba841429",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "test1",
+		"endshapeid": "IfConditionTask",
+		"xstart": 490.34509528032163,
+		"ystart": 70.10885035768479,
+		"xend": 571.313452696983,
+		"yend": -63.591955968666866,
+		"id": "connection-2cb046c4-02d6-4c6f-a84e-9154ba841429"
+	},
+	{
+		"name": "connection-f60ec5e0-fcf4-4ca6-9943-9d308ddd7320",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "IfConditionTask",
+		"endshapeid": "testbla",
+		"xstart": 651.313452696983,
+		"ystart": -63.591955968666866,
+		"xend": 744.9880307104645,
+		"yend": 270.45548059252826,
+		"id": "connection-f60ec5e0-fcf4-4ca6-9943-9d308ddd7320",
+		"followflow": "onfailure"
+	},
+	{
+		"name": "TraceConsoleTask",
+		"id": "TraceConsoleTask",
+		"taskType": "TraceConsoleTask",
+		"shapeType": "Circle",
+		"x": 730.7940532684997,
+		"y": -337.3102394264236
+	},
+	{
+		"name": "ObservableTask",
+		"id": "ObservableTask",
+		"taskType": "ObservableTask",
+		"shapeType": "Circle",
+		"x": 938.0997337396034,
+		"y": -242.25092488944256
+	},
+	{
+		"name": "ObserverTask",
+		"id": "ObserverTask",
+		"taskType": "ObserverTask",
+		"shapeType": "Circle",
+		"x": 1079.4957251059036,
+		"y": -100.79937381832946
+	},
+	{
+		"id": "AssignTask",
+		"x": -184.89361361160923,
+		"y": -124.86242363624874,
+		"name": "AssignTask",
+		"taskType": "AssignTask",
+		"isStartEnd": true,
+		"node": "IfConditionTask",
+		"test": {
+			"node": "testwhohoo5"
+		}
+	},
+	{
+		"id": "ClearTask",
+		"x": -94.66698119369858,
+		"y": -297.72937191187543,
+		"name": "ClearTask",
+		"taskType": "ClearTask",
+		"node": "TraceConsoleTask",
+		"isStartEnd": true
+	},
+	{
+		"id": "FunctionCallTask",
+		"x": 241.52001000183486,
+		"y": -430.9184016818714,
+		"shapeType": "Rect",
+		"name": "FunctionCallTask",
+		"taskType": "FunctionCallTask",
+		"getVariable": "test"
+	},
+	{
+		"id": "AssignTask1",
+		"x": 650.0659317793896,
+		"y": -688.2563592615691,
+		"shapeType": "Rect",
+		"name": "AssignTask1",
+		"taskType": "AssignTask",
+		"setVariable": "test"
+	},
+	{
+		"id": "connection-874fd235-805d-4bb4-b3b0-ac185343bae4",
+		"startshapeid": "FunctionCallTask",
+		"endshapeid": "AssignTask1",
+		"xstart": 401.52001000183486,
+		"ystart": -390.9184016818714,
+		"xend": 650.0659317793896,
+		"yend": -648.2563592615691,
+		"shapeType": "Line",
+		"name": "connection-874fd235-805d-4bb4-b3b0-ac185343bae4",
+		"taskType": "connection",
+		"tag": "test",
+		"weight": 5,
+		"tagProperty": "TestTextField",
+		"tags": [
+			"test",
+			"tes1"
+		],
+		"activationFunction": "sigmoid",
+		"activationThreshold": 10,
+		"flowPath": "default"
+	},
+	{
+		"id": "FetchTask2",
+		"x": -20.26919357629791,
+		"y": -891.3786476595069,
+		"shapeType": "Rect",
+		"name": "FetchTask2",
+		"taskType": "FetchTask",
+		"test": "hello"
+	},
+	{
+		"name": "connection-1667313a-5fae-4a44-9401-77254de7fdbc",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "FetchTask2",
+		"endshapeid": "AssignTask1",
+		"xstart": 139.7308064237021,
+		"ystart": -851.3786476595069,
+		"xend": 650.0659317793896,
+		"yend": -648.2563592615691,
+		"id": "connection-1667313a-5fae-4a44-9401-77254de7fdbc"
+	},
+	{
+		"name": "connection-240dc158-3910-496c-8724-3d0ebcf1aab8",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "IfConditionTask",
+		"endshapeid": "testwhohoo5",
+		"xstart": 651.313452696983,
+		"ystart": -63.591955968666866,
+		"xend": 1215.0910799669002,
+		"yend": 82.04773325042441,
+		"followflow": "onsuccess",
+		"id": "connection-240dc158-3910-496c-8724-3d0ebcf1aab8"
+	},
+	{
+		"name": "connection-d7de77eb-7bab-4d04-977b-bdcd88ab6597",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "ClearTask",
+		"endshapeid": "FunctionCallTask",
+		"xstart": 65.33301880630142,
+		"ystart": -257.72937191187543,
+		"xend": 241.52001000183486,
+		"yend": -390.9184016818714,
+		"id": "connection-d7de77eb-7bab-4d04-977b-bdcd88ab6597"
+	},
+	{
+		"id": "personalInfo",
+		"x": -950.4869951300241,
+		"y": -755.6718482686133,
+		"shapeType": "Rect",
+		"name": "personalInfo",
+		"taskType": "InjectIntoPayloadTask",
+		"objectSchema": "layout",
+		"object": {
+			"caption": "Personal info",
+			"layout": [
+				{
+					"type": "2columns",
+					"caption": "2columns",
+					"layout": [
+						{
+							"caption": "Personal info",
+							"type": "form",
+							"datasourceNode": "getPersonalInfo",
+							"form": [
+								{
+									"fieldName": "Firstname",
+									"type": "textbox"
+								},
+								{
+									"type": "layout",
+									"layout": {
+										"type": "2columns",
+										"layout": [
+											{
+												"type": "form",
+												"form": [
+													{
+														"fieldName": "Middlename",
+														"type": "textbox"
+													}
+												]
+											},
+											{
+												"type": "form",
+												"form": [
+													{
+														"fieldName": "Lastname",
+														"type": "textbox"
+													}
+												]
+											}
+										]
+									}
+								},
+								{
+									"fieldName": "Gender",
+									"type": "checkbox",
+									"options": [
+										{
+											"value": "1",
+											"label": "Men"
+										},
+										{
+											"value": "2",
+											"label": "Woman"
+										},
+										{
+											"value": "3",
+											"label": "Neutral"
+										}
+									]
+								},
+								{
+									"fieldName": "Field1",
+									"type": "textbox",
+									"visibility": "Fields('Gender') == '2'"
+								},
+								{
+									"fieldName": "Field2",
+									"type": "textbox"
+								},
+								{
+									"fieldName": "Field3",
+									"type": "textbox"
+								},
+								{
+									"fieldName": "Field5",
+									"type": "dropdown",
+									"datasourceNode": "FetchTask",
+									"node": "AssignDropdownValue"
+								},
+								{
+									"fieldName": "Field6",
+									"type": "dropdown",
+									"getVariable": "dropdown1Variable",
+									"datasourceNode": "getDependentOptions"
+								}
+							]
+						},
+						{
+							"caption": "Products",
+							"type": "layout",
+							"layout": [
+								{
+									"type": "form",
+									"caption": "Search",
+									"form": [
+										{
+											"fieldName": "SearchProduct",
+											"type": "textbox",
+											"node": "AssignSearchProductValue"
+										}
+									]
+								},
+								{
+									"caption": "Products",
+									"type": "visualelements",
+									"elements": [
+										{
+											"type": "list",
+											"name": "productList",
+											"datasourceNode": "getProducts",
+											"getVariable": "searchProductVariable",
+											"fieldNames": [
+												"name",
+												"price"
+											]
+										},
+										{
+											"type": "image",
+											"url": "http://localhost:3000/assets/img/nasa-Q1p7bh3SHj8-unsplash.jpg"
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"caption": "",
+					"type": "visualelements",
+					"elements": [
+						{
+							"fieldName": "Close",
+							"type": "flowButton",
+							"node": "appStart"
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "InjectIntoPayloadTask",
+		"x": 527.3704890773345,
+		"y": -1005.4792056667999,
+		"shapeType": "Rect",
+		"name": "InjectIntoPayloadTask",
+		"taskType": "InjectIntoPayloadTask",
+		"objectSchema": "layout",
+		"datasourceNode": "personalInfo"
+	},
+	{
+		"name": "ModelTask",
+		"id": "ModelTask",
+		"taskType": "ModelTask",
+		"shapeType": "Rect",
+		"x": 1547.1366284442252,
+		"y": -931.5576364742976,
+		"modelName": "",
+		"primaryKeyFieldName": "[Field to use as visible text (not the id field)]",
+		"fields": [
+			{
+				"fieldName": ""
+			}
+		]
+	},
+	{
+		"name": "AssignTask2",
+		"id": "AssignTask2",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -737.1225863537795,
+		"y": 282.1087708294301,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask3",
+		"id": "AssignTask3",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -774.6249967522723,
+		"y": 557.1264470850441,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask4",
+		"id": "AssignTask4",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -418.35209796659046,
+		"y": 807.1425164083297,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask5",
+		"id": "AssignTask5",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 94.18084414614484,
+		"y": 932.1505510699724,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask6",
+		"id": "AssignTask6",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 437.95293946566244,
+		"y": 719.6368921451798,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask7",
+		"id": "AssignTask7",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 1000.4890954430548,
+		"y": 819.643319874494,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "connection-552142c8-cc92-47be-b3e0-ea6ad7f4f9ce",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask2",
+		"endshapeid": "AssignTask",
+		"xstart": -577.1225863537795,
+		"ystart": 322.1087708294301,
+		"xend": -184.89361361160923,
+		"yend": -84.86242363624874
+	},
+	{
+		"name": "connection-a7c404e6-39cd-4e44-ab74-43ee09e93056",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask3",
+		"endshapeid": "AssignTask",
+		"xstart": -614.6249967522723,
+		"ystart": 597.1264470850441,
+		"xend": -184.89361361160923,
+		"yend": -84.86242363624874
+	},
+	{
+		"name": "connection-494ce562-378d-473e-b30d-ec358b4d24fe",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask4",
+		"endshapeid": "test4",
+		"xstart": -258.35209796659046,
+		"ystart": 847.1425164083297,
+		"xend": 336.31348530869434,
+		"yend": 267.03112333763704
+	},
+	{
+		"name": "connection-401693b5-45e4-44e1-b861-0669bf1326f5",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask5",
+		"endshapeid": "testbla",
+		"xstart": 254.18084414614484,
+		"ystart": 972.1505510699724,
+		"xend": 744.9880307104645,
+		"yend": 270.45548059252826,
+		"id": "connection-401693b5-45e4-44e1-b861-0669bf1326f5"
+	},
+	{
+		"name": "connection-642b9858-1153-4b44-9f58-1be32dff7c9f",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask6",
+		"endshapeid": "testbla",
+		"xstart": 597.9529394656624,
+		"ystart": 759.6368921451798,
+		"xend": 744.9880307104645,
+		"yend": 270.45548059252826,
+		"id": "connection-642b9858-1153-4b44-9f58-1be32dff7c9f"
+	},
+	{
+		"name": "connection-29781e90-2919-4eab-b433-12590ceb087e",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask7",
+		"endshapeid": "testwhohoo5",
+		"xstart": 1160.4890954430548,
+		"ystart": 859.643319874494,
+		"xend": 1215.0910799669002,
+		"yend": 82.04773325042441,
+		"id": "connection-29781e90-2919-4eab-b433-12590ceb087e"
+	},
+	{
+		"name": "connection-37b8b5f2-f201-4f9e-9d53-cbd27bac1e90",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask1",
+		"endshapeid": "TraceConsoleTask",
+		"xstart": 810.0659317793896,
+		"ystart": -648.2563592615691,
+		"xend": 730.7940532684997,
+		"yend": -297.3102394264236,
+		"id": "connection-37b8b5f2-f201-4f9e-9d53-cbd27bac1e90"
+	},
+	{
+		"name": "connection-03782ea8-2892-448f-b7f8-f11a28b8b8f2",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "TraceConsoleTask",
+		"endshapeid": "ObservableTask",
+		"xstart": 810.7940532684997,
+		"ystart": -297.3102394264236,
+		"xend": 938.0997337396034,
+		"yend": -202.25092488944256,
+		"id": "connection-03782ea8-2892-448f-b7f8-f11a28b8b8f2"
+	},
+	{
+		"name": "connection-a6f79c48-0674-4c9c-9b32-f1c3c52a6321",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "ObservableTask",
+		"endshapeid": "ObserverTask",
+		"xstart": 1018.0997337396034,
+		"ystart": -202.25092488944256,
+		"xend": 1079.4957251059036,
+		"yend": -60.79937381832946,
+		"id": "connection-a6f79c48-0674-4c9c-9b32-f1c3c52a6321"
+	},
+	{
+		"name": "connection-4b47125d-72ae-4004-b991-7fa53cfa9a2f",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "personalInfo",
+		"endshapeid": "FetchTask2",
+		"xstart": -790.4869951300241,
+		"ystart": -715.6718482686133,
+		"xend": -20.26919357629791,
+		"yend": -851.3786476595069,
+		"id": "connection-4b47125d-72ae-4004-b991-7fa53cfa9a2f"
+	},
+	{
+		"name": "connection-5d93ca16-cdfa-4b5b-b3ac-e92d0995656f",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "FetchTask2",
+		"endshapeid": "task",
+		"xstart": 139.7308064237021,
+		"ystart": -851.3786476595069,
+		"xend": -159.62363332015514,
+		"yend": -517.4492240252873,
+		"id": "connection-5d93ca16-cdfa-4b5b-b3ac-e92d0995656f"
+	},
+	{
+		"name": "connection-137b827e-3148-4053-aec6-2c84929ca96e",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "personalInfo",
+		"endshapeid": "task",
+		"xstart": -790.4869951300241,
+		"ystart": -715.6718482686133,
+		"xend": -159.62363332015514,
+		"yend": -517.4492240252873,
+		"id": "connection-137b827e-3148-4053-aec6-2c84929ca96e"
+	},
+	{
+		"name": "connection-9879a306-11f1-4b7b-bf4f-ff4587d2b32e",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "task",
+		"endshapeid": "ClearTask",
+		"xstart": -79.62363332015514,
+		"ystart": -517.4492240252873,
+		"xend": -94.66698119369858,
+		"yend": -257.72937191187543
+	},
+	{
+		"name": "AssignTask8",
+		"id": "AssignTask8",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2081.8085952662645,
+		"y": -774.2091220614512,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask9",
+		"id": "AssignTask9",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2138.062210864004,
+		"y": -536.69385620433,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask10",
+		"id": "AssignTask10",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2106.810202198592,
+		"y": -242.92497474946947,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask11",
+		"id": "AssignTask11",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2219.3174333940715,
+		"y": 57.09430843847312,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask12",
+		"id": "AssignTask12",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2256.8198437925644,
+		"y": 375.86479682566215,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask13",
+		"id": "AssignTask13",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2275.571048991811,
+		"y": 563.3768488181263,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask14",
+		"id": "AssignTask14",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2375.577476721125,
+		"y": 832.1441233406582,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask15",
+		"id": "AssignTask15",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 2438.0814940519467,
+		"y": 1025.9065770662046,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "connection-2708c123-8393-4cc2-9b71-cdb683b4b693",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "TraceConsoleTask",
+		"endshapeid": "AssignTask8",
+		"xstart": 810.7940532684997,
+		"ystart": -297.3102394264236,
+		"xend": 2081.8085952662645,
+		"yend": -734.2091220614512
+	},
+	{
+		"name": "connection-71e2514d-60f5-4b6c-84f1-e319339e6d57",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask8",
+		"endshapeid": "AssignTask9",
+		"xstart": 2241.8085952662645,
+		"ystart": -734.2091220614512,
+		"xend": 2138.062210864004,
+		"yend": -496.69385620433
+	},
+	{
+		"name": "connection-ceb9bae2-5e1c-4ba3-a04f-ec5c4b0f50f1",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask9",
+		"endshapeid": "AssignTask10",
+		"xstart": 2298.062210864004,
+		"ystart": -496.69385620433,
+		"xend": 2106.810202198592,
+		"yend": -202.92497474946947,
+		"id": "connection-ceb9bae2-5e1c-4ba3-a04f-ec5c4b0f50f1"
+	},
+	{
+		"name": "connection-44f1cb00-ee18-403d-ad2d-2f49361c3b75",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask10",
+		"endshapeid": "AssignTask11",
+		"xstart": 2266.810202198592,
+		"ystart": -202.92497474946947,
+		"xend": 2219.3174333940715,
+		"yend": 97.09430843847312,
+		"id": "connection-44f1cb00-ee18-403d-ad2d-2f49361c3b75"
+	},
+	{
+		"name": "connection-76e8a03d-d13a-4dbc-b0b3-dfd9b0229813",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask11",
+		"endshapeid": "AssignTask12",
+		"xstart": 2379.3174333940715,
+		"ystart": 97.09430843847312,
+		"xend": 2256.8198437925644,
+		"yend": 415.86479682566215
+	},
+	{
+		"name": "connection-9138ca00-ac3e-4b0f-a27a-f545f71e1094",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask12",
+		"endshapeid": "AssignTask13",
+		"xstart": 2416.8198437925644,
+		"ystart": 415.86479682566215,
+		"xend": 2275.571048991811,
+		"yend": 603.3768488181263
+	},
+	{
+		"name": "connection-191c900c-61e7-49fe-89b3-ad6276241a98",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask13",
+		"endshapeid": "AssignTask14",
+		"xstart": 2435.571048991811,
+		"ystart": 603.3768488181263,
+		"xend": 2375.577476721125,
+		"yend": 872.1441233406582
+	},
+	{
+		"name": "connection-d2b80192-a025-4a93-8478-54676ba1112a",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask14",
+		"endshapeid": "AssignTask15",
+		"xstart": 2535.577476721125,
+		"ystart": 872.1441233406582,
+		"xend": 2438.0814940519467,
+		"yend": 1065.9065770662046
+	},
+	{
+		"id": "PreviewTask",
+		"x": 3004.1143555684284,
+		"y": -751.2443270108979,
+		"shapeType": "Rect",
+		"name": "PreviewTask",
+		"taskType": "PreviewTask",
+		"htmlPlugin": "iframe",
+		"width": 384,
+		"height": 600,
+		"url": "http://localhost:3000/homepage.html"
+	},
+	{
+		"name": "connection-b11e8bdb-3f92-4a00-9cde-87d5f1ba5772",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask8",
+		"endshapeid": "PreviewTask",
+		"xstart": 2241.8085952662645,
+		"ystart": -734.2091220614512,
+		"xend": 2812.1143555684284,
+		"yend": -751.2443270108979,
+		"id": "connection-b11e8bdb-3f92-4a00-9cde-87d5f1ba5772"
+	},
+	{
+		"id": "PreviewTask1",
+		"x": 4637.518810669773,
+		"y": -500.33685430203747,
+		"shapeType": "Rect",
+		"name": "PreviewTask1",
+		"taskType": "PreviewTask",
+		"htmlPlugin": "executeNode",
+		"nodeName": "TestAssignTask"
+	},
+	{
+		"id": "TestAssignTask",
+		"x": 5083.428816465721,
+		"y": -536.9355775025928,
+		"shapeType": "Rect",
+		"name": "TestAssignTask",
+		"taskType": "AssignTask",
+		"assignToProperty": "value",
+		"value": "Hello from worker"
+	},
+	{
+		"name": "connection-41b686e0-cb9d-4a81-9780-1a30d29f90e3",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "PreviewTask1",
+		"endshapeid": "TestAssignTask",
+		"xstart": 4762.518810669773,
+		"ystart": -500.33685430203747,
+		"xend": 5083.428816465721,
+		"yend": -496.93557750259276
+	},
+	{
+		"name": "AssignTask16",
+		"id": "AssignTask16",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -1757.8814891049103,
+		"y": -1284.0182715644867,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask17",
+		"id": "AssignTask17",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": 824.6964970168331,
+		"y": -992.5889289497006,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask18",
+		"id": "AssignTask18",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -776.6851981960135,
+		"y": -1468.0192170796868,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask19",
+		"id": "AssignTask19",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -975.2253603872227,
+		"y": -1694.9222595839258,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask20",
+		"id": "AssignTask20",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -1941.447005305019,
+		"y": -1572.475466108231,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "AssignTask21",
+		"id": "AssignTask21",
+		"taskType": "AssignTask",
+		"shapeType": "Rect",
+		"x": -1015.2604245809251,
+		"y": -1419.0421999988382,
+		"assignToProperty": "",
+		"value": ""
+	},
+	{
+		"name": "connection-4fdfe90f-b4ec-4341-83ba-bfbd493d3853",
+		"taskType": "connection",
+		"shapeType": "Line",
+		"startshapeid": "AssignTask19",
+		"endshapeid": "AssignTask18",
+		"xstart": -815.2253603872227,
+		"ystart": -1654.9222595839258,
+		"xend": -776.6851981960135,
+		"yend": -1428.0192170796868
+	}
+]
