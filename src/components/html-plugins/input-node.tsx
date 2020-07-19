@@ -5,6 +5,7 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { storeFlowNode } from '../../redux/actions/flow-actions';
 import { modifyRawFlow } from '../../redux/actions/raw-flow-actions';
+import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 export interface InputNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -12,6 +13,7 @@ export interface InputNodeHtmlPluginProps {
 	flow: any;
 
 	selectedNode: any;
+	canvasMode: ICanvasMode;
 
 	storeFlowNode: (node, orgNodeName) => void;
 	modifyRawFlow: (node, orgNodeName) => void;	
@@ -26,7 +28,8 @@ export interface InputNodeHtmlPluginState {
 const mapStateToProps = (state : any) => {
 	return {
 		selectedNode : state.selectedNode,
-		flow: state.flow
+		flow: state.flow,
+		canvasMode: state.canvasMode
 	}
 }
 
@@ -68,6 +71,11 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 	
 	onSubmit = (event: any) => {
 		event.preventDefault();
+
+		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+			return;
+		}
+		
 		if (this.props.node.formMode !== false) {
 			this.props.flowrunnerConnector.executeFlowNode(this.props.node.executeNode || this.props.node.name, {});
 		}
@@ -145,6 +153,11 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 
 	deleteListItem = (index, event: any) => {
 		event.preventDefault();
+
+		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+			return;
+		}
+
 		if (this.props.node) {
 
 			if (this.props.node.mode && this.props.node.mode === "list") {
@@ -179,6 +192,11 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 
 	onAddValue = (event) => {
 		event.preventDefault();
+
+		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+			return;
+		}
+
 		if (this.props.node) {
 			let newState : string[] = [...this.state.values];
 			newState.push("");
@@ -221,15 +239,18 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 								return <React.Fragment key={"index-f-" + index}>
 										<div className="input-group mb-1">
 											<input 
-											key={"index" + index}
-											className="form-control"
-											id={"input-" + this.props.node.name + "-" + index}
-											value={value}
-											data-index={index}
-											onChange={this.onChangeList.bind(this, index)} 
+												key={"index" + index}
+												className="form-control"
+												id={"input-" + this.props.node.name + "-" + index}
+												value={value}
+												data-index={index}
+												disabled={!!this.props.canvasMode.isFlowrunnerPaused}
+												onChange={this.onChangeList.bind(this, index)} 
 										/>
 										<div className="input-group-append">
-											<a href="#" title="delete item" onClick={this.deleteListItem.bind(this, index)} role="button" className="btn btn-outline-secondary">D</a>
+											<a href="#" title="delete item" 
+												onClick={this.deleteListItem.bind(this, index)} 											
+												role="button" className="btn btn-outline-secondary">D</a>
 										</div>
 									</div>
 								</React.Fragment>
@@ -246,6 +267,7 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 							id={"input-" + this.props.node.name}
 							value={this.state.value}
 							onChange={this.onChange} 
+							disabled={!!this.props.canvasMode.isFlowrunnerPaused}
 						/>
 						}
 						{!!this.props.node.formMode && 

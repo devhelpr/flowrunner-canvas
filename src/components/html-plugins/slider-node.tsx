@@ -3,9 +3,20 @@ import { IFlowrunnerConnector,IExecutionEvent } from '../../interfaces/IFlowrunn
 import Slider from '@material-ui/core/Slider';
 import { connect } from "react-redux";
 import { selectNode } from '../../redux/actions/node-actions';
+import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
+
+export class SliderNodeHtmlPluginInfo {
+	getWidth = (node) => {
+		return;
+	}
+
+	getHeight(node) {
+		return;
+	}
+}
 
 
 export interface SliderNodeHtmlPluginProps {
@@ -13,6 +24,7 @@ export interface SliderNodeHtmlPluginProps {
 	node : any;
 	nodes : any;
 	flow: any;
+	canvasMode: ICanvasMode;
 
 	selectedNode : any;
 	selectNode : (name, node) => void;
@@ -26,7 +38,8 @@ export interface SliderNodeHtmlPluginState {
 
 const mapStateToProps = (state : any) => {
 	return {
-		selectedNode : state.selectedNode,		
+		selectedNode : state.selectedNode,
+		canvasMode: state.canvasMode,		
 	}
 }
 
@@ -92,7 +105,7 @@ export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtm
 			);
 			let preventLoop = false;
 			if (!this.props.selectedNode || !this.props.selectedNode.payload) {
-				this.props.selectNode(this.props.node.name, this.props.node);
+				//this.props.selectNode(this.props.node.name, this.props.node);
 			}
 			this.setState({value : value}, () => {
 				// TODO : calling selectNode here causes an infinite loop !???
@@ -122,6 +135,7 @@ export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtm
 				<Slider 
 					min={this.props.node.minValue || 0}
 					max={this.props.node.maxValue || 100} 
+					disabled={!!this.props.canvasMode.isFlowrunnerPaused}
 					value={(this.props.selectedNode && 
 						this.props.selectedNode.payload &&
 						this.props.node.propertyName &&

@@ -16,6 +16,8 @@ import {
 	setSelectedTaskFunction,
 	setShowDependencies,
 	setShowDependenciesFunction,
+	setFlowrunnerPaused,
+	setFlowrunnerPausedFunction
 } from '../../redux/actions/canvas-mode-actions';
 
 import fetch from 'cross-fetch';
@@ -37,6 +39,7 @@ export interface ToolbarProps {
 	canvasMode: ICanvasMode;
 	selectedNode: any;
 	canvasToolbarsubject : Subject<string>;
+	hasRunningFlowRunner: boolean;
 
 	storeFlow: any;
 	storeFlowNode: any;
@@ -53,6 +56,7 @@ export interface ToolbarProps {
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 	setShowDependencies: setShowDependenciesFunction;
+	setFlowrunnerPaused: setFlowrunnerPausedFunction;
 	storeRawFlow: (flow : any) => void;
 	flowrunnerConnector : IFlowrunnerConnector;
 }
@@ -92,7 +96,8 @@ const mapDispatchToProps = (dispatch: any) => {
 		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName)),
 		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
-		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled))
+		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
+		setFlowrunnerPaused: (paused: boolean) => dispatch(setFlowrunnerPaused(paused))
 	}
 }
 
@@ -264,6 +269,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			showNewFlow: false 
 		}, () => {
 			if (!!pushFlow) {
+				this.props.setFlowrunnerPaused(false);
 				this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
 			}
 		});
@@ -309,6 +315,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			return res.json();
 		})
 		.then(flowPackage => {
+			this.props.setFlowrunnerPaused(false);
 			this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage);
 			
 			this.props.storeRawFlow(flowPackage);
@@ -332,6 +339,17 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	setSelectedFlow = (event) => {
 		this.setState({selectedFlow : event.target.value});
 		this.loadFlow(event.target.value);		
+	}
+
+	onSetPausedClick = (event) => {
+		event.preventDefault();
+		if (this.props.canvasMode.isFlowrunnerPaused) {
+			this.props.flowrunnerConnector.resumeFlowrunner();
+		} else {
+			this.props.flowrunnerConnector.pauseFlowrunner();
+		}
+		this.props.setFlowrunnerPaused(!this.props.canvasMode.isFlowrunnerPaused);
+		return false;
 	}
 
 	fitStage = (event) => {
@@ -390,7 +408,8 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name} &nbsp;</span>}
 									{!!!selectedNode.name && <><input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
 										<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
-									</>}							
+									</>}
+									{!!this.props.hasRunningFlowRunner && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
 									<a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
 									<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
 								</form>

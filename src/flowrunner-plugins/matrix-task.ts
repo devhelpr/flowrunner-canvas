@@ -22,6 +22,11 @@ export class MatrixTask extends FlowTask {
 			if (node.payload && node.action == 'setCellOnNewGeneration') {   
 				let newMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
 
+				/*
+					can we optimize this by not doing setCellOnNewGeneration for 
+					every cell but only once per generation
+				*/
+
 				if (!newMatrix) {
 					return false;
 				}
@@ -40,7 +45,6 @@ export class MatrixTask extends FlowTask {
 				newMatrix = null;
 				return true;
 			}
-
 
 			let matrix: IMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName) || {
 				data: [],
@@ -84,6 +88,13 @@ export class MatrixTask extends FlowTask {
 					return payload;
 				} else
 				if (node.action == 'getNeighbourCountForCell') {
+					
+					/*
+						can we optimize this by not doing getPropertyFromNode for 
+						every cell but only once and pass it on via the payload ??
+
+					*/
+
 					try {
 						if (payload.x >= matrix.columns && payload.y >= matrix.rows) {
 							(matrix as any) = null;

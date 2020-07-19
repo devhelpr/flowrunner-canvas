@@ -20,9 +20,9 @@ import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 
-import { ExecuteNodeHtmlPlugin } from './components/html-plugins/execute-node';
+import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
-import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin } from './components/html-plugins/slider-node';
+import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
 import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
 
 import { setCustomConfig } from './config';
@@ -66,19 +66,10 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
 	
 	if (node.htmlPlugin == "executeNode") {
-		return new ExecuteNodeHtmlPlugin({
-			node: node,
-			flowrunnerConnector: flowrunnerConnector
-		});
+		return new ExecuteNodeHtmlPluginInfo();
 	} else
 	if (node.htmlPlugin == "sliderNode") {
-		return new ContainedSliderNodeHtmlPlugin({
-			selectedNode: undefined,
-			flowrunnerConnector: flowrunnerConnector,
-			node: node,
-			nodes: nodes,
-			flow: flow
-		});
+		return new SliderNodeHtmlPluginInfo();
 	} else
 	if (node.htmlPlugin == "inputNode") {
 		return;	
@@ -179,7 +170,9 @@ const App = (props : IAppProps) => {
 				{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
 					flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
-				<Toolbar canvasToolbarsubject={canvasToolbarsubject} flowrunnerConnector={flowrunnerConnector}></Toolbar>
+				<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
+					hasRunningFlowRunner={!!hasRunningFlowRunner}
+					flowrunnerConnector={flowrunnerConnector}></Toolbar>
 				<Canvas canvasToolbarsubject={canvasToolbarsubject} 
 					renderHtmlNode={renderHtmlNode}
 					flowrunnerConnector={flowrunnerConnector}

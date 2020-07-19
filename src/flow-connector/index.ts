@@ -38,6 +38,10 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   getPluginRegistry = () => {
     return {};
   }
+
+  pauseFlowrunner = () => {}
+
+  resumeFlowrunner = () => {}
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -274,4 +278,21 @@ export class FlowConnector implements IFlowrunnerConnector {
   getPluginRegistry = () => {
     return this.pluginRegistry;
   }
+
+  pauseFlowrunner = () => {
+    if (this.worker) {
+      this.worker.postMessage({
+        command: 'PauseFlowrunner'
+      });
+    }
+  }
+
+  resumeFlowrunner = () => {
+    if (this.worker) {
+      this.worker.postMessage({
+        command: 'ResumeFlowrunner'
+      });
+    }    
+  }
+
 }

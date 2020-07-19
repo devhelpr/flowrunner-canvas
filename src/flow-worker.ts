@@ -251,11 +251,26 @@ export class TimerTask extends FlowTask {
   node : any = undefined;
 
   public timer = () => {
+
+    /*
+
+      problem with pausing the flow is that this can happen during handling of
+      executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
+
+    */
+
     if (!this.isExecuting) {
       this.isExecuting = true;
+
+      if (this.clearTimeout) {
+        clearTimeout(this.clearTimeout);
+        this.clearTimeout = undefined;
+      }
+
       if (this.node.executeNode) {
         flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
           this.isExecuting = false;
+
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
       } else {
@@ -266,33 +281,50 @@ export class TimerTask extends FlowTask {
 
       }
     } else {
+
+      if (this.clearTimeout) {
+        clearTimeout(this.clearTimeout);
+        this.clearTimeout = undefined;
+      }
+
       this.clearTimeout = setTimeout(this.timer, this.node.interval);
     }
   }
 
   public execute(node: any, services: any) {
     this.node = node;
+    this.isExecuting = false;
 
-    if (node.mode === "executeNode") {
+    console.log("timer execute" , this.node);
+
+    if (node.mode === "executeNode" || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
         this.clearTimeout = undefined;
       }
       this.clearTimeout = setTimeout(this.timer, node.interval);
       return;
+    } else {
+      if (node.interval) {
+
+        if (timers[node.name]) {
+          clearInterval(timers[node.name]);
+          timers[node.name] = undefined;
+        }
+
+        let subject = new Subject<string>();
+        const timer = setInterval(() => {
+          subject.next(Object.assign({}, node.payload));
+        }, node.interval);
+        timers[node.name] = timer;
+        return subject;
+      }
     }
-    if (timers[node.name]) {
+    /*if (timers[node.name]) {
       clearInterval(timers[node.name]);
       timers[node.name] = undefined;
-    }
-    if (node.interval) {
-      let subject = new Subject<string>();
-      const timer = setInterval(() => {
-        subject.next(Object.assign({}, node.payload));
-      }, node.interval);
-      timers[node.name] = timer;
-      return subject;
-    }
+    }*/
+    
     return false;
   }
 
@@ -458,6 +490,10 @@ const onWorkerMessage = event => {
         flowPluginNodes[data.nodeName] = undefined;
         payload = null;
       }
+    } else if (command == 'PauseFlowrunner') {
+      flow.pauseFlowrunner();
+    } else if (command == 'ResumeFlowrunner') {
+      flow.resumeFlowrunner();
     }
 
     data = null;

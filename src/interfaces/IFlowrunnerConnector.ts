@@ -16,9 +16,13 @@ export interface IFlowrunnerConnector {
 
   setPluginRegistry: (pluginRegistry : any) => void;
   getPluginRegistry: () => any;
-  }
 
-  export interface IExecutionEvent {
-    name: string;
-    payload: any;
-  }
+  pauseFlowrunner: () => void;
+
+  resumeFlowrunner: () => void;
+}
+
+export interface IExecutionEvent {
+  name: string;
+  payload: any;
+}
