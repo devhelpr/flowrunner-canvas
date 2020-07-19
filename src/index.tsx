@@ -65,16 +65,16 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 
 const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
 	
-	if (node.htmlPlugin == "executeNode") {
+	if (node && node.htmlPlugin == "executeNode") {
 		return new ExecuteNodeHtmlPluginInfo();
 	} else
-	if (node.htmlPlugin == "sliderNode") {
+	if (node && node.htmlPlugin == "sliderNode") {
 		return new SliderNodeHtmlPluginInfo();
 	} else
-	if (node.htmlPlugin == "inputNode") {
+	if (node && node.htmlPlugin == "inputNode") {
 		return;	
 	} else	
-	if (node.htmlPlugin == "debugNode") {
+	if (node && node.htmlPlugin == "debugNode") {
 		return new DebugNodeHtmlPluginInfo();
 	}
 

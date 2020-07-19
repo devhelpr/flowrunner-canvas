@@ -110,6 +110,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	stageX = 0.0;
 	stageY = 0.0;
 
+	flowIsLoading = false;
+
 	componentDidMount() {
 		//this.props.storeFlow(this.props.nodes);
 
@@ -131,8 +133,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					if (this.unmounted) {
 						return;
 					}
+					if (message == "loadFlow") {
+						this.flowIsLoading = true;
+						this.setState({canvasOpacity : 0});	
+					} else
 					if (message == "fitStage") {
 						this.fitStage();
+						this.setState({canvasOpacity : 1});	
 					} else 
 					if (message == "reload") {
 						console.log("canvasKey", this.state.canvasKey);						
@@ -150,7 +157,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 
 		if (prevProps.flow != this.props.flow) {
-			this.fitStage();
+			if (this.flowIsLoading) {
+				this.flowIsLoading = false;
+				this.fitStage()
+			}			
 		}
 
 		if (prevState.canvasKey !== this.state.canvasKey) {
@@ -217,7 +227,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		let lines = {};
 		if (startLines) {			
 			startLines.map((lineNode) => {				
-				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode);
+				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
 				this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
 				this.props.storeRawNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
 				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
@@ -226,8 +236,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(this.props.flow, node);
 		if (endLines) {
-			const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition);
+			
 			endLines.map((lineNode) => {
+				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
 				let startPos = {};
 				if (lines[lineNode.name]) {
 					startPos = lines[lineNode.name];
@@ -710,7 +721,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						this.stageScale = editorState.scale;
 
 						this.setHtmlElementsPositionAndScale(editorState.x, editorState.y, editorState.scale);
-						this.setState({canvasOpacity : 1});						
+						//this.setState({canvasOpacity : 1});						
 					}
 				}
 			} else {

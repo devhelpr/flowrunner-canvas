@@ -28,7 +28,7 @@ export class FlowToCanvas {
     });
   }
 
-  static getStartPointForLine(startShape, newPosition, node? : any) {
+  static getStartPointForLine(startShape, newPosition, node? : any, getNodeInstance? : any) {
     const shapeType = FlowToCanvas.getShapeType(startShape.shapeType, startShape.taskType, startShape.isStartEnd);
     let isEvent : boolean = false;
     if (node && node.event && node.event !== "") {
@@ -36,8 +36,15 @@ export class FlowToCanvas {
     }
 
     if (shapeType == 'Html') {
+      let width = undefined;
+      if (getNodeInstance && startShape) {
+        const nodeInstance = getNodeInstance(startShape);
+        if (nodeInstance && nodeInstance.getWidth) {
+          width = nodeInstance.getWidth(startShape);
+        }
+      }
       return {
-        x: newPosition.x + ((startShape.width || ShapeMeasures.htmlWidth) / 2) + (isEvent ? 18 : 0),
+        x: newPosition.x + ((width || startShape.width || ShapeMeasures.htmlWidth) / 2) + (isEvent ? 18 : 0),
         y: newPosition.y - (isEvent ? -4 - 32 + ((startShape.height || ShapeMeasures.htmlHeight) / 2) : 0),
       };
     } else if (shapeType == 'Circle' || shapeType == 'Diamond') {
@@ -53,12 +60,19 @@ export class FlowToCanvas {
     }
   }
 
-  static getEndPointForLine(endShape, newPosition) {
+  static getEndPointForLine(endShape, newPosition, node? : any, getNodeInstance? : any) {
     const shapeType = FlowToCanvas.getShapeType(endShape.shapeType, endShape.taskType, endShape.isStartEnd);
 
     if (shapeType == 'Html') {
+      let width = undefined;
+      if (getNodeInstance && endShape) {
+        const nodeInstance = getNodeInstance(endShape);
+        if (nodeInstance && nodeInstance.getWidth) {
+          width = nodeInstance.getWidth(endShape);
+        }
+      }
       return {
-        x: newPosition.x - (endShape.width || ShapeMeasures.htmlWidth) / 2,
+        x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2,
         y: newPosition.y,
       };
     } else if (shapeType == 'Circle' || shapeType == 'Diamond') {

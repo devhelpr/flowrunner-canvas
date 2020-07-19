@@ -270,12 +270,17 @@ export class TimerTask extends FlowTask {
       if (this.node.executeNode) {
         flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
           this.isExecuting = false;
-
+          if (!!this.isBeingKilled) {
+            return;
+          }
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
       } else {
         flow.triggerEventOnNode(this.node.name, "onTimer" , {}).then(() => {
           this.isExecuting = false;
+          if (!!this.isBeingKilled) {
+            return;
+          }          
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
 
@@ -285,6 +290,10 @@ export class TimerTask extends FlowTask {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
         this.clearTimeout = undefined;
+      }
+
+      if (!!this.isBeingKilled) {
+        return;
       }
 
       this.clearTimeout = setTimeout(this.timer, this.node.interval);
@@ -326,6 +335,16 @@ export class TimerTask extends FlowTask {
     }*/
     
     return false;
+  }
+
+
+  isBeingKilled = false;
+  public kill() {
+    this.isBeingKilled = true;
+    if (this.clearTimeout) {
+      clearTimeout(this.clearTimeout);
+      this.clearTimeout = undefined;
+    }
   }
 
   public getName() {

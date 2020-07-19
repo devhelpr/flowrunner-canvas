@@ -307,6 +307,11 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	}
 
 	loadFlow = (flowId) => {
+
+		if (this.props.canvasToolbarsubject) {
+			this.props.canvasToolbarsubject.next("loadFlow");
+		}
+
 		fetch('/flow?flow=' + flowId)
 		.then(res => {
 			if (res.status >= 400) {
@@ -315,20 +320,23 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			return res.json();
 		})
 		.then(flowPackage => {
-			this.props.setFlowrunnerPaused(false);
-			this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage);
-			
-			this.props.storeRawFlow(flowPackage);
 
-			if (this.props.canvasToolbarsubject) {
-				//this.props.canvasToolbarsubject.next("reload");
-			}
+			
 			setTimeout(() => {
-				if (this.props.canvasToolbarsubject) {
-					//this.props.canvasToolbarsubject.next("fitStage");
-					//this.props.canvasToolbarsubject.next("reload");
-				}
-			}, 1000);
+				this.props.setFlowrunnerPaused(false);
+				this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage);			
+				this.props.storeRawFlow(flowPackage);
+				// TODO ... make this independent of timers
+				//   .. especially the below timer
+				//   .. 
+				setTimeout(() => {
+					if (this.props.canvasToolbarsubject) {
+						//this.props.canvasToolbarsubject.next("fitStage");
+						//this.props.canvasToolbarsubject.next("reload");
+					}
+				}, 50);
+
+			} , 500);
 			
 		})
 		.catch(err => {
