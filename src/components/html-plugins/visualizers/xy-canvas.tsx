@@ -2,16 +2,34 @@ import * as React from 'react';
 import { Stage, Layer , Circle, Line, Text, Label, Tag, Rect} from 'react-konva';
 import { min } from 'rxjs/operators';
 
+import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+
 const heightCorrection = 42;
 
 export interface XYCanvasProps {
 	node : any;
 	payloads : any[];
+	selectedNode : any;
+	flowrunnerConnector : IFlowrunnerConnector;
 }
 
 export interface XYCanvasState {
 	
 }
+
+/*
+	this.props.flowrunnerConnector.getNodeExecutions()
+
+	IF selectedNode
+		search selectedNode in nodeExecutions : index
+			foreach node < index and payload not FOUND
+				foreach payload (from max to 0)
+					if payload.debugId == node.debugId
+						FOUND and show line on that payload
+
+	
+
+*/
 
 interface IMinMax {
 	min? : number;
@@ -25,6 +43,62 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 				
 	}
 	componentDidMount() {
+	}
+
+	getCurrentDebugNotifier = () => {
+		if (this.props.selectedNode && this.props.selectedNode.node) {
+			let selectedNodePayload = this.props.selectedNode.payload;
+			if (selectedNodePayload) {
+				if (!selectedNodePayload.nodeExecutionId) {
+					return null;
+				}
+				let nodeExecutions = this.props.flowrunnerConnector.getNodeExecutions();
+				let executionIndex = -1;
+				nodeExecutions.map((nodeExec, index) => {
+					if (nodeExec && nodeExec.payload && nodeExec.payload.nodeExecutionId == selectedNodePayload.nodeExecutionId) {
+						executionIndex = index;
+					}
+				});
+
+				if (executionIndex >= 0) {
+					let isFound = false;
+					let resultPayloadIndex = -1;
+					let loop = executionIndex;
+					while (loop >= 0) {
+						let index = loop;
+						let nodeExec = nodeExecutions[loop];
+						if (!isFound && index <= executionIndex) {
+							this.props.payloads.map((payload, payloadIndex) => {
+								if (!isFound && payload && nodeExec.payload && payload.debugId == nodeExec.payload.debugId) {
+									isFound = true;
+									// FOUND
+									resultPayloadIndex = payloadIndex;
+								}
+							});
+						}
+						loop--;
+					}
+
+					if (resultPayloadIndex >= 0) {
+
+						let height = (this.props.node.height || 250) - heightCorrection;
+						let width = (this.props.node.width || 250);
+
+						return <Line							
+							points={[resultPayloadIndex, 0,
+								resultPayloadIndex,
+								height							
+							]}
+							tension={0}
+							closed
+							stroke={"#3f51b5"}
+							strokeWidth={2}							
+						/>
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	getMinMax = (payloads : any[], series : any[], height: number, node) => {
@@ -113,7 +187,7 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 					width={4}
 					height={4}
 					fill={color} 
-					perfectDrawEnabled={false}>
+					perfectDrawEnabled={true}>
 				</Circle>}
 				{fill !== "" && !!node.includeLines && (index < payloads.length - 1) && <Line							
 					points={[x, y,
@@ -229,6 +303,7 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 				height={height}>		
 			<Layer>
 			{circles}
+			{this.getCurrentDebugNotifier()}
 			<Text width={(this.props.node.width || 250) - 12}
 				align="right"
 				fontSize={18}
@@ -240,19 +315,7 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 				fontSize={18}
 				y={yAdd + 1 * 24}
 				text={"max:" + minmax.max?.toFixed(2)}
-			></Text>
-			<Text width={(this.props.node.width || 250) - 12}
-				align="right"
-				fontSize={18}
-				y={yAdd + 2 * 24}
-				text={"ratio:" + minmax.ratio?.toFixed(2)}
-			></Text>
-			<Text width={(this.props.node.width || 250) - 12}
-				align="right"
-				fontSize={18}
-				y={yAdd + 3 * 24}
-				text={"correction:" + minmax.correction?.toFixed(2)}
-			></Text>
+			></Text>			
 			</Layer>
 		</Stage>;
 	}

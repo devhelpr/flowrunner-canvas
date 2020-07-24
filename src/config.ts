@@ -144,6 +144,14 @@ const taskTypeConfig: any = {
       increment: 1,
     },
   },
+  GridEditTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'gridEditNode',
+    presetValues: {
+      htmlPlugin: 'gridEditNode',
+      propertyName: ''      
+    }
+  },
   SliderTask: {
     shapeType: 'Html',
     htmlPlugin: 'sliderNode',

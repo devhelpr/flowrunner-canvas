@@ -9,6 +9,7 @@ import * as uuid from 'uuid';
 import { ConditionalTriggerTask } from './flowrunner-plugins/conditional-trigger-task';
 import { MatrixTask } from './flowrunner-plugins/matrix-task';
 import { SliderTask } from './flowrunner-plugins/slider-task';
+import { GridEditTask } from './flowrunner-plugins/grid-edit-task';
 
 const uuidV4 = uuid.v4;
 
@@ -180,8 +181,10 @@ export class InputTask extends FlowTask {
 
 export class DebugTask extends ObservableTask {
   public execute(node: any, services: any) {
-    super.execute({ ...node, sendNodeName: true }, services);
-    return node.payload;
+    let payload = {...node.payload};
+    payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
+    super.execute({ ...node, sendNodeName: true, payload: payload }, services);
+    return payload;
   }
   public getName() {
     return 'DebugTask';
@@ -276,7 +279,7 @@ export class TimerTask extends FlowTask {
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
       } else {
-        flow.triggerEventOnNode(this.node.name, "onTimer" , {}).then(() => {
+        flow.triggerEventOnNode(this.node.name, "onTimer" ,  this.node.payload || {}).then(() => {
           this.isExecuting = false;
           if (!!this.isBeingKilled) {
             return;
@@ -525,7 +528,7 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
     command: 'SendNodeExecution',
     result: result,
     dateTime: dateTime,
-    payload: payload,
+    payload: {...payload , nodeExecutionId : uuidV4()},
     name: id,
     nodeType: nodeType,
   });
@@ -561,6 +564,7 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
   flow.registerTask('MapPayloadTask', MapPayloadTask);
   flow.registerTask('ListTask', ListTask);
   flow.registerTask('MatrixTask', MatrixTask);
+  flow.registerTask('GridEditTask', GridEditTask);
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {

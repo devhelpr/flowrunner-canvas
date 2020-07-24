@@ -81,6 +81,7 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"InputTask", fullName: "InputTask"});
 					tasks.push({className:"ListTask", fullName: "ListTask"});					
 					tasks.push({className:"MatrixTask", fullName: "MatrixTask"});
+					tasks.push({className:"GridEditTask", fullName: "GridEditTask"});
 					
 					//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
 					//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});

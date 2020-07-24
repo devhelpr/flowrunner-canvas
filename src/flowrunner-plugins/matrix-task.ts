@@ -1,8 +1,11 @@
 import { FlowTask } from '@devhelpr/flowrunner';
+import * as uuid from 'uuid';
+const uuidV4 = uuid.v4;
 
 export interface IMatrix {
 	columns: number;
 	rows: number;
+	uuid: string;
 	data: number[];
   }
   
@@ -21,6 +24,13 @@ export class MatrixTask extends FlowTask {
 
 			if (node.payload && node.action == 'setCellOnNewGeneration') {   
 				let newMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
+				let currentMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName);
+				if (currentMatrix.uuid != _payload.uuid) {
+					return false;
+				}
+				if (newMatrix.uuid != currentMatrix.uuid) {
+					return false;
+				}
 
 				/*
 					can we optimize this by not doing setCellOnNewGeneration for 
@@ -49,7 +59,8 @@ export class MatrixTask extends FlowTask {
 			let matrix: IMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName) || {
 				data: [],
 				columns: 0,
-				rows: 0
+				rows: 0,
+				uuid : ""
 			};
 			/*
 				matrix = {
@@ -72,12 +83,18 @@ export class MatrixTask extends FlowTask {
 					matrix = {
 						columns : node.columns,
 						rows: node.rows,
+						uuid: uuidV4(),
 						data: new Array(node.columns * node.rows).fill(node.defaultValue || 0)
 					};
 					console.log("matrix new", matrix);
 					services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, matrix);
 				} else
 				if (node.action == 'get') {
+					
+					if (matrix.uuid != payload.uuid) {
+						return false;
+					}
+
 					payload.data = matrix.data;
 					payload.columns = matrix.columns;
 					payload.rows = matrix.rows;
@@ -100,6 +117,12 @@ export class MatrixTask extends FlowTask {
 							(matrix as any) = null;
 							return false;
 						}
+
+						if (matrix.uuid != payload.uuid) {
+							(matrix as any) = null;
+							return false;
+						}
+		
 
 						let neighbourCount = 0;
 						let loopRows = payload.y - 1;            
@@ -147,12 +170,18 @@ export class MatrixTask extends FlowTask {
 
 				} else
 				if (node.action == 'setup') {
-
-					console.log("matrix setup", node , matrix);
+					(matrix as any) = null;
+					matrix = {
+						columns : node.columns,
+						rows: node.rows,
+						uuid: uuidV4(),
+						data: new Array(node.columns * node.rows).fill(node.defaultValue || 0)
+					};
+					console.log("matrix setup", node , matrix, _payload);
 					// matrix
 					// values[] : x,y,value
 					try {
-						(node.values || []).map(value => {
+						((_payload && _payload.values) || node.values || []).map(value => {
 							if (value.x >= 0 && value.y >= 0) {
 								let index = (matrix.columns * value.y) + value.x;
 								if (index < matrix.data.length) {
@@ -164,20 +193,90 @@ export class MatrixTask extends FlowTask {
 						console.log(err);
 						return false;
 					}
-					
+					payload["uuid"] = matrix.uuid;
+
 					services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, matrix);         
 				} else
 				if (node.action == 'calculateNewGeneration') {
 					
 					try {
+
+						/*
+							performance optimalization
+							- create temp matrix filled with neighbourCount for each cell
+							- foreach executeFlowForEachCell : add neighbourCount for that cell to payload
+							- result payload: if (payload.isAlive) .. then add living cell to result matrix
+
+
+						*/
+
+						let currentUUID = matrix.uuid;
+						
 						let newMatrix = {
 							columns : matrix.columns,
 							rows: matrix.rows,
+							uuid: matrix.uuid,
 							data: new Array(matrix.columns * matrix.rows).fill(node.defaultValue || 0)
 						};
-						services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName + "NEW", newMatrix);
-						(newMatrix as any) = null;
+						//services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName + "NEW", newMatrix);
+						//(newMatrix as any) = null;
 						
+						let neigbourMatrix = {
+							columns : matrix.columns,
+							rows: matrix.rows,
+							uuid: matrix.uuid,
+							data: new Array(matrix.columns * matrix.rows).fill(node.defaultValue || 0)
+						};
+						
+						let loopRows = 0;            
+						while ((loopRows < matrix.rows)) {
+
+							let loopColumns = 0;
+							while ((loopColumns < matrix.columns)) {
+								const getNeighbourState = (x,y) => {
+									let result = 0;
+									let helperRows = loopRows + y;
+									let helperColumns = loopColumns + x;
+									if (helperRows < 0) {
+										helperRows = matrix.rows + helperRows;
+									}
+									if (helperColumns < 0) {
+										helperColumns = matrix.columns + helperColumns;
+									}
+
+									if (helperRows >= matrix.rows) {
+										helperRows = helperRows - matrix.rows;
+									}
+
+									if (helperColumns >= matrix.columns) {
+										helperColumns = helperColumns - matrix.columns;
+									}
+
+									let index = (matrix.columns * helperRows) + helperColumns;
+									//indexes.push(index);
+									if (index < matrix.data.length && matrix.data[index] > 0) {
+										result++;
+									}
+									return result;
+								}
+								
+								let neighbourCount = getNeighbourState(-1,-1) + 
+									getNeighbourState(0,-1) + 
+									getNeighbourState(1,-1) +
+									getNeighbourState(-1,0) + 
+									getNeighbourState(1,0) + 
+									getNeighbourState(-1,1) + 
+									getNeighbourState(0,1) + 
+									getNeighbourState(1,1);
+								let index = (matrix.columns * loopRows) + loopColumns;
+								neigbourMatrix.data[index] = neighbourCount;
+
+								loopColumns++;
+							}
+							loopRows++;
+						}	
+
+
 						const executeFlowForEachCell = (nodeName) => {
 							//console.log("executeFlowForEachCell", nodeName);
 							let promises : any[] = [];
@@ -193,7 +292,14 @@ export class MatrixTask extends FlowTask {
 									//console.log(loopRows, loopColumns);
 									///promises.push(flow.executeNode(node.executeNode, {value: value, x: loopColumns, y: loopRows} || {}));
 									// onCalculateNewGenerationForEachCell  
-									promises.push(services.flowEventRunner.triggerEventOnNode(nodeName, "onCalculateNewGenerationForEachCell" , {value: value, x: loopColumns, y: loopRows} || {}));
+									promises.push(services.flowEventRunner.triggerEventOnNode(nodeName, "onCalculateNewGenerationForEachCell" , 
+										{
+											value: value, 
+											x: loopColumns,
+											y: loopRows,
+											uuid: currentUUID,
+											neighbourCount:  neigbourMatrix.data[index]
+										} || {}));
 									loopColumns++;
 								}
 								loopRows++;
@@ -205,22 +311,48 @@ export class MatrixTask extends FlowTask {
 						let promise = new Promise((resolve, reject) => {
 							Promise.all(executeFlowForEachCell(node.name)).then((values) => {
 									(matrix as any) = null;
-									let _matrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
+									//let _matrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
+
+									let currentMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName);
+									if (currentMatrix.uuid != currentUUID) { //|| _matrix.uuid != currentMatrix.uuid
+										currentMatrix = null;
+										reject();
+										return false;
+									}
+									currentMatrix = null;
+
+									values.map((resultPayload, index) => {
+										if (resultPayload !== undefined) {
+											if (resultPayload.isAlive === 1) {
+												newMatrix.data[(newMatrix.columns * resultPayload.y) + resultPayload.x] = 1;
+											}
+										}
+									})
+									
+									/*if (_matrix.uuid != currentUUID) {
+										(_matrix as any) = null;
+										reject();
+										return;
+									}
+									*/
 									//console.log("onCalculateNewGenerationForEachCell resolved",node.name, matrix);
 
 									//console.log("calculate new generation", matrix);
 						
-									services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, _matrix);
-									(_matrix as any) = null;
+									services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, newMatrix);
+									//(_matrix as any) = null;
 									(newMatrix as any) = null;
 									(matrix as any) = null;
+									(neigbourMatrix as any) = null;
 									services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName + "NEW", null);
 									resolve(_payload);
 									_payload = null;
 								}
 							).catch(() => {
-								
-								resolve(_payload);
+								(newMatrix as any) = null;
+								(matrix as any) = null;
+								reject();
+								(neigbourMatrix as any) = null;
 								_payload = null;
 							});
 						});

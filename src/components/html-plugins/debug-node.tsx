@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { connect } from "react-redux";
+
 import { Children, isValidElement, cloneElement } from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { XYCanvas } from './visualizers/xy-canvas';
@@ -35,13 +37,20 @@ export interface DebugNodeHtmlPluginProps {
 	node : any;
 	nodes : any;
 	flow: any;
+	selectedNode : any;
+}
+
+const mapStateToProps = (state : any) => {
+	return {
+		selectedNode : state.selectedNode
+	}
 }
 
 export interface DebugNodeHtmlPluginState {
 	receivedPayload : any[];
 }
 
-export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProps, DebugNodeHtmlPluginState> {
+export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProps, DebugNodeHtmlPluginState> {
 	state = {
 		receivedPayload : []
 	}
@@ -160,9 +169,12 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 			visualizer = <GridCanvas node={this.props.node} payloads={this.state.receivedPayload}></GridCanvas>
 		} else
 		if (this.props.node.visualizer == "xycanvas") {
-			visualizer = <XYCanvas node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
+			visualizer = <XYCanvas flowrunnerConnector={this.props.flowrunnerConnector} selectedNode={this.props.selectedNode} node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
 		} else {
 			const payload = this.state.receivedPayload[this.state.receivedPayload.length-1];
+			if ((payload as any).debugId) {
+				delete (payload as any).debugId;
+			}
 			visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
 		}
 		return <div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer} style={{		
@@ -173,3 +185,5 @@ export class DebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProp
 	
 	}
 }
+
+export const DebugNodeHtmlPlugin = connect(mapStateToProps)(ContainedDebugNodeHtmlPlugin);

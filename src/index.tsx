@@ -1,4 +1,4 @@
-import { startFlow, getFlowEventRunner } from '@devhelpr/flowrunner-redux';
+import { startFlow } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
 import { useState } from 'react';
 import ReactDOM from 'react-dom';
@@ -24,7 +24,7 @@ import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/h
 import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
 import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
 import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
-
+import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components/html-plugins/grid-edit';
 import { setCustomConfig } from './config';
 
 import Worker from "worker-loader!./flow-worker";
@@ -71,6 +71,9 @@ const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, n
 	if (node && node.htmlPlugin == "sliderNode") {
 		return new SliderNodeHtmlPluginInfo();
 	} else
+	if (node && node.htmlPlugin == "gridEditNode") {
+		return new GridEditNodeHtmlPluginInfo();
+	} else
 	if (node && node.htmlPlugin == "inputNode") {
 		return;	
 	} else	
@@ -98,6 +101,13 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 			nodes={nodes}
 			flow={flow}
 		></SliderNodeHtmlPlugin>;
+	} else
+	if (node.htmlPlugin == "gridEditNode") {
+		return <GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+			nodes={nodes}
+			flow={flow}
+		></GridEditNodeHtmlPlugin>;
 	} else
 	if (node.htmlPlugin == "inputNode") {
 		return <InputNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
@@ -130,7 +140,6 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 		}}></div>;
 }
 
-const flowEventRunner = getFlowEventRunner();
 const hasLogin = root && root.getAttribute("data-has-login") === "true";
 const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
