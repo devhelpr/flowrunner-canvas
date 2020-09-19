@@ -1,4 +1,5 @@
 import { FlowTask } from '@devhelpr/flowrunner';
+import { WasmFlowLoader } from './components/wasm-flow-loader';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
@@ -10,8 +11,10 @@ export interface IMatrix {
   }
   
 export class MatrixTask extends FlowTask {
+	webassembly : any = undefined;
 	public execute(node: any, services: any) {
 	//console.log("MatrixTask execute", node);
+		
 		let _payload = {...node.payload};
 		if (node.name != "MatrixTask4" && node.name != "gameOfLive") {
 			//console.log(node.name, node);
@@ -196,6 +199,111 @@ export class MatrixTask extends FlowTask {
 					payload["uuid"] = matrix.uuid;
 
 					services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, matrix);         
+				} else
+				if (node.action == 'calculateNewGenerationByRust') {
+					try {
+						let currentUUID = matrix.uuid;
+						let data = "";
+						 matrix.data.map((cell) => {
+							data += (cell == 1 ? "1" : "0");
+						});
+						const webAssembly = services.getWebAssembly();
+//console.log(webAssembly);
+						const universe = webAssembly.Universe.new(matrix.columns,matrix.rows,data);
+						universe.tick();
+						let result = universe.render();
+						//console.log(data);
+						let loop = 0;
+						let numberData : number[] = [];
+						while (loop < result.length) {
+							const cell = result[loop];
+							if (cell == "0") {
+								numberData.push(0);
+							} else {
+								numberData.push(1);
+							} 
+
+							loop++;
+						}
+						let newMatrix = {
+							columns : matrix.columns,
+							rows: matrix.rows,
+							uuid: currentUUID,
+							data: numberData
+						};
+						services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, newMatrix);	
+					} catch (ex) {
+						console.log("calculateNewGenerationByRust", ex);
+					}				
+				} else
+				if (node.action == 'calculateNewGenerationByRustFlow') {
+					try {
+						let currentUUID = matrix.uuid;
+						let data = "";
+						 matrix.data.map((cell) => {
+							data += (cell == 1 ? "1" : "0");
+						});
+						if (this.webassembly === undefined) {
+
+							if (node.flowId) {
+								const loader = new WasmFlowLoader();
+								return new Promise((resolve, reject) => {
+										loader.getFlow(node.flowId).then((flow) => {
+										console.log("RunWasmFlowTask", node.name, flow);
+
+										const webAssembly = services.getWebAssembly();
+										this.webassembly = webAssembly.Flowrunner.new(`["columns","rows","data"]`,`{"flow":${JSON.stringify(flow)}}
+										`);
+										resolve();
+									}).catch(() => {
+										reject();
+									});
+								});
+							}
+/*
+							const webAssembly = services.getWebAssembly();
+							this.webassembly = webAssembly.Flowrunner.new(`["columns","rows","data"]`,`{"flow":${JSON.stringify(node.flow)}}
+							  `);
+*/
+						}
+						
+
+						let payload = this.webassembly.convert(`{
+							"columns" : {
+							  "valueInt" : ${matrix.columns}
+							},
+							"rows" : {
+							  "valueInt" : ${matrix.rows}
+							},
+							"data" : {
+							  "value" : "${data}"
+							}
+						  }`);
+
+						//console.log(data);
+						let result = payload.value;
+						let loop = 0;
+						let numberData : number[] = [];
+						while (loop < result.length) {
+							const cell = result[loop];
+							if (cell == "0") {
+								numberData.push(0);
+							} else {
+								numberData.push(1);
+							} 
+
+							loop++;
+						}
+						let newMatrix = {
+							columns : matrix.columns,
+							rows: matrix.rows,
+							uuid: currentUUID,
+							data: numberData
+						};
+						services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, newMatrix);	
+					} catch (ex) {
+						console.log("calculateNewGenerationByRust", ex);
+					}				
 				} else
 				if (node.action == 'calculateNewGeneration') {
 					

@@ -24,43 +24,17 @@ export const Html = (props: ShapeTypeProps) => {
 
 	useEffect(() => {
 		if (props.getNodeInstance) {
-			const instance = props.getNodeInstance(props.node, undefined, undefined, undefined);
+			const instance = props.getNodeInstance(props.node, undefined, undefined, undefined, settings);
 			if (instance && instance.getWidth && instance.getHeight) {
-				console.log("instance.getWidth()", instance.getWidth(), instance);
+				//console.log("instance.getWidth()", instance.getWidth(), instance);
 				setWidth(instance.getWidth(props.node));
 				setHeight(instance.getHeight(props.node));
 			}
 		}
 	}, []);
 	
-	
-	return <Group
-		x={props.x}
-		y={props.y}
-		onDragMove={props.onDragMove}
-		onDragEnd={props.onDragEnd}
-		draggable={false}
-		onClick={props.onClickShape}
-		onTouchStart={props.onTouchStart}
-		onTouchMove={props.onTouchMove}
-		onTouchEnd={props.onTouchEnd}
-		onMouseDown={props.onMouseStart}
-		onMouseMove={props.onMouseMove}
-		onMouseUp={props.onMouseEnd}
-		onMouseOver={props.onMouseOver}
-		onMouseOut={props.onMouseOut}				
-		><KonvaRect
-			ref={ref => (setRef(ref))}
-			x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
-			y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
-			strokeWidth={0}
-			cornerRadius={settings.cornerRadius}
-			width={width || props.node.width || ShapeMeasures.htmlWidth}
-			height={height || props.node.height || ShapeMeasures.htmlHeight}
-			fill="#000000"
-			opacity={0}  
-			perfectDrawEnabled={false}></KonvaRect>
-		{settings.events && settings.events.map((event ,index) => {
+	/*
+{false && settings && settings.events && settings.events.map((event ,index) => {
 			return <React.Fragment key={index}>
 				<KonvaRect
 					x={(((width || props.node.width || ShapeMeasures.htmlWidth)/2) + 10)}
@@ -76,6 +50,36 @@ export const Html = (props: ShapeTypeProps) => {
 					perfectDrawEnabled={false}></KonvaRect>				
 			</React.Fragment>
 		})}		
+	*/
+	
+	return <Group
+		x={props.x}
+		y={props.y}
+		onDragMove={props.onDragMove}
+		onDragEnd={props.onDragEnd}
+		draggable={false}
+		onClick={props.onClickShape}
+		onTouchStart={props.onTouchStart}
+		onTouchMove={props.onTouchMove}
+		onTouchEnd={props.onTouchEnd}
+		onMouseDown={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseUp={props.onMouseEnd}
+		onMouseLeave={props.onMouseLeave}
+		onMouseOver={props.onMouseOver}
+		onMouseOut={props.onMouseOut}				
+		><KonvaRect
+			ref={ref => (setRef(ref))}
+			x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
+			y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
+			strokeWidth={0}
+			cornerRadius={settings.cornerRadius}
+			width={width || props.node.width || ShapeMeasures.htmlWidth}
+			height={height || props.node.height || ShapeMeasures.htmlHeight}
+			fill="#000000"
+			opacity={0}  
+			perfectDrawEnabled={false}></KonvaRect>
+		
 	</Group>
 }
 

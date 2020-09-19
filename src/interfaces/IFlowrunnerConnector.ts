@@ -20,6 +20,8 @@ export interface IFlowrunnerConnector {
   pauseFlowrunner: () => void;
 
   resumeFlowrunner: () => void;
+
+  setFlowType: (flowType : string) => void;
 }
 
 export interface IExecutionEvent {

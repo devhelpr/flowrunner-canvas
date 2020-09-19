@@ -38,6 +38,7 @@ export interface DebugNodeHtmlPluginProps {
 	nodes : any;
 	flow: any;
 	selectedNode : any;
+	children? : any;
 }
 
 const mapStateToProps = (state : any) => {
@@ -64,12 +65,14 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 
 	componentDidUpdate(prevProps : any) {
 		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
+			console.log("componentDidUpdate 1",this.observableId,  this.props.node);
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
 			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
 
 		if (!prevProps || !prevProps.node || 
 			(prevProps.node.name != this.props.node.name)) {
+				console.log("componentDidUpdate 2", this.observableId, this.props.node);
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
 			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
@@ -99,10 +102,12 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	unmounted = false;
 	componentWillUnmount() {
 		this.unmounted = true;
+		console.log("componentWillUnmount",this.observableId, this.props.node);
 		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
 	}
 
 	receivePayloadFromNode = (payload : any) => {
+		//console.log("receivePayloadFromNode", payload, this.props.node);
 		if (this.unmounted) {
 			return;
 		}		
@@ -148,7 +153,7 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 				  return cloneElement(child, { 
 					nodeName: this.props.node.name,
 					payload: this.state.receivedPayload.length > 0 ? this.state.receivedPayload[this.state.receivedPayload.length - 1] : {}
-				   });
+				   } as any);
 				}
 		  
 				return child;
@@ -172,9 +177,10 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 			visualizer = <XYCanvas flowrunnerConnector={this.props.flowrunnerConnector} selectedNode={this.props.selectedNode} node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
 		} else {
 			const payload = this.state.receivedPayload[this.state.receivedPayload.length-1];
-			if ((payload as any).debugId) {
+			if (payload && (payload as any).debugId) {
 				delete (payload as any).debugId;
 			}
+			//console.log("debugtask" , this.props.node, payload, this.state);
 			visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
 		}
 		return <div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer} style={{		

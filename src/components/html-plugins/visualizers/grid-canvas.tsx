@@ -16,7 +16,7 @@ export class GridCanvasInfo {
 	}
 
 	getHeight(node) {
-		return ((node.rows || 8) * 19) + 4;
+		return ((node.rows || 8) * 16) + (3 * 16) + 4;
 	}
 }
 
@@ -34,7 +34,7 @@ export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState
 	}
 
 	getHeight() {
-		return ((this.props.node.rows || 8) * 19) + 4;
+		return ((this.props.node.rows || 8) * 16) + (3 * 16) + 4;
 	}
 
 	render() {
@@ -57,7 +57,7 @@ export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState
 
 				if (payload == 1) {
 					circle = <Circle 
-							key={"xycanvas-" + index}
+							key={"xycanvasgrid-" + index}
 							x={(x * 16) + 16}
 							y={(y * 16) + 16}
 							radius={16}
@@ -96,7 +96,7 @@ export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState
 							stroke="black"							
 						/>}
 						<Circle 
-							key={"xycanvas-" + index}
+							key={"xycanvasgrid-" + index}
 							x={(payload[node.xProperty] * 16)}
 							y={(payload[node.yProperty] * 16)}
 							radius={16}

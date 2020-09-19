@@ -8,19 +8,21 @@ var named = require('vinyl-named'),
 
 var tsProject = ts.createProject('tsconfig.json');
 
-function buildTypescript() {
+function buildWorkerTypescript() {
 
   const webpack = require('webpack-stream');
-  var task = gulp.src('src/index.tsx')
+  var task = gulp.src('src/flow-worker.ts')
       .pipe(named())
       .pipe(webpack({
+        target:"webworker",
         mode:"development",
         output: {
           path: path.join(__dirname, "lib"),
           pathinfo: false,
-          filename:'[name].bundle.js',
+          filename:'worker.js',
           chunkFilename: "[name].chunk.js",
-          publicPath: ""
+          publicPath: "",
+          jsonpFunction: 'flowworkerwebpackJsonpPlugin'
         } ,
         module: {
           rules: [
@@ -43,16 +45,70 @@ function buildTypescript() {
                 experimentalWatchApi: true,
               },
               exclude: /(node_modules|bower_components)/ 
-            },
-            {
-              test: /\.worker\.js$/,
-              use: { loader: 'worker-loader' }
-            }              
+            }           
           ]
         },
         resolve:
         {
-          extensions: [".ts", ".tsx", ".js", ".json"],
+          extensions: [".ts", ".tsx", ".js", ".json",".wasm"],
+          alias: {
+            
+          },
+          
+        },
+        plugins:[         
+          new webpackIgnorePlugin({
+            resourceRegExp: /^\.\/locale$/,
+            contextRegExp: /moment$/
+          })
+        ]        
+      }));
+  
+  return task.pipe(gulp.dest('./lib'));
+};
+
+function buildTypescript() {
+
+  const webpack = require('webpack-stream');
+  var task = gulp.src('src/index.tsx')
+      .pipe(named())
+      .pipe(webpack({
+        mode:"development",
+        output: {
+          path: path.join(__dirname, "lib"),
+          pathinfo: false,
+          filename:'[name].bundle.js',
+          chunkFilename: "[name].chunk.js",
+          publicPath: "",
+          jsonpFunction: 'flowcanvaswebpackJsonpPlugin'
+        } ,
+        module: {
+          rules: [
+            {
+              test: /\.(png|jp(e*)g|svg|gif)$/,
+              use: [
+                {
+                  loader: 'file-loader',
+                  options: {
+                    name: 'images/[hash]-[name].[ext]',
+                  },
+                },
+              ],
+            },
+            {
+              test: /\.tsx?$/,
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+                experimentalWatchApi: true,
+              },
+              exclude: /(node_modules|bower_components)/ 
+            }       
+          ]
+        },
+        resolve:
+        {
+          extensions: [".ts", ".tsx", ".js", ".json",".wasm"],
           alias: {
             
           },
@@ -69,6 +125,14 @@ function buildTypescript() {
   
   return task.pipe(gulp.dest('./lib'));
 };
+
+/*
+,
+            {
+              test: /\.worker\.js$/,
+              use: { loader: 'worker-loader' }
+            }       
+*/
 
 function buildPluginTypescript() {
 
@@ -151,8 +215,9 @@ gulp.task('startFlowServer', function(cb) {
 
 gulp.task('build', function() { return buildTypescript() } );
 gulp.task('build-plugins', function() { return buildPluginTypescript() } );
+gulp.task('build-worker',function () {return buildWorkerTypescript() } );
 
-gulp.task('default', gulp.series('build', 'build-plugins', 'startFlowServer', function () {
-  gulp.watch('src/**/*.{ts,tsx}', buildTypescript);
+gulp.task('default', gulp.series('build','build-worker', 'build-plugins', 'startFlowServer', function () {
+  gulp.watch('src/**/*.{ts,tsx}', gulp.series('build','build-worker'));
   gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
 }));

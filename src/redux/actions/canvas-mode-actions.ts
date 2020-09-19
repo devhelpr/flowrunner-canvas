@@ -5,12 +5,14 @@ export const SET_SELECTED_TASK = 'SET_SELECTED_TASK';
 export const SET_SHOWDEPENDENCIES = 'SET_SHOWDEPENDENCIES';
 export const SET_ALLOWINPUTTOHTMLNODES = 'SET_ALLOWINPUTTOHTMLNODES';
 export const SET_FLOWRUNNERPAUSED = 'SET_FLOWRUNNERPAUSED';
+export const SET_FLOWTYPE = 'SET_FLOWTYPE';
 
 export type setConnectiongNodeCanvasModeFunction = (enabled: boolean) => void;
 export type setSelectedTaskFunction = (selectedTask: string) => void;
 export type setShowDependenciesFunction = (showDependencies: boolean) => void;
 export type setAllowInputToHtmlNodesFunction = (allowInputToHtmlNodes: boolean) => void;
 export type setFlowrunnerPausedFunction = (paused: boolean) => void;
+export type setFlowTypeFunction = (flowType: string) => void;
 
 
 export const setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction = enabled =>
@@ -27,3 +29,6 @@ export const setAllowInputToHtmlNodes: setAllowInputToHtmlNodesFunction = allowI
 
 export const setFlowrunnerPaused: setFlowrunnerPausedFunction = paused =>
   action(SET_FLOWRUNNERPAUSED, { paused: paused });
+
+export const setFlowType: setFlowTypeFunction = flowType =>
+  action(SET_FLOWTYPE, { flowType: flowType });

@@ -42,6 +42,8 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   pauseFlowrunner = () => {}
 
   resumeFlowrunner = () => {}
+
+  setFlowType = (flowType : string) => {}
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -52,6 +54,8 @@ export class FlowConnector implements IFlowrunnerConnector {
   nodeExecutionsByNode: any = {};
 
   pluginRegistry : any = {};
+
+  flowType : string = "playground";
 
   getNodeExecutions() {
     return this.nodeExecutions;
@@ -151,6 +155,16 @@ export class FlowConnector implements IFlowrunnerConnector {
             });
           }
         }
+      } else if (event.data.command == "RegisterFlowNodeObservers") {
+        console.log("RegisterFlowNodeObservers" , this.observables);
+        this.observables.map((observable) => {
+          if (this.worker) {
+            this.worker.postMessage({
+              command: 'registerFlowNodeObserver',
+              nodeName: observable.nodeName,
+            });
+          }
+        })
       }
     }
     return;
@@ -163,6 +177,8 @@ export class FlowConnector implements IFlowrunnerConnector {
       callback: callback,
       id: observableId,
     });
+
+    console.log("registerFlowNodeObserver pre", nodeName, [...this.observables]);
 
     if (this.worker) {
       this.worker.postMessage({
@@ -185,12 +201,14 @@ export class FlowConnector implements IFlowrunnerConnector {
         }
       });
 
+    console.log("unregisterFlowNodeObserver pre", [...this.observables]);
     indexes.map((indexInObservables: number) => {
+    
       this.observables[indexInObservables] = undefined;
       delete this.observables[indexInObservables];
-      this.observables.splice(indexInObservables);
+      this.observables.splice(indexInObservables,1);
     });
-
+    console.log("unregisterFlowNodeObserver post", [...this.observables]);
   };
 
   executionObservables: any[] = [];
@@ -219,7 +237,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     indexes.map((indexInObservables: number) => {
       this.executionObservables[indexInObservables] = undefined;
       delete this.executionObservables[indexInObservables];
-      this.executionObservables.splice(indexInObservables);
+      this.executionObservables.splice(indexInObservables,1);
     });
   };
 
@@ -236,34 +254,45 @@ export class FlowConnector implements IFlowrunnerConnector {
         let plugin : any = this.pluginRegistry[pluginName];
         pluginRegistryTaskNames.push(plugin.FlowTaskPluginClassName);
       }
-
-      this.worker.postMessage({
-        command: 'pushFlowToFlowrunner',
-        flow: flow,
-        pluginRegistry: pluginRegistryTaskNames
-      });
+      if (this.flowType == "playground") {
+        this.worker.postMessage({
+          command: 'pushFlowToFlowrunner',
+          flow: flow,
+          pluginRegistry: pluginRegistryTaskNames
+        });
+      } else {
+        this.worker.postMessage({
+          command: 'pushFlowToFlowrunner',
+          flow: [],
+          pluginRegistry: pluginRegistryTaskNames
+        });
+      }
     }
   };
   executeFlowNode = (nodeName: string, payload: any) => {
-    if (this.worker) {
-      this.worker.postMessage({
-        command: 'executeFlowNode',
-        nodeName: nodeName,
-        payload: payload,
-      });
+    if (this.flowType == "playground") {
+      if (this.worker) {
+        this.worker.postMessage({
+          command: 'executeFlowNode',
+          nodeName: nodeName,
+          payload: payload,
+        }); 
+      }
     }
   };
 
   modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName? : string) => {
-    if (this.worker) {
-      this.worker.postMessage({
-        command: 'modifyFlowNode',
-        nodeName: nodeName,
-        propertyName: propertyName,
-        value: value,
-        executeNode: executeNode || "",
-        triggerEvent : eventName || ""
-      });
+    if (this.flowType == "playground") {
+      if (this.worker) {
+        this.worker.postMessage({
+          command: 'modifyFlowNode',
+          nodeName: nodeName,
+          propertyName: propertyName,
+          value: value,
+          executeNode: executeNode || "",
+          triggerEvent : eventName || ""
+        });
+      }
     }
   };
 
@@ -293,6 +322,10 @@ export class FlowConnector implements IFlowrunnerConnector {
         command: 'ResumeFlowrunner'
       });
     }    
+  }
+
+  setFlowType = (flowType : string) => {
+    this.flowType = flowType || "playground";
   }
 
 }

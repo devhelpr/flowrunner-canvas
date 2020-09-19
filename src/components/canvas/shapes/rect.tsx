@@ -70,6 +70,7 @@ export const Rect = (props: ShapeTypeProps) => {
 		onMouseDown={props.onMouseStart}
 		onMouseMove={props.onMouseMove}
 		onMouseUp={props.onMouseEnd}
+		onMouseLeave={props.onMouseLeave}
 		
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>
@@ -116,17 +117,28 @@ export const Rect = (props: ShapeTypeProps) => {
 		{settings.events && settings.events.map((event ,index) => {
 			return <React.Fragment key={index}>
 				<KonvaRect
-					x={ShapeMeasures.rectWidht + 10}
-					y={index * 10}
+					x={ShapeMeasures.rectWidht + 10 - 14}
+					y={index * 10 + 8}
 					strokeWidth={2}
-					stroke="#000000"
+					stroke="#a000a0"
 					cornerRadius={settings.cornerRadius}
 					width={8}
 					height={8}
-					fill="#e2e2e2"
+					fill="#ffffff"
 					title={event.eventName}
 					opacity={1}  
-					perfectDrawEnabled={false}></KonvaRect>				
+					perfectDrawEnabled={false}></KonvaRect>	
+				<KonvaRect
+					x={ShapeMeasures.rectWidht + 10 - 2 - 14}
+					y={index * 10 - 2 + 8}
+					strokeWidth={2}
+					stroke="#e2e2e2"
+					cornerRadius={settings.cornerRadius}
+					width={12}
+					height={12}					
+					title={event.eventName}
+					opacity={1}  
+					perfectDrawEnabled={false}></KonvaRect>					
 			</React.Fragment>
 		})}		
 	</Group>

@@ -9,7 +9,7 @@ import { selectNode } from '../../redux/actions/node-actions';
 export interface NewFlowProps {
 	selectedNode : any;
 	onClose : () => void;
-	onSave: (id : number) => void;
+	onSave: (id : number, flowType : string) => void;
 	storeFlowNode: (node : any, orgNodeName : string) => void;
 	selectNode: (name: string, node : any) => void;
 }
@@ -19,6 +19,7 @@ export interface NewFlowState {
 	orgNodeName: string;
 	orgNodeValues: any;
 	requiredNodeValues: any;
+	flowType: string;
 }
 
 const mapStateToProps = (state : any) => {
@@ -39,7 +40,8 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 		value: "",
 		orgNodeName : "",
 		orgNodeValues: {},
-		requiredNodeValues: {}
+		requiredNodeValues: {},
+		flowType: "playground"
 	}
 
 	componentDidMount() {
@@ -48,7 +50,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 
 	saveNode(e) {
 		try {
-			fetch('/flow?flow=' + this.state.value, {
+			fetch('/flow?flow=' + this.state.value + "&flowType=" + this.state.flowType, {
 				method : "post"
 			}).then((response) => {
 				if (response.status >= 400) {
@@ -56,7 +58,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 				}
 				return response.json();
 			}).then((result) => {
-				this.props.onSave(result.id);
+				this.props.onSave(result.id, this.state.flowType);
 			});
 			
 		} catch (err) {
@@ -84,8 +86,11 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 			</div>
 			<div className="form-group">
 				<label>Flow type</label>
-				<select className="form-control">
+				<select className="form-control" value={this.state.flowType}
+					onChange={(e) => {this.setState({flowType: e.target.value})}}
+				>
 					<option value="playground">Playground</option>
+					<option value="rustflowrunner">Rust flowrunner</option>
 					<option value="mobile-app">Mobile app</option>
 					<option value="backend">Backend</option>
 				</select>

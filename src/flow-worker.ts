@@ -10,8 +10,134 @@ import { ConditionalTriggerTask } from './flowrunner-plugins/conditional-trigger
 import { MatrixTask } from './flowrunner-plugins/matrix-task';
 import { SliderTask } from './flowrunner-plugins/slider-task';
 import { GridEditTask } from './flowrunner-plugins/grid-edit-task';
-
+import { RunWasmFlowTask } from './flowrunner-plugins/run-wasm-flow-task';
+import { DataGridTask } from './flowrunner-plugins/data-grid-task';
+import { registerExpressionFunction } from '../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
+import { isRangeValue, getRangeFromValues , getRangeValueParameters } from '../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
+import { IServicesInterface } from '@devhelpr/flowrunner/lib/interfaces/ServicesInterface';
 const uuidV4 = uuid.v4;
+
+registerExpressionFunction("sum", (a : number, ...args : number[]) => {
+  console.log("sum", a, args[0] );
+  if (isRangeValue(a.toString())) {
+    const range = getRangeFromValues((args[0] as any).values, a.toString());
+    const valueParameterNames = getRangeValueParameters(a.toString());
+    let result = 0;
+    console.log(range);
+    range.map((value, index) => {
+      if (args[0][valueParameterNames[index]]) {
+        result += Number(args[0][valueParameterNames[index]]) || 0;
+      } else {
+        result += Number(value) || 0;
+      }
+      return true;
+    })
+    return result
+  } else {
+    // todo ... add other arguments as well
+    return Number(a) + args[0];
+  }
+});
+
+registerExpressionFunction("Math.PI", (a : number, ...args : number[]) => {
+  return Math.PI;
+});
+
+registerExpressionFunction("Math.sin", (a : number, ...args : number[]) => {
+  return Math.sin(a * Math.PI/180);
+});
+
+registerExpressionFunction("Math.floor", (a : number, ...args : number[]) => {
+  return Math.floor(a);
+});
+
+registerExpressionFunction("Math.ceil", (a : number, ...args : number[]) => {
+  return Math.ceil(a);
+});
+
+registerExpressionFunction("Math.round", (a : number, ...args : number[]) => {
+  return Math.round(a);
+});
+
+registerExpressionFunction("vlookup", (a : number, ...args : number[]) => {
+
+  if (isRangeValue(a.toString())) {
+    const range = getRangeFromValues((args[0] as any).values, a.toString());
+    const valueParameterNames = getRangeValueParameters(a.toString());
+    let search = (args[0] as any)[args[1]];
+    
+    range.map((value, index) => {
+      if (args[0][valueParameterNames[index]]) {
+      } else {
+      }
+      return true;
+    })
+
+  }
+
+  return 0;
+});
+
+
+let webAssembly;
+
+import("../assets/wasm/").then(wasm => {
+  wasm.init();
+
+  webAssembly = wasm;
+  let flow = [
+    {
+      "name": "start",
+      "taskName": "assign",
+      "valueInt": 1,
+      "mode": "int",
+      "next": "add"
+    },
+    {
+      "name": "add",
+      "taskName": "operation",
+      "operator": "add",
+      "valueInt": 1,
+      "mode": "int",
+      "next": "condition"
+    },
+    {
+      "name": "condition",
+      "taskName": "if",
+      "condition": "lower",
+      "valueInt": 10000,
+      "mode": "int",
+      "next": "add",
+      "elseStep": "else"
+    },
+    {
+      "name": "else",
+      "taskName": "assign",
+      "value": "ready",
+      "mode": ""
+    }
+  ];
+  let flowrunner = webAssembly.Flowrunner.new(`[]`,
+          `{"flow":${JSON.stringify(flow)}}`);
+  console.log("wasm test", flowrunner.convert(JSON.stringify({})));
+
+  /*console.log(wasm.greet("worker"));
+
+  const universe = wasm.Universe.new(6,6,"010000001000011100000000000000000000000000");
+  //let myuniverse = universe.new();
+  console.log (universe.render());
+  universe.tick();
+  console.log (universe.render());
+  universe.tick();
+  console.log (universe.render());
+  universe.tick();
+  console.log (universe.render());
+  universe.tick();
+  console.log (universe.render());
+  universe.tick();
+  console.log (universe.render());
+  */
+});
 
 let flow: FlowEventRunner;
 let observables = {};
@@ -261,7 +387,6 @@ export class TimerTask extends FlowTask {
       executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
 
     */
-
     if (!this.isExecuting) {
       this.isExecuting = true;
 
@@ -306,8 +431,6 @@ export class TimerTask extends FlowTask {
   public execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
-
-    console.log("timer execute" , this.node);
 
     if (node.mode === "executeNode" || node.events) {
       if (this.clearTimeout) {
@@ -565,6 +688,8 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
   flow.registerTask('ListTask', ListTask);
   flow.registerTask('MatrixTask', MatrixTask);
   flow.registerTask('GridEditTask', GridEditTask);
+  flow.registerTask('DataGridTask', DataGridTask);
+  flow.registerTask('RunWasmFlowTask', RunWasmFlowTask);
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
@@ -594,17 +719,33 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
     }
   }
   */
-
   flow.registerMiddleware(onExecuteNode);
-
+  let services  = {
+    flowEventRunner: flow,
+    pluginClasses: {},
+    logMessage: (arg1, arg2) => {
+      //console.log(arg1, arg2);
+    },
+    registerModel: (modelName: string, definition: any) => {},
+    getWebAssembly : () => {
+      return webAssembly;
+    }
+  }
   let value: boolean = false;
   flow
-    .start(flowPackage, undefined, true, true)
+    .start(flowPackage, services, true, true)
     .then((services: any) => {
+      
+      /*
+      // see above.. not needed here
       services.logMessage = (arg1, arg2) => {
-        //console.log(arg1, arg2);
+        console.log(arg1, arg2);
       };
 
+      services.getWebAssembly = () => {
+        return webAssembly;
+      }
+      */
       for (var key of Object.keys(observables)) {
         const observable = flow.getObservableNode(key);
         if (observable) {
@@ -621,6 +762,10 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
         }
       }
 
+      ctx.postMessage({
+        command: 'RegisterFlowNodeObservers',
+        payload: {}
+      });
       console.log('flow running');
     })
     .catch(error => {
@@ -630,4 +775,4 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
 
 ctx.addEventListener('message', onWorkerMessage);
 
-console.log('flow service-worker started');
+console.log('flowrunner web-worker started');

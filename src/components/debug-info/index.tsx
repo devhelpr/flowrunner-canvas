@@ -10,6 +10,7 @@ export interface DebugInfoProps {
 	flow: any[];
 
 	selectedNode : any;
+	canvasMode : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 }
 
@@ -21,7 +22,8 @@ const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
 		nodes: state.rawFlow,
-		selectedNode : state.selectedNode,		
+		selectedNode : state.selectedNode,
+		canvasMode : state.canvasMode		
 	}
 }
 
@@ -59,6 +61,10 @@ class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState>
 	}
 
 	render() {
+
+		if (this.props.canvasMode.flowType !== "playground") {
+			return <></>;
+		}
 		
 		if (this.props.selectedNode && this.props.selectedNode.name) {
 

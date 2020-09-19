@@ -30,12 +30,27 @@ const taskTypeConfig: any = {
     ...variableAttached,
   },
   AssignTask: {
-    shapeType: 'Rect',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo : [
+      {
+        "fieldName" : "assignToProperty",
+        "required" : true
+      },
+      {
+        "fieldName" : "value"
+      },
+      {
+        "fieldName" : "valueFromProperty"
+      }
+    ],
     presetValues: {
       assignToProperty: '',
       value: '',
     },
   },
+
+    
   IfConditionTask: {
     shapeType: 'Diamond',
     presetValues: {
@@ -45,6 +60,13 @@ const taskTypeConfig: any = {
       usingCondition: 'equals, not-equals, smaller, bigger, smaller-or-equal, bigger-or-equal',
       dataType: 'string',
     },
+    _label: "{compareProperty} {usingCondition} {withProperty}{withValue}",
+    label: "{compareProperty} {usingCondition=>\"equals\":\"=\",\"not-equals\":\"<>\",\"smaller\":\"<\",\"smaller-or-equal\":\"<=\",\"bigger-or-equal\":\">=\",\"bigger\":\">\",\"default\":\"\"} {withProperty|withValue}"
+  },
+  if: {
+    shapeType: 'Diamond',
+    _label: "{compareProperty} {usingCondition} {withProperty}{withValue}",
+    label: "value {condition=>\"eq\":\"=\",\"not-equals\":\"<>\",\"lower\":\"<\",\"lowereq\":\"<=\",\"bigger-or-equal\":\">=\",\"bigger\":\">\",\"default\":\"\"} {valueInt}"
   },
   InjectIntoPayloadTask: {
     shapeType: 'Rect',
@@ -87,12 +109,22 @@ const taskTypeConfig: any = {
     },
   },
   ExpressionTask: {
-    shapeType: 'Rect',
+    shapeType: 'Html',
     presetValues: {
       expression: '',
       assignToProperty: '',
       forceNumeric: true,
     },
+    htmlPlugin: 'formNode',
+    metaInfo : [
+      {
+        "fieldName" : "expression",
+        "required" : true
+      },
+      {
+        "fieldName" : "assignToProperty"
+      }      
+    ],
   },
   ObservableTask: {
     strokeColor: '#510a24',
@@ -144,11 +176,25 @@ const taskTypeConfig: any = {
       increment: 1,
     },
   },
+  RunWasmFlowTask : {
+    shapeType: 'Rect',
+    presetValues: {
+      flow: [],
+    },
+  },
   GridEditTask: {
     shapeType: 'Html',
     htmlPlugin: 'gridEditNode',
     presetValues: {
       htmlPlugin: 'gridEditNode',
+      propertyName: ''      
+    }
+  },
+  DataGridTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'dataGridNode',
+    presetValues: {
+      htmlPlugin: 'dataGridNode',
       propertyName: ''      
     }
   },
@@ -183,7 +229,15 @@ const taskTypeConfig: any = {
       {
         "eventName" : "onCalculateNewGenerationForEachCell"
       }
-    ]
+    ],
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo : [
+      {
+        "fieldName" : "action",
+        "required" : true
+      }
+    ],
   },
   InputTask: {
     shapeType: 'Html',

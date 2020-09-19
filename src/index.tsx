@@ -24,10 +24,14 @@ import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/h
 import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
 import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
 import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
+import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-plugins/form-node';
 import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components/html-plugins/grid-edit';
 import { setCustomConfig } from './config';
+import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
+//import Worker from "worker-loader!./flow-worker";
+let worker : Worker;
 
-import Worker from "worker-loader!./flow-worker";
+worker = new Worker("./worker.js");
 
 // TODO : improve this.. currently needed to be able to use react in an external script
 // which is used by the online editor to provide external defined tasks
@@ -41,13 +45,12 @@ const root = document.getElementById('flowstudio-root');
 
 const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
 
-let worker : Worker;
 
 let flowrunnerConnector : any = undefined;
 
 if (!!hasRunningFlowRunner) {
 	flowrunnerConnector = new FlowConnector();
-	worker = new Worker();
+	//worker = new Worker();
  	flowrunnerConnector.registerWorker(worker);
 } else {
 	flowrunnerConnector = new EmptyFlowConnector();
@@ -63,65 +66,98 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	}
 ]});
 
-const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
+const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings? : any) => {
 	
-	if (node && node.htmlPlugin == "executeNode") {
+	let htmlPlugin = node.htmlPlugin;
+	if (!htmlPlugin || htmlPlugin == "") {
+		if (taskSettings) {
+			htmlPlugin = taskSettings.htmlPlugin;
+		}
+	}
+
+	if (htmlPlugin == "executeNode") {
 		return new ExecuteNodeHtmlPluginInfo();
 	} else
-	if (node && node.htmlPlugin == "sliderNode") {
+	if (htmlPlugin == "sliderNode") {
 		return new SliderNodeHtmlPluginInfo();
 	} else
-	if (node && node.htmlPlugin == "gridEditNode") {
+	if (htmlPlugin == "gridEditNode") {
 		return new GridEditNodeHtmlPluginInfo();
 	} else
-	if (node && node.htmlPlugin == "inputNode") {
+	if (htmlPlugin == "inputNode") {
 		return;	
 	} else	
-	if (node && node.htmlPlugin == "debugNode") {
+	if (htmlPlugin == "formNode") {
+		
+		// TODO : add config as parameter to getNodeInstance and pass to constructor
+
+		return new FormNodeHtmlPluginInfo(taskSettings);
+	} else	
+	if (htmlPlugin == "debugNode") {
 		return new DebugNodeHtmlPluginInfo();
+	} else
+	if (htmlPlugin == "dataGridNode") {
+		return new DataGridNodeHtmlPluginInfo();
 	}
 
 	return;
 }
 
-const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => {
-	if (node.htmlPlugin == "iframe") {
+const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings: any) => {
+
+	let htmlPlugin = node.htmlPlugin;
+	if (!htmlPlugin || htmlPlugin == "") {
+		htmlPlugin = taskSettings.htmlPlugin;
+	}
+
+	if (htmlPlugin == "iframe") {
 		return <iframe width={node.width || 250}
 			height={node.height || 250}
 		src={node.url}></iframe>;
 	} else
-	if (node.htmlPlugin == "executeNode") {
+	if (htmlPlugin == "executeNode") {
 		return <ExecuteNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 		></ExecuteNodeHtmlPlugin>;
 	} else
-	if (node.htmlPlugin == "sliderNode") {
+	if (htmlPlugin == "sliderNode") {
 		return <SliderNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 			nodes={nodes}
 			flow={flow}
 		></SliderNodeHtmlPlugin>;
 	} else
-	if (node.htmlPlugin == "gridEditNode") {
+	if (htmlPlugin == "gridEditNode") {
 		return <GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 			nodes={nodes}
 			flow={flow}
 		></GridEditNodeHtmlPlugin>;
 	} else
-	if (node.htmlPlugin == "inputNode") {
+	if (htmlPlugin == "inputNode") {
 		return <InputNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 		></InputNodeHtmlPlugin>;
 	} else	
-	if (node.htmlPlugin == "debugNode") {
+	if (htmlPlugin == "formNode") {
+		return <FormNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+			taskSettings={taskSettings}
+		></FormNodeHtmlPlugin>;
+	} else	
+	if (htmlPlugin == "dataGridNode") {
+		return <DataGridNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			node={node}
+		></DataGridNodeHtmlPlugin>;
+	} else	
+	if (htmlPlugin == "debugNode") {
 		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 			nodes={nodes}
 			flow={flow}
 		></DebugNodeHtmlPlugin>;
 	} else
-	if (pluginRegistry[node.htmlPlugin]) {
+	if (pluginRegistry[htmlPlugin]) {
 		const Plugin = pluginRegistry[node.htmlPlugin].VisualizationComponent;
 		
 		node.visualizer = "children";

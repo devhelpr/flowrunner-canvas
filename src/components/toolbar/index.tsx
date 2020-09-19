@@ -17,7 +17,9 @@ import {
 	setShowDependencies,
 	setShowDependenciesFunction,
 	setFlowrunnerPaused,
-	setFlowrunnerPausedFunction
+	setFlowrunnerPausedFunction,
+	setFlowTypeFunction,
+	setFlowType
 } from '../../redux/actions/canvas-mode-actions';
 
 import fetch from 'cross-fetch';
@@ -28,6 +30,14 @@ import { HelpPopup } from '../help-popup';
 import { addRawFlow, deleteRawConnection, deleteRawNode, storeRawNode } from '../../redux/actions/raw-flow-actions';
 
 import Navbar from 'react-bootstrap/Navbar';
+
+/*
+	TODO:
+		- show flowType in toolbar
+		- hide debug ui-controlsbar when flowType is not "playground"
+		- "F" is focus on selected node
+
+*/
 
 export interface IFlowFile {
 	name: string;
@@ -57,6 +67,7 @@ export interface ToolbarProps {
 	setSelectedTask: setSelectedTaskFunction;
 	setShowDependencies: setShowDependenciesFunction;
 	setFlowrunnerPaused: setFlowrunnerPausedFunction;
+	setFlowType: setFlowTypeFunction;
 	storeRawFlow: (flow : any) => void;
 	flowrunnerConnector : IFlowrunnerConnector;
 }
@@ -97,7 +108,8 @@ const mapDispatchToProps = (dispatch: any) => {
 		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
 		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
-		setFlowrunnerPaused: (paused: boolean) => dispatch(setFlowrunnerPaused(paused))
+		setFlowrunnerPaused: (paused: boolean) => dispatch(setFlowrunnerPaused(paused)),
+		setFlowType: (flowType: string) => dispatch(setFlowType(flowType))
 	}
 }
 
@@ -229,7 +241,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		this.props.storeRawNode(
 			{
 				...this.props.selectedNode.node,
-				"followflow": "onfailure"
+				"followflow": "onsuccess"
 			},
 			this.props.selectedNode.node.name);
 		return false;
@@ -254,7 +266,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			})
 			.then(status => {
 				console.log(status);
-				this.loadFlow(this.state.selectedFlow);
+				this.loadFlow(this.state.selectedFlow, true);
 			})
 			.catch(err => {
 				console.error(err);
@@ -275,7 +287,9 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		});
 	}
 
-	onCloseNewFlowPopup = (id : number) => {
+	onCloseNewFlowPopup = (id : number, flowType) => {
+		this.props.setFlowType(flowType || "playground");
+		this.props.flowrunnerConnector.setFlowType(flowType);
 		this.setState({
 			showEditPopup: false,
 			showSchemaPopup: false,
@@ -306,10 +320,12 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		});
 	}
 
-	loadFlow = (flowId) => {
+	loadFlow = (flowId, withoutRefit? : boolean) => {
 
-		if (this.props.canvasToolbarsubject) {
-			this.props.canvasToolbarsubject.next("loadFlow");
+		if (!withoutRefit) {
+			if (this.props.canvasToolbarsubject) {
+				this.props.canvasToolbarsubject.next("loadFlow");
+			}
 		}
 
 		fetch('/flow?flow=' + flowId)
@@ -321,11 +337,13 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		})
 		.then(flowPackage => {
 
-			
+			console.log("flowpackage", flowPackage);
 			setTimeout(() => {
+				this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 				this.props.setFlowrunnerPaused(false);
-				this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage);			
-				this.props.storeRawFlow(flowPackage);
+				this.props.setFlowType(flowPackage.flowType || "playground");
+				this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage.flow);			
+				this.props.storeRawFlow(flowPackage.flow);
 				// TODO ... make this independent of timers
 				//   .. especially the below timer
 				//   .. 
@@ -399,6 +417,8 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 										</select>
 										<a href="#" onClick={this.addNewFlow} className="mr-4 text-light text-decoration-none" title="Add new flow"><span>New</span></a>
 									</>}
+									{this.props.canvasMode.flowType === "playground" && <img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />}
+									{this.props.canvasMode.flowType === "rustflowrunner" && <img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/rust-brands.svg" />}
 									{!!!selectedNode.name && <TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>}
 									{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
@@ -417,7 +437,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 									{!!!selectedNode.name && <><input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
 										<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 									</>}
-									{!!this.props.hasRunningFlowRunner && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
+									{!!this.props.hasRunningFlowRunner && this.props.canvasMode.flowType == "playground" && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
 									<a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
 									<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
 								</form>

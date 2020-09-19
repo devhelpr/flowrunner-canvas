@@ -25,6 +25,7 @@ export const Ellipse = (props: ShapeTypeProps) => {
 		onMouseDown={props.onMouseStart}
 		onMouseMove={props.onMouseMove}
 		onMouseUp={props.onMouseEnd}
+		onMouseLeave={props.onMouseLeave}
 
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>

@@ -25,7 +25,8 @@ function start(flowFileName, taskPlugins, options) {
 		flowFiles = flowFileName.map((flow, index) => {
 			return {
 				name: flow,
-				id: index
+				id: index,
+				flowType : "playground"
 			}
 		});
 	}
@@ -50,7 +51,13 @@ function start(flowFileName, taskPlugins, options) {
 			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
 			flowRunner.start({ flow: [] }).then(function (services) {
 				let tasks = flowRunner.getTaskMetaData();
-				tasks.push({className:"ModelTask", fullName:"Model"});
+
+				tasks = tasks.map((task) => {
+					task.flowType = "playground";
+					return task;
+				});
+
+				tasks.push({className:"ModelTask", fullName:"Model", flowType:"backend"});
 				
 				if (hasPreviewPlugin) {
 					/*
@@ -65,24 +72,35 @@ function start(flowFileName, taskPlugins, options) {
 						- rename previewtask to htmltask
 
 					*/
-					tasks.push({className:"PreviewTask", fullName:"PreviewTask"});
+					tasks.push({className:"PreviewTask", fullName:"PreviewTask", flowType:"playground"});
 				}
 
 				if (isStandalone) {
-					tasks.push({className:"DebugTask", fullName:"DebugTask"});
-					tasks.push({className:"SliderTask", fullName:"SliderTask"});
-					tasks.push({className:"RandomTask", fullName:"RandomTask"});
-					tasks.push({className:"TimerTask", fullName:"TimerTask"});
-					tasks.push({className:"ExpressionTask", fullName:"ExpressionTask"});
-					tasks.push({className:"OutputValueTask", fullName:"OutputValueTask"});
-					tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask"});
-					tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask"});
-					tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask"});
-					tasks.push({className:"InputTask", fullName: "InputTask"});
-					tasks.push({className:"ListTask", fullName: "ListTask"});					
-					tasks.push({className:"MatrixTask", fullName: "MatrixTask"});
-					tasks.push({className:"GridEditTask", fullName: "GridEditTask"});
-					
+					tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
+					tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
+					tasks.push({className:"RandomTask", fullName:"RandomTask", flowType:"playground"});
+					tasks.push({className:"TimerTask", fullName:"TimerTask", flowType:"playground"});
+					tasks.push({className:"ExpressionTask", fullName:"ExpressionTask", flowType:"playground"});
+					tasks.push({className:"OutputValueTask", fullName:"OutputValueTask", flowType:"playground"});
+					tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask", flowType:"playground"});
+					tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask", flowType:"playground"});
+					tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask", flowType:"playground"});
+					tasks.push({className:"InputTask", fullName: "InputTask", flowType:"playground"});
+					tasks.push({className:"ListTask", fullName: "ListTask", flowType:"playground"});					
+					tasks.push({className:"MatrixTask", fullName: "MatrixTask", flowType:"playground"});
+					tasks.push({className:"GridEditTask", fullName: "GridEditTask", flowType:"playground"});
+					tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
+					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
+
+					tasks.push({className:"assign", fullName: "Assign", flowType:"rustflowrunner"});
+					tasks.push({className:"operation", fullName: "Operation", flowType:"rustflowrunner"});
+					tasks.push({className:"if", fullName: "If", flowType:"rustflowrunner"});
+					tasks.push({className:"matrix", fullName: "Matrix", flowType:"rustflowrunner"});
+					tasks.push({className:"getParameter", fullName: "GetParameter", flowType:"rustflowrunner"});
+					tasks.push({className:"getVariable", fullName: "GetVariable", flowType:"rustflowrunner"});
+					tasks.push({className:"setVariable", fullName: "SetVariable", flowType:"rustflowrunner"});
+					tasks.push({className:"operationVariable", fullName: "OperationVariable", flowType:"rustflowrunner"});
+
 					//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
 					//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});
 				}
@@ -170,17 +188,76 @@ function start(flowFileName, taskPlugins, options) {
 			}
 
 			const flowFileName = flowFilesFound[0].fileName;
-			var flowPackage = JSON.stringify({
-				flow: []
-			});
+			var flowPackage = {
+				flow: [],
+				flowType : flowFilesFound[0].flowType
+			};
 			try {
-				flowPackage = fs.readFileSync(flowFileName).toString();
+				flowPackage.flow = JSON.parse(fs.readFileSync(flowFileName));
 			} catch (err) {
 				console.log("error in get-flow api: ", err);
 			}
-			res.send(flowPackage);
+			res.send(JSON.stringify(flowPackage));
 		}
 		);
+
+		/*
+		
+		structure:
+
+		let presets = {
+			"SmallGameOfLiveGridEditTask":[
+				{"name":"spaceship1","id":"1111-2222","data":[]},
+				{"name":"spaceship2","id":"1111-3333","data":[]},
+				{"name":"spaceship3","id":"1111-4444","data":[]}]
+		};
+
+		*/
+
+		app.get('/get-presets', (req, res) => {
+			let presets = JSON.parse(fs.readFileSync("./presets.json"));		
+			let list = [];	
+			list = (presets[req.query.nodeName] || []).map((presetItem) => {
+				return {
+					name: presetItem.name,
+					preset: presetItem.preset
+				}
+			})
+			res.send(JSON.stringify({data:list}));
+		});
+		app.get('/get-preset', (req, res) => {			
+			let presets = JSON.parse(fs.readFileSync("./presets.json"));
+			let foundPresets = (presets[req.query.nodeName] || []).filter((presetItem) => {
+				return presetItem.preset == req.query.preset;
+			});
+			if (foundPresets.length > 0) {
+				res.send(JSON.stringify(foundPresets[0]));
+			} else {
+				res.send(JSON.stringify({}));
+			}
+		});
+		app.post('/save-preset', (req, res) => {
+			let presets = JSON.parse(fs.readFileSync("./presets.json"));			
+			presets[req.query.nodeName] = presets[req.query.nodeName] || [];
+			let found  = false;
+			presets[req.query.nodeName] = presets[req.query.nodeName].map((presetItem, index) => {
+				if (presetItem.preset == req.query.preset) {
+					found = true;
+					presetItem.data = JSON.stringify(req.body.data);
+				}
+				return presetItem;
+			});
+			if (!found) {
+				presets[req.query.nodeName].push({
+					data: JSON.stringify(req.body.data),
+					preset: req.query.preset,
+					name: req.query.nodeName
+				});
+			}			
+			fs.writeFileSync("./presets.json",JSON.stringify(presets));
+			res.send(JSON.stringify({}));
+		});
+
 
 		app.get('/tasks', (req, res) => {
 			res.send(JSON.stringify(taskPluginsSortedList));
@@ -225,7 +302,8 @@ function start(flowFileName, taskPlugins, options) {
 			flowFiles.push({
 				id: newId,
 				name: req.query.flow,
-				fileName:fileName
+				fileName:fileName,
+				flowType: req.query.flowType || "playground"
 			});
 
 			fs.writeFileSync(fileName, "[]");

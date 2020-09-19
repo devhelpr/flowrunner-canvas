@@ -37,15 +37,15 @@ export const getNewNode = (node: any, flow: any[]) => {
   return newNode;
 };
 
-export const getNewConnection = (nodeFrom, nodeTo) => {
+export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?) => {
   const nodeFromPosition = FlowToCanvas.getStartPointForLine(nodeFrom, {
     x: nodeFrom.x,
-    y: nodeFrom.y,
-  });
+    y: nodeFrom.y,    
+  } , {}, getNodeInstance);
   const nodeToPosition = FlowToCanvas.getEndPointForLine(nodeTo, {
     x: nodeTo.x,
     y: nodeTo.y,
-  });
+  } , {}, getNodeInstance);
 
   const connection = {
     name: 'connection-' + uuidV4(),

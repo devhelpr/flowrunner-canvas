@@ -3,7 +3,8 @@ import {
   SET_SELECTED_TASK,
   SET_SHOWDEPENDENCIES,
   SET_ALLOWINPUTTOHTMLNODES,
-  SET_FLOWRUNNERPAUSED
+  SET_FLOWRUNNERPAUSED,
+  SET_FLOWTYPE
 } from '../actions/canvas-mode-actions';
 
 export interface ICanvasMode {
@@ -12,6 +13,7 @@ export interface ICanvasMode {
   showDependencies: boolean;
   allowInputToHtmlNodes: boolean;
   isFlowrunnerPaused: boolean;
+  flowType: string;
 }
 
 export const canvasModeReducer = (
@@ -20,7 +22,8 @@ export const canvasModeReducer = (
     selectedTask: '',
     showDependencies: false,
     allowInputToHtmlNodes: false,
-    isFlowrunnerPaused: false
+    isFlowrunnerPaused: false,
+    flowType: ''
   },
   action: any,
 ) => {
@@ -53,6 +56,12 @@ export const canvasModeReducer = (
       return {
         ...state,
         isFlowrunnerPaused: action.payload.paused,
+      };
+    }
+    case SET_FLOWTYPE: {
+      return {
+        ...state,
+        flowType: action.payload.flowType,
       };
     }
     default:

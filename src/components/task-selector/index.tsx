@@ -30,10 +30,7 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 		metaDataInfo: []
 	}
 
-	componentDidMount() {
-		
-		console.log("taskselector", this.props.flowrunnerConnector.getPluginRegistry());
-
+	loadTasks = () => {
 		fetch('/tasks')
 		.then(res => {
 			if (res.status >= 400) {
@@ -50,7 +47,7 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 				})
 			}
 			const pluginRegistry = this.props.flowrunnerConnector.getPluginRegistry();
-			if (pluginRegistry) {
+			if (pluginRegistry && this.props.canvasMode.flowType == "playground") {
 
 				for (var key of Object.keys(pluginRegistry)) {
 					const plugin = pluginRegistry[key];
@@ -62,11 +59,30 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 			  }
 
 			// tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
-			this.setState({metaDataInfo:metaDataInfo});
+			this.setState({selectedTaskClassName:"",
+				metaDataInfo:metaDataInfo.filter((task) => { 
+					return task.flowType == this.props.canvasMode.flowType; 
+				})
+			}, () => {
+				this.props.selectTask("");
+			});
 		})
 		.catch(err => {
 			console.error(err);
 		});
+	}
+	componentDidMount() {
+		
+		console.log("taskselector", this.props.flowrunnerConnector.getPluginRegistry());
+		this.loadTasks();
+		
+	}
+
+
+	componentDidUpdate(prevProps: any) {
+		if (prevProps.canvasMode.flowType != this.props.canvasMode.flowType) {
+			this.loadTasks();
+		}
 	}
 
 	selectTask = (event) => {

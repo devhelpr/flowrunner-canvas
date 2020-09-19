@@ -6,6 +6,7 @@ import Slider from '@material-ui/core/Slider';
 import { connect } from "react-redux";
 import { selectNode } from '../../redux/actions/node-actions';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+import { PresetManager } from './components/preset-manager';
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -16,7 +17,7 @@ export class GridEditNodeHtmlPluginInfo {
 	}
 
 	getHeight(node) {
-		return (((node && node.rows) || 8) * 19) + 4;
+		return (((node && node.rows) || 8) * 16) + (3 * 16) + 4 + 150;
 	}
 }
 
@@ -79,11 +80,11 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 				this.props.node.defaultValue || 0,
 				""
 			);
-			this.setState({data : new Array(16 * 16).fill(0).map((item, index) => {
+			this.setState({data : new Array(this.props.node.columns * this.props.node.rows).fill(0).map((item, index) => {
 					return {
 						value : 0,
-						x: index % 16,
-						y: Math.floor(index / 16)
+						x: index % this.props.node.columns,
+						y: Math.floor(index / this.props.node.columns)
 					}
 				})
 			});
@@ -114,7 +115,11 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 	}
 
 	getHeight() {
-		return (((this.props.node && this.props.node.rows) || 8) * 19) + 4;
+		return (((this.props.node && this.props.node.rows) || 8) * 16) +  (3 * 16) + 4 + 150;
+	}
+
+	getCanvasHeight() {
+		return (((this.props.node && this.props.node.rows) || 8) * 16) +  (1 * 16) + 4;
 	}
 	
 
@@ -146,6 +151,49 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 		return false;
 	}
 
+	onLoadPreset = () => {
+
+	}
+
+	onGetData = () => {
+	
+		let values : IMatrixValue[] = [];
+		
+		(this.state.data as any).map((value, index) => {
+			if (value.value == 1) {
+				values.push({...value});
+			}
+		});
+
+		return values;
+	}
+
+	onSetData = (data) => {
+
+		let values : IMatrixValue[] = [];
+		let list = new Array(this.props.node.columns * this.props.node.rows).fill(0).map((item, index) => {
+			return {
+				value : 0,
+				x: index % this.props.node.columns,
+				y: Math.floor(index / this.props.node.columns)
+			}
+		});
+		data.map((value, index) => {
+			if (value.value == 1) {
+				list[value.y * this.props.node.columns + value.x].value = 1;
+				values.push({...value});
+			}
+		});
+		this.setState({data : list});
+		
+		this.props.flowrunnerConnector.modifyFlowNode(
+			this.props.node.name, 
+			this.props.node.propertyName, 
+			values,
+			this.props.node.name
+		);
+	}
+
 	render() {
 
 		let circles : any = null;
@@ -164,30 +212,48 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 			let y = matrixValue.y;//Math.floor(index / node.rows);
 
 			if (matrixValue.value == 1) {
-				circle = <Circle 
-						key={"xycanvas-" + index}
-						x={(x * node.columns) + 18}
-						y={(y * node.rows) + 10}
-						radius={16}
+				circle = <React.Fragment key={"xycanvas-gridedit-alive-" + index}>
+					<Circle 
+						key={"xycanvas-gridedit-alive-circle-" + index}
+						x={(x * 16) + 18}
+						y={(y * 16) + 10}
+						radius={14}
 						stroke={"#000000"}
 						strokeWidth={2}
-						width={16}
-						height={16}
+						width={14}
+						height={14}
+						opacity={1}
+						fill={"#ffffff"} 
+						onClick={this.clickCircle.bind(this, matrixValue)}
+						perfectDrawEnabled={false}>
+					</Circle>
+
+					<Circle 
+						key={"xycanvas-gridedit-alive-inner-" + index}
+						x={(x * 16) + 18}
+						y={(y * 16) + 10}
+						radius={16}
+						stroke={"#ffffff"}
+						strokeWidth={2}
+						width={12}
+						height={12}
 						opacity={1}
 						fill={"#000000"} 
 						onClick={this.clickCircle.bind(this, matrixValue)}
 						perfectDrawEnabled={false}>
 					</Circle>
+
+					</React.Fragment>
 			} else {
 				circle = <Circle 
-						key={"xycanvas-" + index}
-						x={(x * node.columns) + 18}
-						y={(y * node.rows) + 10}
-						radius={16}
+						key={"xycanvas-gridedit-dead-" + index}
+						x={(x * 16) + 18}
+						y={(y * 16) + 10}
+						radius={14}
 						stroke={"#000000"}
-						strokeWidth={2}
-						width={16}
-						height={16}
+						strokeWidth={1}
+						width={14}
+						height={14}
 						opacity={1}
 						fill={"#ffffff"} 
 						onClick={this.clickCircle.bind(this, matrixValue)}
@@ -202,18 +268,25 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 		node = null;
 
 
-		return <div className="html-plugin-node" style={{			
+		return <div className="html-plugin-node html-plugin-node__grid-edit" style={{			
 				backgroundColor: "white",
 				width:(this.getWidth() || this.props.node.width || 250) + "px",
 				height:(this.getHeight() || this.props.node.height || 250)+ "px"
 			}}><Stage
+					className="stage-div"
 					pixelRatio={1} 
 					width={this.getWidth() || this.props.node.width || 250}
-					height={this.getHeight() || this.props.node.height || 250}>		
+					height={(this.getCanvasHeight()) || this.props.node.height || 250}>		
 				<Layer>
 				{circles}
 				</Layer>
 			</Stage>
+			<PresetManager 
+				node={this.props.node}
+				onLoadPreset={this.onLoadPreset}
+				onGetData={this.onGetData}
+				onSetData={this.onSetData}
+				></PresetManager>
 		</div>;
 		
 	}

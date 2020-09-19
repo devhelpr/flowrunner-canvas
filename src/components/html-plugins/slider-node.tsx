@@ -114,7 +114,6 @@ export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtm
 	}
 
 	render() {
-		console.log("componentDidMount render");
 		return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"
 		}}>

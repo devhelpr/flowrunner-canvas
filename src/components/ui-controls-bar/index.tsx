@@ -12,10 +12,11 @@ export interface UIControlsBarProps {
 	nodes : any[];
 	flow: any[];
 
+	canvasMode : any;
 	selectedNode : any;
 	selectNode : (name, node) => void;
 	setPayload : (name, payload) => void;
-	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any) => any;
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any, taskSettings: any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
 
 }
@@ -29,7 +30,8 @@ const mapStateToProps = (state : any) => {
 		flow: state.flow,
 		nodes: state.rawFlow,
 		selectedNode : state.selectedNode,		
-		setPayload: state.setPayload
+		setPayload: state.setPayload,
+		canvasMode : state.canvasMode
 	}
 }
 
@@ -87,7 +89,9 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 	}
 
 	render() {
-		
+		if (this.props.canvasMode.flowType !== "playground") {
+			return <></>;
+		}
 		/*if (this.props.selectedNode && this.props.selectedNode.name) {
 			let list = this.props.flowrunnerConnector.getNodeExecutionsByNodeName(this.props.selectedNode.name);
 			
@@ -120,7 +124,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 					onChange={this.onChange} 
 				/>
 		</div>;
-
+	/*
 		return <div className="ui-controls-bar">
 			{this.props.flow.map((node, index) => {
 					let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
@@ -146,7 +150,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 								>
 								<div className="canvas__html-shape-bar">{node.label ? node.label : node.name}</div>
 									<div className="canvas__html-shape-body">
-										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow)}
+										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings)}
 									</div>
 								</div>;
 						}
@@ -156,6 +160,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 			}
 			
 		</div>;
+		*/
 	}
 }
 

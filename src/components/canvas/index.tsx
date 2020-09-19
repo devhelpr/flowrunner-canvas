@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
 import { connect } from "react-redux";
 import { Shapes } from './shapes'; 
-import { storeFlow, storeFlowNode, addConnection, addFlowNode, addNode } from '../../redux/actions/flow-actions';
+import { storeFlow, storeFlowNode, addConnection, addFlowNode, addNode,deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
@@ -12,11 +12,14 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
-import { addRawFlow, addRawConnection, storeRawNode } from '../../redux/actions/raw-flow-actions';
+import { addRawFlow, addRawConnection, storeRawNode, deleteRawConnection, deleteRawNode } from '../../redux/actions/raw-flow-actions';
 import { ShapeMeasures } from '../../helpers/shape-measures';
+import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
 import { timestamp } from 'rxjs/operators';
+
+const uuidV4 = uuid.v4;
 
 export interface CanvasProps {
 	nodes : any[];
@@ -32,15 +35,20 @@ export interface CanvasProps {
 	addConnection: any;
 	storeRawNode: any;
 
+	deleteConnection: any;
+	deleteNode: any;
+	deleteRawConnection: any;
+	deleteRawNode: any;
+
 	selectedNode : any;
 	canvasMode: ICanvasMode;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 	canvasToolbarsubject : Subject<string>;
 	
-	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any) => any;
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any, taskSettings? : any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
-	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any) => any;
+	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings? : any) => any;
 	
 }
 
@@ -66,7 +74,12 @@ const mapDispatchToProps = (dispatch : any) => {
 		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName)),
 		selectNode: (name, node) => dispatch(selectNode(name, node)),
 		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
-		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask))
+		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask)),
+		deleteConnection: (node) => dispatch(deleteConnection(node)),
+		deleteNode: (node) => dispatch(deleteNode(node)),
+		deleteRawConnection: (node) => dispatch(deleteRawConnection(node)),
+		deleteRawNode: (node) => dispatch(deleteRawNode(node)),
+
 	}
 }
 
@@ -120,7 +133,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			(this.canvasWrapper.current as any).addEventListener('wheel', this.wheelEvent);
 		}
 		window.addEventListener("resize", this.updateDimensions);
-
+		document.addEventListener('paste', this.onPaste);
 		this.updateDimensions();
 		setTimeout(() => {
 			
@@ -180,6 +193,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	unmounted = false;
 	componentWillUnmount() {
 		this.unmounted = true;
+
+		document.removeEventListener('paste', this.onPaste);
+
 		window.removeEventListener("resize", this.updateDimensions);
 		//(this.refs.canvasWrapper as any).removeEventListener('wheel', this.wheelEvent);
 		if (this.canvasWrapper && this.canvasWrapper.current) {
@@ -368,6 +384,49 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (event.currentTarget) {
 			this.setNewPositionForNode(node, event.currentTarget, undefined);
 		}
+		return false;
+	}
+
+	onStageMouseEnd(event) {
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+
+		this.touching = false;
+		this.dragTime = undefined;
+		this.touchNode = undefined;
+		this.touchNodeGroup = undefined;
+		return false;
+	}
+
+	onStageMouseLeave(event) {
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+
+		this.touching = false;
+		this.dragTime = undefined;
+		this.touchNode = undefined;
+		this.touchNodeGroup = undefined;
+		return false;
+	}
+
+	onMouseLeave(node, event) {
+		return;
+		(this.canvasWrapper.current).classList.remove("mouse--moving");
+
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+		
+		if (this.touchNodeGroup != event.currentTarget) {
+			return false;
+		}
+		if (!!this.props.canvasMode.isConnectingNodes) {
+			return false;
+		}
+
+		this.touching = false;
+		this.dragTime = undefined;
+		this.touchNode = undefined;
+		this.touchNodeGroup = undefined;
 		return false;
 	}
 
@@ -587,12 +646,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		event.evt.preventDefault();
 		this.cancelDragStage();
 
-		if (!!this.props.canvasMode.isConnectingNodes && 
+		if ((!!this.props.canvasMode.isConnectingNodes || !!this.shiftDown) && 
 			this.props.selectedNode !== undefined &&
 			this.props.selectedNode.node !== undefined &&
 			this.props.selectedNode.shapeType !== "Line") {
 
-			const connection = getNewConnection(this.props.selectedNode.node, node);
+			const connection = getNewConnection(this.props.selectedNode.node, node, this.props.getNodeInstance);
 			this.props.addConnection(connection);
 			this.props.addRawConnection(connection);
 			this.props.setConnectiongNodeCanvasMode(false);
@@ -867,7 +926,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				this.props.nodes.map((shape, index) => {
 					if (shape.shapeType != "Line") {
 
-						let shapeType = FlowToCanvas.getShapeType(shape.shapeType, shape.taskType, shape.isStartEnd);
+						const taskSettings = FlowToCanvas.getTaskSettings(shape.taskType);
+						let shapeType = FlowToCanvas.getShapeTypeUsingSettings(shape.shapeType, shape.taskType, shape.isStartEnd, taskSettings);
+					
 						//const settings = ShapeSettings.getShapeSettings(shape.taskType, shape);
 						const RealShape = Shapes[shapeType];
 
@@ -883,7 +944,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							let height = undefined;
 
 							if (this.props.getNodeInstance) {
-								const instance = this.props.getNodeInstance(shape, this.props.flowrunnerConnector, this.props.nodes, this.props.flow);
+								const instance = this.props.getNodeInstance(shape, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, taskSettings);
 								if (instance) {
 									if (instance.getWidth && instance.getHeight) {
 										width = instance.getWidth(shape);
@@ -932,7 +993,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					}
 				});
 			
-				if (xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
+				if (this.props.nodes.length > 0 &&
+					xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
 					console.log(xMin, xMax, yMin ,yMax);
 					let scale = 1;
 					
@@ -944,28 +1006,31 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 						let realStageWidth = stageContainerElement.clientWidth;
 						let realStageHeight = stageContainerElement.clientHeight;
-											
-						if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
-							scale = realStageWidth / flowWidth;
+
+						if (this.props.nodes.length == 1) { 
+							scale = 1;
+						} else {
+							if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
+								scale = realStageWidth / flowWidth;
+							}
+
+							scale = scale * 0.65;						
+
+							if (flowHeight * scale > realStageHeight) {							
+								scale = realStageHeight / flowHeight;
+								scale = scale * 0.85;
+							} 
 						}
-
-						scale = scale * 0.65;						
-
-						if (flowHeight * scale > realStageHeight) {							
-							scale = realStageHeight / flowHeight;
-							scale = scale * 0.85;
-						} 
-
 						stage.scale({ x: scale, y: scale });
 
 						const newPos = {
 							x: 0 ,
 							y: 0 
-						};
+						};											
 						
 						newPos.x = (-(xMin)*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-(yMin)*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;
-
+						newPos.y = (-(yMin)*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;	
+						 
 						//console.log(stage.getWidth(), stage.getHeight(), realStageWidth,realStageHeight,flowWidth,flowHeight,flowWidth * scale, flowHeight * scale , scale, newPos.x, newPos.y);
 
 						stage.position(newPos);
@@ -978,6 +1043,21 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						this.setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
 						this.setState({canvasOpacity : 1});	
 					}
+				} else {
+					const newPos = {
+						x: 0 ,
+						y: 0 
+					};
+					let scale = 1;
+					stage.position(newPos);
+					stage.batchDraw();
+
+					this.stageX = newPos.x;
+					this.stageY = newPos.y;
+					this.stageScale = scale;
+					
+					this.setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
+					this.setState({canvasOpacity : 1});	
 				}
 			}
 		}
@@ -1026,9 +1106,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						centerXCorrection = ShapeMeasures.rectWidht / 2;
 						centerYCorrection = ShapeMeasures.rectHeight / 2;
 					} else
-					if (shapeType == "Circle" || shapeType == "Diamond") {
+					if (shapeType == "Circle") {
 						centerXCorrection = ShapeMeasures.circleSize / 2;
 						centerYCorrection = ShapeMeasures.circleSize / 2;
+					} else
+					if (shapeType == "Diamond") {
+						centerXCorrection = ShapeMeasures.diamondSize / 2;
+						centerYCorrection = ShapeMeasures.diamondSize / 2;
 					}
 
 					newNode.x = newNode.x - centerXCorrection;
@@ -1151,7 +1235,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							let isNodeByName = match.indexOf('"node":') >= 0;
 							let isGetVariable = match.indexOf('"getVariable":') >= 0;
 							let isSetVariable = match.indexOf('"setVariable":') >= 0;
-							isNodeByName = isNodeByName || match.indexOf('"useListFromNode":') >= 0;
+							let isUseListFromNode = match.indexOf('"useListFromNode":') >= 0;
+							isNodeByName = isNodeByName || isUseListFromNode;
 
 							let nodeName = match.replace('"node":', "");
 							nodeName = nodeName.replace('"variableName":', "");
@@ -1176,7 +1261,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 								if (nodeEnd && nodeEnd.variableName && node.getVariable) {
 									nodeEnd = undefined;
-								}
+								}								
 							}							
 
 							if (isGetVariable || isSetVariable) {
@@ -1283,9 +1368,13 @@ console.log("taskClassName", event.target, taskClassName);
 						centerXCorrection = ShapeMeasures.rectWidht / 2;
 						centerYCorrection = ShapeMeasures.rectHeight / 2;
 					} else
-					if (shapeType == "Circle" || shapeType == "Diamond") {
+					if (shapeType == "Circle") {
 						centerXCorrection = ShapeMeasures.circleSize / 2;
 						centerYCorrection = ShapeMeasures.circleSize / 2;
+					} else
+					if (shapeType == "Diamond") {
+						centerXCorrection = ShapeMeasures.diamondSize / 2;
+						centerYCorrection = ShapeMeasures.diamondSize / 2;
 					}
 
 					newNode.x = newNode.x - centerXCorrection;
@@ -1307,17 +1396,220 @@ console.log("taskClassName", event.target, taskClassName);
 		// onDrop={this.onDropTask}
 	}
 
+	onPaste = async (event) => {
+		console.log("onPaste", event);
+		let text;
+		if (navigator.clipboard) {
+			text = await navigator.clipboard.readText();
+		}
+		else {
+			text = event.clipboardData.getData('text/plain');
+		}
+		
+		if (event && event.target && event.target.tagName !== "BODY") {
+			return;
+		}
+
+		let pastedData;
+	
+		event.stopPropagation();
+		event.preventDefault();
+	
+		//clipboardData = event.clipboardData || (window as any).clipboardData;		
+		//pastedData = clipboardData.getData('Text');
+		
+		pastedData = text;
+		let columnCount = 0;
+		let rowCount = 0;
+
+		let values : (string | any)[] = [];
+		// split on enters first for rows, then tab/white-space for columns
+		let lines = (pastedData as string).split(/\r?\n/);
+		lines.map((line, index) => {
+
+			let insertValues : (string | number)[] = [];
+			
+			(line as string).split(/\t/).map((value : string, index) => {
+				if (lines.length == 1) {
+					const numericValue = parseInt(value); 
+					if (!isNaN(numericValue)) {
+						values.push(numericValue);
+					} else {
+						values.push((value || "").toString());
+					}
+				} else {
+					const numericValue = parseInt(value); 
+					if (!isNaN(numericValue)) {
+						insertValues.push(numericValue);
+					} else {
+						insertValues.push((value || "").toString());
+					}
+				}
+			});
+
+			if (lines.length > 1) {
+				values.push(insertValues);
+				if (insertValues.length > columnCount) {
+					columnCount = insertValues.length;
+				}
+			} else {
+				columnCount = values.length;
+			}			
+		});
+		rowCount = lines.length;
+
+		if (this.touchNode && this.touchNodeGroup) {
+			event.preventDefault()		
+			return false;
+		}
+
+		const nodeIsSelected : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;				
+		
+		if (!nodeIsSelected) {
+			if (!this.props.canvasMode.isConnectingNodes) {
+				if (this.stage && this.stage.current) {
+					let stage = (this.stage.current as any).getStage();
+					const position = (stage as any).getPointerPosition();
+					const scaleFactor = (stage as any).scaleX();
+					const taskType = "DataGridTask";
+					let presetValues = {};
+					const shapeSetting = getTaskConfigForTask(taskType);
+					if (shapeSetting && shapeSetting.presetValues) {
+						presetValues = shapeSetting.presetValues;
+					}
+					let id = uuidV4();
+					let newNode = getNewNode({
+						name: id,
+						id: id,
+						label: "DataGrid",
+						taskType: taskType,
+						shapeType: "Html", 
+						x: ((position.x - (stage).x()) / scaleFactor), 
+						y: ((position.y - (stage).y()) / scaleFactor),
+						...presetValues,
+						values,
+						columns: columnCount,
+						rows: rowCount
+					}, this.props.flow);
+
+					let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
+
+					let centerXCorrection = 0;
+					let centerYCorrection = 0;
+					/*
+					if (this.props.getNodeInstance) {
+						const instance = this.props.getNodeInstance(node, this.props.flowrunnerConnector, this.props.nodes, this.props.flow);
+						if (instance) {
+							if (instance.getWidth && instance.getHeight) {
+								width = instance.getWidth(node);
+								height = instance.getHeight(node);
+							}
+						}
+					}
+					*/
+					if (shapeType == "Rect" || shapeType == "Ellipse") {
+						centerXCorrection = ShapeMeasures.rectWidht / 2;
+						centerYCorrection = ShapeMeasures.rectHeight / 2;
+					} else
+					if (shapeType == "Circle") {
+						centerXCorrection = ShapeMeasures.circleSize / 2;
+						centerYCorrection = ShapeMeasures.circleSize / 2;
+					}
+					else
+					if (shapeType == "Diamond") {
+						centerXCorrection = ShapeMeasures.diamondSize / 2;
+						centerYCorrection = ShapeMeasures.diamondSize / 2;
+					}
+
+					newNode.x = newNode.x - centerXCorrection;
+					newNode.y = newNode.y - centerYCorrection;
+					 
+					this.props.addNode(newNode, this.props.flow);
+					this.props.addRawFlow(newNode);
+				}				
+			}
+		}
+
+		// TODO : do we need to select the added node or dont? (see also the flow-actions)
+		this.props.selectNode(undefined, undefined);
+
+		this.props.setConnectiongNodeCanvasMode(false);
+		this.props.setSelectedTask("");		
+
+
+		return false;
+	}
+
+	shiftDown = false;
+	ctrlDown = false;
+	ctrlKey = 17;
+	shiftKey = 16;
+	cmdKey = 91;
+	pasteKey = 86;
+	backspaceKey = 8;
+
+	onInput = (event) => {
+		// prevent editing of div because of contentEditable which is needed for pasting data from excel
+		if (event.target && (event.target.tagName || "").toLowerCase() == "input") {
+			return;
+		}
+
+		//console.log( event.target.tagName, event);
+		if (event.keyCode == this.shiftKey) {
+			this.shiftDown = true;
+			return true;
+		}
+		if (event.keyCode == this.backspaceKey) {
+			if (this.props.selectedNode && this.props.selectedNode.node) {
+				if (this.props.selectedNode.node.shapeType !== 'Line') {
+					this.props.deleteNode(this.props.selectedNode.node);
+					this.props.deleteRawNode(this.props.selectedNode.node);
+				} else {
+					this.props.deleteConnection(this.props.selectedNode.node);
+					this.props.deleteRawConnection(this.props.selectedNode.node);
+				}
+				this.props.selectNode(undefined, undefined);
+			}
+			return true;
+		}
+		if (event.keyCode == this.ctrlKey || event.keyCode == this.cmdKey) {
+			this.ctrlDown = true;
+			return true;
+		}
+
+		if (!!this.ctrlDown && event.keyCode == this.pasteKey) {
+			return true;			
+		}
+
+		event.preventDefault();
+		return false;
+	}
+
+	onKeyUp = (event) => {
+		this.ctrlDown = false;
+		this.shiftDown = false;
+	}
+
 	render() {
 		const canvasHasSelectedNode : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
 
 		const connections = this.props.canvasMode.showDependencies ? this.getDependentConnections() : [];
 		let nodesConnectedToSelectedNode : any = {};
+		/*onPaste={this.onPaste}	
+		suppressContentEditableWarning={true}
+				contentEditable={false}	
+				*/
 		return <>
 			<div key={"stage-layer-" + this.state.canvasKey} ref={this.canvasWrapper} 
 				style={{opacity: this.state.canvasOpacity}} 
 				className="canvas-controller__scroll-container"
 				onDragOver={this.onAllowDrop}
 				onDrop={this.onDropTask}
+						
+				
+				onInput={this.onInput}
+				onKeyDown={this.onInput}
+				onKeyUp={this.onKeyUp}				
 				>
 				<Stage					
 					onClick={this.clickStage}
@@ -1332,6 +1624,8 @@ console.log("taskClassName", event.target, taskClassName);
 					onTouchMove={this.onStageTouchMove.bind(this)}
 					onMouseMove={this.onStageTouchMove.bind(this)}
 					onTouchEnd={this.onStageTouchEnd.bind(this)}
+					onMouseLeave={this.onStageMouseLeave.bind(this)}
+					onMouseEnd={this.onStageMouseEnd.bind(this)}
 					className="stage-container">
 					<Layer key={"stage-layer-" + this.state.canvasKey} >
 						<Rect x={0} y={0} width={1024} height={750}></Rect>
@@ -1435,7 +1729,7 @@ console.log("taskClassName", event.target, taskClassName);
 									onMouseStart={this.onMouseStart.bind(this,node)}
 									onMouseMove={this.onMouseMove.bind(this,node)}
 									onMouseEnd={this.onMouseEnd.bind(this,node)}
-
+									onMouseLeave={this.onMouseLeave.bind(this,node)}
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
 
@@ -1464,7 +1758,7 @@ console.log("taskClassName", event.target, taskClassName);
 								let height = undefined;
 
 								if (this.props.getNodeInstance) {
-									const instance = this.props.getNodeInstance(node, this.props.flowrunnerConnector, this.props.nodes, this.props.flow);
+									const instance = this.props.getNodeInstance(node, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings);
 									if (instance) {
 										if (instance.getWidth && instance.getHeight) {
 											width = instance.getWidth(node);
@@ -1490,7 +1784,10 @@ console.log("taskClassName", event.target, taskClassName);
 									className="canvas__html-shape">
 										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>{node.label ? node.label : node.name}</div>
 										<div className="canvas__html-shape-body">
-										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow)}</div>
+										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings)}</div>
+										{settings.events && settings.events.map((event ,eventIndex) => {
+											return <div className={"canvas__html-shape-event canvas__html-shape-" + eventIndex} key={"_" + index + "-" + eventIndex}></div>
+										})}
 										</div>;
 							}
 							return null;

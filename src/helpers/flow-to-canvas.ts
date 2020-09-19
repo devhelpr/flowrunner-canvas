@@ -29,7 +29,8 @@ export class FlowToCanvas {
   }
 
   static getStartPointForLine(startShape, newPosition, node? : any, getNodeInstance? : any) {
-    const shapeType = FlowToCanvas.getShapeType(startShape.shapeType, startShape.taskType, startShape.isStartEnd);
+    const taskSettings = FlowToCanvas.getTaskSettings(startShape.taskType);
+    const shapeType = FlowToCanvas.getShapeTypeUsingSettings(startShape.shapeType, startShape.taskType, startShape.isStartEnd, taskSettings);
     let isEvent : boolean = false;
     if (node && node.event && node.event !== "") {
       isEvent = true;
@@ -37,36 +38,45 @@ export class FlowToCanvas {
 
     if (shapeType == 'Html') {
       let width = undefined;
+      let height = undefined;
       if (getNodeInstance && startShape) {
-        const nodeInstance = getNodeInstance(startShape);
+        const nodeInstance = getNodeInstance(startShape, undefined, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
           width = nodeInstance.getWidth(startShape);
+          height = nodeInstance.getHeight(startShape);
         }
       }
       return {
-        x: newPosition.x + ((width || startShape.width || ShapeMeasures.htmlWidth) / 2) + (isEvent ? 18 : 0),
-        y: newPosition.y - (isEvent ? -4 - 32 + ((startShape.height || ShapeMeasures.htmlHeight) / 2) : 0),
+        x: newPosition.x + ((width || startShape.width || ShapeMeasures.htmlWidth) / 2) + (isEvent ? 18 - 8 : 0),
+        y: newPosition.y - (isEvent ? -4 - 32 - 8 + ((height || startShape.height || ShapeMeasures.htmlHeight) / 2) : 0),
       };
-    } else if (shapeType == 'Circle' || shapeType == 'Diamond') {
+    } else if (shapeType == 'Circle') {
       return {
         x: newPosition.x + ShapeMeasures.circleSize ,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
       };
+    } else if (shapeType == 'Diamond') {
+      return {
+        x: newPosition.x + ShapeMeasures.diamondSize ,
+        y: newPosition.y + ShapeMeasures.diamondSize / 2,
+      };
     } else {
       return {
-        x: newPosition.x + ShapeMeasures.rectWidht + (isEvent ? 18 : 0),
-        y: newPosition.y + (isEvent ? 4 : ShapeMeasures.rectHeight / 2),
+        x: newPosition.x + ShapeMeasures.rectWidht + (isEvent ? 18 - 14 : 0),
+        y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
       };
     }
   }
 
   static getEndPointForLine(endShape, newPosition, node? : any, getNodeInstance? : any) {
-    const shapeType = FlowToCanvas.getShapeType(endShape.shapeType, endShape.taskType, endShape.isStartEnd);
+
+    const taskSettings = FlowToCanvas.getTaskSettings(endShape.taskType);
+    const shapeType = FlowToCanvas.getShapeTypeUsingSettings(endShape.shapeType, endShape.taskType, endShape.isStartEnd, taskSettings);
 
     if (shapeType == 'Html') {
       let width = undefined;
       if (getNodeInstance && endShape) {
-        const nodeInstance = getNodeInstance(endShape);
+        const nodeInstance = getNodeInstance(endShape,undefined, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
           width = nodeInstance.getWidth(endShape);
         }
@@ -75,10 +85,15 @@ export class FlowToCanvas {
         x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2,
         y: newPosition.y,
       };
-    } else if (shapeType == 'Circle' || shapeType == 'Diamond') {
+    } else if (shapeType == 'Circle') {
       return {
         x: newPosition.x,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
+      };
+    } else if (shapeType == 'Diamond') {
+      return {
+        x: newPosition.x,
+        y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
       return {
@@ -106,6 +121,23 @@ export class FlowToCanvas {
     return flow.filter(node => {
       return node.shapeType === 'Line' && node.endshapeid === endNode.name;
     });
+  }
+
+  static getTaskSettings(taskType) {
+    return getTaskConfigForTask(taskType);
+  }
+
+  static getShapeTypeUsingSettings(shapeType, taskType, isStartEnd, taskSettings) {
+    let resultShapeType = shapeType || 'Rect';
+    if (taskSettings && taskSettings.shapeType) {
+      resultShapeType = taskSettings.shapeType;
+    }
+    if (isStartEnd && resultShapeType == 'Rect') {
+      resultShapeType = 'Ellipse';
+    } else if (taskSettings && !!taskSettings.isStartEnd) {
+      resultShapeType = 'Ellipse';
+    }
+    return resultShapeType;
   }
 
   static getShapeType(shapeType, taskType, isStartEnd) {

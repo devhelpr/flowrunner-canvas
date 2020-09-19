@@ -28,6 +28,7 @@ export const Circle = (props : ShapeTypeProps) => {
 		onMouseUp={props.onMouseEnd}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
+		onMouseLeave={props.onMouseLeave}
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>
 		<KonvaCircle 

@@ -81,7 +81,28 @@ canvas,.konvajs-content,
 .canvas__html-shape {
 	position: absolute;
 	border-radius: 10px;
-	overflow: hidden;
+}
+
+.canvas__html-shape-event {
+	width: 16px;
+    height: 16px;
+    background: white;
+    position: absolute;
+    right: -8px;
+    top: 36px;
+    z-index: 2;
+    border: 2px solid #a000a0;
+}
+
+.canvas__html-shape-event::before {
+	content: "";
+	position: absolute;
+	width: 20px;
+    height: 20px;
+	border: 2px solid #e2e2e2;
+	right: -4px;
+	top: -4px;
+	z-index: 3;
 }
 
 .canvas__html-shape--in-bar {
@@ -103,6 +124,11 @@ canvas,.konvajs-content,
 	width: 100%;
 }
 
+.html-plugin-node__grid-edit {
+	justify-content: flex-start;
+	cursor: default;
+}
+
 .html-plugin-node--wrap {
 	white-space: pre;
 }
@@ -115,6 +141,8 @@ canvas,.konvajs-content,
 	justify-content: center;
 	align-items: center;
 	background: #c2c2c2;
+	border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .canvas__html-shape-bar--selected {
@@ -135,6 +163,10 @@ canvas,.konvajs-content,
 
 .html-plugin-node > div {
 	height: 100%;
+}
+
+.html-plugin-node > div.stage-div {
+	height: auto;
 }
 
 .html-plugin-node .konvajs-content {
@@ -296,6 +328,14 @@ canvas,.konvajs-content,
     white-space: pre;
 }
 
+input.form-control,
+textarea.form-control {
+	font-family: 'Fira Code';
+}
+.debug-info__debug-info-content {
+	font-family: 'Fira Code';
+}
+
 @media only screen and (max-width: 1023px) {
 
 	.taskbar {
@@ -356,4 +396,20 @@ canvas,.konvajs-content,
 
 .html-plugin-node--xycanvas .konvajs-content {
 	left: 1px;
+}
+
+.data-grid__row-title {
+    width: 50px;
+    text-align: center;
+	border: 1px #808080 solid;
+	background: #f0f0f0;
+	border-radius: 4px;
+}
+
+.data-grid__cell-title {
+	background: #f0f0f0;
+	border: 1px #808080 solid;
+	border-radius: 4px;
+	height: 38px;
+	vertical-align: middle;
 }
