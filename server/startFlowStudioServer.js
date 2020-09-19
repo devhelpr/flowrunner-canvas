@@ -191,7 +191,8 @@ function start(flowFileName, taskPlugins, options) {
 			const flowFileName = flowFilesFound[0].fileName;
 			var flowPackage = {
 				flow: [],
-				flowType : flowFilesFound[0].flowType
+				flowType : flowFilesFound[0].flowType,
+				name: path.basename(flowFileName, path.extname(flowFileName))
 			};
 			try {
 				flowPackage.flow = JSON.parse(fs.readFileSync(flowFileName));

@@ -416,6 +416,23 @@ textarea.form-control {
 	vertical-align: middle;
 }
 
-.text-center {
-	text-align: center;
+.ui-view__html-elements {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.ui-view__html-elements .html-plugin-node .konvajs-content {
+	background: #f2f2f2;
+}
+.ui-view__html-elements .html-plugin-node {
+	background: #f2f2f2 !important;
+}
+
+.ui-view__html-elements .canvas__html-shape {
+	background: #f2f2f2;
+	min-width: 300px;
+	max-width: 100%;
+	border-radius: 0;
 }

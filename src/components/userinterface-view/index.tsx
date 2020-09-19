@@ -35,6 +35,10 @@ export interface UserInterfaceViewProps {
 	
 }
 
+export interface UserInterfaceViewState {
+	flowName : string;
+}
+
 const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
@@ -51,7 +55,7 @@ const mapDispatchToProps = (dispatch: any) => {
 	}
 };
 
-export class ContainedUserInterfaceView extends React.Component<UserInterfaceViewProps> {
+export class ContainedUserInterfaceView extends React.Component<UserInterfaceViewProps, UserInterfaceViewState> {
 
 
 	constructor(props) {
@@ -60,6 +64,9 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 		this.htmlWrapper = React.createRef();
 	}
 
+	state = {
+		flowName : ""
+	}
 	componentDidMount() {
 		const paths = location.pathname.split("/");
 		if (paths.length > 2) {
@@ -92,6 +99,7 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 					this.props.setFlowType(flowPackage.flowType || "playground");
 					this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage.flow);			
 					this.props.storeRawFlow(flowPackage.flow);
+					this.setState({flowName : flowPackage.name});
 				}
 
 			} , 500);
@@ -110,13 +118,21 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 
 	render() {
 		console.log("flow" , this.props.flow);
-		return <div>
-			<h1>UserInterface View</h1>
+		return <div className="pb-4">
+			<div className="bg-dark mb-4">
+				<nav className="navbar navbar-expand-lg navbar-light bg-dark">
+					<h1 className="text-white">{this.state.flowName || "UserInterface View"}</h1>
+				</nav>
+			</div>
 
 			<div ref={this.htmlWrapper} 
-					className="canvas__html-elements">
+					className="canvas__html-elements ui-view__html-elements">
 					
 					{this.props.flow.map((node, index) => {
+							if (!!node.hideFromUI) {
+								return <React.Fragment key={index}></React.Fragment>
+							}
+
 							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
 							const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 							const Shape = Shapes[shapeType];
@@ -141,8 +157,8 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 
 								return <div key={"html" + index}
 									style={{																						
-											width: "100%",
-											height: height ? height + "px" : "auto",
+											width: (width || node.width || 250)+"px",
+											height: (height || node.height || 250)+"px",
 											opacity: 1,
 											position: "relative"						 
 										}}

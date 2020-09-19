@@ -352,6 +352,7 @@ function registerFlowRunnerCanvasPlugin(name, VisualizationComponent, FlowTaskPl
 
 	setCustomConfig(FlowTaskPluginClassName, {
 		shapeType: 'Html',
+		hasUI : true,
 		presetValues : {
 			htmlPlugin: FlowTaskPluginClassName
 		}

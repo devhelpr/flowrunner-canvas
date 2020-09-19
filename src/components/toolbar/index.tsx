@@ -440,7 +440,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 									{!!this.props.hasRunningFlowRunner && this.props.canvasMode.flowType == "playground" && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
 									<a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
 									<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
-									<a href={"/ui/" + this.state.selectedFlow} className="ml-2">UI View</a>
+									{this.props.canvasMode.flowType == "playground" && <a href={"/ui/" + this.state.selectedFlow} className="ml-2">UI View</a>}
 								</form>
 							</Navbar.Collapse>
 						</div>

@@ -10,7 +10,7 @@ const uuidV4 = uuid.v4;
 
 export class SliderNodeHtmlPluginInfo {
 	getWidth = (node) => {
-		return;
+		return 300;
 	}
 
 	getHeight(node) {
