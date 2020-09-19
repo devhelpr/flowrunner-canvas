@@ -145,6 +145,7 @@ function start(flowFileName, taskPlugins, options) {
 		app.locals.hasLogin = hasLogin;
 
 		app.get('/', (req, res) => res.render('./pages/index'));
+		app.get('/ui/:flowId', (req, res) => res.render('./pages/index'));
 		app.post('/save-flow', (req, res) => {
 			const bodyAsJsonString = JSON.stringify(req.body.flow);
 

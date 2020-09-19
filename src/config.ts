@@ -154,6 +154,7 @@ const taskTypeConfig: any = {
     shapeType: 'Diamond',
   },
   PreviewTask: {
+    hasUI : true,
     shapeType: 'Html',
     presetValues: {
       htmlPlugin: '[executeNode,inputNode,sliderNode]',
@@ -183,6 +184,7 @@ const taskTypeConfig: any = {
     },
   },
   GridEditTask: {
+    hasUI: true,
     shapeType: 'Html',
     htmlPlugin: 'gridEditNode',
     presetValues: {
@@ -199,6 +201,7 @@ const taskTypeConfig: any = {
     }
   },
   SliderTask: {
+    hasUI : true,
     shapeType: 'Html',
     htmlPlugin: 'sliderNode',
     presetValues: {
@@ -240,11 +243,13 @@ const taskTypeConfig: any = {
     ],
   },
   InputTask: {
+    hasUI: true,  
     shapeType: 'Html',
     htmlPlugin: 'inputNode',
   },
   DebugTask: {
     shapeType: 'Html',
+    hasUI: true,
     htmlPlugin: 'debugNode',
     presetValues: {
       htmlPlugin: 'debugNode',

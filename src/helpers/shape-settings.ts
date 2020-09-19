@@ -10,6 +10,7 @@ export interface IShapeSettings {
   isSkewed: boolean;
   subShapeType?: string;
   events? : any[];
+  hasUI: boolean;
 }
 
 export class ShapeSettings {
@@ -21,6 +22,7 @@ export class ShapeSettings {
       textColor: '#000000',
       cornerRadius: 0,
       isSkewed: false,
+      hasUI : false
     };
     const taskTypeConfig = getTaskConfigForTask(taskType);
     if (taskTypeConfig) {

@@ -1,4 +1,4 @@
-import { IFlowrunnerConnector, IExecutionEvent } from '../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/IFlowrunnerConnector';
 import { IWorker } from '../interfaces/IWorker';
 
 export class EmptyFlowConnector implements IFlowrunnerConnector {
@@ -44,6 +44,12 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   resumeFlowrunner = () => {}
 
   setFlowType = (flowType : string) => {}
+
+  setAppMode = (mode : ApplicationMode) => {}
+
+  getAppMode = () => {
+    return ApplicationMode.Canvas;
+  }
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -56,6 +62,8 @@ export class FlowConnector implements IFlowrunnerConnector {
   pluginRegistry : any = {};
 
   flowType : string = "playground";
+
+  applicationMode : ApplicationMode = ApplicationMode.Canvas;
 
   getNodeExecutions() {
     return this.nodeExecutions;
@@ -327,5 +335,11 @@ export class FlowConnector implements IFlowrunnerConnector {
   setFlowType = (flowType : string) => {
     this.flowType = flowType || "playground";
   }
+  setAppMode = (mode : ApplicationMode) => {
+    this.applicationMode = mode;
+  }
 
+  getAppMode = () => {
+    return this.applicationMode;
+  }
 }

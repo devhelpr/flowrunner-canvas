@@ -10,7 +10,6 @@ import fetch from 'cross-fetch';
 import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 
 import { reducers } from './redux/reducers';
-import { Canvas } from './components/canvas';
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
@@ -18,7 +17,7 @@ import { Taskbar } from './components/Taskbar';
 import { UIControlsBar} from './components/ui-controls-bar';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
 
 import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
@@ -31,7 +30,7 @@ import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components
 //import Worker from "worker-loader!./flow-worker";
 let worker : Worker;
 
-worker = new Worker("./worker.js");
+worker = new Worker("/worker.js");
 
 // TODO : improve this.. currently needed to be able to use react in an external script
 // which is used by the online editor to provide external defined tasks
@@ -56,6 +55,17 @@ if (!!hasRunningFlowRunner) {
 	flowrunnerConnector = new EmptyFlowConnector();
 }
 
+
+
+let applicationMode = ApplicationMode.Canvas;
+ 
+const paths = location.pathname.split("/");
+if (paths.length > 1) {
+	if (paths[1] == "ui") {
+		applicationMode = ApplicationMode.UI;
+	}
+}
+flowrunnerConnector.setAppMode(applicationMode);
 
 let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	{
@@ -181,6 +191,8 @@ const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "t
 
 let canvasToolbarsubject = new Subject<string>();
 
+
+
 interface IAppProps {
 	isLoggedIn : boolean;
 }
@@ -189,86 +201,146 @@ interface DefaultProps {
 
 }
 
-const App = (props : IAppProps) => {
-	const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
-	
-	const onClose = () => {
-		setLoggedIn(true);
-		return true;
-	}
-
-	/*let Plugin : React.FunctionComponent<DefaultProps>;
-	
-	Plugin = React.Fragment;
-
-	if (pluginRegistry["piechart"]) {
-		Plugin = pluginRegistry["piechart"];
-	}
-	*/
-
-	return <>
-		{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
-			<>
-				<Taskbar></Taskbar>
-				{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
-					flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
-				{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
-					flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
-
-				<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
-					hasRunningFlowRunner={!!hasRunningFlowRunner}
-					flowrunnerConnector={flowrunnerConnector}></Toolbar>
-				<Canvas canvasToolbarsubject={canvasToolbarsubject} 
-					renderHtmlNode={renderHtmlNode}
-					flowrunnerConnector={flowrunnerConnector}
-					getNodeInstance={getNodeInstance}
-				></Canvas>
-				<FooterToolbar></FooterToolbar>	
-			</>
-		}
-	</>;
-}
-
-
-startFlow(flowPackage, reducers).then((services : any) => {
-	
-	flowrunnerConnector.setPluginRegistry(pluginRegistry);
-
-	fetch('/api/verify-token', {
-		method: "GET",			
-		headers: {
-		  "Content-Type": "application/json"
-		}
-	  })
-	.then(res => {
-		if (res.status >= 400) {
-			return {
-				isLoggedIn : false
+if (applicationMode === ApplicationMode.Canvas) {
+	import('./components/canvas').then((module) => {
+		const Canvas = module.Canvas;
+		const App = (props : IAppProps) => {
+			const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
+			
+			const onClose = () => {
+				setLoggedIn(true);
+				return true;
 			}
-		}
-		return {
-			isLoggedIn : true
-		}
-	})
-	.then(response => {
-		console.log("pluginRegistry", pluginRegistry);
-		(ReactDOM as any).createRoot(
-			root
-		).render(<Provider store={services.getStore()}>
-				<App isLoggedIn={(response as any).isLoggedIn}></App>
-			</Provider>
-		);	
-	})
-	.catch(err => {
-		console.error(err);
-	});
 
+			return <>
+				{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
+					<>
+						<Taskbar></Taskbar>
+						{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
+							flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
+						{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+							flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+
+						<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
+							hasRunningFlowRunner={!!hasRunningFlowRunner}
+							flowrunnerConnector={flowrunnerConnector}></Toolbar>
+						<Canvas canvasToolbarsubject={canvasToolbarsubject} 
+							renderHtmlNode={renderHtmlNode}
+							flowrunnerConnector={flowrunnerConnector}
+							getNodeInstance={getNodeInstance}
+						></Canvas>
+						<FooterToolbar></FooterToolbar>	
+					</>
+				}
+			</>;
+		}
+
+
+		startFlow(flowPackage, reducers).then((services : any) => {
+			
+			flowrunnerConnector.setPluginRegistry(pluginRegistry);
+
+			fetch('/api/verify-token', {
+				method: "GET",			
+				headers: {
+				"Content-Type": "application/json"
+				}
+			})
+			.then(res => {
+				if (res.status >= 400) {
+					return {
+						isLoggedIn : false
+					}
+				}
+				return {
+					isLoggedIn : true
+				}
+			})
+			.then(response => {
+				console.log("pluginRegistry", pluginRegistry);
+				(ReactDOM as any).createRoot(
+					root
+				).render(<Provider store={services.getStore()}>
+						<App isLoggedIn={(response as any).isLoggedIn}></App>
+					</Provider>
+				);	
+			})
+			.catch(err => {
+				console.error(err);
+			});
+
+						
 				
-		
-}).catch((err) => {
-	console.log("error during start flowunner (check internal startFlow error)", err);
-})
+		}).catch((err) => {
+			console.log("error during start flowunner (check internal startFlow error)", err);
+		})
+	});
+} else
+if (applicationMode === ApplicationMode.UI) {
+	import('./components/userinterface-view').then((module) => {
+		const UserInterfaceView = module.UserInterfaceView;
+		const App = (props : IAppProps) => {
+			const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
+			
+			const onClose = () => {
+				setLoggedIn(true);
+				return true;
+			}
 
+			return <>
+				{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
+					<>
+						<UserInterfaceView 						
+							renderHtmlNode={renderHtmlNode}
+							flowrunnerConnector={flowrunnerConnector}
+							getNodeInstance={getNodeInstance}
+						></UserInterfaceView>
+					</>
+				}
+			</>;
+		}
+
+
+		startFlow(flowPackage, reducers).then((services : any) => {
+			
+			flowrunnerConnector.setPluginRegistry(pluginRegistry);
+
+			fetch('/api/verify-token', {
+				method: "GET",			
+				headers: {
+				"Content-Type": "application/json"
+				}
+			})
+			.then(res => {
+				if (res.status >= 400) {
+					return {
+						isLoggedIn : false
+					}
+				}
+				return {
+					isLoggedIn : true
+				}
+			})
+			.then(response => {
+				console.log("pluginRegistry", pluginRegistry);
+				(ReactDOM as any).createRoot(
+					root
+				).render(<Provider store={services.getStore()}>
+						<App isLoggedIn={(response as any).isLoggedIn}></App>
+					</Provider>
+				);	
+			})
+			.catch(err => {
+				console.error(err);
+			});
+
+						
+				
+		}).catch((err) => {
+			console.log("error during start flowunner (check internal startFlow error)", err);
+		})
+	});
+}
 
 function registerFlowRunnerCanvasPlugin(name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) {
 	pluginRegistry[FlowTaskPluginClassName] = {

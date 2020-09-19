@@ -20,8 +20,8 @@ function buildWorkerTypescript() {
           path: path.join(__dirname, "lib"),
           pathinfo: false,
           filename:'worker.js',
-          chunkFilename: "[name].chunk.js",
-          publicPath: "",
+          chunkFilename: "[name].worker.chunk.js",
+          publicPath: "/",
           jsonpFunction: 'flowworkerwebpackJsonpPlugin'
         } ,
         module: {
@@ -78,8 +78,8 @@ function buildTypescript() {
           path: path.join(__dirname, "lib"),
           pathinfo: false,
           filename:'[name].bundle.js',
-          chunkFilename: "[name].chunk.js",
-          publicPath: "",
+          chunkFilename: "[name].canvas.chunk.js",
+          publicPath: "/",
           jsonpFunction: 'flowcanvaswebpackJsonpPlugin'
         } ,
         module: {
@@ -146,7 +146,7 @@ function buildPluginTypescript() {
           pathinfo: false,
           filename:'[name].plugin.bundle.js',
           chunkFilename: "[name].plugin.chunk.js",
-          publicPath: "",
+          publicPath: "/",
           jsonpFunction: 'webpackJsonpPlugin'
         } ,
         module: {

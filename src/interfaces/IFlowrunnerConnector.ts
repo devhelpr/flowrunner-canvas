@@ -1,3 +1,8 @@
+export enum ApplicationMode {
+	Canvas = 0,
+	UI
+}
+
 export interface IFlowrunnerConnector {
   registerFlowNodeObserver: (nodeName: string, observableId: string, callback: (payload: any) => void) => void;
   unregisterFlowNodeObserver: (nodeName: string, observableId: string) => void;
@@ -22,6 +27,9 @@ export interface IFlowrunnerConnector {
   resumeFlowrunner: () => void;
 
   setFlowType: (flowType : string) => void;
+  setAppMode: (appMode : ApplicationMode) => void;
+
+  getAppMode: () => ApplicationMode;
 }
 
 export interface IExecutionEvent {

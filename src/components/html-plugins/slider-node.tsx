@@ -118,7 +118,7 @@ export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtm
 			backgroundColor: "white"
 		}}>
 			<div className="w-100 h-auto text-center">
-				{this.props.node.title && <div><strong>{this.props.node.title}</strong></div>}
+				{this.props.node.title && <div className="text-center"><strong>{this.props.node.title}</strong></div>}
 				<div style={{
 					fontSize: "24px",
 					marginBottom: "20px"

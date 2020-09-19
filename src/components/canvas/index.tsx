@@ -17,7 +17,6 @@ import { ShapeMeasures } from '../../helpers/shape-measures';
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
-import { timestamp } from 'rxjs/operators';
 
 const uuidV4 = uuid.v4;
 
