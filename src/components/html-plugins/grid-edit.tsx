@@ -25,7 +25,6 @@ export class GridEditNodeHtmlPluginInfo {
 export interface GridEditNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
-	nodes : any;
 	flow: any;
 	canvasMode: ICanvasMode;
 
@@ -92,7 +91,7 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 	}
 
 	componentDidUpdate(prevProps : any) {
-		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
+		if (prevProps.flow != this.props.flow) {
 			if (this.props.node) {
 				this.props.flowrunnerConnector.modifyFlowNode(
 					this.props.node.name, 

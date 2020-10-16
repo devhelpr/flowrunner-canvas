@@ -12,7 +12,6 @@ export interface LayoutWithDropAreaProps {
 	tree? : any;
 	getNodeInstance : any;
 	flowrunnerConnector : any;
-	nodes : any;
 	flow : any;
 	renderHtmlNode : any;
 	flowHash: any;
@@ -202,7 +201,6 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 								context : {
 									getNodeInstance: this.props.getNodeInstance,
 									flowrunnerConnector: this.props.flowrunnerConnector,
-									nodes: this.props.nodes,
 									flow: this.props.flow,
 									renderHtmlNode: this.props.renderHtmlNode
 								}
@@ -225,7 +223,6 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 										level={level+1}
 										getNodeInstance={this.props.getNodeInstance}
 										flowrunnerConnector={this.props.flowrunnerConnector}
-										nodes={this.props.nodes}
 										flow={this.props.flow}
 										renderHtmlNode={this.props.renderHtmlNode}
 										flowHash={this.props.flowHash}									
@@ -241,7 +238,6 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 										level={level+1}
 										getNodeInstance={this.props.getNodeInstance}
 										flowrunnerConnector={this.props.flowrunnerConnector}
-										nodes={this.props.nodes}
 										flow={this.props.flow}
 										renderHtmlNode={this.props.renderHtmlNode}
 										flowHash={this.props.flowHash}		
@@ -264,7 +260,6 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 								level={level+1}
 								getNodeInstance={this.props.getNodeInstance}
 								flowrunnerConnector={this.props.flowrunnerConnector}
-								nodes={this.props.nodes}
 								flow={this.props.flow}
 								renderHtmlNode={this.props.renderHtmlNode}
 								flowHash={this.props.flowHash}								

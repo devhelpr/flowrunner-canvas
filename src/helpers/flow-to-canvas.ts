@@ -40,7 +40,7 @@ export class FlowToCanvas {
       let width = undefined;
       let height = undefined;
       if (getNodeInstance && startShape) {
-        const nodeInstance = getNodeInstance(startShape, undefined, undefined, undefined, taskSettings);
+        const nodeInstance = getNodeInstance(startShape, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
           width = nodeInstance.getWidth(startShape);
           height = nodeInstance.getHeight(startShape);
@@ -76,7 +76,7 @@ export class FlowToCanvas {
     if (shapeType == 'Html') {
       let width = undefined;
       if (getNodeInstance && endShape) {
-        const nodeInstance = getNodeInstance(endShape,undefined, undefined, undefined, taskSettings);
+        const nodeInstance = getNodeInstance(endShape,undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
           width = nodeInstance.getWidth(endShape);
         }

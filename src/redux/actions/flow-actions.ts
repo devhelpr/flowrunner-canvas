@@ -15,47 +15,6 @@ export const storeFlowNode = (node: any, orgNodeName: string) =>
   action(STORE_FLOW_NODE, { node: node, orgNodeName: orgNodeName });
 
 export const addFlowNode = (node: any) => action(ADD_FLOW, { node: node });
-export const addNode = (node: any, flow: any[]) => {
-  return (dispatch: any) => {
-    /*
-    let loop = 0;
-    let max: any;
-    while (loop < flow.length) {
-      if (flow[loop].name.indexOf(node.name) === 0) {
-        if (flow[loop].name === node.name) {
-          if (max === undefined) {
-            max = 0;
-          } else {
-            max = max + 1;
-          }
-        } else {
-          const last = flow[loop].name.substring(node.name.length);
-          const number = parseInt(last);
-          if (!isNaN(number)) {
-            if (max === undefined) {
-              max = number;
-            } else if (number > max) {
-              max = number;
-            }
-          }
-        }
-      }
-      loop++;
-    }
-
-    const newNode = Object.assign({}, node);
-    if (max !== undefined) {
-      newNode.name = newNode.name + (max + 1);
-      newNode.id = newNode.name;
-    }
-    */
-
-    dispatch(addFlowNode(node));
-
-    // TODO : should this be done or not
-    //dispatch(selectNode(node.name, node));
-  };
-};
 
 export const addConnection = (connection: any) => action(ADD_CONNECTION, { connection: connection });
 

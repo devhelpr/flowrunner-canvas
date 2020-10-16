@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Modal, Button } from 'react-bootstrap';
 import { storeFlowNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
-import { modifyRawFlow, storeRawNode } from '../../redux/actions/raw-flow-actions';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface EditPopupProps {
@@ -14,8 +13,6 @@ export interface EditPopupProps {
 	onClose: (pushFlow? : boolean) => void;
 	storeFlowNode: (node : any, orgNodeName : string) => void;
 	selectNode: (name: string, node : any) => void;
-	modifyRawFlow: (node : any, orgNodeName : string) => void;
-	storeRawNode: (node : any, orgNodeName : string) => void;
 }
 
 export interface EditPopupState {
@@ -35,8 +32,6 @@ const mapDispatchToProps = (dispatch : any) => {
 	return {
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		selectNode: (name, node) => dispatch(selectNode(name, node)),
-		modifyRawFlow: (node, orgNodeName) => dispatch(modifyRawFlow(node, orgNodeName)),
-		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName))
 	}
 }
 
@@ -119,7 +114,6 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 			*/
 
 			const node = {...this.state.requiredNodeValues, ...changedProperties};
-			this.props.modifyRawFlow(node, this.state.orgNodeName);
 			this.props.storeFlowNode(node, this.state.orgNodeName);
 			
 			this.props.selectNode(node.name, node);

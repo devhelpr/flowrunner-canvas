@@ -4,7 +4,6 @@ import * as uuid from 'uuid';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ShapeSettings } from '../../helpers/shape-settings';
 //import { Shapes } from '../canvas/shapes'; 
-import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
 import { storeFlow } from '../../redux/actions/flow-actions';
 import { storeLayout } from '../../redux/actions/layout-actions';
 import { Layout } from '@devhelpr/layoutrunner';
@@ -24,20 +23,18 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface UserInterfaceViewProps {	
 
-	nodes : any[];
 	flow: any[];
 	layout : string;
 
 	storeFlow : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 
-	storeRawFlow: (flow : any) => void;
 	setFlowrunnerPaused: setFlowrunnerPausedFunction;
 	setFlowType: setFlowTypeFunction;
 	storeLayout : (layout : string) => void;
 
-	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any, taskSettings? : any) => any;
-	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings? : any) => any;
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
+	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	
 }
 
@@ -50,14 +47,12 @@ export interface UserInterfaceViewState {
 const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
-		nodes: state.rawFlow,
 		layout: state.layout		
 	}
 }
 const mapDispatchToProps = (dispatch: any) => {
 	return {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
-		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setFlowrunnerPaused: (paused: boolean) => dispatch(setFlowrunnerPaused(paused)),
 		setFlowType: (flowType: string) => dispatch(setFlowType(flowType)),
 		storeLayout: (layout: string) => dispatch(storeLayout(layout))
@@ -155,8 +150,8 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 					this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 					this.props.setFlowrunnerPaused(false);
 					this.props.setFlowType(flowPackage.flowType || "playground");
-					this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage.flow);			
-					this.props.storeRawFlow(flowPackage.flow);
+					//this.props.flowrunnerConnector.(flowPackage.flow);			
+					this.props.storeFlow(flowPackage.flow);
 					this.props.storeLayout(JSON.stringify(flowPackage.layout));
 					
 					let flowHash = {};
@@ -180,8 +175,9 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 	}
 
 	componentDidUpdate(prevProps : UserInterfaceViewProps) {
-		if (prevProps.nodes != this.props.nodes) {
-			this.props.storeFlow(this.props.nodes);
+		
+		if (prevProps.flow != this.props.flow) {
+			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);			
 		}
 
 		if (prevProps.layout != this.props.layout) {
@@ -211,7 +207,6 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 						layout: this.state.layout,
 						context : {
 								flowHash : this.state.flowHash,
-								node : this.props.nodes,
 								flow: this.props.flow,
 								getNodeInstance: this.props.getNodeInstance,
 								flowrunnerConnector: this.props.flowrunnerConnector,

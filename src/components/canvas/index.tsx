@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
 import { connect } from "react-redux";
 import { Shapes } from './shapes'; 
-import { storeFlow, storeFlowNode, addConnection, addFlowNode, addNode,deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
+import { storeFlow, storeFlowNode, addConnection, addFlowNode,deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
@@ -12,7 +12,6 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
-import { addRawFlow, addRawConnection, storeRawNode, deleteRawConnection, deleteRawNode } from '../../redux/actions/raw-flow-actions';
 import { ShapeMeasures } from '../../helpers/shape-measures';
 import * as uuid from 'uuid';
 
@@ -21,23 +20,16 @@ import fetch from 'cross-fetch';
 const uuidV4 = uuid.v4;
 
 export interface CanvasProps {
-	nodes : any[];
 	flow: any[];
 
 	storeFlow : any;
 	storeFlowNode: any;
 	addFlowNode : any;
-	addNode : any;
-	addRawFlow: any;
-	addRawConnection: any;
 	selectNode: any;
 	addConnection: any;
-	storeRawNode: any;
 
 	deleteConnection: any;
 	deleteNode: any;
-	deleteRawConnection: any;
-	deleteRawNode: any;
 
 	selectedNode : any;
 	canvasMode: ICanvasMode;
@@ -45,9 +37,9 @@ export interface CanvasProps {
 	setSelectedTask: setSelectedTaskFunction;
 	canvasToolbarsubject : Subject<string>;
 	
-	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any, taskSettings? : any) => any;
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
-	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings? : any) => any;
+	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	
 }
 
@@ -56,8 +48,6 @@ const mapStateToProps = (state : any) => {
 		flow: state.flow,
 		selectedNode : state.selectedNode,
 		canvasMode: state.canvasMode,
-		nodes: state.rawFlow,
-		
 	}
 }
 
@@ -67,18 +57,11 @@ const mapDispatchToProps = (dispatch : any) => {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		addFlowNode: (node) => dispatch(addFlowNode(node)),
-		addNode: (node, flow) => dispatch(addNode(node, flow)),
-		addRawFlow: (node) => dispatch(addRawFlow(node)),
-		addRawConnection: (node) => dispatch(addRawConnection(node)),
-		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName)),
 		selectNode: (name, node) => dispatch(selectNode(name, node)),
 		setConnectiongNodeCanvasMode : (enabled : boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
 		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode: (node) => dispatch(deleteNode(node)),
-		deleteRawConnection: (node) => dispatch(deleteRawConnection(node)),
-		deleteRawNode: (node) => dispatch(deleteRawNode(node)),
-
 	}
 }
 
@@ -130,9 +113,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	flowIsLoading = false;
 
 	componentDidMount() {
-		//this.props.storeFlow(this.props.nodes);
-
-		//(this.refs.canvasWrapper as any).addEventListener('wheel', this.wheelEvent);
 		if (this.canvasWrapper && this.canvasWrapper.current) {
 			(this.canvasWrapper.current as any).addEventListener('wheel', this.wheelEvent);
 		}
@@ -169,10 +149,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
-		if (prevProps.nodes != this.props.nodes) {
-			this.props.storeFlow(this.props.nodes);
-			//console.log("componentDidUpdate nodes diff");
-		}
 
 		if (prevProps.flow != this.props.flow) {
 			if (this.flowIsLoading) {
@@ -251,7 +227,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 
 		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
-		this.props.storeRawNode(Object.assign({}, node, newPosition ), node.name);
 		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, newPosition.x, newPosition.y, node);						
 
 		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
@@ -261,7 +236,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			startLines.map((lineNode) => {				
 				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
 				this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
-				this.props.storeRawNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
 				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
 			})
 		}
@@ -276,7 +250,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					startPos = lines[lineNode.name];
 				}
 				this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
-				this.props.storeRawNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
 			})
 		}
 
@@ -669,7 +642,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 			const connection = getNewConnection(this.props.selectedNode.node, node, this.props.getNodeInstance);
 			this.props.addConnection(connection);
-			this.props.addRawConnection(connection);
 			this.props.setConnectiongNodeCanvasMode(false);
 		}
 
@@ -958,7 +930,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			let stage = (this.stage.current as any).getStage();
 			if (stage !== undefined) {
 
-				this.props.nodes.map((shape, index) => {
+				this.props.flow.map((shape, index) => {
 					if (node !== undefined) {
 						if (node.id !== shape.id) {
 							return;
@@ -986,7 +958,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							let height = undefined;
 
 							if (this.props.getNodeInstance) {
-								const instance = this.props.getNodeInstance(shape, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, taskSettings);
+								const instance = this.props.getNodeInstance(shape, this.props.flowrunnerConnector, this.props.flow, taskSettings);
 								if (instance) {
 									if (instance.getWidth && instance.getHeight) {
 										width = instance.getWidth(shape);
@@ -1047,7 +1019,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					}
 				});
 			
-				if (this.props.nodes.length > 0 &&
+				if (this.props.flow.length > 0 &&
 					xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
 					console.log(xMin, xMax, yMin ,yMax);
 					let scale = 1;
@@ -1061,7 +1033,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						let realStageWidth = stageContainerElement.clientWidth;
 						let realStageHeight = stageContainerElement.clientHeight;
 
-						if (this.props.nodes.length === 1) { 
+						if (this.props.flow.length === 1) { 
 							scale = 1;
 						} else {
 							if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
@@ -1180,8 +1152,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
 					 
-					this.props.addNode(newNode, this.props.flow);
-					this.props.addRawFlow(newNode);
+					this.props.addFlowNode(newNode, this.props.flow);
 
 
 				}				
@@ -1442,8 +1413,7 @@ console.log("taskClassName", event.target, taskClassName);
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
 					
-					this.props.addNode(newNode, this.props.flow);
-					this.props.addRawFlow(newNode);
+					this.props.addFlowNode(newNode, this.props.flow);
 				}				
 			}
 		} else {
@@ -1586,8 +1556,7 @@ console.log("taskClassName", event.target, taskClassName);
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
 					 
-					this.props.addNode(newNode, this.props.flow);
-					this.props.addRawFlow(newNode);
+					this.props.addFlowNode(newNode, this.props.flow);
 				}				
 			}
 		}
@@ -1637,10 +1606,8 @@ console.log("taskClassName", event.target, taskClassName);
 			if (this.props.selectedNode && this.props.selectedNode.node) {
 				if (this.props.selectedNode.node.shapeType !== 'Line') {
 					this.props.deleteNode(this.props.selectedNode.node);
-					this.props.deleteRawNode(this.props.selectedNode.node);
 				} else {
 					this.props.deleteConnection(this.props.selectedNode.node);
-					this.props.deleteRawConnection(this.props.selectedNode.node);
 				}
 				this.props.selectNode(undefined, undefined);
 			}
@@ -1839,7 +1806,7 @@ console.log("taskClassName", event.target, taskClassName);
 								let height = undefined;
 
 								if (this.props.getNodeInstance) {
-									const instance = this.props.getNodeInstance(node, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings);
+									const instance = this.props.getNodeInstance(node, this.props.flowrunnerConnector, this.props.flow, settings);
 									if (instance) {
 										if (instance.getWidth && instance.getHeight) {
 											width = instance.getWidth(node);
@@ -1868,7 +1835,7 @@ console.log("taskClassName", event.target, taskClassName);
 									className={"canvas__html-shape canvas__html-shape-" + node.name}>
 										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>{node.label ? node.label : node.name}</div>
 										<div className="canvas__html-shape-body">
-										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings)}</div>
+										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.flow, settings)}</div>
 										{settings.events && settings.events.map((event ,eventIndex) => {
 											return <div className={"canvas__html-shape-event canvas__html-shape-" + eventIndex} key={"_" + index + "-" + eventIndex}></div>
 										})}

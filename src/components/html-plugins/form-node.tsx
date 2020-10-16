@@ -4,8 +4,6 @@ import { connect } from "react-redux";
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { modifyRawFlow } from '../../redux/actions/raw-flow-actions';
-import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
 
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
@@ -43,8 +41,6 @@ export interface FormNodeHtmlPluginProps {
 	canvasMode: ICanvasMode;
 
 	storeFlowNode: (node, orgNodeName) => void;
-	modifyRawFlow: (node, orgNodeName) => void;
-	storeRawFlow: (flow : any) => void;
 }
 
 export interface FormNodeHtmlPluginState {
@@ -65,8 +61,6 @@ const mapStateToProps = (state : any) => {
 const mapDispatchToProps = (dispatch : any) => {
 	return {
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		modifyRawFlow: (node, orgNodeName) => dispatch(modifyRawFlow(node, orgNodeName)),
-		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 	}
 }
 
@@ -128,7 +122,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		if (doSubmit) {
 			this.setState({errors: []});
 			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
-			this.props.storeRawFlow(this.props.flow);
+			//this.props.storeRawFlow(this.props.flow);
 		} else {
 			this.setState({errors: errors});
 		}
@@ -156,13 +150,16 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				}
 			}, () => {
 				
-				this.props.modifyRawFlow(this.state.node, this.props.node.name);
 				this.props.storeFlowNode(this.state.node, this.props.node.name);
 			});
 		}
 	}
 
-		
+	componentDidUpdate(prevProps){
+		if(prevProps.flow !== this.props.flow){  
+			//this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);	
+		}
+	 }
 
 	render() {
 		return <div className="html-plugin-node" style={{			

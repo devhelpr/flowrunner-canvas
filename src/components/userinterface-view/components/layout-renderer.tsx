@@ -29,7 +29,6 @@ export const renderFlowNode = (node : any, rootLayout : any) => {
 		if (rootLayout.context.getNodeInstance) {
 			const instance = rootLayout.context.getNodeInstance(node, 
 				rootLayout.context.flowrunnerConnector, 
-				rootLayout.context.nodes, 
 				rootLayout.context.flow, settings);
 			if (instance) {
 				if (instance.getWidth && instance.getHeight) {

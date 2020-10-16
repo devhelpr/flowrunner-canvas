@@ -25,7 +25,7 @@ export interface ShapeTypeProps {
   onMouseOut: any;
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
-  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, nodes? : any, flow?: any, taskSettings? : any) => any;
+  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;
   onRef : (nodeName: string, ref : any) => void;
 }
 

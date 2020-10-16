@@ -4,7 +4,6 @@ import { LayoutWithDropArea } from './components/layout-with-droparea';
 import { connect } from "react-redux";
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ShapeSettings } from '../../helpers/shape-settings';
-import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
 import { storeFlow } from '../../redux/actions/flow-actions';
 import { storeLayout } from '../../redux/actions/layout-actions';
 
@@ -13,32 +12,28 @@ import produce from 'immer';
 import { renderFlowNode } from '../userinterface-view/components/layout-renderer';
 
 export interface UserInterfaceViewEditorProps {
-	nodes : any[];
 	flow: any[];
 	layout: string;
 
 	storeFlow : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 
-	storeRawFlow: (flow : any) => void;
 	storeLayout: (layout : string) => void;
 
-	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, nodes: any, flow: any, taskSettings? : any) => any;
-	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings? : any) => any;
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
+	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 
 }
 
 const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
-		nodes: state.rawFlow,
 		layout: state.layout	
 	}
 }
 const mapDispatchToProps = (dispatch: any) => {
 	return {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
-		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		storeLayout: (layout : string) => dispatch(storeLayout(layout))
 	}
 };
@@ -153,7 +148,6 @@ export class ContainedUserInterfaceViewEditor extends React.Component<UserInterf
 		return (nextProps.layout !== this.props.layout ||
 			nextState.tree !== this.state.tree ||
 			nextState.renderIndex !== this.state.renderIndex ||
-			nextProps.nodes !== this.props.nodes ||
 			nextProps.flow !== this.props.flow ||
 			nextState.flowHash !== this.state.flowHash ||
 			nextState.flowHash.keys.length !== this.state.flowHash.keys.length ||
@@ -179,7 +173,6 @@ export class ContainedUserInterfaceViewEditor extends React.Component<UserInterf
 								tree={this.state.tree}
 								getNodeInstance={this.props.getNodeInstance}
 								flowrunnerConnector={this.props.flowrunnerConnector}
-								nodes={this.props.nodes}
 								flow={this.props.flow}
 								renderHtmlNode={this.props.renderHtmlNode}
 								flowHash={this.state.flowHash}
@@ -211,7 +204,6 @@ export class ContainedUserInterfaceViewEditor extends React.Component<UserInterf
 								context : {
 									getNodeInstance: this.props.getNodeInstance,
 									flowrunnerConnector: this.props.flowrunnerConnector,
-									nodes: this.props.nodes,
 									flow: this.props.flow,
 									renderHtmlNode: this.props.renderHtmlNode
 								}

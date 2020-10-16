@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { modifyRawFlow } from '../../redux/actions/raw-flow-actions';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 /*
@@ -24,7 +23,6 @@ export interface InputNodeHtmlPluginProps {
 	canvasMode: ICanvasMode;
 
 	storeFlowNode: (node, orgNodeName) => void;
-	modifyRawFlow: (node, orgNodeName) => void;	
 }
 
 export interface InputNodeHtmlPluginState {
@@ -44,7 +42,6 @@ const mapStateToProps = (state : any) => {
 const mapDispatchToProps = (dispatch : any) => {
 	return {
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		modifyRawFlow: (node, orgNodeName) => dispatch(modifyRawFlow(node, orgNodeName)),
 	}
 }
 
@@ -90,15 +87,11 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 	}
 
 	storeNode = () => {
-		this.props.modifyRawFlow(this.state.node, this.props.node.name);
 		this.props.storeFlowNode(this.state.node, this.props.node.name);
-
-		/// this.props.flow is hier nog niet up to date
-		//this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
 	}
 
 	componentDidUpdate(prevProps){
-		if(prevProps.flow !== this.props.flow){  
+		if(prevProps.flow !== this.props.flow) {
 			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);	
 		}
 	 }

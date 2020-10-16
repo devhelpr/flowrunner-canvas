@@ -80,7 +80,7 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	}
 ]});
 
-const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings? : any) => {
+const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => {
 	
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -117,7 +117,7 @@ const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, n
 	return;
 }
 
-const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, nodes : any, flow: any, taskSettings: any) => {
+const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any) => {
 
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -137,14 +137,12 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 	if (htmlPlugin == "sliderNode") {
 		return <SliderNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
-			nodes={nodes}
 			flow={flow}
 		></SliderNodeHtmlPlugin>;
 	} else
 	if (htmlPlugin == "gridEditNode") {
 		return <GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
-			nodes={nodes}
 			flow={flow}
 		></GridEditNodeHtmlPlugin>;
 	} else
@@ -167,7 +165,6 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 	if (htmlPlugin == "debugNode") {
 		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
-			nodes={nodes}
 			flow={flow}
 		></DebugNodeHtmlPlugin>;
 	} else
@@ -178,7 +175,6 @@ const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, no
 		
 		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
-			nodes={nodes}
 			flow={flow}
 		><Plugin></Plugin></DebugNodeHtmlPlugin>;
 	}

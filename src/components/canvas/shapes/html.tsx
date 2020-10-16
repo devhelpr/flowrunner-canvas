@@ -34,7 +34,7 @@ export const Html = (props: ShapeTypeProps) => {
 
 	useEffect(() => {
 		if (props.getNodeInstance) {
-			const instance = props.getNodeInstance(props.node, undefined, undefined, undefined, settings);
+			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
 			if (instance && instance.getWidth && instance.getHeight) {
 				//console.log("instance.getWidth()", instance.getWidth(), instance);
 				setWidth(instance.getWidth(props.node));

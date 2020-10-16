@@ -35,7 +35,6 @@ export class DebugNodeHtmlPluginInfo {
 export interface DebugNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
-	nodes : any;
 	flow: any;
 	selectedNode : any;
 	children? : any;
@@ -64,7 +63,7 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	}
 
 	componentDidUpdate(prevProps : any) {
-		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
+		if (prevProps.flow != this.props.flow) {
 			console.log("componentDidUpdate 1",this.observableId,  this.props.node);
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
 			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
@@ -107,7 +106,7 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	}
 
 	receivePayloadFromNode = (payload : any) => {
-		//console.log("receivePayloadFromNode", payload, this.props.node);
+		console.log("receivePayloadFromNode", payload, this.props.node);
 		if (this.unmounted) {
 			return;
 		}		

@@ -4,9 +4,7 @@ import { connect } from "react-redux";
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { modifyRawFlow } from '../../redux/actions/raw-flow-actions';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
-import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
 
 export class DataGridNodeHtmlPluginInfo {
 	getWidth = (node) => {
@@ -27,8 +25,6 @@ export interface DataGridNodeHtmlPluginProps {
 	canvasMode: ICanvasMode;
 
 	storeFlowNode: (node, orgNodeName) => void;
-	modifyRawFlow: (node, orgNodeName) => void;	
-	storeRawFlow: (flow : any) => void;
 }
 
 export interface DataGridNodeHtmlPluginState {
@@ -49,8 +45,6 @@ const mapStateToProps = (state : any) => {
 const mapDispatchToProps = (dispatch : any) => {
 	return {
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		modifyRawFlow: (node, orgNodeName) => dispatch(modifyRawFlow(node, orgNodeName)),
-		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 	}
 }
 
@@ -75,15 +69,12 @@ class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPl
 	onSubmit = (event: any) => {
 		event.preventDefault();
 		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
-		this.props.storeRawFlow(this.props.flow);
+		//this.props.storeRawFlow(this.props.flow);
 		return false;
 	}
 
 	storeNode = () => {
-		this.props.modifyRawFlow(this.state.node, this.props.node.name);
-		this.props.storeFlowNode(this.state.node, this.props.node.name);
-
-		
+		this.props.storeFlowNode(this.state.node, this.props.node.name);		
 	}
 
 	onCurrentValueChange = (event: any) => {

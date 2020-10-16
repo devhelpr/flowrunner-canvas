@@ -22,7 +22,6 @@ export class SliderNodeHtmlPluginInfo {
 export interface SliderNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
-	nodes : any;
 	flow: any;
 	canvasMode: ICanvasMode;
 
@@ -73,7 +72,7 @@ export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtm
 	}
 
 	componentDidUpdate(prevProps : any) {
-		if (prevProps.nodes != this.props.nodes || prevProps.flow != this.props.flow) {
+		if (prevProps.flow != this.props.flow) {
 			if (this.props.node) {
 				this.props.flowrunnerConnector.modifyFlowNode(
 					this.props.node.name, 
@@ -81,9 +80,7 @@ export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtm
 					this.state.value,
 					this.props.node.onChange || this.props.node.name
 				);
-	
 			}
-
 		}
 		
 	}

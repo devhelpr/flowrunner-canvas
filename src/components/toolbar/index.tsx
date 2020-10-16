@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from "react-redux";
-import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode, addNode } from '../../redux/actions/flow-actions';
-import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
+import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
 import { storeLayout } from '../../redux/actions/layout-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
@@ -30,7 +29,6 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
-import { addRawFlow, deleteRawConnection, deleteRawNode, storeRawNode } from '../../redux/actions/raw-flow-actions';
 
 import Navbar from 'react-bootstrap/Navbar';
 
@@ -57,13 +55,8 @@ export interface ToolbarProps {
 	storeFlow: any;
 	storeFlowNode: any;
 	addFlowNode: any;
-	addNode: any;
-	addRawFlow: any;
 	deleteConnection: any;
 	deleteNode: any;
-	deleteRawConnection: any;
-	deleteRawNode: any;
-	storeRawNode: any;
 
 	layout : string;
 	storeLayout: (layout : string) => void;
@@ -77,7 +70,6 @@ export interface ToolbarProps {
 	setFlowrunnerPaused: setFlowrunnerPausedFunction;
 	setFlowType: setFlowTypeFunction;
 	setEditorMode : setEditorModeFunction;
-	storeRawFlow: (flow : any) => void;
 
 	flowrunnerConnector : IFlowrunnerConnector;
 }
@@ -109,14 +101,8 @@ const mapDispatchToProps = (dispatch: any) => {
 		storeFlow: (flow) => dispatch(storeFlow(flow)),
 		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
 		addFlowNode: (node) => dispatch(addFlowNode(node)),
-		addNode: (node, flow) => dispatch(addNode(node, flow)),
-		addRawFlow: (node) => dispatch(addRawFlow(node)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode: (node) => dispatch(deleteNode(node)),
-		deleteRawConnection: (node) => dispatch(deleteRawConnection(node)),
-		deleteRawNode: (node) => dispatch(deleteRawNode(node)),
-		storeRawNode: (node, orgNodeName) => dispatch(storeRawNode(node, orgNodeName)),
-		storeRawFlow: (flow) => dispatch(storeRawFlow(flow)),
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
 		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
 		setFlowrunnerPaused: (paused: boolean) => dispatch(setFlowrunnerPaused(paused)),
@@ -182,8 +168,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				x: 50,
 				y: 50
 			},this.props.flow);
-			this.props.addNode(newNode, this.props.flow);
-			this.props.addRawFlow(newNode);
+			this.props.addFlowNode(newNode, this.props.flow);
 		}
 		return false;
 	}
@@ -207,7 +192,6 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	deleteLine = (event) => {
 		event.preventDefault();
 		this.props.deleteConnection(this.props.selectedNode.node);
-		this.props.deleteRawConnection(this.props.selectedNode.node);
 		this.props.selectNode(undefined, undefined);
 
 		return false;
@@ -216,7 +200,6 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	deleteNode = (event) => {
 		event.preventDefault();
 		this.props.deleteNode(this.props.selectedNode.node);
-		this.props.deleteRawNode(this.props.selectedNode.node);
 		this.props.selectNode(undefined, undefined);
 
 		return false;
@@ -225,12 +208,6 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	markAsUnHappyFlow = (event) => {
 		event.preventDefault();
 		this.props.storeFlowNode(
-			{
-				...this.props.selectedNode.node,
-				"followflow": "onfailure"
-			},
-			this.props.selectedNode.node.name);
-		this.props.storeRawNode(
 			{
 				...this.props.selectedNode.node,
 				"followflow": "onfailure"
@@ -246,13 +223,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				...this.props.selectedNode.node,
 				"followflow": "onsuccess"
 			},
-			this.props.selectedNode.node.name);
-		this.props.storeRawNode(
-			{
-				...this.props.selectedNode.node,
-				"followflow": "onsuccess"
-			},
-			this.props.selectedNode.node.name);
+			this.props.selectedNode.node.name);		
 		return false;
 	}
 
@@ -355,7 +326,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				this.props.setFlowrunnerPaused(false);
 				this.props.setFlowType(flowPackage.flowType || "playground");
 				this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage.flow);			
-				this.props.storeRawFlow(flowPackage.flow);
+				this.props.storeFlow(flowPackage.flow);
 				this.props.storeLayout(JSON.stringify(flowPackage.layout));
 				// TODO ... make this independent of timers
 				//   .. especially the below timer

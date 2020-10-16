@@ -101,8 +101,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         
       } else if (event.data.command == 'SendObservableNodePayload') {
         // TODO : de eerst keer gaat dit niet goed...
-        //console.log("SendObservableNodePayload", event.data);
-
+        console.log("SendObservableNodePayload", event.data);
         if (
           event.data.payload &&
           event.data.payload.nodeName &&
@@ -252,7 +251,9 @@ export class FlowConnector implements IFlowrunnerConnector {
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any) => {
     if (this.worker) {
-      this.observables = [];
+      //previously this.observables was cleared here,
+      // that causes side effects and is actually not needed because
+      // unregistrating and registration is done from within lifecycle events
 
       this.nodeExecutions = [];
       this.nodeExecutionsByNode = {};
