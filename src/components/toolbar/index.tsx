@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from "react-redux";
 import { storeFlow, storeFlowNode, addFlowNode, deleteConnection, deleteNode, addNode } from '../../redux/actions/flow-actions';
 import { storeRawFlow } from '../../redux/actions/raw-flow-actions';
+import { storeLayout } from '../../redux/actions/layout-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { getNewNode } from '../../helpers/flow-methods';
@@ -19,7 +20,9 @@ import {
 	setFlowrunnerPaused,
 	setFlowrunnerPausedFunction,
 	setFlowTypeFunction,
-	setFlowType
+	setFlowType,
+	setEditorModeFunction,
+	setEditorMode
 } from '../../redux/actions/canvas-mode-actions';
 
 import fetch from 'cross-fetch';
@@ -62,13 +65,20 @@ export interface ToolbarProps {
 	deleteRawNode: any;
 	storeRawNode: any;
 
+	layout : string;
+	storeLayout: (layout : string) => void;
+
+	onEditorMode: (editorMode) => void;
+
 	selectNode: (name, node) => void;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 	setShowDependencies: setShowDependenciesFunction;
 	setFlowrunnerPaused: setFlowrunnerPausedFunction;
 	setFlowType: setFlowTypeFunction;
+	setEditorMode : setEditorModeFunction;
 	storeRawFlow: (flow : any) => void;
+
 	flowrunnerConnector : IFlowrunnerConnector;
 }
 
@@ -87,7 +97,8 @@ const mapStateToProps = (state: any) => {
 	return {
 		selectedNode: state.selectedNode,
 		canvasMode: state.canvasMode,
-		flow: state.flow
+		flow: state.flow,
+		layout : state.layout
 	}
 }
 
@@ -109,7 +120,9 @@ const mapDispatchToProps = (dispatch: any) => {
 		setSelectedTask: (selectedTask: string) => dispatch(setSelectedTask(selectedTask)),
 		setConnectiongNodeCanvasMode: (enabled: boolean) => dispatch(setConnectiongNodeCanvasMode(enabled)),
 		setFlowrunnerPaused: (paused: boolean) => dispatch(setFlowrunnerPaused(paused)),
-		setFlowType: (flowType: string) => dispatch(setFlowType(flowType))
+		setFlowType: (flowType: string) => dispatch(setFlowType(flowType)),
+		setEditorMode: (editorMode : string) => dispatch(setEditorMode(editorMode)),
+		storeLayout: (layout : string) => dispatch(storeLayout(layout)),
 	}
 }
 
@@ -131,7 +144,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		this.getFlows();
 	}
 
-	getFlows = (id? : number) => {
+	getFlows = (id? : number | string) => {
 		fetch('/get-flows')
 		.then(res => {
 			if (res.status >= 400) {
@@ -141,7 +154,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		})
 		.then(flows => {
 			if (flows.length > 0) {
-				const flowId = isNaN(id as number) ? flows[0].id : id;
+				const flowId = (id === undefined) ? flows[0].id : id;
 				this.setState({flowFiles : flows, selectedFlow : flowId});
 				this.loadFlow(flowId);
 			}
@@ -185,12 +198,8 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	connectNode = (event) => {
 		event.preventDefault();
-
-		console.log("connectNode connect button oldstate", this.props.canvasMode.isConnectingNodes, this.props.selectedNode);
-
 		if (!this.state.showEditPopup) {
 			this.props.setConnectiongNodeCanvasMode(true);
-			console.log("connectNode connect button newstate", this.props.canvasMode.isConnectingNodes, this.props.selectedNode);
 		}
 		return false;
 	}
@@ -252,7 +261,10 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		//this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
 		fetch('/save-flow?id=' + this.state.selectedFlow, {
 			method: "POST",
-			body: JSON.stringify({flow:this.props.flow}),
+			body: JSON.stringify({
+				flow: this.props.flow,
+				layout: JSON.parse(this.props.layout) 
+			}),
 			headers: {
 				"Content-Type": "application/json"
 			}
@@ -287,7 +299,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		});
 	}
 
-	onCloseNewFlowPopup = (id : number, flowType) => {
+	onCloseNewFlowPopup = (id : number | string, flowType) => {
 		this.props.setFlowType(flowType || "playground");
 		this.props.flowrunnerConnector.setFlowType(flowType);
 		this.setState({
@@ -344,6 +356,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 				this.props.setFlowType(flowPackage.flowType || "playground");
 				this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage.flow);			
 				this.props.storeRawFlow(flowPackage.flow);
+				this.props.storeLayout(JSON.stringify(flowPackage.layout));
 				// TODO ... make this independent of timers
 				//   .. especially the below timer
 				//   .. 
@@ -392,6 +405,24 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		return false;
 	}
 
+	swithToUIViewEditor = (event) => {
+		event.preventDefault();
+		this.props.setEditorMode("uiview-editor");
+		this.props.onEditorMode("uiview-editor");
+		return false;
+	}
+	swithToCanvasEditor = (event) => {
+		event.preventDefault();
+		this.props.setEditorMode("canvas");
+		this.props.onEditorMode("canvas");
+		setTimeout(() => {
+			if (this.props.canvasToolbarsubject) {
+				this.props.canvasToolbarsubject.next("fitStage");
+			}
+		}, 50);
+		return false;
+	}
+
 	render() {
 		const selectedNode = this.props.selectedNode;
 		let shapeType = "";
@@ -402,12 +433,13 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			<div className="bg-dark sticky-top toolbar__root">
 				<div className="toolbar__container">
 					<Navbar bg="dark" expand="lg">
-						<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar">
+						<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar w-100">
 							<Navbar.Toggle aria-controls="basic-navbar-nav" />
 							<Navbar.Collapse id="basic-navbar-nav">
 								<form className="form-inline w-100">
-									{!!!selectedNode.name && <>
+									<>
 										<select className="form-control mr-2" 
+											disabled={!!selectedNode.name || this.props.canvasMode.editorMode !== "canvas"}
 											value={this.state.selectedFlow}
 											onChange={this.setSelectedFlow}>
 											<option value="" disabled>Choose flow</option>
@@ -415,12 +447,14 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 												return <option key={index} value={flow.id}>{flow.name}</option>;
 											})}								
 										</select>
-										<a href="#" onClick={this.addNewFlow} className="mr-4 text-light text-decoration-none" title="Add new flow"><span>New</span></a>
-									</>}
-									{this.props.canvasMode.flowType === "playground" && <img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />}
-									{this.props.canvasMode.flowType === "rustflowrunner" && <img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/rust-brands.svg" />}
-									{!!!selectedNode.name && <TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>}
-									{!!!selectedNode.name && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
+										<a href="#" onClick={this.addNewFlow} 
+											className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.name || this.props.canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
+											title="Add new flow"><span>New</span></a>
+									</>
+									{this.props.canvasMode.flowType === "playground" && this.props.canvasMode.editorMode === "canvas" && <img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />}
+									{this.props.canvasMode.flowType === "rustflowrunner" && this.props.canvasMode.editorMode === "canvas" && <img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />}
+									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && <TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>}
+									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit connection</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
@@ -434,13 +468,24 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>}
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <span className="navbar-text">{selectedNode.name} &nbsp;</span>}
-									{!!!selectedNode.name && <><input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
+									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && <>
+										<input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
 										<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 									</>}
-									{!!this.props.hasRunningFlowRunner && this.props.canvasMode.flowType == "playground" && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
-									<a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
+									{!!this.props.hasRunningFlowRunner && 
+									 this.props.canvasMode.editorMode === "canvas" &&
+									 this.props.canvasMode.flowType == "playground" && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
+									{this.props.canvasMode.editorMode === "canvas" && <a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>}
 									<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
+									<span className="ml-auto"></span>
 									{this.props.canvasMode.flowType == "playground" && <a href={"/ui/" + this.state.selectedFlow} className="ml-2">UI View</a>}
+									{!!!selectedNode.name &&
+									 this.props.canvasMode.flowType == "playground" &&
+									 this.props.canvasMode.editorMode == "canvas" &&
+									<a href="#" onClick={this.swithToUIViewEditor} className="ml-2">Edit UI View</a>}
+									{this.props.canvasMode.flowType == "playground" &&
+									 this.props.canvasMode.editorMode != "canvas" &&
+									<a href="#" onClick={this.swithToCanvasEditor} className="ml-2">Edit Flow</a>}
 								</form>
 							</Navbar.Collapse>
 						</div>

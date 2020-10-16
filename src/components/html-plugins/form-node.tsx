@@ -51,6 +51,7 @@ export interface FormNodeHtmlPluginState {
 	value : string;
 	values : string[];
 	node : any;
+	errors : any;
 }
 
 const mapStateToProps = (state : any) => {
@@ -74,7 +75,8 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 	state = {
 		value : "",
 		values : [],
-		node : {}
+		node : {},
+		errors : {}
 	};
 
 	componentDidMount() {
@@ -112,8 +114,24 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		//      a flow has been pushed (via flowRunnerConnector) ?
 		//	.. NO : simply store the flow again after pushing to flow to the flowrunner
 
-		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
-		this.props.storeRawFlow(this.props.flow);
+		let doSubmit = true;
+		let errors = {};
+		(this.props.taskSettings.metaInfo || []).map((metaInfo) => {
+			if (metaInfo && !!metaInfo.required) {
+				const value = this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName];
+				if (value === "") {
+					doSubmit = false;
+					errors[metaInfo.fieldName] = `${metaInfo.fieldName} is a required field`;					
+				}
+			}
+		});
+		if (doSubmit) {
+			this.setState({errors: []});
+			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
+			this.props.storeRawFlow(this.props.flow);
+		} else {
+			this.setState({errors: errors});
+		}
 		return false;
 	}
 
@@ -121,13 +139,21 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 
 		const value = event.target.value;
 		
-		if (this.props.node && fieldName) {			
+		if (this.props.node && fieldName) {	
+			let errors = {...this.state.errors};
+			if (errors[fieldName]) {
+				delete errors[fieldName];
+			}
+
 			this.setState({values : {
-				...this.state.values, 
-				[fieldName]: value},
-			node : {
-				...this.state.node, 
-				[fieldName]: value}
+					...this.state.values,				
+					[fieldName]: value
+				},
+				errors: errors, 	
+				node : {
+					...this.state.node, 
+					[fieldName]: value
+				}
 			}, () => {
 				
 				this.props.modifyRawFlow(this.state.node, this.props.node.name);
@@ -148,7 +174,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 						{(this.props.taskSettings.metaInfo || []).map((metaInfo, index) => {
 							return <React.Fragment key={"index-f-" + index}>
 									<div className="form-group">						
-										<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong></label>
+										<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>
 										<div className="input-group mb-1">
 											<input
 												onChange={this.onChange.bind(this, metaInfo.fieldName)}
@@ -158,9 +184,10 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 												id={"input-" + this.props.node.name + "-" +metaInfo.fieldName}
 												data-index={index}
 												disabled={!!this.props.canvasMode.isFlowrunnerPaused}													 
-										/>
+											/>			
+										</div>
+										{this.state.errors[metaInfo.fieldName] && <div className="text-danger">{this.state.errors[metaInfo.fieldName]}</div>}
 									</div>
-								</div>
 							</React.Fragment>
 						})}
 						<button className="d-none">OK</button>

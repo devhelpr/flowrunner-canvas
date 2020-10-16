@@ -18,6 +18,7 @@ import { UIControlsBar} from './components/ui-controls-bar';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
+import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
 
 import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
@@ -27,7 +28,7 @@ import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-p
 import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components/html-plugins/grid-edit';
 import { setCustomConfig } from './config';
 import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
-//import Worker from "worker-loader!./flow-worker";
+
 let worker : Worker;
 
 worker = new Worker("/worker.js");
@@ -36,6 +37,9 @@ worker = new Worker("/worker.js");
 // which is used by the online editor to provide external defined tasks
 // solution could be to import flowrunner-canvas and build/package it like that by
 // the webpack-build pipeline from the online editor it self
+//
+// This is basically a trick to have "micro-frontends" in react
+//
 (window as any).react = React;
 
 let pluginRegistry = {};
@@ -206,29 +210,40 @@ if (applicationMode === ApplicationMode.Canvas) {
 		const Canvas = module.Canvas;
 		const App = (props : IAppProps) => {
 			const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
-			
+			const [editorMode, setEditorMode] = useState("canvas");
+
 			const onClose = () => {
 				setLoggedIn(true);
 				return true;
 			}
 
+			const onEditorMode = (editorMode) => {
+				setEditorMode(editorMode);
+			}
 			return <>
 				{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 					<>
-						<Taskbar></Taskbar>
-						{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
+						{editorMode == "canvas" && <Taskbar></Taskbar>}
+						{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
 							flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
-						{!!hasUIControlsBar && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+						{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
 							flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
 						<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
 							hasRunningFlowRunner={!!hasRunningFlowRunner}
-							flowrunnerConnector={flowrunnerConnector}></Toolbar>
+							flowrunnerConnector={flowrunnerConnector}
+							onEditorMode={onEditorMode}
+							></Toolbar>
+						{editorMode == "canvas" &&
 						<Canvas canvasToolbarsubject={canvasToolbarsubject} 
 							renderHtmlNode={renderHtmlNode}
 							flowrunnerConnector={flowrunnerConnector}
 							getNodeInstance={getNodeInstance}
-						></Canvas>
+						></Canvas>}
+						{editorMode == "uiview-editor" && <UserInterfaceViewEditor 
+							renderHtmlNode={renderHtmlNode}
+							flowrunnerConnector={flowrunnerConnector}
+							getNodeInstance={getNodeInstance} />}
 						<FooterToolbar></FooterToolbar>	
 					</>
 				}
@@ -279,62 +294,25 @@ if (applicationMode === ApplicationMode.Canvas) {
 if (applicationMode === ApplicationMode.UI) {
 	import('./components/userinterface-view').then((module) => {
 		const UserInterfaceView = module.UserInterfaceView;
-		const App = (props : IAppProps) => {
-			const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
-			
-			const onClose = () => {
-				setLoggedIn(true);
-				return true;
-			}
-
-			return <>
-				{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
-					<>
-						<UserInterfaceView 						
-							renderHtmlNode={renderHtmlNode}
-							flowrunnerConnector={flowrunnerConnector}
-							getNodeInstance={getNodeInstance}
-						></UserInterfaceView>
-					</>
-				}
-			</>;
-		}
-
+		const App = (props) => {
+			return <UserInterfaceView 						
+				renderHtmlNode={renderHtmlNode}
+				flowrunnerConnector={flowrunnerConnector}
+				getNodeInstance={getNodeInstance}
+			></UserInterfaceView>;
+		};
 
 		startFlow(flowPackage, reducers).then((services : any) => {
 			
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
-			fetch('/api/verify-token', {
-				method: "GET",			
-				headers: {
-				"Content-Type": "application/json"
-				}
-			})
-			.then(res => {
-				if (res.status >= 400) {
-					return {
-						isLoggedIn : false
-					}
-				}
-				return {
-					isLoggedIn : true
-				}
-			})
-			.then(response => {
-				console.log("pluginRegistry", pluginRegistry);
-				(ReactDOM as any).createRoot(
-					root
-				).render(<Provider store={services.getStore()}>
-						<App isLoggedIn={(response as any).isLoggedIn}></App>
-					</Provider>
-				);	
-			})
-			.catch(err => {
-				console.error(err);
-			});
-
-						
+			console.log("pluginRegistry", pluginRegistry);
+			(ReactDOM as any).createRoot(
+				root
+			).render(<Provider store={services.getStore()}>
+					<App></App>
+				</Provider>
+			);							
 				
 		}).catch((err) => {
 			console.log("error during start flowunner (check internal startFlow error)", err);

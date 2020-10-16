@@ -140,6 +140,7 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	render() {
 
 		let visualizer = <></>;
+		let additionalCssClass = "";
 
 		if (this.state.receivedPayload.length == 0) {
 			visualizer = <div style={{		
@@ -168,12 +169,15 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 			visualizer = <Text node={this.props.node} payloads={this.state.receivedPayload}></Text>
 		} else
 		if (this.props.node.visualizer == "color") {
+			additionalCssClass = "html-plugin-node__h-100";
 			visualizer = <Color node={this.props.node} payloads={this.state.receivedPayload}></Color>
 		} else 
 		if (this.props.node.visualizer == "gridcanvas") {
+			additionalCssClass = "html-plugin-node__h-100";
 			visualizer = <GridCanvas node={this.props.node} payloads={this.state.receivedPayload}></GridCanvas>
 		} else
 		if (this.props.node.visualizer == "xycanvas") {
+			additionalCssClass = "html-plugin-node__h-100";
 			visualizer = <XYCanvas flowrunnerConnector={this.props.flowrunnerConnector} selectedNode={this.props.selectedNode} node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
 		} else {
 			const payload = this.state.receivedPayload[this.state.receivedPayload.length-1];
@@ -183,7 +187,7 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 			//console.log("debugtask" , this.props.node, payload, this.state);
 			visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
 		}
-		return <div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer} style={{		
+		return <div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer + " " + additionalCssClass} style={{		
 			backgroundColor: "white"
 		}}>{visualizer}			
 		</div>;

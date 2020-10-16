@@ -26,7 +26,7 @@ export interface ShapeTypeProps {
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, nodes? : any, flow?: any, taskSettings? : any) => any;
-
+  onRef : (nodeName: string, ref : any) => void;
 }
 
 export interface LineTypeProps {

@@ -9,7 +9,7 @@ import { selectNode } from '../../redux/actions/node-actions';
 export interface NewFlowProps {
 	selectedNode : any;
 	onClose : () => void;
-	onSave: (id : number, flowType : string) => void;
+	onSave: (id : number | string, flowType : string) => void;
 	storeFlowNode: (node : any, orgNodeName : string) => void;
 	selectNode: (name: string, node : any) => void;
 }

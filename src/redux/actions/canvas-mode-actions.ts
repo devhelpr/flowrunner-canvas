@@ -6,6 +6,7 @@ export const SET_SHOWDEPENDENCIES = 'SET_SHOWDEPENDENCIES';
 export const SET_ALLOWINPUTTOHTMLNODES = 'SET_ALLOWINPUTTOHTMLNODES';
 export const SET_FLOWRUNNERPAUSED = 'SET_FLOWRUNNERPAUSED';
 export const SET_FLOWTYPE = 'SET_FLOWTYPE';
+export const SET_EDITORMODE = 'SET_EDITORMODE';
 
 export type setConnectiongNodeCanvasModeFunction = (enabled: boolean) => void;
 export type setSelectedTaskFunction = (selectedTask: string) => void;
@@ -13,6 +14,7 @@ export type setShowDependenciesFunction = (showDependencies: boolean) => void;
 export type setAllowInputToHtmlNodesFunction = (allowInputToHtmlNodes: boolean) => void;
 export type setFlowrunnerPausedFunction = (paused: boolean) => void;
 export type setFlowTypeFunction = (flowType: string) => void;
+export type setEditorModeFunction = (editorMode: string) => void;
 
 
 export const setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction = enabled =>
@@ -32,3 +34,6 @@ export const setFlowrunnerPaused: setFlowrunnerPausedFunction = paused =>
 
 export const setFlowType: setFlowTypeFunction = flowType =>
   action(SET_FLOWTYPE, { flowType: flowType });
+
+export const setEditorMode: setEditorModeFunction = editorMode =>
+  action(SET_EDITORMODE, { editorMode: editorMode });

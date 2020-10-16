@@ -122,7 +122,8 @@ const taskTypeConfig: any = {
         "required" : true
       },
       {
-        "fieldName" : "assignToProperty"
+        "fieldName" : "assignToProperty",
+        "required" : true
       }      
     ],
   },

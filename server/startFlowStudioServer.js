@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const fetch = require('cross-fetch');
+const uuid = require('uuid');
+const { flowRight } = require('lodash');
+const uuidV4 = uuid.v4;
 
 function start(flowFileName, taskPlugins, options) {
 
@@ -148,6 +151,7 @@ function start(flowFileName, taskPlugins, options) {
 		app.get('/ui/:flowId', (req, res) => res.render('./pages/index'));
 		app.post('/save-flow', (req, res) => {
 			const bodyAsJsonString = JSON.stringify(req.body.flow);
+			const layoutAsJsonString = JSON.stringify(req.body.layout);
 
 			//const flowFileName = flowFiles[req.query.id].name || flowFiles[0].name;
 			console.log(req.query.id);
@@ -161,8 +165,10 @@ function start(flowFileName, taskPlugins, options) {
 
 			//const flowFileName = flowFiles[req.query.flow].name || flowFiles[0].name;
 			const flowFileName = flowFilesFound[0].fileName;
+			const layoutFileName = path.dirname(flowFileName) + "/layout-" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
 
 			fs.writeFileSync(flowFileName, bodyAsJsonString);
+			fs.writeFileSync(layoutFileName, layoutAsJsonString);
 			console.log("Flow file written to:", flowFileName);
 			res.send(JSON.stringify({ status: true }));
 
@@ -179,7 +185,7 @@ function start(flowFileName, taskPlugins, options) {
 			res.send(flowFiles);
 		});
 
-		app.get('/flow', (req, res) => {
+		const flowRouteHandler = (req, res) => {
 			const flowFilesFound = flowFiles.filter((flowFile) => {
 				return flowFile.id == req.query.flow;
 			});
@@ -189,19 +195,32 @@ function start(flowFileName, taskPlugins, options) {
 			}
 
 			const flowFileName = flowFilesFound[0].fileName;
+			const layoutFileName = path.dirname(flowFileName) + "/layout-" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
 			var flowPackage = {
 				flow: [],
 				flowType : flowFilesFound[0].flowType,
+				layout : {},
 				name: path.basename(flowFileName, path.extname(flowFileName))
 			};
+
 			try {
+				flowPackage.layout = JSON.parse(fs.readFileSync(layoutFileName)) || {};
+			} catch (err) {
+				console.log("error in get-flow api: ", err);
+				flowPackage.layout = {};
+			}
+
+			try {				
 				flowPackage.flow = JSON.parse(fs.readFileSync(flowFileName));
 			} catch (err) {
 				console.log("error in get-flow api: ", err);
+				flowPackage.flow = [];
 			}
 			res.send(JSON.stringify(flowPackage));
-		}
-		);
+		};
+
+		app.get('/flow', flowRouteHandler);
+		app.get('/flowui', flowRouteHandler);
 
 		/*
 		
@@ -292,14 +311,15 @@ function start(flowFileName, taskPlugins, options) {
 			if (flowsFileName == "") {
 				throw new Error("no flows-file specified");
 			}
-			let newId = -1;			
+			/*let newId = -1;			
 			flowFiles.map((flowFile) => {
 				if (flowFile.id > newId) {
 					newId = flowFile.id;
 				}
 			});
 			
-			newId++;
+			newId++;*/
+			const newId = uuidV4();
 			const fileName = "./data/" + req.query.flow + ".json";
 			flowFiles.push({
 				id: newId,
@@ -345,6 +365,10 @@ function start(flowFileName, taskPlugins, options) {
 				"taskname":taskname
 			}));
 		});		
+
+		app.get('/managable-entities', (req, res) => {			
+			res.send(JSON.stringify([]));
+		});
 
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));
 	});

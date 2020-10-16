@@ -1,8 +1,5 @@
 import * as React from 'react';
 import { connect } from "react-redux";
-import { ShapeSettings } from '../../helpers/shape-settings';
-import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { Shapes } from '../canvas/shapes'; 
 import { IFlowrunnerConnector, IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
 import { selectNode , setPayload} from '../../redux/actions/node-actions';
 

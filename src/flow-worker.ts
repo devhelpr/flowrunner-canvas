@@ -12,8 +12,15 @@ import { SliderTask } from './flowrunner-plugins/slider-task';
 import { GridEditTask } from './flowrunner-plugins/grid-edit-task';
 import { RunWasmFlowTask } from './flowrunner-plugins/run-wasm-flow-task';
 import { DataGridTask } from './flowrunner-plugins/data-grid-task';
-import { registerExpressionFunction } from '../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
-import { isRangeValue, getRangeFromValues , getRangeValueParameters } from '../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
+//import { registerExpressionFunction } from '../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
+//import { isRangeValue, getRangeFromValues , getRangeValueParameters } from '../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
+import { 
+  registerExpressionFunction, 
+  isRangeValue, 
+  getRangeFromValues , 
+  getRangeValueParameters 
+} from '@devhelpr/expressionrunner'
+
 import { IServicesInterface } from '@devhelpr/flowrunner/lib/interfaces/ServicesInterface';
 const uuidV4 = uuid.v4;
 

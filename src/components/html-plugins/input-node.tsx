@@ -7,6 +7,14 @@ import { storeFlowNode } from '../../redux/actions/flow-actions';
 import { modifyRawFlow } from '../../redux/actions/raw-flow-actions';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
+/*
+	#TODO
+
+	- delete en add moet bijvoorbeeld de quicksort triggeren
+		.. probleem doet zich ook voor bij typen
+		.. de flow loopt 1 update achter
+
+*/
 export interface InputNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
@@ -71,7 +79,6 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 	
 	onSubmit = (event: any) => {
 		event.preventDefault();
-
 		if (!!this.props.canvasMode.isFlowrunnerPaused) {
 			return;
 		}
@@ -86,8 +93,15 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 		this.props.modifyRawFlow(this.state.node, this.props.node.name);
 		this.props.storeFlowNode(this.state.node, this.props.node.name);
 
-		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
+		/// this.props.flow is hier nog niet up to date
+		//this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
 	}
+
+	componentDidUpdate(prevProps){
+		if(prevProps.flow !== this.props.flow){  
+			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);	
+		}
+	 }
 
 	onChange = (event: any) => {
 		console.log("input", event.target.value, this.props.node);
@@ -164,6 +178,7 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 				let newState : string[] = [...this.state.values];
 				if (index > -1) {
 					newState.splice(index, 1);
+					console.log("newState delete", newState);
 
 					if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
 						this.setState({
@@ -250,7 +265,7 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 										<div className="input-group-append">
 											<a href="#" title="delete item" 
 												onClick={this.deleteListItem.bind(this, index)} 											
-												role="button" className="btn btn-outline-secondary">D</a>
+												role="button" className="btn btn-outline-secondary"><i className="fas fa-trash-alt"></i></a>
 										</div>
 									</div>
 								</React.Fragment>

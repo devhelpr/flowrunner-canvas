@@ -19,8 +19,18 @@ export const Html = (props: ShapeTypeProps) => {
 	let rect : any = undefined;	
 	
 	const setRef = (ref) => {
-		rect = ref;		
+		rect = ref;	
+		if (props.onRef) {
+			props.onRef(props.name, ref);
+		}	
 	}
+
+	/*const setGroupRef = (ref) => {
+		if (props.onRef) {
+			props.onRef(props.name, ref);
+		}	
+	}
+	*/
 
 	useEffect(() => {
 		if (props.getNodeInstance) {

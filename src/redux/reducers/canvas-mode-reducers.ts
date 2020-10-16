@@ -4,7 +4,8 @@ import {
   SET_SHOWDEPENDENCIES,
   SET_ALLOWINPUTTOHTMLNODES,
   SET_FLOWRUNNERPAUSED,
-  SET_FLOWTYPE
+  SET_FLOWTYPE,
+  SET_EDITORMODE
 } from '../actions/canvas-mode-actions';
 
 export interface ICanvasMode {
@@ -14,6 +15,7 @@ export interface ICanvasMode {
   allowInputToHtmlNodes: boolean;
   isFlowrunnerPaused: boolean;
   flowType: string;
+  editorMode : string;
 }
 
 export const canvasModeReducer = (
@@ -23,7 +25,8 @@ export const canvasModeReducer = (
     showDependencies: false,
     allowInputToHtmlNodes: false,
     isFlowrunnerPaused: false,
-    flowType: ''
+    flowType: '',
+    editorMode: 'canvas'
   },
   action: any,
 ) => {
@@ -62,6 +65,12 @@ export const canvasModeReducer = (
       return {
         ...state,
         flowType: action.payload.flowType,
+      };
+    }
+    case SET_EDITORMODE: {
+      return {
+        ...state,
+        editorMode: action.payload.editorMode,
       };
     }
     default:

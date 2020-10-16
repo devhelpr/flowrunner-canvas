@@ -1,23 +1,32 @@
 import * as React from 'react';
 import fetch from 'cross-fetch';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { ShapeSettings } from '../../helpers/shape-settings';
+import { connect } from "react-redux";
+import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 export interface TaskbarProps {
+	canvasMode: ICanvasMode;
 }
 
 export interface TaskbarState {
 	metaDataInfo: any[];
 }
 
+const mapStateToProps = (state: any) => {
+	return {
+		canvasMode: state.canvasMode
+	}
+}
 
-export class Taskbar extends React.Component<TaskbarProps, TaskbarState> {
+
+export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState> {
 
 	state = {
 		metaDataInfo : []
 	}
 
-	componentDidMount() {
+
+	loadTasks = () => {
 		fetch('/tasks')
 		.then(res => {
 			if (res.status >= 400) {
@@ -26,12 +35,27 @@ export class Taskbar extends React.Component<TaskbarProps, TaskbarState> {
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			this.setState({metaDataInfo:metaDataInfo});
+			console.log("metaDataInfo", this.props.canvasMode.flowType, metaDataInfo);
+			this.setState({metaDataInfo:metaDataInfo.filter((task) => { 
+					return task.flowType == this.props.canvasMode.flowType; 
+				})
+			});
 		})
 		.catch(err => {
 			console.error(err);
 		});
 	}
+
+	componentDidMount() {
+		this.loadTasks();
+	}
+
+	componentDidUpdate(prevProps: any) {
+		if (prevProps.canvasMode.flowType != this.props.canvasMode.flowType) {
+			this.loadTasks();
+		}
+	}
+
 
 	onDragStart = (event) => {
 		// event.target.id
@@ -107,3 +131,5 @@ export class Taskbar extends React.Component<TaskbarProps, TaskbarState> {
 		</>;
 	}
 }
+
+export const Taskbar = connect(mapStateToProps)(ContainedTaskbar);

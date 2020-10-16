@@ -66,6 +66,7 @@ canvas,.konvajs-content,
 	transition: opacity .3s ease-in-out;
 	position: relative;
 	z-index: 1;
+	height: calc(100vh - 128px);
 }
 
 .canvas__html-elements {
@@ -126,6 +127,21 @@ canvas,.konvajs-content,
 	margin: 0 auto;
 }
 
+.html-plugin-node__h-100 {
+	display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+    padding: 10px;
+    height: calc(100%);
+    width: 100%;
+    margin: 0 auto;
+    flex: 1 0 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .html-plugin-node__grid-edit {
 	justify-content: flex-start;
 	cursor: default;
@@ -134,6 +150,12 @@ canvas,.konvajs-content,
 .html-plugin-node--wrap {
 	white-space: pre;
 }
+
+.canvas__html-shape {
+	display: flex;
+	flex-direction: column;
+}
+
 .canvas__html-shape-bar {
 	position: relative;
 	pointer-events: none;
@@ -157,6 +179,12 @@ canvas,.konvajs-content,
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
+
+	flex: 1 1 calc(100% - 32px);
+    background: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .mouse--moving .canvas__html-shape-body {
@@ -435,4 +463,132 @@ textarea.form-control {
 	min-width: 300px;
 	max-width: 100%;
 	border-radius: 0;
+}
+
+.layout__droparea {
+	border: 4px dashed #e0e0e0;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+.layout__droparea.hovering {
+	border: 4px dashed black;
+}
+
+.layout__draggable {
+	border: 1px solid black;
+	margin: 2px;
+	padding: 5px;
+	width: 100%;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+
+.layout__draggable .canvas__html-shape {
+	max-width: 100%;
+}
+.draggable-element .canvas__html-shape {
+	max-width: 100%;
+}
+
+.layout-container {
+	margin: 5px;
+	border: #f0f0f0 1px solid;
+	padding: 5px;
+}
+
+.ui-view-layout__container {
+	background: #e2e2e7;
+	padding: 20px;
+}
+
+.ui-view-layout__container-row {
+	display: flex;
+    flex-direction: column;
+    /*justify-content: space-between;*/
+}
+
+.ui-view-layout__container .canvas__html-shape:not([data-node-type="DebugTask"]) {
+	min-height: auto !important;
+	width: 100% !important;
+}
+.ui-view-layout__container .canvas__html-shape[data-node-visualizer="text"],
+.ui-view-layout__container .canvas__html-shape[data-node-visualizer="number"] {
+	min-height: auto !important;
+}
+.ui-view-layout__container .canvas__html-shape {
+	background-color: transparent !important;
+}
+
+.ui-view-layout__container .canvas__html-shape-body {
+	background-color: transparent !important;
+}
+
+.ui-view-layout__container .html-plugin-node {
+	height: auto;
+	padding: 0;
+	background-color: transparent !important;
+	text-align: center;
+}
+
+.ui-view-layout__container .html-plugin-node__h-100 {
+	height: calc(100% - 32px);
+	position: relative;
+}
+
+.ui-view-layout__container .canvas__html-shape[data-node-type="SliderTask"] .html-plugin-node > div {
+	padding: 0 30px;
+}
+
+
+.ui-view-layout__container .canvas__html-shape[data-node-type="InputTask"] .overflow-y-scroll {
+	overflow-y: auto;
+}
+.ui-view-layout__container .canvas__html-shape[data-node-type="InputTask"] .form-group {
+	padding: 2px;
+}
+
+#flowstudio-root {
+	min-height: 100vh;
+	overflow: hidden;
+}
+
+#flowstudio-root .container-fluid {
+	height: calc(100% - 100px);
+    overflow-y: hidden;
+}
+
+
+#flowstudio-root .container-fluid .ui-editor__row {
+	height: calc(100vh - 128px);
+	overflow: hidden;
+}
+
+.layout__dropzone {
+	overflow-y: auto;
+	height: calc(100% - 64px);
+	overflow-x: hidden;
+	scroll-behavior: smooth;
+	overscroll-behavior-y: contain;
+
+}
+
+.layout__draggables {
+	overflow-y: auto;
+	height: calc(100% - 64px);
+	overflow-x: hidden;
+	scroll-behavior: smooth;
+	overscroll-behavior-y: contain;
+}
+
+.layout__draggables:before {
+	content: "";
+	display: block;
+	padding-bottom: 2px;
+}
+
+.draggable-element.hovering {
+	border-top: #000000 dashed 2px;
 }

@@ -105,7 +105,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		this.wheelEvent = this.wheelEvent.bind(this);
 		this.updateDimensions = this.updateDimensions.bind(this);
+
+		this.shapeRefs = [];
 	}
+
 
 	state = {
 		stageWidth : 0,
@@ -113,6 +116,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		canvasOpacity: 0,
 		canvasKey : 1
 	}
+
+	shapeRefs : any[];
 
 	canvasWrapper : any;
 	stage : any;
@@ -162,6 +167,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
+
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 		if (prevProps.nodes != this.props.nodes) {
 			this.props.storeFlow(this.props.nodes);
@@ -171,7 +177,18 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (prevProps.flow != this.props.flow) {
 			if (this.flowIsLoading) {
 				this.flowIsLoading = false;
-				this.fitStage()
+				this.shapeRefs = [];
+				this.fitStage();
+
+				if (this.stage && this.stage.current) {
+					let stageDiv = (this.stage.current as any);
+					if (stageDiv && stageDiv.attrs["container"]) {
+						//console.log("stageDiv", stageDiv.attrs["container"], stageDiv);
+						// trick to allow keyboard events on parent without
+						// needing to click the div first
+						stageDiv.attrs["container"].parentNode.focus();				
+					}
+				}
 			}			
 		}
 
@@ -309,7 +326,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				//console.log("this.mouseStart" , this.mouseStartX, this.mouseStartY);
 			}
 		}
-	}
+	}	
 
 	onMouseStart(node, event) {
 		
@@ -818,13 +835,22 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		});
 	}
 
-	setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any) => {
+	setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {
+		// if repositionSingleNode === true :
+		// canvas__html-shape-" + node.name
 		let nodeElements = document.querySelectorAll(".canvas__html-shape");
-
 		const elements = Array.from(nodeElements);
 		for (var element of elements) {
 			let x = parseFloat(element.getAttribute("data-x") || "");
 			let y = parseFloat(element.getAttribute("data-y") || "");
+			let top = parseFloat(element.getAttribute("data-top") || "");
+			let minHeight = parseFloat(element.getAttribute("data-height") || "");
+
+			const clientElementHeight = element.clientHeight;
+			let diffHeight = clientElementHeight - minHeight;
+			if (diffHeight > 0) {
+				top =(-(clientElementHeight || node.height || 250)/2);
+			}
 
 			if (node && element.getAttribute("data-node") == node.name) {
 				if (newX && !isNaN(newX)) {
@@ -832,11 +858,20 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				}
 				if (newY && !isNaN(newY)) {
 					y = newY;
-				}
+				}				
 			}
+
+			const nodeName = element.getAttribute("data-node") || "";
+				if (this.shapeRefs && nodeName) {
+					//console.log("shapeRef", nodeName, this.shapeRefs[nodeName]);
+					let shape = this.shapeRefs[nodeName];
+					if (shape) {
+						shape.y(top);
+					}
+				}
 			(element as any).style.transform = 						
 				"translate(" + (stageX  + x * stageScale) + "px," + 
-					(stageY + y * stageScale) + "px) "+
+					(stageY + top + y * stageScale) + "px) "+
 				"scale(" + (stageScale) + "," + (stageScale) + ") ";
 		}
 	}
@@ -912,17 +947,23 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
-	fitStage = () => {
+	fitStage = (node? : any) => {
 		let xMin;
 		let yMin;
 		let xMax;
 		let yMax;
+		let containsHtmlShape = false;
 		//let stage = (this.refs.stage as any).getStage();
 		if (this.stage && this.stage.current) {
 			let stage = (this.stage.current as any).getStage();
 			if (stage !== undefined) {
 
 				this.props.nodes.map((shape, index) => {
+					if (node !== undefined) {
+						if (node.id !== shape.id) {
+							return;
+						}
+					}
 					if (shape.shapeType != "Line") {
 
 						const taskSettings = FlowToCanvas.getTaskSettings(shape.taskType);
@@ -939,6 +980,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 						if (shapeType === "Html" && RealShape) {
 							
+							containsHtmlShape = true;
+
 							let width = undefined;
 							let height = undefined;
 
@@ -960,6 +1003,18 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						} else {
 							addWidth = 100;
 							addHeight = 50;
+
+							if (shapeType === 'Circle') {
+								addWidth = ShapeMeasures.circleSize;
+								addHeight = ShapeMeasures.circleSize;
+							} else 
+							if (shapeType === 'Diamond') {
+								addWidth = ShapeMeasures.diamondSize;
+								addHeight = ShapeMeasures.diamondSize;
+							} else {
+								addWidth = ShapeMeasures.rectWidht 
+								addHeight = ShapeMeasures.rectHeight;
+							}
 						}
 
 						if (xMin === undefined) {
@@ -1006,20 +1061,28 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						let realStageWidth = stageContainerElement.clientWidth;
 						let realStageHeight = stageContainerElement.clientHeight;
 
-						if (this.props.nodes.length == 1) { 
+						if (this.props.nodes.length === 1) { 
 							scale = 1;
 						} else {
 							if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
 								scale = realStageWidth / flowWidth;
-							}
-
-							scale = scale * 0.65;						
+							}											
 
 							if (flowHeight * scale > realStageHeight) {							
-								scale = realStageHeight / flowHeight;
-								scale = scale * 0.85;
-							} 
+								scale = realStageHeight / flowHeight;								
+							} 	
+
+							scale = scale * 0.85;						
 						}
+
+						if (node !== undefined) {
+							if (containsHtmlShape) {
+								scale = scale * 0.5;
+							} else {
+								scale = scale * 0.15;
+							}
+						} 
+
 						stage.scale({ x: scale, y: scale });
 
 						const newPos = {
@@ -1546,11 +1609,23 @@ console.log("taskClassName", event.target, taskClassName);
 	cmdKey = 91;
 	pasteKey = 86;
 	backspaceKey = 8;
+	fKeyCapt = 70;
+	fKey = 102;
 
 	onInput = (event) => {
 		// prevent editing of div because of contentEditable which is needed for pasting data from excel
 		if (event.target && (event.target.tagName || "").toLowerCase() == "input") {
 			return;
+		}
+
+		console.log("onInput" , event);
+		if (event.keyCode == this.fKey || event.keyCode == this.fKeyCapt) {
+			if (this.props.selectedNode && this.props.selectedNode.node) {
+				event.preventDefault();
+				this.fitStage(this.props.selectedNode.node);
+				return false;
+			}
+			return true;
 		}
 
 		//console.log( event.target.tagName, event);
@@ -1580,13 +1655,15 @@ console.log("taskClassName", event.target, taskClassName);
 			return true;			
 		}
 
-		event.preventDefault();
-		return false;
+		
+		//event.preventDefault();
+		//return false;
 	}
 
 	onKeyUp = (event) => {
 		this.ctrlDown = false;
 		this.shiftDown = false;
+
 	}
 
 	render() {
@@ -1599,19 +1676,19 @@ console.log("taskClassName", event.target, taskClassName);
 				contentEditable={false}	
 				*/
 		return <>
-			<div key={"stage-layer-" + this.state.canvasKey} ref={this.canvasWrapper} 
+			<div 
+				key={"stage-layer-" + this.state.canvasKey} ref={this.canvasWrapper} 
 				style={{opacity: this.state.canvasOpacity}} 
 				className="canvas-controller__scroll-container"
 				onDragOver={this.onAllowDrop}
 				onDrop={this.onDropTask}
-						
-				
+				tabIndex={0} 
 				onInput={this.onInput}
 				onKeyDown={this.onInput}
-				onKeyUp={this.onKeyUp}				
+				onKeyUp={this.onKeyUp}																	
 				>
 				<Stage					
-					onClick={this.clickStage}
+					onClick={this.clickStage}					
 					draggable={true}
 					pixelRatio={1} 
 					width={this.state.stageWidth}
@@ -1715,6 +1792,11 @@ console.log("taskClassName", event.target, taskClassName);
 									name={node.name}
 									taskType={node.taskType}
 									node={node}
+									
+									onRef={(nodeName , ref) => {
+										this.shapeRefs[nodeName] = ref;
+										return true; 
+									}}
 									canvasHasSelectedNode={canvasHasSelectedNode}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
@@ -1733,7 +1815,7 @@ console.log("taskClassName", event.target, taskClassName);
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
 
 									getNodeInstance={this.props.getNodeInstance}
-									></Shape>;
+								></Shape>;
 							}
 							return null;
 						})}
@@ -1765,22 +1847,25 @@ console.log("taskClassName", event.target, taskClassName);
 										}
 									}
 								}
-
+								let top = (-(height || node.height || 250)/2);
 								return <div key={"html" + index}
 									style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
-											(this.stageY + node.y * this.stageScale) + "px) " +
+											(this.stageY + top +  (node.y) * this.stageScale) + "px) " +
 											"scale(" + (this.stageScale) + "," + (this.stageScale) + ") ",
 											width: (width || node.width || 250)+"px",
-											height: (height || node.height || 250)+"px",
+											minHeight: (height || node.height || 250)+"px",
+											height:"auto",
 											left: (-(width || node.width || 250)/2)+"px",
-											top: (-(height || node.height || 250)/2)+"px",
+											top: (0)+"px",
 											opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
 										}}
 									data-node={node.name}	 
 									data-x={node.x} 
-									data-y={node.y} 
+									data-y={node.y}
+									data-top={top}
+									data-height={(height || node.height || 250)}
 									ref={this.htmlElement} 
-									className="canvas__html-shape">
+									className={"canvas__html-shape canvas__html-shape-" + node.name}>
 										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>{node.label ? node.label : node.name}</div>
 										<div className="canvas__html-shape-body">
 										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings)}</div>

@@ -1,9 +1,15 @@
 import { FlowTask } from '@devhelpr/flowrunner';
-import { ExpressionParser } from '../../../../../expression/react-prototype/react-prototype1/src/components/ExpressionParser';
-import { ExpressionTreeExecute, executeExpressionTree, extractValueParametersFromExpressionTree } from '../../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
-import { isRangeValue, getRangeFromValues, getRangeValueParameters } from '../../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
+//import { ExpressionParser } from '../../../../../expression/react-prototype/react-prototype1/src/components/ExpressionParser';
+//import { ExpressionTreeExecute, executeExpressionTree, extractValueParametersFromExpressionTree } from '../../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
+//import { isRangeValue, getRangeFromValues, getRangeValueParameters } from '../../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
+import { 
+	createExpressionTree, 
+	executeExpressionTree,
+	extractValueParametersFromExpressionTree, 
+	getRangeValueParameters, 
+	isRangeValue, 
+} from '@devhelpr/expressionrunner';
 
-//import * as jexl from 'jexl';
 
 /*
 	TODO
@@ -93,7 +99,7 @@ export class DataGridTask extends FlowTask {
 		- for each execution, update the value parameters
 
 */									
-									let tree = ExpressionParser(cellValue.substring(1));
+									let tree = createExpressionTree(cellValue.substring(1));
 
 									let letter = String.fromCharCode((columnIndex % 26) + 65);
 									infoCells.push({
@@ -139,45 +145,46 @@ export class DataGridTask extends FlowTask {
 					return 0;
 				});
 
-				console.log("infoCells", infoCells, values);
-
 				const promise = new Promise((resolve, reject) => {
+					try {
+						infoCells.map((infoCell) => {
+							const value = executeExpressionTree(infoCell.expressionTree , variables || {});
+							variables[infoCell.name] = value;
+							return true;
+						});					
 
-					infoCells.map((infoCell) => {
-						const value = executeExpressionTree(infoCell.expressionTree , variables);
-						variables[infoCell.name] = value;
-						return true;
-					});
-
-					infoCells.map((infoCell) => {
-						let row = [...values[infoCell.row]];
-						row[infoCell.column] = variables[infoCell.name];
-						values[infoCell.row] = row;
-						return true;
-					});
-
-					if (node.nameSpace) {
-						payload[node.nameSpace] = values;
-					} else {
-						payload.values = values;
-					}
-					resolve(payload);
-
-					/*Promise.all(promises).then((data) => {
-						//console.log("DataGridTask results", data);
-						data.map((value , index) => {
-							//payload[infoCells[index].name] = value;
-							const infoCell = infoCells[index];
+						infoCells.map((infoCell) => {
 							let row = [...values[infoCell.row]];
-							row[infoCell.column] = value;
+							row[infoCell.column] = variables[infoCell.name];
 							values[infoCell.row] = row;
+							return true;
 						});
-						payload.values = values;
+
+						if (node.nameSpace) {
+							payload[node.nameSpace] = values;
+						} else {
+							payload.values = values;
+						}
 						resolve(payload);
-					}).catch(() => {
-						reject();
-					});
-					*/
+
+						/*Promise.all(promises).then((data) => {
+							//console.log("DataGridTask results", data);
+							data.map((value , index) => {
+								//payload[infoCells[index].name] = value;
+								const infoCell = infoCells[index];
+								let row = [...values[infoCell.row]];
+								row[infoCell.column] = value;
+								values[infoCell.row] = row;
+							});
+							payload.values = values;
+							resolve(payload);
+						}).catch(() => {
+							reject();
+						});
+						*/
+					} catch (err) {
+						console.log("DataGridTask exception when executing expressions", err);
+					}
 				});
 
 				return promise;
