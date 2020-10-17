@@ -229,7 +229,6 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 	saveFlow = (event) => {
 		event.preventDefault();
-		//this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
 		fetch('/save-flow?id=' + this.state.selectedFlow, {
 			method: "POST",
 			body: JSON.stringify({
@@ -321,24 +320,13 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		.then(flowPackage => {
 
 			console.log("flowpackage", flowPackage);
-			setTimeout(() => {
+			//setTimeout(() => {
 				this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 				this.props.setFlowrunnerPaused(false);
 				this.props.setFlowType(flowPackage.flowType || "playground");
-				this.props.flowrunnerConnector.pushFlowToFlowrunner(flowPackage.flow);			
 				this.props.storeFlow(flowPackage.flow);
 				this.props.storeLayout(JSON.stringify(flowPackage.layout));
-				// TODO ... make this independent of timers
-				//   .. especially the below timer
-				//   .. 
-				setTimeout(() => {
-					if (this.props.canvasToolbarsubject) {
-						//this.props.canvasToolbarsubject.next("fitStage");
-						//this.props.canvasToolbarsubject.next("reload");
-					}
-				}, 50);
-
-			} , 500);
+			//} , 500);
 			
 		})
 		.catch(err => {

@@ -89,13 +89,7 @@ class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginPr
 	storeNode = () => {
 		this.props.storeFlowNode(this.state.node, this.props.node.name);
 	}
-
-	componentDidUpdate(prevProps){
-		if(prevProps.flow !== this.props.flow) {
-			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);	
-		}
-	 }
-
+	
 	onChange = (event: any) => {
 		console.log("input", event.target.value, this.props.node);
 		if (this.props.node) {

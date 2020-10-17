@@ -121,8 +121,6 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		});
 		if (doSubmit) {
 			this.setState({errors: []});
-			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
-			//this.props.storeRawFlow(this.props.flow);
 		} else {
 			this.setState({errors: errors});
 		}
@@ -154,12 +152,6 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			});
 		}
 	}
-
-	componentDidUpdate(prevProps){
-		if(prevProps.flow !== this.props.flow){  
-			//this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);	
-		}
-	 }
 
 	render() {
 		return <div className="html-plugin-node" style={{			

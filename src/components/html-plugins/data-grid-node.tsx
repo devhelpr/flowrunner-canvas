@@ -68,8 +68,6 @@ class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPl
 	
 	onSubmit = (event: any) => {
 		event.preventDefault();
-		this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
-		//this.props.storeRawFlow(this.props.flow);
 		return false;
 	}
 

@@ -10,6 +10,7 @@ import { storeLayout } from '../../redux/actions/layout-actions';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import produce from 'immer';
 import { renderFlowNode } from '../userinterface-view/components/layout-renderer';
+import { Flow } from '../flow';
 
 export interface UserInterfaceViewEditorProps {
 	flow: any[];
@@ -213,6 +214,7 @@ export class ContainedUserInterfaceViewEditor extends React.Component<UserInterf
 					</div>
 				</div>
 			</div>
+			<Flow flow={this.props.flow} flowrunnerConnector={this.props.flowrunnerConnector}></Flow>
 		</>;
 	}
 }

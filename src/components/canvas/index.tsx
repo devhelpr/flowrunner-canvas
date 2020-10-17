@@ -13,6 +13,7 @@ import { ShapeSettings } from '../../helpers/shape-settings';
 import { Observable, Subject } from '@reactivex/rxjs';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { ShapeMeasures } from '../../helpers/shape-measures';
+import { Flow } from '../flow';
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
@@ -1846,6 +1847,9 @@ console.log("taskClassName", event.target, taskClassName);
 					}
 				</div>
 			</div>
+			<Flow flow={this.props.flow} 
+				flowrunnerConnector={this.props.flowrunnerConnector}>				
+			</Flow>
 		</>;
 	}
 } 

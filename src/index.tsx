@@ -29,6 +29,8 @@ import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components
 import { setCustomConfig } from './config';
 import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
 
+import { Flow } from './components/flow';
+
 let worker : Worker;
 
 worker = new Worker("/worker.js");

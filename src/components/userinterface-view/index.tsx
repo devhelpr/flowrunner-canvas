@@ -8,6 +8,7 @@ import { storeFlow } from '../../redux/actions/flow-actions';
 import { storeLayout } from '../../redux/actions/layout-actions';
 import { Layout } from '@devhelpr/layoutrunner';
 import { renderLayoutType } from './components/layout-renderer';
+import { Flow } from '../flow';
 
 import {
 	setFlowrunnerPaused,
@@ -176,10 +177,6 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 
 	componentDidUpdate(prevProps : UserInterfaceViewProps) {
 		
-		if (prevProps.flow != this.props.flow) {
-			this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);			
-		}
-
 		if (prevProps.layout != this.props.layout) {
 			this.layoutTree = JSON.parse(this.props.layout) || {};
 			const layout = this.getLayoutNodeFromTree(1,0,0);
@@ -214,7 +211,7 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 							}
 						}} />
 			</div>
-			
+			<Flow flow={this.props.flow} flowrunnerConnector={this.props.flowrunnerConnector}></Flow>
 		</div>
 	}
 }
