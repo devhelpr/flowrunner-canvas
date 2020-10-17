@@ -211,10 +211,10 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 
 				if (layout.title == "layout2columns") {
 					return <React.Fragment key={index}>
-						<div className="layout-container">
+						<div className="layout-container layout-container__layout2columns">
 							<div className="font-weight-bold">{layout.title}</div>
 							<div className="row">
-								<div className="col-6">								
+								<div className="col-6 layout-container__layout2columns-col-1">								
 									<LayoutWithDropArea 
 										onGetLayout={this.props.onGetLayout}
 										onStoreLayout={this.props.onStoreLayout} 
@@ -228,7 +228,7 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 										flowHash={this.props.flowHash}									
 										></LayoutWithDropArea>
 								</div>
-								<div className="col-6">
+								<div className="col-6 layout-container__layout2columns-col-2">
 									<LayoutWithDropArea
 										onGetLayout={this.props.onGetLayout}
 										onStoreLayout={this.props.onStoreLayout} 

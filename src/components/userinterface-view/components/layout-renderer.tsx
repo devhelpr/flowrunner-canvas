@@ -69,34 +69,36 @@ export const renderLayoutType = (layoutBlock : any,
 		if (!layoutBlock.layout && layoutBlock.layout.length !== 2) {
 			return <></>;
 		}
-		return <div className="row">
-			<div className="col-12 col-md-6 ui-view-layout__container-row">
-			{layoutBlock.layout[0].map((layout, index) => {
-				return <React.Fragment key={"layout-" + index}>
-					<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
-						layout,
-						isInForm,
-						form, 
-						setLayoutVisibleState,
-						rootLayout
-					)}
+		return <div className="layout-container__layout2columns">
+				<div className="row">
+					<div className="col-12 col-md-6 ui-view-layout__container-row layout-container__layout2columns-col-1">
+					{layoutBlock.layout[0].map((layout, index) => {
+						return <React.Fragment key={"layout-" + index}>
+							<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
+								layout,
+								isInForm,
+								form, 
+								setLayoutVisibleState,
+								rootLayout
+							)}
+							</div>
+						</React.Fragment>})}
 					</div>
-				</React.Fragment>})}
-			</div>
-			<div className="col-12 col-md-6 ui-view-layout__container-row">
-			{layoutBlock.layout[1].map((layout, index) => {
-				return <React.Fragment key={"layout-" + index}>
-					<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
-						layout,
-						isInForm,
-						form, 
-						setLayoutVisibleState,
-						rootLayout
-					)}
+					<div className="col-12 col-md-6 ui-view-layout__container-row layout-container__layout2columns-col-2">
+					{layoutBlock.layout[1].map((layout, index) => {
+						return <React.Fragment key={"layout-" + index}>
+							<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
+								layout,
+								isInForm,
+								form, 
+								setLayoutVisibleState,
+								rootLayout
+							)}
+							</div>
+						</React.Fragment>})}
 					</div>
-				</React.Fragment>})}
-			</div>
-		</div>;
+				</div>
+			</div>;
 	} else
     if (layoutBlock.type === "layout") {
 		if (!layoutBlock.layout) {

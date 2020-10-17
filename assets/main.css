@@ -592,3 +592,9 @@ textarea.form-control {
 .draggable-element.hovering {
 	border-top: #000000 dashed 2px;
 }
+
+@media (max-width: 767.98px) {
+	.layout-container__layout2columns-col-2 {
+		margin-top: 40px;
+	}
+}
