@@ -20,16 +20,8 @@ import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
 import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
 
-import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
-import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
-import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
-import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
-import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-plugins/form-node';
-import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components/html-plugins/grid-edit';
 import { setCustomConfig } from './config';
-import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
-
-import { Flow } from './components/flow';
+import { setPluginRegistry , renderHtmlNode , getNodeInstance } from './render-html-node';
 
 let worker : Worker;
 
@@ -45,6 +37,7 @@ worker = new Worker("/worker.js");
 (window as any).react = React;
 
 let pluginRegistry = {};
+setPluginRegistry(pluginRegistry);
 
 const root = document.getElementById('flowstudio-root');
 
@@ -55,13 +48,10 @@ let flowrunnerConnector : any = undefined;
 
 if (!!hasRunningFlowRunner) {
 	flowrunnerConnector = new FlowConnector();
-	//worker = new Worker();
  	flowrunnerConnector.registerWorker(worker);
 } else {
 	flowrunnerConnector = new EmptyFlowConnector();
 }
-
-
 
 let applicationMode = ApplicationMode.Canvas;
  
@@ -82,125 +72,13 @@ let flowPackage = HumanFlowToMachineFlow.convert({flow: [
 	}
 ]});
 
-const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => {
-	
-	let htmlPlugin = node.htmlPlugin;
-	if (!htmlPlugin || htmlPlugin == "") {
-		if (taskSettings) {
-			htmlPlugin = taskSettings.htmlPlugin;
-		}
-	}
-
-	if (htmlPlugin == "executeNode") {
-		return new ExecuteNodeHtmlPluginInfo();
-	} else
-	if (htmlPlugin == "sliderNode") {
-		return new SliderNodeHtmlPluginInfo();
-	} else
-	if (htmlPlugin == "gridEditNode") {
-		return new GridEditNodeHtmlPluginInfo();
-	} else
-	if (htmlPlugin == "inputNode") {
-		return;	
-	} else	
-	if (htmlPlugin == "formNode") {
-		
-		// TODO : add config as parameter to getNodeInstance and pass to constructor
-
-		return new FormNodeHtmlPluginInfo(taskSettings);
-	} else	
-	if (htmlPlugin == "debugNode") {
-		return new DebugNodeHtmlPluginInfo();
-	} else
-	if (htmlPlugin == "dataGridNode") {
-		return new DataGridNodeHtmlPluginInfo();
-	}
-
-	return;
-}
-
-const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any) => {
-
-	let htmlPlugin = node.htmlPlugin;
-	if (!htmlPlugin || htmlPlugin == "") {
-		htmlPlugin = taskSettings.htmlPlugin;
-	}
-
-	if (htmlPlugin == "iframe") {
-		return <iframe width={node.width || 250}
-			height={node.height || 250}
-		src={node.url}></iframe>;
-	} else
-	if (htmlPlugin == "executeNode") {
-		return <ExecuteNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-		></ExecuteNodeHtmlPlugin>;
-	} else
-	if (htmlPlugin == "sliderNode") {
-		return <SliderNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		></SliderNodeHtmlPlugin>;
-	} else
-	if (htmlPlugin == "gridEditNode") {
-		return <GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		></GridEditNodeHtmlPlugin>;
-	} else
-	if (htmlPlugin == "inputNode") {
-		return <InputNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-		></InputNodeHtmlPlugin>;
-	} else	
-	if (htmlPlugin == "formNode") {
-		return <FormNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			taskSettings={taskSettings}
-		></FormNodeHtmlPlugin>;
-	} else	
-	if (htmlPlugin == "dataGridNode") {
-		return <DataGridNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-		></DataGridNodeHtmlPlugin>;
-	} else	
-	if (htmlPlugin == "debugNode") {
-		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		></DebugNodeHtmlPlugin>;
-	} else
-	if (pluginRegistry[htmlPlugin]) {
-		const Plugin = pluginRegistry[node.htmlPlugin].VisualizationComponent;
-		
-		node.visualizer = "children";
-		
-		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		><Plugin></Plugin></DebugNodeHtmlPlugin>;
-	}
-
-	return <div style={{
-			width:node.width || 250,
-			height:node.height || 250,
-			backgroundColor: "white"
-		}}></div>;
-}
-
 const hasLogin = root && root.getAttribute("data-has-login") === "true";
 const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
 let canvasToolbarsubject = new Subject<string>();
 
-
-
 interface IAppProps {
 	isLoggedIn : boolean;
-}
-
-interface DefaultProps {
-
 }
 
 if (applicationMode === ApplicationMode.Canvas) {
@@ -247,7 +125,6 @@ if (applicationMode === ApplicationMode.Canvas) {
 				}
 			</>;
 		}
-
 
 		startFlow(flowPackage, reducers).then((services : any) => {
 			

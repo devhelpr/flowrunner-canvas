@@ -203,7 +203,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
 		let newPosition = position || {x:x, y:y};
-		
+
 		if (newPosition) {
 			if (this.stage && this.stage.current) {
 				let stage = (this.stage.current as any).getStage();
@@ -228,6 +228,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 
 		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
+
 		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, newPosition.x, newPosition.y, node);						
 
 		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
@@ -236,6 +237,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (startLines) {			
 			startLines.map((lineNode) => {				
 				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
+				const lineRef = this.shapeRefs[lineNode.name];
+				if (lineRef) {
+					//console.log("lineRef", lineRef);
+				}
 				this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
 				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
 			})
@@ -341,6 +346,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (this.touching) {
 			//console.log("onMouseMove", node, event);
 			if (event.currentTarget) {
+				// this.shapeRefs[nodeName]
 				(this.canvasWrapper.current).classList.add("mouse--moving");
 				this.setNewPositionForNode(node, event.currentTarget, event.evt.screenX ? {
 					x: event.evt.screenX,
@@ -835,13 +841,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			}
 
 			const nodeName = element.getAttribute("data-node") || "";
-				if (this.shapeRefs && nodeName) {
-					//console.log("shapeRef", nodeName, this.shapeRefs[nodeName]);
-					let shape = this.shapeRefs[nodeName];
-					if (shape) {
-						shape.y(top);
-					}
+			if (this.shapeRefs && nodeName) {
+				//console.log("shapeRef", nodeName, this.shapeRefs[nodeName]);
+				let shape = this.shapeRefs[nodeName];
+				if (shape) {
+					shape.y(top);
 				}
+			}
 			(element as any).style.transform = 						
 				"translate(" + (stageX  + x * stageScale) + "px," + 
 					(stageY + top + y * stageScale) + "px) "+
@@ -1689,7 +1695,7 @@ console.log("taskClassName", event.target, taskClassName);
 									onMouseOut={this.onMouseOut.bind(this)}
 									onClickLine={this.onClickLine.bind(this, node)}
 									isSelected={false}
-									isAltColor={true}
+									isAltColor={true}									
 									canvasHasSelectedNode={canvasHasSelectedNode}
 									isConnectionWithVariable={node.isConnectionWithVariable}
 									xstart={node.xstart} 
@@ -1717,6 +1723,10 @@ console.log("taskClassName", event.target, taskClassName);
 								}
 
 								return <Shape key={"node-"+index}
+									onRef={(nodeName , ref) => {
+										this.shapeRefs[nodeName] = ref;
+										return true; 
+									}}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onClickLine={this.onClickLine.bind(this, node)}
@@ -1848,8 +1858,7 @@ console.log("taskClassName", event.target, taskClassName);
 				</div>
 			</div>
 			<Flow flow={this.props.flow} 
-				flowrunnerConnector={this.props.flowrunnerConnector}>				
-			</Flow>
+				flowrunnerConnector={this.props.flowrunnerConnector} />							
 		</>;
 	}
 } 

@@ -50,6 +50,8 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   getAppMode = () => {
     return ApplicationMode.Canvas;
   }
+
+  registerScreenUICallback = (callback : (action : any) => void) => {}
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -64,6 +66,10 @@ export class FlowConnector implements IFlowrunnerConnector {
   flowType : string = "playground";
 
   applicationMode : ApplicationMode = ApplicationMode.Canvas;
+
+  screenUICallback : (action : any) => void = (action) => {
+    return;
+  };
 
   getNodeExecutions() {
     return this.nodeExecutions;
@@ -162,6 +168,14 @@ export class FlowConnector implements IFlowrunnerConnector {
             });
           }
         }
+      } else if (event.data.command == "SendScreen") {
+        if (this.screenUICallback) {
+          this.screenUICallback({
+            action: "SendScreen",
+            payload: event.data.payload
+          });
+        }
+        //
       } else if (event.data.command == "RegisterFlowNodeObservers") {
         console.log("RegisterFlowNodeObservers" , this.observables);
         this.observables.map((observable) => {
@@ -185,7 +199,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       id: observableId,
     });
 
-    console.log("registerFlowNodeObserver pre", nodeName, [...this.observables]);
+    //console.log("registerFlowNodeObserver pre", nodeName, [...this.observables]);
 
     if (this.worker) {
       this.worker.postMessage({
@@ -208,7 +222,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         }
       });
 
-    console.log("unregisterFlowNodeObserver pre", [...this.observables]);
+    //console.log("unregisterFlowNodeObserver pre", [...this.observables]);
     indexes.map((indexInObservables: number) => {
     
       this.observables[indexInObservables] = undefined;
@@ -342,5 +356,9 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   getAppMode = () => {
     return this.applicationMode;
+  }
+
+  registerScreenUICallback = (callback : (action : any) => void) => {
+    this.screenUICallback = callback;
   }
 }

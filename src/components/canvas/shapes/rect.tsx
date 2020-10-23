@@ -2,12 +2,10 @@ import * as React from 'react';
 import { useState, useEffect, RefObject } from 'react';
 
 import * as Konva from 'react-konva';
-import {KonvaNodeComponent} from 'react-konva';
 const KonvaRect = Konva.Rect;
 const KonvaImage = Konva.Image;
 const KonvaLine = Konva.Line;
 
-import * as KonvaDirect from 'konva';
 import useImage from 'use-image';
 import { Group, Text } from 'react-konva';
 import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
@@ -70,8 +68,7 @@ export const Rect = (props: ShapeTypeProps) => {
 		onMouseDown={props.onMouseStart}
 		onMouseMove={props.onMouseMove}
 		onMouseUp={props.onMouseEnd}
-		onMouseLeave={props.onMouseLeave}
-		
+		onMouseLeave={props.onMouseLeave}		
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>
 		<KonvaRect
@@ -143,21 +140,3 @@ export const Rect = (props: ShapeTypeProps) => {
 		})}		
 	</Group>
 }
-
-/*
-
-<Text x={ShapeMeasures.rectWidht + 10 + 12}
-					y={(index * 10) - 4}
-					text={event.eventName}
-					align='left'
-					fontSize={12}
-					lineHeight={20}
-					height={20}
-					verticalAlign="middle"
-					listening={false}
-					wrap="none"
-					ellipsis={true}
-					fill="#000000"
-					perfectDrawEnabled={true}></Text>
-
-					*/

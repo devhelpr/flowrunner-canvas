@@ -248,6 +248,17 @@ const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'inputNode',
   },
+  ScreenTask : {
+    hasUI: false,  
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo : [
+      {
+        "fieldName" : "action",
+        "required" : true
+      }
+    ],
+  },
   DebugTask: {
     shapeType: 'Html',
     hasUI: true,

@@ -12,8 +12,9 @@ import { SliderTask } from './flowrunner-plugins/slider-task';
 import { GridEditTask } from './flowrunner-plugins/grid-edit-task';
 import { RunWasmFlowTask } from './flowrunner-plugins/run-wasm-flow-task';
 import { DataGridTask } from './flowrunner-plugins/data-grid-task';
-//import { registerExpressionFunction } from '../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
-//import { isRangeValue, getRangeFromValues , getRangeValueParameters } from '../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
+
+import { ScreenTask } from './flowrunner-plugins/screen-task';
+
 import { 
   registerExpressionFunction, 
   isRangeValue, 
@@ -697,6 +698,7 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
   flow.registerTask('GridEditTask', GridEditTask);
   flow.registerTask('DataGridTask', DataGridTask);
   flow.registerTask('RunWasmFlowTask', RunWasmFlowTask);
+  flow.registerTask('ScreenTask', ScreenTask);
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
@@ -736,7 +738,8 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
     registerModel: (modelName: string, definition: any) => {},
     getWebAssembly : () => {
       return webAssembly;
-    }
+    },
+    workerContext: ctx
   }
   let value: boolean = false;
   flow

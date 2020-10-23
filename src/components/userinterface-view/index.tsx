@@ -43,6 +43,16 @@ export interface UserInterfaceViewState {
 	flowName : string;
 	layout : any;
 	flowHash : any;
+
+	titleBarBackgroundcolor : string;
+	titleBarTitle : string;
+	titleBarColor : string;
+	titleBarFont : string;
+	titleBarFontSize : string;
+	titleBarFontWeight : string;
+
+	isFlowLoaded : boolean;
+
 }
 
 const mapStateToProps = (state : any) => {
@@ -72,7 +82,14 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 		this.state = {
 			flowName : "",
 			flowHash : {},
-			layout : this.getLayoutNodeFromTree(1,0,0)
+			layout : this.getLayoutNodeFromTree(1, 0, 0),
+			titleBarBackgroundcolor : "",
+			titleBarTitle : "",
+			titleBarColor : "",
+			titleBarFont : "",
+			titleBarFontSize : "",
+			titleBarFontWeight : "",
+			isFlowLoaded : false
 		}
 	}
 
@@ -119,7 +136,44 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 		return [];
 	}
 	
+	screenUICallback = (command : any) => {
+		console.log("screenUICallback", command);
+		if (command && command.action == "SendScreen" && command.payload) {
+			const payload = command.payload;
+			this.setState((state) => {
+				let settings : any = {};
+				if (payload.titleBarBackgroundcolor) {
+					settings.titleBarBackgroundcolor = payload.titleBarBackgroundcolor;
+				}
+				if (payload.titleBarColor) {
+					settings.titleBarColor = payload.titleBarColor;
+				}
+				if (payload.titleBarFont) {
+					settings.titleBarFont = payload.titleBarFont;
+				}
+				if (payload.titleBarFontSize) {
+					settings.titleBarFontSize = payload.titleBarFontSize;
+				}
+				if (payload.titleBarFontWeight) {
+					settings.titleBarFontWeight = payload.titleBarFontWeight;
+				}
+				if (payload.titleBarFontWeight) {
+					settings.titleBarFontWeight = payload.titleBarFontWeight;
+				}
+				if (payload.titleBarTitle) {
+					settings.titleBarTitle = payload.titleBarTitle
+				}
+				return {
+					...state,
+					...settings
+				}
+			})
+		}
+	}
+
 	componentDidMount() {
+
+		this.props.flowrunnerConnector.registerScreenUICallback(this.screenUICallback);
 		const paths = location.pathname.split("/");
 		if (paths.length > 2) {
 			if (paths[1] == "ui") {
@@ -163,7 +217,8 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 
 					this.setState({
 						flowName : flowPackage.name,
-						flowHash: flowHash
+						flowHash: flowHash,
+						isFlowLoaded : true
 					});
 				}
 
@@ -191,10 +246,44 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 	// todo : create layout for Layout via tree..
 
 	render() {
+		if (!this.state.isFlowLoaded) {
+			return <></>;
+		}
+
+		let title = this.state.flowName || "UserInterface View";
+		if (this.state.titleBarTitle !== "") {
+			title = this.state.titleBarTitle;
+		}
+
+		let style : any = {};
+		let navContainerClassName = "bg-dark mb-4";
+		let navbarClassName = "navbar navbar-expand-lg navbar-light bg-dark";
+		let h1ClassName = "text-white";
+
+		if (this.state.titleBarBackgroundcolor) {
+			style.backgroundColor = this.state.titleBarBackgroundcolor;
+			navContainerClassName = "mb-4";
+			navbarClassName = "navbar navbar-expand-lg navbar-light";
+		}
+		if (this.state.titleBarColor) {
+			style.color = this.state.titleBarColor;
+			h1ClassName = "";
+		}
+		if (this.state.titleBarFont) {
+			style.fontFamily = this.state.titleBarFont;
+		}
+		if (this.state.titleBarFontSize) {
+			style.fontSize = this.state.titleBarFontSize;
+		}
+		if (this.state.titleBarFontWeight) {
+			style.fontWeight = this.state.titleBarFontWeight;
+		}
+		console.log("state", this.state,style);
+
 		return <div className="pb-4">
-			<div className="bg-dark mb-4">
-				<nav className="navbar navbar-expand-lg navbar-light bg-dark">
-					<h1 className="text-white">{this.state.flowName || "UserInterface View"}</h1>
+			<div style={style} className={navContainerClassName}>
+				<nav style={style} className={navbarClassName}>
+					<h1 className={h1ClassName}>{title}</h1>
 				</nav>
 			</div>
 			<div className="container">

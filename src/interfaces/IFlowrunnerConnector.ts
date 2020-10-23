@@ -30,6 +30,8 @@ export interface IFlowrunnerConnector {
   setAppMode: (appMode : ApplicationMode) => void;
 
   getAppMode: () => ApplicationMode;
+
+  registerScreenUICallback : (callback : (action : any) => void) => void;
 }
 
 export interface IExecutionEvent {
