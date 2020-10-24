@@ -9,11 +9,12 @@ import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } fr
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
-export const Circle = (props : ShapeTypeProps) => {
+export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	return <Group
 		x={props.x}
 		y={props.y}
+		ref={ref}
 		data-id={props.name}
 		draggable={false}
 		onDragStart={props.onDragStart}
@@ -58,4 +59,4 @@ export const Circle = (props : ShapeTypeProps) => {
 			perfectDrawEnabled={true}>
 		</Text>
 	</Group>
-}
+});

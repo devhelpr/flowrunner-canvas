@@ -1,62 +1,17 @@
 import * as React from 'react';
 
 import * as Konva from 'react-konva';
-import Victor from "victor";
+import { calculateLineControlPoints } from '../../../helpers/line-points'
 
 const KonvaLine = Konva.Arrow;
 
 import { Group, Text } from 'react-konva';
 
 import { LineTypeProps } from './shape-types';
-export const Line = (props : LineTypeProps) => {
+export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
-	let controlPointx1;
-	let controlPointy1;
-	let controlPointx2;
-	let controlPointy2;
+	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend);
 
-	//let diffAbsX = Math.abs(props.xstart - props.xend);
-	let factor = 0.75;
-	/*
-	if (props.xstart < props.xend) {
-		controlPointx1 = props.xstart+(factor*diffAbsX);
-		controlPointy1 = props.ystart; 
-		controlPointx2 = props.xend-(factor*diffAbsX);
-		controlPointy2 = props.yend; 
-	} else {
-		controlPointx1 = props.xstart-(factor*diffAbsX);
-		controlPointy1 = props.ystart; 
-		controlPointx2 = props.xend+(factor*diffAbsX);
-		controlPointy2 = props.yend; 
-	}
-	*/
-
-	var vec1 = new Victor(props.xstart, props.ystart);
-	var vec2 = new Victor(props.xend, props.yend);
-	
-	var distance = vec1.distance(vec2) * factor;
-	let yadjust = 0;
-	let xadjust = 0;
-	if (props.xend < props.xstart && Math.abs(props.ystart - props.yend) < 32) {
-		yadjust = Math.abs(props.xstart - props.xend) * 0.5;
-		xadjust = 200;
-	}
-	/*if (this.props.shape.outputSnap == "bottom") {
-		controlPointx1 = xStart;
-		controlPointy1 = yStart+(distance); 
-	} else*/ {
-		controlPointx1 = props.xstart + (distance) + xadjust;
-		controlPointy1 = props.ystart + yadjust; 
-	}
-	
-	/*if (this.props.shape.inputSnap == "top") {
-		controlPointx2 = xEnd;
-		controlPointy2 = yEnd-(distance); 
-	} else */ {
-		controlPointx2 = props.xend - (distance) - xadjust;
-		controlPointy2 = props.yend + yadjust; 
-	}
-	
 	let fillColor = props.isSelected ? "#606060" : "#000000";	
 	let strokeWidth = 4;
 
@@ -92,10 +47,11 @@ export const Line = (props : LineTypeProps) => {
 	}
 
 	return <Group>
-		<KonvaLine 
+		<KonvaLine
+		 	ref={ref} 
 			points={[props.xstart, props.ystart,
-				controlPointx1, controlPointy1,
-				controlPointx2, controlPointy2,
+				controlPoints.controlPointx1, controlPoints.controlPointy1,
+				controlPoints.controlPointx2, controlPoints.controlPointy2,
 				props.xend, props.yend]}
 			stroke={fillColor} 
 			strokeWidth={strokeWidth}
@@ -114,4 +70,4 @@ export const Line = (props : LineTypeProps) => {
 		>
 		</KonvaLine>		
 	</Group>
-}
+});

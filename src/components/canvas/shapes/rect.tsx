@@ -12,7 +12,7 @@ import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } fr
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
-export const Rect = (props: ShapeTypeProps) => {
+export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	let rect : any = undefined;	
 	let skewX = 0;
@@ -53,6 +53,7 @@ export const Rect = (props: ShapeTypeProps) => {
 	}
 	
 	return <Group
+		ref={ref}
 		x={props.x}
 		y={props.y}
 		onTouchStart={props.onTouchStart}
@@ -139,4 +140,4 @@ export const Rect = (props: ShapeTypeProps) => {
 			</React.Fragment>
 		})}		
 	</Group>
-}
+})

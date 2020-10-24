@@ -8,11 +8,12 @@ import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } fr
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
-export const Ellipse = (props: ShapeTypeProps) => {
+export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	return <Group
 		x={props.x}
 		y={props.y}
+		ref={ref}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
 		draggable={false}
@@ -58,4 +59,4 @@ export const Ellipse = (props: ShapeTypeProps) => {
 			perfectDrawEnabled={true}>
 		</Text>
 	</Group>
-}
+});

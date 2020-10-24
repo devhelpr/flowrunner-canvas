@@ -10,7 +10,7 @@ import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } fr
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
-export const Html = (props: ShapeTypeProps) => {
+export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 
 	const [width, setWidth] = useState(0);
 	const [height, setHeight] = useState(0);
@@ -65,6 +65,7 @@ export const Html = (props: ShapeTypeProps) => {
 	return <Group
 		x={props.x}
 		y={props.y}
+		ref={ref}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
 		draggable={false}
@@ -91,7 +92,7 @@ export const Html = (props: ShapeTypeProps) => {
 			perfectDrawEnabled={false}></KonvaRect>
 		
 	</Group>
-}
+});
 
 /*
 

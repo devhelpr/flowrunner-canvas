@@ -14,6 +14,8 @@ import { Observable, Subject } from '@reactivex/rxjs';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { ShapeMeasures } from '../../helpers/shape-measures';
 import { Flow } from '../flow';
+import { calculateLineControlPoints } from '../../helpers/line-points'
+
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
@@ -151,10 +153,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 
+		
+
 		if (prevProps.flow != this.props.flow) {
 			if (this.flowIsLoading) {
 				this.flowIsLoading = false;
 				this.shapeRefs = [];
+
+				this.props.flow.map((node, index) => {
+					this.shapeRefs[node.name] = React.createRef();
+				});
 				this.fitStage();
 
 				if (this.stage && this.stage.current) {
@@ -166,6 +174,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						stageDiv.attrs["container"].parentNode.focus();				
 					}
 				}
+
+				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
 			}			
 		}
 
@@ -179,7 +189,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			}			
 		}
 
-		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
 
 	}
 
@@ -198,7 +207,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	setNewPositionForNode = (node, group, position? : any) => {
+		const selectedNodeOpacity = 0.15;
 
+		this.props.flow.map((flowNode) => {
+			if (flowNode.name !== node.name) {
+				if (this.shapeRefs[flowNode.name] && 
+					this.shapeRefs[flowNode.name].current) {
+					const shape = this.shapeRefs[flowNode.name].current;
+					if (shape) {
+						shape.opacity(selectedNodeOpacity);					
+					}				
+				} 
+			}
+		});
 
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
@@ -222,9 +243,14 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					//console.log("touchPos", touchPos, newPosition, this.mouseStartX, this.mouseStartY);
 				}
 			}
-
-			group.x(newPosition.x);
-			group.y(newPosition.y);
+			if (this.shapeRefs[node.name]) {
+				if (this.shapeRefs[node.name].current) {
+					let currentGroup = this.shapeRefs[node.name].current;
+					currentGroup.x(newPosition.x);
+					currentGroup.y(newPosition.y);
+					currentGroup.opacity(1);					
+				}				
+			} 
 		}
 
 		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
@@ -238,8 +264,17 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			startLines.map((lineNode) => {				
 				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
 				const lineRef = this.shapeRefs[lineNode.name];
-				if (lineRef) {
-					//console.log("lineRef", lineRef);
+				if (lineRef && lineRef.current) {
+
+					let controlPoints = calculateLineControlPoints(
+						newStartPosition.x, newStartPosition.y, 
+						lineNode.xend, lineNode.yend);
+
+					lineRef.current.points([newStartPosition.x, newStartPosition.y,
+						controlPoints.controlPointx1, controlPoints.controlPointy1,
+						controlPoints.controlPointx2, controlPoints.controlPointy2,
+						lineNode.xend, lineNode.yend]);
+					lineRef.current.opacity(1);
 				}
 				this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
 				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
@@ -251,14 +286,38 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			
 			endLines.map((lineNode) => {
 				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
-				let startPos = {};
+				let startPos = {
+					xstart : lineNode.xstart,
+					ystart : lineNode.ystart
+				};
+
 				if (lines[lineNode.name]) {
 					startPos = lines[lineNode.name];
 				}
+
+				const lineRef = this.shapeRefs[lineNode.name];
+				if (lineRef && lineRef.current) {
+
+					let controlPoints = calculateLineControlPoints(
+						startPos.xstart, startPos.ystart, 
+						newEndPosition.x, newEndPosition.y);
+
+					lineRef.current.points([startPos.xstart, startPos.ystart,
+						controlPoints.controlPointx1, controlPoints.controlPointy1,
+						controlPoints.controlPointx2, controlPoints.controlPointy2,
+						newEndPosition.x, newEndPosition.y]);
+
+					lineRef.current.opacity(1);
+				}
+
+
 				this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
 			})
 		}
 
+		
+		let stage = (this.stage.current as any).getStage();
+		stage.batchDraw();
 
 		this.props.selectNode(node.name, node);
 		this.props.setConnectiongNodeCanvasMode(false);
@@ -330,7 +389,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	onMouseMove(node, event) {
-		
+		if (node && this.touching && this.touchNode && node.name !== this.touchNode.name) {
+			return;
+		}
+
 		if (!!this.props.canvasMode.isConnectingNodes) {
 			this.cancelDragStage();
 			return false;
@@ -844,8 +906,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			if (this.shapeRefs && nodeName) {
 				//console.log("shapeRef", nodeName, this.shapeRefs[nodeName]);
 				let shape = this.shapeRefs[nodeName];
-				if (shape) {
-					shape.y(top);
+				if (shape && shape.current) {
+					// TODO : figure out why this was necessary?
+					// .. there seems to be a small drop of y position after dragging a html shape
+					//shape.current.y(top);
+				} else {
+					console.log("html node not found", nodeName);
 				}
 			}
 			(element as any).style.transform = 						
@@ -1722,11 +1788,14 @@ console.log("taskClassName", event.target, taskClassName);
 									}								
 								}
 
-								return <Shape key={"node-"+index}
-									onRef={(nodeName , ref) => {
+								/*
+								onRef={(nodeName , ref) => {
 										this.shapeRefs[nodeName] = ref;
 										return true; 
 									}}
+								*/
+								return <Shape key={"node-"+index}
+									ref={this.shapeRefs[node.name]}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onClickLine={this.onClickLine.bind(this, node)}
@@ -1764,17 +1833,19 @@ console.log("taskClassName", event.target, taskClassName);
 										isConnectedToSelectedNode = true;
 									}								
 								}
+								/*
+								onRef={(nodeName , ref) => {
+										this.shapeRefs[nodeName] = ref;
+										return true; 
+									}}
+								*/
 								return <Shape key={"node-"+index} 
 									x={node.x} 
 									y={node.y} 
 									name={node.name}
 									taskType={node.taskType}
-									node={node}
-									
-									onRef={(nodeName , ref) => {
-										this.shapeRefs[nodeName] = ref;
-										return true; 
-									}}
+									node={node}																	
+									ref={this.shapeRefs[node.name]}
 									canvasHasSelectedNode={canvasHasSelectedNode}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}

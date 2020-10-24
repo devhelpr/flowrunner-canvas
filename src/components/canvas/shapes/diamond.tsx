@@ -9,7 +9,7 @@ import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } fr
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { replaceValuesExpressions } from '../../../helpers/replace-values';
-export const Diamond = (props: ShapeTypeProps) => {
+export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 
 	let labelText = props.node && props.node.label ? props.node.label : props.name;
@@ -20,6 +20,7 @@ export const Diamond = (props: ShapeTypeProps) => {
 	return <Group
 		x={props.x}
 		y={props.y}
+		ref={ref}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
 		draggable={false}
@@ -63,4 +64,4 @@ export const Diamond = (props: ShapeTypeProps) => {
 			perfectDrawEnabled={true}>
 		</Text>
 	</Group>
-}
+});
