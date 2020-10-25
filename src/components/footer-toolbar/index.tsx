@@ -63,6 +63,9 @@ class ContainedFooter extends React.Component<FooterProps, FooterState> {
 			} else		
 			if (node.objectSchema) {
 				additionalInfo = " - objectSchema " + node.objectSchema;
+			} else		
+			if (node.url) {
+				additionalInfo = " - url " + node.url;
 			}		
 		}
 		return <nav className="navbar fixed-bottom navbar-light bg-light">

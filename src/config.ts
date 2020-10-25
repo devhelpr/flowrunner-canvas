@@ -142,13 +142,7 @@ const taskTypeConfig: any = {
     presetValues: {
       observe: '[name of observable node to observe]',
     },
-  },
-  RouteEndpointTask: {
-    presetValues: {
-      url: '',
-      isStartEnd: true,
-    },
-  },
+  },  
   ValidateModelTask: {
     shapeType: 'Diamond',
   },
@@ -323,6 +317,20 @@ const taskTypeConfig: any = {
       ],
     },
   },
+  RouteEndpointTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    presetValues: {
+      url: '',
+      isStartEnd: true,
+    },
+    metaInfo: [
+      {
+        fieldName: 'url',
+        required: true,
+      },
+    ]
+  }
 };
 
 let fullConfig = { ...taskTypeConfig };
