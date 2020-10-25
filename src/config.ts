@@ -20,10 +20,7 @@ const variableAttached = {
   textColor: '#ffffff',
 };
 
-const customConfig = {
-
-};
-
+const customConfig = {};
 
 const taskTypeConfig: any = {
   _variable: {
@@ -32,17 +29,17 @@ const taskTypeConfig: any = {
   AssignTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    metaInfo : [
+    metaInfo: [
       {
-        "fieldName" : "assignToProperty",
-        "required" : true
+        fieldName: 'assignToProperty',
+        required: true,
       },
       {
-        "fieldName" : "value"
+        fieldName: 'value',
       },
       {
-        "fieldName" : "valueFromProperty"
-      }
+        fieldName: 'valueFromProperty',
+      },
     ],
     presetValues: {
       assignToProperty: '',
@@ -50,7 +47,6 @@ const taskTypeConfig: any = {
     },
   },
 
-    
   IfConditionTask: {
     shapeType: 'Diamond',
     presetValues: {
@@ -60,13 +56,15 @@ const taskTypeConfig: any = {
       usingCondition: 'equals, not-equals, smaller, bigger, smaller-or-equal, bigger-or-equal',
       dataType: 'string',
     },
-    _label: "{compareProperty} {usingCondition} {withProperty}{withValue}",
-    label: "{compareProperty} {usingCondition=>\"equals\":\"=\",\"not-equals\":\"<>\",\"smaller\":\"<\",\"smaller-or-equal\":\"<=\",\"bigger-or-equal\":\">=\",\"bigger\":\">\",\"default\":\"\"} {withProperty|withValue}"
+    _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
+    label:
+      '{compareProperty} {usingCondition=>"equals":"=","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} {withProperty|withValue}',
   },
   if: {
     shapeType: 'Diamond',
-    _label: "{compareProperty} {usingCondition} {withProperty}{withValue}",
-    label: "value {condition=>\"eq\":\"=\",\"not-equals\":\"<>\",\"lower\":\"<\",\"lowereq\":\"<=\",\"bigger-or-equal\":\">=\",\"bigger\":\">\",\"default\":\"\"} {valueInt}"
+    _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
+    label:
+      'value {condition=>"eq":"=","not-equals":"<>","lower":"<","lowereq":"<=","bigger-or-equal":">=","bigger":">","default":""} {valueInt}',
   },
   InjectIntoPayloadTask: {
     shapeType: 'Rect',
@@ -116,15 +114,15 @@ const taskTypeConfig: any = {
       forceNumeric: true,
     },
     htmlPlugin: 'formNode',
-    metaInfo : [
+    metaInfo: [
       {
-        "fieldName" : "expression",
-        "required" : true
+        fieldName: 'expression',
+        required: true,
       },
       {
-        "fieldName" : "assignToProperty",
-        "required" : true
-      }      
+        fieldName: 'assignToProperty',
+        required: true,
+      },
     ],
   },
   ObservableTask: {
@@ -155,7 +153,7 @@ const taskTypeConfig: any = {
     shapeType: 'Diamond',
   },
   PreviewTask: {
-    hasUI : true,
+    hasUI: true,
     shapeType: 'Html',
     presetValues: {
       htmlPlugin: '[executeNode,inputNode,sliderNode]',
@@ -178,7 +176,7 @@ const taskTypeConfig: any = {
       increment: 1,
     },
   },
-  RunWasmFlowTask : {
+  RunWasmFlowTask: {
     shapeType: 'Rect',
     presetValues: {
       flow: [],
@@ -190,19 +188,19 @@ const taskTypeConfig: any = {
     htmlPlugin: 'gridEditNode',
     presetValues: {
       htmlPlugin: 'gridEditNode',
-      propertyName: ''      
-    }
+      propertyName: '',
+    },
   },
   DataGridTask: {
     shapeType: 'Html',
     htmlPlugin: 'dataGridNode',
     presetValues: {
       htmlPlugin: 'dataGridNode',
-      propertyName: ''      
-    }
+      propertyName: '',
+    },
   },
   SliderTask: {
-    hasUI : true,
+    hasUI: true,
     shapeType: 'Html',
     htmlPlugin: 'sliderNode',
     presetValues: {
@@ -217,46 +215,46 @@ const taskTypeConfig: any = {
     },
     events: [
       {
-        "eventName" : "onChange"
-      }
-    ]
+        eventName: 'onChange',
+      },
+    ],
   },
   TimerTask: {
     events: [
       {
-        "eventName" : "onTimer"
-      }
-    ]
+        eventName: 'onTimer',
+      },
+    ],
   },
   MatrixTask: {
     events: [
       {
-        "eventName" : "onCalculateNewGenerationForEachCell"
-      }
+        eventName: 'onCalculateNewGenerationForEachCell',
+      },
     ],
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    metaInfo : [
+    metaInfo: [
       {
-        "fieldName" : "action",
-        "required" : true
-      }
+        fieldName: 'action',
+        required: true,
+      },
     ],
   },
   InputTask: {
-    hasUI: true,  
+    hasUI: true,
     shapeType: 'Html',
     htmlPlugin: 'inputNode',
   },
-  ScreenTask : {
-    hasUI: false,  
+  ScreenTask: {
+    hasUI: false,
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    metaInfo : [
+    metaInfo: [
       {
-        "fieldName" : "action",
-        "required" : true
-      }
+        fieldName: 'action',
+        required: true,
+      },
     ],
   },
   DebugTask: {
@@ -324,22 +322,22 @@ const taskTypeConfig: any = {
         },
       ],
     },
-  }
+  },
 };
 
-let fullConfig = {...taskTypeConfig};
+let fullConfig = { ...taskTypeConfig };
 
-export const setCustomConfig = (className : string, config : any) => {
+export const setCustomConfig = (className: string, config: any) => {
   if (config) {
     customConfig[className] = config;
   }
   fullConfig = getTaskConfig();
-}
+};
 
 export const getTaskConfig = () => {
-  return {...taskTypeConfig, ...customConfig};
-}
+  return { ...taskTypeConfig, ...customConfig };
+};
 
-export const getTaskConfigForTask = (className) => {
+export const getTaskConfigForTask = className => {
   return fullConfig[className] || {};
-}
+};

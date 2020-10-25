@@ -25,8 +25,8 @@ export interface ShapeTypeProps {
   onMouseOut: any;
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
-  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;
-  onRef : (nodeName: string, ref : any) => void;
+  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
+  onRef: (nodeName: string, ref: any) => void;
 }
 
 export interface LineTypeProps {
@@ -42,7 +42,7 @@ export interface LineTypeProps {
   isConnectionWithVariable?: boolean;
   isErrorColor?: boolean;
   isSuccessColor?: boolean;
-  isEventNode? : boolean;
+  isEventNode?: boolean;
   canvasHasSelectedNode: boolean;
   selectedNodeName: string;
   startNodeName: string;

@@ -6,14 +6,14 @@ export const nodeReducer = (state: any = {}, action: any) => {
       return {
         name: action.payload.nodeName,
         node: action.payload.node,
-        payload: undefined
+        payload: undefined,
       };
     }
     case SET_PAYLOAD: {
       return {
         ...state,
-        payload: action.payload.payload
-      }
+        payload: action.payload.payload,
+      };
     }
 
     default:

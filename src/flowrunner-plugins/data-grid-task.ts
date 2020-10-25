@@ -2,14 +2,13 @@ import { FlowTask } from '@devhelpr/flowrunner';
 //import { ExpressionParser } from '../../../../../expression/react-prototype/react-prototype1/src/components/ExpressionParser';
 //import { ExpressionTreeExecute, executeExpressionTree, extractValueParametersFromExpressionTree } from '../../../../../expression/react-prototype/react-prototype1/src/components/ExpressionTreeExecute';
 //import { isRangeValue, getRangeFromValues, getRangeValueParameters } from '../../../../../expression/react-prototype/react-prototype1/src/utils/grid-values';
-import { 
-	createExpressionTree, 
-	executeExpressionTree,
-	extractValueParametersFromExpressionTree, 
-	getRangeValueParameters, 
-	isRangeValue, 
+import {
+  createExpressionTree,
+  executeExpressionTree,
+  extractValueParametersFromExpressionTree,
+  getRangeValueParameters,
+  isRangeValue,
 } from '@devhelpr/expressionrunner';
-
 
 /*
 	TODO
@@ -41,15 +40,13 @@ import {
 
 */
 export class DataGridTask extends FlowTask {
-
-	private convertGridToNamedVariables = (values : any[]) => {
-		let variables = {};
-		values.map((rowValues, rowIndex) => {
-			if (rowValues) {
-				rowValues.map((cellValue, columnIndex) => {
-					if (cellValue) {
-
-/*
+  private convertGridToNamedVariables = (values: any[]) => {
+    let variables = {};
+    values.map((rowValues, rowIndex) => {
+      if (rowValues) {
+        rowValues.map((cellValue, columnIndex) => {
+          if (cellValue) {
+            /*
 		TODO:
 
 			- check if cell contains reference to namespace (contains a dot)
@@ -57,37 +54,37 @@ export class DataGridTask extends FlowTask {
 
 */
 
-						if (cellValue === "" || (cellValue != "" && cellValue[0] !== "=")) {
-							let letter = String.fromCharCode((columnIndex % 26) + 65);
-							let value = Number(cellValue);
-							if (isNaN(value)) {
-								value = cellValue;
-							}
-							variables[letter  + (rowIndex + 1)] = value;
-						}
-					} 
-				});
-			}
-		});	
-		return variables;
-	}
+            if (cellValue === '' || (cellValue != '' && cellValue[0] !== '=')) {
+              let letter = String.fromCharCode((columnIndex % 26) + 65);
+              let value = Number(cellValue);
+              if (isNaN(value)) {
+                value = cellValue;
+              }
+              variables[letter + (rowIndex + 1)] = value;
+            }
+          }
+        });
+      }
+    });
+    return variables;
+  };
 
-	public execute(node: any, services: any) {
-		try {
-			let payload = Object.assign({}, node.payload);
-			let promises : any[] = [];
-			let infoCells : any[] = [];
-			let values : any[] = [];
+  public execute(node: any, services: any) {
+    try {
+      let payload = Object.assign({}, node.payload);
+      let promises: any[] = [];
+      let infoCells: any[] = [];
+      let values: any[] = [];
 
-			if (node.values) {
-				let variables = {...payload, values: node.values, ...this.convertGridToNamedVariables(node.values)};
-				node.values.map((rowValues, rowIndex) => {
-					if (rowValues) {
-						values.push([...rowValues]);
-						rowValues.map((cellValue, columnIndex) => {
-							if (cellValue && cellValue != "") {
-								if (cellValue[0] === "=") {
-/*
+      if (node.values) {
+        let variables = { ...payload, values: node.values, ...this.convertGridToNamedVariables(node.values) };
+        node.values.map((rowValues, rowIndex) => {
+          if (rowValues) {
+            values.push([...rowValues]);
+            rowValues.map((cellValue, columnIndex) => {
+              if (cellValue && cellValue != '') {
+                if (cellValue[0] === '=') {
+                  /*
 
 	- get all formulas 
 		- foreach formula get the value parameters AND the cell name
@@ -98,76 +95,76 @@ export class DataGridTask extends FlowTask {
 	- execute formulas in order of sorting
 		- for each execution, update the value parameters
 
-*/									
-									let tree = createExpressionTree(cellValue.substring(1));
+*/
 
-									let letter = String.fromCharCode((columnIndex % 26) + 65);
-									infoCells.push({
-										name: letter  + (rowIndex + 1),
-										row: rowIndex,
-										column: columnIndex,
-										expressionTree: tree,
-										valueParameters : extractValueParametersFromExpressionTree(tree)
-									});
-								}
-							} 
-						});
-					}
-				});		  
-			
-				infoCells.map(infoCell => {
-					let includeParameters : string[] = [];
-					infoCell.valueParameters.map((valueParameter) => {
-						if (isRangeValue(valueParameter)) {
-							includeParameters = getRangeValueParameters(valueParameter);
-						}
-						return true;
-					});
-					infoCell.valueParameters.push(includeParameters);
-					return true;
-				});
-				infoCells.sort((a , b) => {
+                  let tree = createExpressionTree(cellValue.substring(1));
 
-					// TODO :
-					// 	- extract range from valueParameter it is a range
-					// - isRangeValue
-					const aIsAValueParameterOfB = b.valueParameters.indexOf(a.name) >= 0;
-					const bIsAValueParameterOfA = a.valueParameters.indexOf(b.name) >= 0;
-					if (aIsAValueParameterOfB && bIsAValueParameterOfA) {
-						throw new Error("Cirular reference found "+ a.name + " and " + b.name);
-					}
-					if (aIsAValueParameterOfB) {
-						return -1;
-					}
-					if (bIsAValueParameterOfA) {
-						return 1;
-					}
-					return 0;
-				});
+                  let letter = String.fromCharCode((columnIndex % 26) + 65);
+                  infoCells.push({
+                    name: letter + (rowIndex + 1),
+                    row: rowIndex,
+                    column: columnIndex,
+                    expressionTree: tree,
+                    valueParameters: extractValueParametersFromExpressionTree(tree),
+                  });
+                }
+              }
+            });
+          }
+        });
 
-				const promise = new Promise((resolve, reject) => {
-					try {
-						infoCells.map((infoCell) => {
-							const value = executeExpressionTree(infoCell.expressionTree , variables || {});
-							variables[infoCell.name] = value;
-							return true;
-						});					
+        infoCells.map(infoCell => {
+          let includeParameters: string[] = [];
+          infoCell.valueParameters.map(valueParameter => {
+            if (isRangeValue(valueParameter)) {
+              includeParameters = getRangeValueParameters(valueParameter);
+            }
+            return true;
+          });
+          infoCell.valueParameters.push(includeParameters);
+          return true;
+        });
+        infoCells.sort((a, b) => {
+          // TODO :
+          // 	- extract range from valueParameter it is a range
+          // - isRangeValue
+          const aIsAValueParameterOfB = b.valueParameters.indexOf(a.name) >= 0;
+          const bIsAValueParameterOfA = a.valueParameters.indexOf(b.name) >= 0;
+          if (aIsAValueParameterOfB && bIsAValueParameterOfA) {
+            throw new Error('Cirular reference found ' + a.name + ' and ' + b.name);
+          }
+          if (aIsAValueParameterOfB) {
+            return -1;
+          }
+          if (bIsAValueParameterOfA) {
+            return 1;
+          }
+          return 0;
+        });
 
-						infoCells.map((infoCell) => {
-							let row = [...values[infoCell.row]];
-							row[infoCell.column] = variables[infoCell.name];
-							values[infoCell.row] = row;
-							return true;
-						});
+        const promise = new Promise((resolve, reject) => {
+          try {
+            infoCells.map(infoCell => {
+              const value = executeExpressionTree(infoCell.expressionTree, variables || {});
+              variables[infoCell.name] = value;
+              return true;
+            });
 
-						if (node.nameSpace) {
-							payload[node.nameSpace] = values;
-						} else {
-							payload.values = values;
-						}
-						resolve(payload);
+            infoCells.map(infoCell => {
+              let row = [...values[infoCell.row]];
+              row[infoCell.column] = variables[infoCell.name];
+              values[infoCell.row] = row;
+              return true;
+            });
 
-						/*Promise.all(promises).then((data) => {
+            if (node.nameSpace) {
+              payload[node.nameSpace] = values;
+            } else {
+              payload.values = values;
+            }
+            resolve(payload);
+
+            /*Promise.all(promises).then((data) => {
 							//console.log("DataGridTask results", data);
 							data.map((value , index) => {
 								//payload[infoCells[index].name] = value;
@@ -182,22 +179,22 @@ export class DataGridTask extends FlowTask {
 							reject();
 						});
 						*/
-					} catch (err) {
-						console.log("DataGridTask exception when executing expressions", err);
-					}
-				});
+          } catch (err) {
+            console.log('DataGridTask exception when executing expressions', err);
+          }
+        });
 
-				return promise;
-			} else {
-				return false;
-			}
-		} catch (err) {
-			console.log("DataGridTask exception", err);
-			return false;
-		}
-	}
-
-	public getName() {
-		return 'DataGridTask';
-	}
+        return promise;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.log('DataGridTask exception', err);
+      return false;
+    }
   }
+
+  public getName() {
+    return 'DataGridTask';
+  }
+}

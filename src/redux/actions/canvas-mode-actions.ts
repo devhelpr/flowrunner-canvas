@@ -16,7 +16,6 @@ export type setFlowrunnerPausedFunction = (paused: boolean) => void;
 export type setFlowTypeFunction = (flowType: string) => void;
 export type setEditorModeFunction = (editorMode: string) => void;
 
-
 export const setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction = enabled =>
   action(SET_CONNECTING_CANVAS_MODE_NODE, { enabled: enabled });
 
@@ -32,8 +31,6 @@ export const setAllowInputToHtmlNodes: setAllowInputToHtmlNodesFunction = allowI
 export const setFlowrunnerPaused: setFlowrunnerPausedFunction = paused =>
   action(SET_FLOWRUNNERPAUSED, { paused: paused });
 
-export const setFlowType: setFlowTypeFunction = flowType =>
-  action(SET_FLOWTYPE, { flowType: flowType });
+export const setFlowType: setFlowTypeFunction = flowType => action(SET_FLOWTYPE, { flowType: flowType });
 
-export const setEditorMode: setEditorModeFunction = editorMode =>
-  action(SET_EDITORMODE, { editorMode: editorMode });
+export const setEditorMode: setEditorModeFunction = editorMode => action(SET_EDITORMODE, { editorMode: editorMode });

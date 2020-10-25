@@ -15,18 +15,18 @@ import { DataGridTask } from './flowrunner-plugins/data-grid-task';
 
 import { ScreenTask } from './flowrunner-plugins/screen-task';
 
-import { 
-  registerExpressionFunction, 
-  isRangeValue, 
-  getRangeFromValues , 
-  getRangeValueParameters 
-} from '@devhelpr/expressionrunner'
+import {
+  registerExpressionFunction,
+  isRangeValue,
+  getRangeFromValues,
+  getRangeValueParameters,
+} from '@devhelpr/expressionrunner';
 
 import { IServicesInterface } from '@devhelpr/flowrunner/lib/interfaces/ServicesInterface';
 const uuidV4 = uuid.v4;
 
-registerExpressionFunction("sum", (a : number, ...args : number[]) => {
-  console.log("sum", a, args[0] );
+registerExpressionFunction('sum', (a: number, ...args: number[]) => {
+  console.log('sum', a, args[0]);
   if (isRangeValue(a.toString())) {
     const range = getRangeFromValues((args[0] as any).values, a.toString());
     const valueParameterNames = getRangeValueParameters(a.toString());
@@ -39,95 +39,91 @@ registerExpressionFunction("sum", (a : number, ...args : number[]) => {
         result += Number(value) || 0;
       }
       return true;
-    })
-    return result
+    });
+    return result;
   } else {
     // todo ... add other arguments as well
     return Number(a) + args[0];
   }
 });
 
-registerExpressionFunction("Math.PI", (a : number, ...args : number[]) => {
+registerExpressionFunction('Math.PI', (a: number, ...args: number[]) => {
   return Math.PI;
 });
 
-registerExpressionFunction("Math.sin", (a : number, ...args : number[]) => {
-  return Math.sin(a * Math.PI/180);
+registerExpressionFunction('Math.sin', (a: number, ...args: number[]) => {
+  return Math.sin((a * Math.PI) / 180);
 });
 
-registerExpressionFunction("Math.floor", (a : number, ...args : number[]) => {
+registerExpressionFunction('Math.floor', (a: number, ...args: number[]) => {
   return Math.floor(a);
 });
 
-registerExpressionFunction("Math.ceil", (a : number, ...args : number[]) => {
+registerExpressionFunction('Math.ceil', (a: number, ...args: number[]) => {
   return Math.ceil(a);
 });
 
-registerExpressionFunction("Math.round", (a : number, ...args : number[]) => {
+registerExpressionFunction('Math.round', (a: number, ...args: number[]) => {
   return Math.round(a);
 });
 
-registerExpressionFunction("vlookup", (a : number, ...args : number[]) => {
-
+registerExpressionFunction('vlookup', (a: number, ...args: number[]) => {
   if (isRangeValue(a.toString())) {
     const range = getRangeFromValues((args[0] as any).values, a.toString());
     const valueParameterNames = getRangeValueParameters(a.toString());
     let search = (args[0] as any)[args[1]];
-    
+
     range.map((value, index) => {
       if (args[0][valueParameterNames[index]]) {
       } else {
       }
       return true;
-    })
-
+    });
   }
 
   return 0;
 });
 
-
 let webAssembly;
 
-import("../assets/wasm/").then(wasm => {
+import('../assets/wasm/').then(wasm => {
   wasm.init();
 
   webAssembly = wasm;
   let flow = [
     {
-      "name": "start",
-      "taskName": "assign",
-      "valueInt": 1,
-      "mode": "int",
-      "next": "add"
+      name: 'start',
+      taskName: 'assign',
+      valueInt: 1,
+      mode: 'int',
+      next: 'add',
     },
     {
-      "name": "add",
-      "taskName": "operation",
-      "operator": "add",
-      "valueInt": 1,
-      "mode": "int",
-      "next": "condition"
+      name: 'add',
+      taskName: 'operation',
+      operator: 'add',
+      valueInt: 1,
+      mode: 'int',
+      next: 'condition',
     },
     {
-      "name": "condition",
-      "taskName": "if",
-      "condition": "lower",
-      "valueInt": 10000,
-      "mode": "int",
-      "next": "add",
-      "elseStep": "else"
+      name: 'condition',
+      taskName: 'if',
+      condition: 'lower',
+      valueInt: 10000,
+      mode: 'int',
+      next: 'add',
+      elseStep: 'else',
     },
     {
-      "name": "else",
-      "taskName": "assign",
-      "value": "ready",
-      "mode": ""
-    }
+      name: 'else',
+      taskName: 'assign',
+      value: 'ready',
+      mode: '',
+    },
   ];
-  let flowrunner = webAssembly.Flowrunner.new(`[]`,
-          `{"flow":${JSON.stringify(flow)}}`);
-  console.log("wasm test", flowrunner.convert(JSON.stringify({})));
+  let flowrunner = webAssembly.Flowrunner.new(`[]`, `{"flow":${JSON.stringify(flow)}}`);
+  console.log('wasm test', flowrunner.convert(JSON.stringify({})));
 
   /*console.log(wasm.greet("worker"));
 
@@ -150,7 +146,6 @@ import("../assets/wasm/").then(wasm => {
 let flow: FlowEventRunner;
 let observables = {};
 
-
 export class PreviewTask extends FlowTask {
   public execute(node: any, services: any) {
     //console.log('previewtask', node);
@@ -161,8 +156,6 @@ export class PreviewTask extends FlowTask {
     return 'PreviewTask';
   }
 }
-
-
 
 export class ListTask extends FlowTask {
   public execute(node: any, services: any) {
@@ -315,7 +308,7 @@ export class InputTask extends FlowTask {
 
 export class DebugTask extends ObservableTask {
   public execute(node: any, services: any) {
-    let payload = {...node.payload};
+    let payload = { ...node.payload };
     payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
     super.execute({ ...node, sendNodeName: true, payload: payload }, services);
     return payload;
@@ -325,35 +318,32 @@ export class DebugTask extends ObservableTask {
   }
 }
 
-let flowPluginNodes = {
+let flowPluginNodes = {};
 
-};
-
-const FlowPluginWrapperTask = (pluginName) => {
-
+const FlowPluginWrapperTask = pluginName => {
   class FlowPluginWrapperTaskInternal extends FlowTask {
     public execute(node: any, services: any) {
-
       if (node.observable) {
         new Promise((resolve, reject) => {
           const executeId = uuidV4();
           //console.log("FlowPluginWrapperTaskInternal", pluginName, node.name, executeId, node.payload);
           flowPluginNodes[node.name] = {
-            resolve,executeId
-          }
-          const payload = {...node.payload, executeId: executeId};
+            resolve,
+            executeId,
+          };
+          const payload = { ...node.payload, executeId: executeId };
           ctx.postMessage({
-              command: 'ExecuteFlowPlugin',
-              payload: payload,
-              nodeName: node.name,
-              pluginName: pluginName
-          });        
-        }).then((payload) => {
+            command: 'ExecuteFlowPlugin',
+            payload: payload,
+            nodeName: node.name,
+            pluginName: pluginName,
+          });
+        }).then(payload => {
           //console.log("payload FlowPluginWrapperTask", node, payload);
           node.observable.next({
             nodeName: node.name,
             payload: Object.assign({}, payload),
-          });          
+          });
         });
 
         return node.observable;
@@ -378,17 +368,16 @@ const FlowPluginWrapperTask = (pluginName) => {
   }
 
   return FlowPluginWrapperTaskInternal;
-}
+};
 
 let timers: any = {};
 
 export class TimerTask extends FlowTask {
-  isExecuting : boolean = false;
-  clearTimeout : any = undefined;
-  node : any = undefined;
+  isExecuting: boolean = false;
+  clearTimeout: any = undefined;
+  node: any = undefined;
 
   public timer = () => {
-
     /*
 
       problem with pausing the flow is that this can happen during handling of
@@ -412,17 +401,15 @@ export class TimerTask extends FlowTask {
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
       } else {
-        flow.triggerEventOnNode(this.node.name, "onTimer" ,  this.node.payload || {}).then(() => {
+        flow.triggerEventOnNode(this.node.name, 'onTimer', this.node.payload || {}).then(() => {
           this.isExecuting = false;
           if (!!this.isBeingKilled) {
             return;
-          }          
+          }
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
-
       }
     } else {
-
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
         this.clearTimeout = undefined;
@@ -434,13 +421,13 @@ export class TimerTask extends FlowTask {
 
       this.clearTimeout = setTimeout(this.timer, this.node.interval);
     }
-  }
+  };
 
   public execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
 
-    if (node.mode === "executeNode" || node.events) {
+    if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
         this.clearTimeout = undefined;
@@ -449,7 +436,6 @@ export class TimerTask extends FlowTask {
       return;
     } else {
       if (node.interval) {
-
         if (timers[node.name]) {
           clearInterval(timers[node.name]);
           timers[node.name] = undefined;
@@ -467,10 +453,9 @@ export class TimerTask extends FlowTask {
       clearInterval(timers[node.name]);
       timers[node.name] = undefined;
     }*/
-    
+
     return false;
   }
-
 
   isBeingKilled = false;
   public kill() {
@@ -574,13 +559,13 @@ const onWorkerMessage = event => {
   //console.log("event from flow", event);
 
   if (event && event.data) {
-    let data : any = event.data;
+    let data: any = event.data;
     let command = data.command;
     if (command == 'executeFlowNode' && data.nodeName) {
       if (!flow) {
         return;
       }
-      let payload = {...data.payload};
+      let payload = { ...data.payload };
       flow
         .executeNode(data.nodeName, payload || {})
         .then(result => {
@@ -615,7 +600,7 @@ const onWorkerMessage = event => {
           });
       }
     } else if (command == 'pushFlowToFlowrunner') {
-      startFlow({ flow: data.flow}, data.pluginRegistry);
+      startFlow({ flow: data.flow }, data.pluginRegistry);
     } else if (command == 'registerFlowNodeObserver') {
       if (observables[data.nodeName]) {
         (observables[data.nodeName] as any).unsubscribe();
@@ -638,7 +623,7 @@ const onWorkerMessage = event => {
       // send payload to resolve method from promise in FlowPluginTask?
       const resolve = flowPluginNodes[data.nodeName];
       if (resolve && resolve.resolve && resolve.executeId === data.payload.executeId) {
-        let payload = {...data.payload}; 
+        let payload = { ...data.payload };
         resolve.resolve(payload);
         flowPluginNodes[data.nodeName] = undefined;
         payload = null;
@@ -650,7 +635,6 @@ const onWorkerMessage = event => {
     }
 
     data = null;
-
   }
 };
 
@@ -659,13 +643,13 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
     command: 'SendNodeExecution',
     result: result,
     dateTime: dateTime,
-    payload: {...payload , nodeExecutionId : uuidV4()},
+    payload: { ...payload, nodeExecutionId: uuidV4() },
     name: id,
     nodeType: nodeType,
   });
 };
 
-const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
+const startFlow = (flowPackage: any, pluginRegistry: string[]) => {
   if (flow !== undefined) {
     for (var key of Object.keys(observables)) {
       observables[key].unsubscribe();
@@ -702,9 +686,9 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
-      console.log("pluginName", pluginName);
+      console.log('pluginName', pluginName);
       flow.registerTask(pluginName, FlowPluginWrapperTask(pluginName));
-    })
+    });
   }
   /*
   
@@ -729,23 +713,22 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
   }
   */
   flow.registerMiddleware(onExecuteNode);
-  let services  = {
+  let services = {
     flowEventRunner: flow,
     pluginClasses: {},
     logMessage: (arg1, arg2) => {
       //console.log(arg1, arg2);
     },
     registerModel: (modelName: string, definition: any) => {},
-    getWebAssembly : () => {
+    getWebAssembly: () => {
       return webAssembly;
     },
-    workerContext: ctx
-  }
+    workerContext: ctx,
+  };
   let value: boolean = false;
   flow
     .start(flowPackage, services, true, true)
     .then((services: any) => {
-      
       /*
       // see above.. not needed here
       services.logMessage = (arg1, arg2) => {
@@ -763,7 +746,7 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
             next: (payload: any) => {
               ctx.postMessage({
                 command: 'SendObservableNodePayload',
-                payload: {...(payload || {})},
+                payload: { ...(payload || {}) },
                 nodeName: key,
               });
             },
@@ -774,7 +757,7 @@ const startFlow = (flowPackage: any, pluginRegistry :string[]) => {
 
       ctx.postMessage({
         command: 'RegisterFlowNodeObservers',
-        payload: {}
+        payload: {},
       });
       console.log('flow running');
     })

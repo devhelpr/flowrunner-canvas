@@ -1,6 +1,6 @@
 export enum ApplicationMode {
-	Canvas = 0,
-	UI
+  Canvas = 0,
+  UI,
 }
 
 export interface IFlowrunnerConnector {
@@ -9,29 +9,35 @@ export interface IFlowrunnerConnector {
   updateFlowNode: () => void;
   pushFlowToFlowrunner: (flow: any) => void;
   executeFlowNode: (nodeName: string, payload: any) => void;
-  modifyFlowNode: (nodeName: string, propertyName: string, value: any,  executeNode?: string, eventName? : string) => void;
+  modifyFlowNode: (
+    nodeName: string,
+    propertyName: string,
+    value: any,
+    executeNode?: string,
+    eventName?: string,
+  ) => void;
 
   getNodeExecutions: () => any[];
   getNodeExecutionsByNodeName: (nodeName: string) => any[];
 
-  registerFlowExecutionObserver: (observableId: string, callback: (executionEvent : IExecutionEvent) => void) => void;
+  registerFlowExecutionObserver: (observableId: string, callback: (executionEvent: IExecutionEvent) => void) => void;
   unregisterFlowExecuteObserver: (observableId) => void;
 
   isActiveFlowRunner: () => boolean;
 
-  setPluginRegistry: (pluginRegistry : any) => void;
+  setPluginRegistry: (pluginRegistry: any) => void;
   getPluginRegistry: () => any;
 
   pauseFlowrunner: () => void;
 
   resumeFlowrunner: () => void;
 
-  setFlowType: (flowType : string) => void;
-  setAppMode: (appMode : ApplicationMode) => void;
+  setFlowType: (flowType: string) => void;
+  setAppMode: (appMode: ApplicationMode) => void;
 
   getAppMode: () => ApplicationMode;
 
-  registerScreenUICallback : (callback : (action : any) => void) => void;
+  registerScreenUICallback: (callback: (action: any) => void) => void;
 }
 
 export interface IExecutionEvent {

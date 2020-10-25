@@ -28,38 +28,37 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-export const replaceValuesExpressions = (content: string, payload: any, noValueSet : string) => {
+export const replaceValuesExpressions = (content: string, payload: any, noValueSet: string) => {
   let resultContent = content;
   let matches = resultContent.match(/{.+?}/g);
   if (matches) {
     matches.map(match => {
       const matchValue = match.slice(1, -1);
       let value;
-      
+
       let splittedValues = matchValue.split('=>');
       if (splittedValues.length > 1) {
         try {
-          const json = JSON.parse("{" + splittedValues[1] + "}");
+          const json = JSON.parse('{' + splittedValues[1] + '}');
           //  console.log("replaceValuesExpressions", json);
-          value = json[payload[splittedValues[0]]];          
+          value = json[payload[splittedValues[0]]];
           if (value === undefined) {
-            value = json["default"];
+            value = json['default'];
           }
         } catch (err) {
-          console.log("replaceValuesExpressions error", err);
+          console.log('replaceValuesExpressions error', err);
         }
       } else {
         splittedValues = matchValue.split('|');
         if (splittedValues.length > 1) {
           const variableName1 = splittedValues[0];
           const variableName2 = splittedValues[1];
-          if (payload[variableName1] !== undefined && payload[variableName1] != "") {
-            value = (payload[variableName1] || "").toString();
-          } else 
-          if (payload[variableName2] !== undefined && payload[variableName2] != "") {
-            value = (payload[variableName2] || "").toString();
+          if (payload[variableName1] !== undefined && payload[variableName1] != '') {
+            value = (payload[variableName1] || '').toString();
+          } else if (payload[variableName2] !== undefined && payload[variableName2] != '') {
+            value = (payload[variableName2] || '').toString();
           } else {
-            value = noValueSet || "";
+            value = noValueSet || '';
           }
         } else {
           splittedValues = matchValue.split(':');
@@ -74,12 +73,12 @@ export const replaceValuesExpressions = (content: string, payload: any, noValueS
             } else if (format == 'integer') {
               value = parseFloat(value).toFixed(0);
             }
-          }           
+          }
         }
       }
 
       if (value === undefined) {
-        value = noValueSet || "";
+        value = noValueSet || '';
       }
 
       const allOccurancesOfMatchRegex = new RegExp(escapeRegExp(match), 'g');
@@ -88,4 +87,3 @@ export const replaceValuesExpressions = (content: string, payload: any, noValueS
   }
   return resultContent;
 };
-

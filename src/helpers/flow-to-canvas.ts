@@ -28,11 +28,16 @@ export class FlowToCanvas {
     });
   }
 
-  static getStartPointForLine(startShape, newPosition, node? : any, getNodeInstance? : any) {
+  static getStartPointForLine(startShape, newPosition, node?: any, getNodeInstance?: any) {
     const taskSettings = FlowToCanvas.getTaskSettings(startShape.taskType);
-    const shapeType = FlowToCanvas.getShapeTypeUsingSettings(startShape.shapeType, startShape.taskType, startShape.isStartEnd, taskSettings);
-    let isEvent : boolean = false;
-    if (node && node.event && node.event !== "") {
+    const shapeType = FlowToCanvas.getShapeTypeUsingSettings(
+      startShape.shapeType,
+      startShape.taskType,
+      startShape.isStartEnd,
+      taskSettings,
+    );
+    let isEvent: boolean = false;
+    if (node && node.event && node.event !== '') {
       isEvent = true;
     }
 
@@ -47,17 +52,17 @@ export class FlowToCanvas {
         }
       }
       return {
-        x: newPosition.x + ((width || startShape.width || ShapeMeasures.htmlWidth) / 2) + (isEvent ? 18 - 8 : 0),
-        y: newPosition.y - (isEvent ? -4 - 32 - 8 + ((height || startShape.height || ShapeMeasures.htmlHeight) / 2) : 0),
+        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2 + (isEvent ? 18 - 8 : 0),
+        y: newPosition.y - (isEvent ? -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2 : 0),
       };
     } else if (shapeType == 'Circle') {
       return {
-        x: newPosition.x + ShapeMeasures.circleSize ,
+        x: newPosition.x + ShapeMeasures.circleSize,
         y: newPosition.y + ShapeMeasures.circleSize / 2,
       };
     } else if (shapeType == 'Diamond') {
       return {
-        x: newPosition.x + ShapeMeasures.diamondSize ,
+        x: newPosition.x + ShapeMeasures.diamondSize,
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
@@ -68,15 +73,19 @@ export class FlowToCanvas {
     }
   }
 
-  static getEndPointForLine(endShape, newPosition, node? : any, getNodeInstance? : any) {
-
+  static getEndPointForLine(endShape, newPosition, node?: any, getNodeInstance?: any) {
     const taskSettings = FlowToCanvas.getTaskSettings(endShape.taskType);
-    const shapeType = FlowToCanvas.getShapeTypeUsingSettings(endShape.shapeType, endShape.taskType, endShape.isStartEnd, taskSettings);
+    const shapeType = FlowToCanvas.getShapeTypeUsingSettings(
+      endShape.shapeType,
+      endShape.taskType,
+      endShape.isStartEnd,
+      taskSettings,
+    );
 
     if (shapeType == 'Html') {
       let width = undefined;
       if (getNodeInstance && endShape) {
-        const nodeInstance = getNodeInstance(endShape,undefined, undefined, taskSettings);
+        const nodeInstance = getNodeInstance(endShape, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
           width = nodeInstance.getWidth(endShape);
         }

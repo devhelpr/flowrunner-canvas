@@ -17,7 +17,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   unregisterFlowNodeObserver = (nodeName, observableId) => {};
 
-  registerFlowExecutionObserver = (observableId: string, callback: (executionEvent : IExecutionEvent) => void) => {};
+  registerFlowExecutionObserver = (observableId: string, callback: (executionEvent: IExecutionEvent) => void) => {};
 
   unregisterFlowExecuteObserver = observableId => {};
 
@@ -27,31 +27,31 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any,  executeNode?: string, eventName? : string) => {};
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string) => {};
 
   isActiveFlowRunner = () => {
     return false;
   };
 
-  setPluginRegistry = (pluginRegistry : any) => {};
+  setPluginRegistry = (pluginRegistry: any) => {};
 
   getPluginRegistry = () => {
     return {};
-  }
+  };
 
-  pauseFlowrunner = () => {}
+  pauseFlowrunner = () => {};
 
-  resumeFlowrunner = () => {}
+  resumeFlowrunner = () => {};
 
-  setFlowType = (flowType : string) => {}
+  setFlowType = (flowType: string) => {};
 
-  setAppMode = (mode : ApplicationMode) => {}
+  setAppMode = (mode: ApplicationMode) => {};
 
   getAppMode = () => {
     return ApplicationMode.Canvas;
-  }
+  };
 
-  registerScreenUICallback = (callback : (action : any) => void) => {}
+  registerScreenUICallback = (callback: (action: any) => void) => {};
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -61,13 +61,13 @@ export class FlowConnector implements IFlowrunnerConnector {
   nodeExecutions: any[] = [];
   nodeExecutionsByNode: any = {};
 
-  pluginRegistry : any = {};
+  pluginRegistry: any = {};
 
-  flowType : string = "playground";
+  flowType: string = 'playground';
 
-  applicationMode : ApplicationMode = ApplicationMode.Canvas;
+  applicationMode: ApplicationMode = ApplicationMode.Canvas;
 
-  screenUICallback : (action : any) => void = (action) => {
+  screenUICallback: (action: any) => void = action => {
     return;
   };
 
@@ -104,10 +104,9 @@ export class FlowConnector implements IFlowrunnerConnector {
         this.executionObservables.map(exectutionObservable => {
           exectutionObservable.callback(event.data);
         });
-        
       } else if (event.data.command == 'SendObservableNodePayload') {
         // TODO : de eerst keer gaat dit niet goed...
-        console.log("SendObservableNodePayload", event.data);
+        console.log('SendObservableNodePayload', event.data);
         if (
           event.data.payload &&
           event.data.payload.nodeName &&
@@ -143,7 +142,7 @@ export class FlowConnector implements IFlowrunnerConnector {
               observable.callback(event.data.payload);
             });
         }
-      } else if (event.data.command == "ExecuteFlowPlugin") {
+      } else if (event.data.command == 'ExecuteFlowPlugin') {
         /*
           event.data.nodeName
           event.data.payload
@@ -156,43 +155,45 @@ export class FlowConnector implements IFlowrunnerConnector {
         let pluginInfo = this.pluginRegistry[event.data.pluginName];
         if (pluginInfo) {
           let pluginInstance = new pluginInfo.FlowTaskPlugin();
-          let result = pluginInstance.execute({payload: {...event.data.payload}}, {
-            flowrunnerConnector : this
-          });
+          let result = pluginInstance.execute(
+            { payload: { ...event.data.payload } },
+            {
+              flowrunnerConnector: this,
+            },
+          );
           if (this.worker) {
             this.worker.postMessage({
               command: 'ResultFlowPlugin',
               nodeName: event.data.nodeName,
               payload: result,
-              pluginName: event.data.pluginName
+              pluginName: event.data.pluginName,
             });
           }
         }
-      } else if (event.data.command == "SendScreen") {
+      } else if (event.data.command == 'SendScreen') {
         if (this.screenUICallback) {
           this.screenUICallback({
-            action: "SendScreen",
-            payload: event.data.payload
+            action: 'SendScreen',
+            payload: event.data.payload,
           });
         }
         //
-      } else if (event.data.command == "RegisterFlowNodeObservers") {
-        console.log("RegisterFlowNodeObservers" , this.observables);
-        this.observables.map((observable) => {
+      } else if (event.data.command == 'RegisterFlowNodeObservers') {
+        console.log('RegisterFlowNodeObservers', this.observables);
+        this.observables.map(observable => {
           if (this.worker) {
             this.worker.postMessage({
               command: 'registerFlowNodeObserver',
               nodeName: observable.nodeName,
             });
           }
-        })
+        });
       }
     }
     return;
   };
 
   registerFlowNodeObserver = (nodeName: string, observableId: string, callback: (payload: any) => void) => {
-
     this.observables.push({
       nodeName: nodeName,
       callback: callback,
@@ -210,31 +211,29 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   unregisterFlowNodeObserver = (nodeName, observableId) => {
-    let indexes : number[] = [];
+    let indexes: number[] = [];
 
     // TODO : refactor this to a better way !!
-    this.observables
-      .map((observable, index) => {
-        if (observable.id === observableId) {
-          if (indexes.length === 0) {
-            indexes.push(index);
-          }
+    this.observables.map((observable, index) => {
+      if (observable.id === observableId) {
+        if (indexes.length === 0) {
+          indexes.push(index);
         }
-      });
+      }
+    });
 
     //console.log("unregisterFlowNodeObserver pre", [...this.observables]);
     indexes.map((indexInObservables: number) => {
-    
       this.observables[indexInObservables] = undefined;
       delete this.observables[indexInObservables];
-      this.observables.splice(indexInObservables,1);
+      this.observables.splice(indexInObservables, 1);
     });
-    console.log("unregisterFlowNodeObserver post", [...this.observables]);
+    console.log('unregisterFlowNodeObserver post', [...this.observables]);
   };
 
   executionObservables: any[] = [];
 
-  registerFlowExecutionObserver = (observableId: string, callback: (executionEvent : IExecutionEvent) => void) => {
+  registerFlowExecutionObserver = (observableId: string, callback: (executionEvent: IExecutionEvent) => void) => {
     this.executionObservables.push({
       callback: callback,
       id: observableId,
@@ -242,23 +241,21 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   unregisterFlowExecuteObserver = observableId => {
-   
-    let indexes : number[] = [];
-  
+    let indexes: number[] = [];
+
     // TODO : refactor this to a better way !!
-    this.executionObservables
-      .map((observable, index) => {
-        if (observable.id === observableId) {
-          if (indexes.length === 0) {
-            indexes.push(index);
-          }
+    this.executionObservables.map((observable, index) => {
+      if (observable.id === observableId) {
+        if (indexes.length === 0) {
+          indexes.push(index);
         }
-      });
+      }
+    });
 
     indexes.map((indexInObservables: number) => {
       this.executionObservables[indexInObservables] = undefined;
       delete this.executionObservables[indexInObservables];
-      this.executionObservables.splice(indexInObservables,1);
+      this.executionObservables.splice(indexInObservables, 1);
     });
   };
 
@@ -272,48 +269,48 @@ export class FlowConnector implements IFlowrunnerConnector {
       this.nodeExecutions = [];
       this.nodeExecutionsByNode = {};
 
-      let pluginRegistryTaskNames : string[] = [];
+      let pluginRegistryTaskNames: string[] = [];
       for (var pluginName of Object.keys(this.pluginRegistry)) {
-        let plugin : any = this.pluginRegistry[pluginName];
+        let plugin: any = this.pluginRegistry[pluginName];
         pluginRegistryTaskNames.push(plugin.FlowTaskPluginClassName);
       }
-      if (this.flowType == "playground") {
+      if (this.flowType == 'playground') {
         this.worker.postMessage({
           command: 'pushFlowToFlowrunner',
           flow: flow,
-          pluginRegistry: pluginRegistryTaskNames
+          pluginRegistry: pluginRegistryTaskNames,
         });
       } else {
         this.worker.postMessage({
           command: 'pushFlowToFlowrunner',
           flow: [],
-          pluginRegistry: pluginRegistryTaskNames
+          pluginRegistry: pluginRegistryTaskNames,
         });
       }
     }
   };
   executeFlowNode = (nodeName: string, payload: any) => {
-    if (this.flowType == "playground") {
+    if (this.flowType == 'playground') {
       if (this.worker) {
         this.worker.postMessage({
           command: 'executeFlowNode',
           nodeName: nodeName,
           payload: payload,
-        }); 
+        });
       }
     }
   };
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName? : string) => {
-    if (this.flowType == "playground") {
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string) => {
+    if (this.flowType == 'playground') {
       if (this.worker) {
         this.worker.postMessage({
           command: 'modifyFlowNode',
           nodeName: nodeName,
           propertyName: propertyName,
           value: value,
-          executeNode: executeNode || "",
-          triggerEvent : eventName || ""
+          executeNode: executeNode || '',
+          triggerEvent: eventName || '',
         });
       }
     }
@@ -323,42 +320,42 @@ export class FlowConnector implements IFlowrunnerConnector {
     return true;
   };
 
-  setPluginRegistry = (pluginRegistry : any) => {
+  setPluginRegistry = (pluginRegistry: any) => {
     this.pluginRegistry = pluginRegistry;
   };
 
   getPluginRegistry = () => {
     return this.pluginRegistry;
-  }
+  };
 
   pauseFlowrunner = () => {
     if (this.worker) {
       this.worker.postMessage({
-        command: 'PauseFlowrunner'
+        command: 'PauseFlowrunner',
       });
     }
-  }
+  };
 
   resumeFlowrunner = () => {
     if (this.worker) {
       this.worker.postMessage({
-        command: 'ResumeFlowrunner'
+        command: 'ResumeFlowrunner',
       });
-    }    
-  }
+    }
+  };
 
-  setFlowType = (flowType : string) => {
-    this.flowType = flowType || "playground";
-  }
-  setAppMode = (mode : ApplicationMode) => {
+  setFlowType = (flowType: string) => {
+    this.flowType = flowType || 'playground';
+  };
+  setAppMode = (mode: ApplicationMode) => {
     this.applicationMode = mode;
-  }
+  };
 
   getAppMode = () => {
     return this.applicationMode;
-  }
+  };
 
-  registerScreenUICallback = (callback : (action : any) => void) => {
+  registerScreenUICallback = (callback: (action: any) => void) => {
     this.screenUICallback = callback;
-  }
+  };
 }

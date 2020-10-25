@@ -1,5 +1,5 @@
 import { shapeBackgroundColor, shapeSelectedBackgroundColor } from '../components/canvas/shapes/shape-types';
-import { getTaskConfigForTask} from '../config';
+import { getTaskConfigForTask } from '../config';
 
 export interface IShapeSettings {
   strokeColor: string;
@@ -9,7 +9,7 @@ export interface IShapeSettings {
   cornerRadius: number;
   isSkewed: boolean;
   subShapeType?: string;
-  events? : any[];
+  events?: any[];
   hasUI: boolean;
 }
 
@@ -22,7 +22,7 @@ export class ShapeSettings {
       textColor: '#000000',
       cornerRadius: 0,
       isSkewed: false,
-      hasUI : false
+      hasUI: false,
     };
     const taskTypeConfig = getTaskConfigForTask(taskType);
     if (taskTypeConfig) {

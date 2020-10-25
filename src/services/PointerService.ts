@@ -1,5 +1,3 @@
 export class PointerService {
-	static setIsDraggingNode() {
-		
-	}
+  static setIsDraggingNode() {}
 }
