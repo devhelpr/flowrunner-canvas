@@ -122,11 +122,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		window.addEventListener("resize", this.updateDimensions);
 		document.addEventListener('paste', this.onPaste);
 		this.updateDimensions();
-		setTimeout(() => {
-			
+		
+		/*setTimeout(() => {			
 			this.loadEditorState();
 		}, 100);
-		
+		*/
+
 		if (this.props.canvasToolbarsubject) {
 			this.props.canvasToolbarsubject.subscribe({
 				next: (message: string) => {
@@ -206,7 +207,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	}
 
-	setNewPositionForNode = (node, group, position? : any) => {
+	setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean) => {
 		const selectedNodeOpacity = 0.15;
 
 		this.props.flow.map((flowNode) => {
@@ -217,6 +218,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					if (shape) {
 						shape.opacity(selectedNodeOpacity);					
 					}				
+				}
+				const element = document.getElementById(flowNode.name);
+				if (element) {
+					element.style.opacity = "0.5";
 				} 
 			}
 		});
@@ -248,13 +253,26 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					let currentGroup = this.shapeRefs[node.name].current;
 					currentGroup.x(newPosition.x);
 					currentGroup.y(newPosition.y);
-					currentGroup.opacity(1);					
+					currentGroup.opacity(1);
+					const settings = ShapeSettings.getShapeSettings(node.taskType, node);	
+					currentGroup.children.map((childNode) => {
+						const childType = childNode.getClassName();
+						if (childType == "Rect" || childType == "Circle" || childType == "Ellipse" || childType=="RegularPolygon") {
+							childNode.fill(settings.fillSelectedColor);
+						}
+					});
+					const element = document.getElementById(node.name);
+					if (element) {
+						element.style.opacity = "1";
+					} 
+					//console.log("currentGroup", currentGroup);				
 				}				
 			} 
 		}
 
-		this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
-
+		if (!!isCommitingToStore) {
+			this.props.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
+		}
 		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, newPosition.x, newPosition.y, node);						
 
 		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
@@ -276,7 +294,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						lineNode.xend, lineNode.yend]);
 					lineRef.current.opacity(1);
 				}
-				this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
+				const endNode = this.shapeRefs[lineNode.endshapeid];
+				if (endNode && endNode.current) {
+					endNode.current.opacity(1);
+				}
+				if (!!isCommitingToStore) {
+					this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
+				}
 				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
 			})
 		}
@@ -310,8 +334,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					lineRef.current.opacity(1);
 				}
 
-
-				this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
+				const startNode = this.shapeRefs[lineNode.startshapeid];
+				if (startNode && startNode.current) {
+					startNode.current.opacity(1);
+				}
+				if (!!isCommitingToStore) {
+					this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
+				}
 			})
 		}
 
@@ -319,9 +348,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		let stage = (this.stage.current as any).getStage();
 		stage.batchDraw();
 
-		this.props.selectNode(node.name, node);
-		this.props.setConnectiongNodeCanvasMode(false);
-
+		if (!!isCommitingToStore) {
+			this.props.selectNode(node.name, node);
+			this.props.setConnectiongNodeCanvasMode(false);
+		}
 	}
 
 	onMouseOver(node, event) {
@@ -440,7 +470,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.touchNodeGroup = undefined;
 
 		if (event.currentTarget) {
-			this.setNewPositionForNode(node, event.currentTarget, undefined);
+			this.setNewPositionForNode(node, event.currentTarget, undefined, true);
 		}
 		return false;
 	}
@@ -911,7 +941,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					// .. there seems to be a small drop of y position after dragging a html shape
 					//shape.current.y(top);
 				} else {
-					console.log("html node not found", nodeName);
+					//console.log("html node not found", nodeName);
 				}
 			}
 			(element as any).style.transform = 						
@@ -1908,6 +1938,7 @@ console.log("taskClassName", event.target, taskClassName);
 											top: (0)+"px",
 											opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
 										}}
+									id={node.name}
 									data-node={node.name}	 
 									data-x={node.x} 
 									data-y={node.y}
