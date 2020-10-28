@@ -148,11 +148,10 @@ if (applicationMode === ApplicationMode.Canvas) {
 			})
 			.then(response => {
 				console.log("pluginRegistry", pluginRegistry);
-				(ReactDOM as any).createRoot(
-					root
-				).render(<Provider store={services.getStore()}>
+				// (ReactDOM as any).createRoot(
+				(ReactDOM as any).render(<Provider store={services.getStore()}>
 						<App isLoggedIn={(response as any).isLoggedIn}></App>
-					</Provider>
+					</Provider>, root
 				);	
 			})
 			.catch(err => {
@@ -182,11 +181,10 @@ if (applicationMode === ApplicationMode.UI) {
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 			console.log("pluginRegistry", pluginRegistry);
-			(ReactDOM as any).createRoot(
-				root
-			).render(<Provider store={services.getStore()}>
+			//(ReactDOM as any).createRoot(
+			(ReactDOM as any).render(<Provider store={services.getStore()}>
 					<App></App>
-				</Provider>
+				</Provider>, root
 			);							
 				
 		}).catch((err) => {
