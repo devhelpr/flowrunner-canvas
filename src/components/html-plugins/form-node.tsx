@@ -1,3 +1,4 @@
+import { node } from 'prop-types';
 import * as React from 'react';
 import { connect } from "react-redux";
 
@@ -91,6 +92,14 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				);
 				this.setState({node: this.props.node, value : this.props.node.defaultValue || ""});
 			}
+		}
+	}
+
+	componentDidUpdate(prevProps : FormNodeHtmlPluginProps) {
+		if (prevProps.node !== this.props.node) {
+			this.setState({
+				node: this.props.node 
+			});
 		}
 	}
 	

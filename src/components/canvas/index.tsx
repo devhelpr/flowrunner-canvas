@@ -143,7 +143,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						this.setState({canvasOpacity : 1});	
 					} else 
 					if (message == "reload") {
-						console.log("canvasKey", this.state.canvasKey);						
 						this.setState({canvasKey : this.state.canvasKey + 1});
 					}
 				}
@@ -409,7 +408,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.touching = true;
 		this.touchNode = node;
 		this.touchNodeGroup = event.currentTarget;
-//console.log("onMouseStart", event);
 		if (event.currentTarget) {
 			this.determineStartPosition(event.currentTarget);
 		}
@@ -436,7 +434,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 
 		if (this.touching) {
-			//console.log("onMouseMove", node, event);
 			if (event.currentTarget) {
 				// this.shapeRefs[nodeName]
 				(this.canvasWrapper.current).classList.add("mouse--moving");
@@ -468,7 +465,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.dragTime = undefined;
 		this.touchNode = undefined;
 		this.touchNodeGroup = undefined;
-
 		if (event.currentTarget) {
 			this.setNewPositionForNode(node, event.currentTarget, undefined, true);
 		}
@@ -914,13 +910,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		for (var element of elements) {
 			let x = parseFloat(element.getAttribute("data-x") || "");
 			let y = parseFloat(element.getAttribute("data-y") || "");
-			let top = parseFloat(element.getAttribute("data-top") || "");
+			let top = 0;//parseFloat(element.getAttribute("data-top") || "");
 			let minHeight = parseFloat(element.getAttribute("data-height") || "");
 
 			const clientElementHeight = element.clientHeight;
 			let diffHeight = clientElementHeight - minHeight;
 			if (diffHeight > 0) {
-				top =(-(clientElementHeight || node.height || 250)/2);
+				//top =(-(clientElementHeight || node.height || 250)/2);
 			}
 
 			if (node && element.getAttribute("data-node") == node.name) {
@@ -930,6 +926,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				if (newY && !isNaN(newY)) {
 					y = newY;
 				}				
+
+				element.setAttribute("data-x", x.toString()); 
+				element.setAttribute("data-y", y.toString());
+				//console.log("setHtmlElementsPositionAndScale", node, x,y);
 			}
 
 			const nodeName = element.getAttribute("data-node") || "";
@@ -1124,7 +1124,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			
 				if (this.props.flow.length > 0 &&
 					xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
-					console.log(xMin, xMax, yMin ,yMax);
 					let scale = 1;
 					
 					let flowWidth = Math.abs(xMax-xMin) ;//+ 200;
@@ -1168,8 +1167,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						newPos.x = (-(xMin)*scale) + stage.getWidth()/2 - ((flowWidth*scale))/2 ;
 						newPos.y = (-(yMin)*scale) + stage.getHeight()/2 - ((flowHeight*scale))/2 ;	
 						 
-						//console.log(stage.getWidth(), stage.getHeight(), realStageWidth,realStageHeight,flowWidth,flowHeight,flowWidth * scale, flowHeight * scale , scale, newPos.x, newPos.y);
-
 						stage.position(newPos);
 						stage.batchDraw();
 
@@ -1452,11 +1449,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	onDropTask = (event) => {
 		event.preventDefault();
-		console.log(event.target.getAttribute("data-task"));
 		
 		let taskClassName = event.dataTransfer.getData("data-task");
 		//const taskClassName = event.target.getAttribute("data-task");
-console.log("taskClassName", event.target, taskClassName);
 		let _stage = (this.stage.current as any).getStage();
 
 		_stage.setPointersPositions(event);
@@ -1532,7 +1527,6 @@ console.log("taskClassName", event.target, taskClassName);
 	}
 
 	onPaste = async (event) => {
-		console.log("onPaste", event);
 		let text;
 		if (navigator.clipboard) {
 			text = await navigator.clipboard.readText();
@@ -1690,7 +1684,6 @@ console.log("taskClassName", event.target, taskClassName);
 			return;
 		}
 
-		console.log("onInput" , event);
 		if (event.keyCode == this.fKey || event.keyCode == this.fKeyCapt) {
 			if (this.props.selectedNode && this.props.selectedNode.node) {
 				event.preventDefault();
@@ -1929,13 +1922,13 @@ console.log("taskClassName", event.target, taskClassName);
 								let top = (-(height || node.height || 250)/2);
 								return <div key={"html" + index}
 									style={{transform: "translate(" + (this.stageX  + node.x * this.stageScale) + "px," + 
-											(this.stageY + top +  (node.y) * this.stageScale) + "px) " +
+											(this.stageY +  (node.y) * this.stageScale) + "px) " +
 											"scale(" + (this.stageScale) + "," + (this.stageScale) + ") ",
 											width: (width || node.width || 250)+"px",
 											minHeight: (height || node.height || 250)+"px",
-											height:"auto",
+											height:(height || node.height || 250)+"px",
 											left: (-(width || node.width || 250)/2)+"px",
-											top: (0)+"px",
+											top: (top)+"px",
 											opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
 										}}
 									id={node.name}
