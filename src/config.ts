@@ -142,7 +142,7 @@ const taskTypeConfig: any = {
     presetValues: {
       observe: '[name of observable node to observe]',
     },
-  },  
+  },
   ValidateModelTask: {
     shapeType: 'Diamond',
   },
@@ -329,8 +329,8 @@ const taskTypeConfig: any = {
         fieldName: 'url',
         required: true,
       },
-    ]
-  }
+    ],
+  },
 };
 
 let fullConfig = { ...taskTypeConfig };

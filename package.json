@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Flow and UI designer for use during development of flowrunner projects",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -30,7 +30,7 @@
     "@devhelpr/flowrunner-redux": "0.5.8",
     "@devhelpr/layoutrunner": "^0.0.2",
     "@material-ui/core": "4.11.0",
-    "@material-ui/icons": "^4.9.1",    
+    "@material-ui/icons": "^4.9.1",
     "@reactivex/rxjs": "^6.5.4",
     "@types/jexl": "^2.2.0",
     "@types/react": "16.9.22",
