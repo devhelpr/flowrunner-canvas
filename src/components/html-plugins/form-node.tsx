@@ -136,30 +136,46 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		return false;
 	}
 
-	onChange = (fieldName, event: any) => {
+	throttleTimer : any = undefined;
+	onChange = (fieldName, fieldType, event: any) => {
 
-		const value = event.target.value;
+		if (this.throttleTimer) {
+			clearTimeout(this.throttleTimer)
+		}
 		
-		if (this.props.node && fieldName) {	
-			let errors = {...this.state.errors};
-			if (errors[fieldName]) {
-				delete errors[fieldName];
+		const value = event.target.value;
+		this.throttleTimer = setTimeout(() => {
+			
+			if (this.props.node && fieldName) {	
+				let errors = {...this.state.errors};
+				if (errors[fieldName]) {
+					delete errors[fieldName];
+				}
+
+				this.setState({values : {
+						...this.state.values,				
+						[fieldName]: value
+					},
+					errors: errors, 	
+					node : {
+						...this.state.node, 
+						[fieldName]: value
+					}
+				}, () => {
+					
+					this.props.storeFlowNode(this.state.node, this.props.node.name);
+				});
 			}
 
-			this.setState({values : {
-					...this.state.values,				
-					[fieldName]: value
-				},
-				errors: errors, 	
-				node : {
-					...this.state.node, 
-					[fieldName]: value
-				}
-			}, () => {
-				
-				this.props.storeFlowNode(this.state.node, this.props.node.name);
-			});
+		}, fieldType == "color" ? 50 : 5);
+		
+	}
+
+	getFieldType = (metaInfo) => {
+		if (metaInfo.fieldType === "color") {
+			return "color";
 		}
+ 		return "text";
 	}
 
 	render() {
@@ -170,13 +186,15 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				<form className="form" onSubmit={this.onSubmit}>
 					{this.props.taskSettings && this.props.taskSettings.metaInfo && <>
 						{(this.props.taskSettings.metaInfo || []).map((metaInfo, index) => {
+							const fieldType = this.getFieldType(metaInfo);
 							return <React.Fragment key={"index-f-" + index}>
 									<div className="form-group">						
 										<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>
 										<div className="input-group mb-1">
 											<input
-												onChange={this.onChange.bind(this, metaInfo.fieldName)}
+												onChange={this.onChange.bind(this, metaInfo.fieldName, metaInfo.fieldType || "text")}
 												key={"index" + index}
+												type={fieldType}
 												className="form-control"
 												value={this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName]}
 												id={"input-" + this.props.node.name + "-" +metaInfo.fieldName}

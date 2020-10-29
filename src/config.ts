@@ -249,6 +249,14 @@ const taskTypeConfig: any = {
         fieldName: 'action',
         required: true,
       },
+      {
+        fieldName: 'titleBarBackgroundcolor',
+        fieldType: 'color'
+      },
+      {
+        fieldName: 'titleBarColor',
+        fieldType: 'color'
+      }
     ],
   },
   DebugTask: {
