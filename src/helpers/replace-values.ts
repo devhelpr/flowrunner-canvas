@@ -1,4 +1,4 @@
-export const replaceValues = (content: string, payload: any) => {
+export const replaceValues = (content: string, payload: any, keepUnknownFields :  boolean = false) => {
   let resultContent = content;
   let matches = resultContent.match(/{.+?}/g);
   if (matches) {
@@ -16,6 +16,8 @@ export const replaceValues = (content: string, payload: any) => {
         } else if (format == 'integer') {
           value = parseFloat(value).toFixed(0);
         }
+      } else if (!!keepUnknownFields && value === undefined) {
+        value = match;
       }
       const allOccurancesOfMatchRegex = new RegExp(match, 'g');
       resultContent = resultContent.replace(allOccurancesOfMatchRegex, value);

@@ -5,6 +5,39 @@ const uuid = require('uuid');
 const { flowRight } = require('lodash');
 const uuidV4 = uuid.v4;
 
+const replaceValues = (content, payload) => {
+	let resultContent = content;
+	let matches = resultContent.match(/{.+?}/g);
+	if (matches) {
+		matches.map(match => {
+			const matchValue = match.slice(1, -1);
+			const splittedValues = matchValue.split(':');
+			const variableName = splittedValues[0];
+			let value = payload[variableName];
+			if (splittedValues.length > 1) {
+				const format = splittedValues[1];
+				if (format == 'currency') {
+				value = parseFloat(value)
+					.toFixed(2)
+					.replace('.', ',');
+				} else if (format == 'integer') {
+				value = parseFloat(value).toFixed(0);
+				}
+			}
+			const allOccurancesOfMatchRegex = new RegExp(match, 'g');
+			resultContent = resultContent.replace(allOccurancesOfMatchRegex, value);
+		});
+	}
+	return resultContent;
+};
+
+let secrets = {};
+try {
+	secrets = JSON.parse(fs.readFileSync("./secrets.json"));
+} catch(err) {
+	secrets = {};
+}
+
 function start(flowFileName, taskPlugins, options) {
 
 	/*
@@ -336,7 +369,10 @@ function start(flowFileName, taskPlugins, options) {
 		});
 
 		app.all('/api/proxy', (req, res) => {
-			fetch(req.body.url, {
+
+			let url = req.body.url;
+			const urlWithSecrets = replaceValues(url, secrets);
+			fetch(urlWithSecrets, {
 				method: req.body.httpMethod	|| "get"
 			}).then((response) => {
 			

@@ -502,7 +502,7 @@ export class ApiProxyTask extends FlowTask {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            url: replaceValues(node.url, node.payload),
+            url: replaceValues(node.url, node.payload, true),
             body: node.payload,
             httpMethod: node.httpMethod || 'get',
           }),
