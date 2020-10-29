@@ -6,10 +6,13 @@ export class ScreenTask extends FlowTask {
     try {
       services.workerContext.postMessage({
         command: 'SendScreen',
-        payload: { ...(node.payload.titleBar || {
-          'titleBarBackgroundcolor' : node.titleBarBackgroundcolor || "#000000",
-          'titleBarColor' : node.titleBarColor || "#ffffff"
-        } || {}) },
+        payload: {
+          ...(node.payload.titleBar || {
+              titleBarBackgroundcolor: node.titleBarBackgroundcolor || '#000000',
+              titleBarColor: node.titleBarColor || '#ffffff',
+            } ||
+            {}),
+        },
       });
       return node.payload;
     } catch (err) {

@@ -251,12 +251,12 @@ const taskTypeConfig: any = {
       },
       {
         fieldName: 'titleBarBackgroundcolor',
-        fieldType: 'color'
+        fieldType: 'color',
       },
       {
         fieldName: 'titleBarColor',
-        fieldType: 'color'
-      }
+        fieldType: 'color',
+      },
     ],
   },
   DebugTask: {
