@@ -228,7 +228,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       delete this.observables[indexInObservables];
       this.observables.splice(indexInObservables, 1);
     });
-    console.log('unregisterFlowNodeObserver post', [...this.observables]);
+    //console.log('unregisterFlowNodeObserver post', [...this.observables]);
   };
 
   executionObservables: any[] = [];

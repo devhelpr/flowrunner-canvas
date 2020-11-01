@@ -176,7 +176,7 @@ canvas,.konvajs-content,
 .canvas__html-shape-body {
 	position: relative;
 	pointer-events: auto;
-	min-height: 100%;
+	min-height: calc(100% - 32px);
 	height: auto;
 	width: 100%;
 	overflow: hidden;
@@ -186,6 +186,19 @@ canvas,.konvajs-content,
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+[data-html-plugin="formNode"] .canvas__html-shape-body {
+	align-items: flex-start;
+	overflow: visible;
+}
+
+[data-html-plugin="formNode"] .html-plugin-node {
+	height: auto;
+}
+
+[data-html-plugin="formNode"] .form {
+	padding: 0 5px;
 }
 
 .mouse--moving .canvas__html-shape-body {
@@ -532,6 +545,10 @@ textarea.form-control {
 	padding: 0;
 	background-color: transparent !important;
 	text-align: center;
+}
+
+.ui-view-layout__container [data-html-plugin="formNode"] .html-plugin-node {
+	text-align: left;
 }
 
 .ui-view-layout__container .html-plugin-node__h-100 {

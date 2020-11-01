@@ -1932,7 +1932,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 											opacity: (!canvasHasSelectedNode || (this.props.selectedNode && this.props.selectedNode.name === node.name)) ? 1 : 0.5 										 
 										}}
 									id={node.name}
-									data-node={node.name}	 
+									data-node={node.name}
+									data-html-plugin={nodeClone.htmlPlugin}
 									data-x={node.x} 
 									data-y={node.y}
 									data-top={top}

@@ -21,7 +21,10 @@ import {
 	setFlowTypeFunction,
 	setFlowType,
 	setEditorModeFunction,
-	setEditorMode
+	setEditorMode,
+	setFlowsFunction,
+	setFlowsWasm,
+	setFlowsPlayground
 } from '../../redux/actions/canvas-mode-actions';
 
 import fetch from 'cross-fetch';
@@ -70,6 +73,8 @@ export interface ToolbarProps {
 	setFlowrunnerPaused: setFlowrunnerPausedFunction;
 	setFlowType: setFlowTypeFunction;
 	setEditorMode : setEditorModeFunction;
+	setFlowsPlayground : setFlowsFunction;
+	setFlowsWasm : setFlowsFunction;
 
 	flowrunnerConnector : IFlowrunnerConnector;
 }
@@ -109,6 +114,8 @@ const mapDispatchToProps = (dispatch: any) => {
 		setFlowType: (flowType: string) => dispatch(setFlowType(flowType)),
 		setEditorMode: (editorMode : string) => dispatch(setEditorMode(editorMode)),
 		storeLayout: (layout : string) => dispatch(storeLayout(layout)),
+		setFlowsPlayground : (flows : any[]) => dispatch(setFlowsPlayground(flows)),
+		setFlowsWasm : (flows : any[]) => dispatch(setFlowsWasm(flows))
 	}
 }
 
@@ -141,6 +148,25 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		.then(flows => {
 			if (flows.length > 0) {
 				const flowId = (id === undefined) ? flows[0].id : id;
+
+				this.props.setFlowsPlayground(flows.filter((flow)=> {
+					return flow.flowType == "playground";
+				}).map((flow) => {
+					return {
+						"label" : flow.name,
+						"value" : flow.id
+					}
+				}));
+				
+				this.props.setFlowsWasm(flows.filter((flow)=> {
+					return flow.flowType == "rustflowrunner";
+				}).map((flow) => {
+					return {
+						"label" : flow.name,
+						"value" : flow.id
+					}
+				}));
+
 				this.setState({flowFiles : flows, selectedFlow : flowId});
 				this.loadFlow(flowId);
 			}
@@ -410,40 +436,74 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 											className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.name || this.props.canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
 											title="Add new flow"><span>New</span></a>
 									</>
-									{this.props.canvasMode.flowType === "playground" && this.props.canvasMode.editorMode === "canvas" && <img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />}
-									{this.props.canvasMode.flowType === "rustflowrunner" && this.props.canvasMode.editorMode === "canvas" && <img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />}
-									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && <TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>}
-									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && <a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit connection</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType === "Line" && <a href="#" onClick={this.deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.helpNode} className="mx-2 btn btn-outline-light">Help</a>}
+									{this.props.canvasMode.flowType === "playground" && this.props.canvasMode.editorMode === "canvas" && 
+										<img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />
+									}
+									{this.props.canvasMode.flowType === "rustflowrunner" && this.props.canvasMode.editorMode === "canvas" && 
+										<img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />
+									}
+									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && 
+										<TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>
+									}
+									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && 
+										<a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && 
+										<a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType === "Line" && 
+										<a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit connection</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && 
+										<a href="#" onClick={this.connectNode} className={"mx-2 btn " + (this.props.canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType === "Line" && 
+										<a href="#" onClick={this.deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && 
+										<a href="#" onClick={this.helpNode} className="mx-2 btn btn-outline-light">Help</a>
+									}
 
 									{!!selectedNode.name && selectedNode.node.shapeType === "Line" &&
-										selectedNode.node.followflow !== "onfailure" && <a href="#" onClick={this.markAsUnHappyFlow} className={"mx-2 btn btn-outline-danger"}>Mark as unhappy flow</a>}
+										selectedNode.node.followflow !== "onfailure" && 
+											<a href="#" onClick={this.markAsUnHappyFlow} className={"mx-2 btn btn-outline-danger"}>Mark as unhappy flow</a>
+									}
 									{!!selectedNode.name && selectedNode.node.shapeType === "Line" &&
-										selectedNode.node.followflow !== "onsuccess" && <a href="#" onClick={this.markAsHappyFlow} className={"mx-2 btn btn-outline-success"}>Mark as happy flow</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>}
-									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && <a href="#" onClick={this.showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>}
+										selectedNode.node.followflow !== "onsuccess" && 
+											<a href="#" onClick={this.markAsHappyFlow} className={"mx-2 btn btn-outline-success"}>Mark as happy flow</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && 
+										<a href="#" onClick={this.deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>
+									}
+									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && 
+										<a href="#" onClick={this.showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>
+									}
 									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && <>
 										<input id="showDependenciesInput" type="checkbox" checked={this.state.showDependencies} onChange={this.onShowDependenciesChange} />
 										<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 									</>}
 									{!!this.props.hasRunningFlowRunner && 
 									 this.props.canvasMode.editorMode === "canvas" &&
-									 this.props.canvasMode.flowType == "playground" && <a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>}							
-									{this.props.canvasMode.editorMode === "canvas" && <a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>}
+									 this.props.canvasMode.flowType == "playground" && 
+									 	<a href="#" onClick={this.onSetPausedClick} className="ml-2 pause-button">{!!this.props.canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>
+									}							
+									{this.props.canvasMode.editorMode === "canvas" && 
+										<a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
+									}
 									<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
 									<span className="ml-auto"></span>
-									{this.props.canvasMode.flowType == "playground" && <a href={"/ui/" + this.state.selectedFlow} className="ml-2">UI View</a>}
+									{this.props.canvasMode.flowType == "playground" && 
+										<a href={"/ui/" + this.state.selectedFlow} className="ml-2">UI View</a>
+									}
 									{!!!selectedNode.name &&
 									 this.props.canvasMode.flowType == "playground" &&
 									 this.props.canvasMode.editorMode == "canvas" &&
-									<a href="#" onClick={this.swithToUIViewEditor} className="ml-2">Edit UI View</a>}
+										<a href="#" onClick={this.swithToUIViewEditor} className="ml-2">Edit UI View</a>
+									}
 									{this.props.canvasMode.flowType == "playground" &&
 									 this.props.canvasMode.editorMode != "canvas" &&
-									<a href="#" onClick={this.swithToCanvasEditor} className="ml-2">Edit Flow</a>}
+										<a href="#" onClick={this.swithToCanvasEditor} className="ml-2">Edit Flow</a>
+									}
 								</form>
 							</Navbar.Collapse>
 						</div>

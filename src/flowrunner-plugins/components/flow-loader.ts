@@ -1,6 +1,6 @@
 import fetch from 'cross-fetch';
 
-export class WasmFlowLoader {
+export class FlowLoader {
   public getFlow = id => {
     return new Promise((resolve, reject) => {
       try {
@@ -11,22 +11,23 @@ export class WasmFlowLoader {
         })
           .then(res => {
             if (res.status >= 400) {
-              throw new Error('WasmFlowLoader load-flow status code' + res.status);
+              throw new Error('FlowLoader load-flow status code' + res.status);
             }
             return res.json();
           })
           .then(response => {
-            if (response.flowType !== 'rustflowrunner') {
+            /*if (response.flowType !== 'rustflowrunner') {
               reject();
             }
+            */
             resolve(this.convertFlowToWasmFlow(response.flow));
           })
           .catch(err => {
-            console.log('WasmFlowLoader load-flow(1)', err);
-            reject('WasmFlowLoader load-flow(1): ' + err);
+            console.log('FlowLoader load-flow(1)', err);
+            reject('FlowLoader load-flow(1): ' + err);
           });
       } catch (err) {
-        reject('WasmFlowLoader load-flow(2): ' + err);
+        reject('FlowLoader load-flow(2): ' + err);
       }
     });
   };

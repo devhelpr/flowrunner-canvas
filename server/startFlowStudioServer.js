@@ -128,6 +128,7 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
 					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
+					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
 
 					tasks.push({className:"assign", fullName: "Assign", flowType:"rustflowrunner"});
 					tasks.push({className:"operation", fullName: "Operation", flowType:"rustflowrunner"});

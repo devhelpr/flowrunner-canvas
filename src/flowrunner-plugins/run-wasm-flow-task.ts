@@ -1,5 +1,5 @@
 import { FlowTask } from '@devhelpr/flowrunner';
-import { WasmFlowLoader } from './components/wasm-flow-loader';
+import { FlowLoader } from './components/flow-loader';
 
 export class RunWasmFlowTask extends FlowTask {
   webassemblyFlowrunner: any = undefined;
@@ -11,7 +11,7 @@ export class RunWasmFlowTask extends FlowTask {
     try {
       if (this.webassemblyFlowrunner === undefined) {
         if (node.flowId) {
-          const loader = new WasmFlowLoader();
+          const loader = new FlowLoader();
           return new Promise((resolve, reject) => {
             loader
               .getFlow(node.flowId)

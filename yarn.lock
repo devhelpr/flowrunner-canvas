@@ -969,6 +969,19 @@
     rxjs-compat "^6.5.4"
     utility-types "^3.10.0"
 
+"@devhelpr/flowrunner@0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.10.0.tgz#a8b3f2c574d65fa88685c1d040308e43d792b827"
+  integrity sha512-wgxKbA9ktiYqdZ8koBU45GfaVTww8G6RBKIwnmDc7o/rnE/D3XDDKIS/punnbodHmMe7wKXQIj72NXynqc3DEQ==
+  dependencies:
+    "@reactivex/rxjs" "^6.4.0"
+    "@types/uuid" "^3.4.4"
+    moment "^2.24.0"
+    promise "^8.0.2"
+    rxjs "^6.4.0"
+    rxjs-compat "^6.4.0"
+    uuid "^3.3.2"
+
 "@devhelpr/flowrunner@0.7.4":
   version "0.7.4"
   resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.7.4.tgz#52bef78192f2f21f03e8da00492d6ea467cb50a1"
@@ -986,19 +999,6 @@
   version "0.9.4"
   resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.9.4.tgz#88c32a51969bf409c115619f75be239f312a1bfc"
   integrity sha512-iAp1xgDj3FNRcy0dh8CNwofr3NqbESOWNIUQisoE8PZhSAQ7jeL+XQ8RO9ugnJlp2bQ/Ato1lsTXhR0CQvaGAQ==
-  dependencies:
-    "@reactivex/rxjs" "^6.4.0"
-    "@types/uuid" "^3.4.4"
-    moment "^2.24.0"
-    promise "^8.0.2"
-    rxjs "^6.4.0"
-    rxjs-compat "^6.4.0"
-    uuid "^3.3.2"
-
-"@devhelpr/flowrunner@0.9.9":
-  version "0.9.9"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.9.9.tgz#1f3713f479b5e93c89def2a4a3ec6fbb3b1f3fe8"
-  integrity sha512-BLPR7irk7wBoifQjD/m5QZMt4ZxJq5buc6WJCiKgBT0bd604rMJRj4+HtzopLa5woB4/OtBgcpDXXuGcZfFElg==
   dependencies:
     "@reactivex/rxjs" "^6.4.0"
     "@types/uuid" "^3.4.4"

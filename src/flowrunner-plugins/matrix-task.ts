@@ -1,5 +1,5 @@
 import { FlowTask } from '@devhelpr/flowrunner';
-import { WasmFlowLoader } from './components/wasm-flow-loader';
+import { FlowLoader } from './components/flow-loader';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
@@ -234,7 +234,7 @@ export class MatrixTask extends FlowTask {
             });
             if (this.webassembly === undefined) {
               if (node.flowId) {
-                const loader = new WasmFlowLoader();
+                const loader = new FlowLoader();
                 return new Promise((resolve, reject) => {
                   loader
                     .getFlow(node.flowId)

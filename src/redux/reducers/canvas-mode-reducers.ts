@@ -6,6 +6,8 @@ import {
   SET_FLOWRUNNERPAUSED,
   SET_FLOWTYPE,
   SET_EDITORMODE,
+  SET_FLOWSPLAYGROUND,
+  SET_FLOWSWASM
 } from '../actions/canvas-mode-actions';
 
 export interface ICanvasMode {
@@ -16,6 +18,8 @@ export interface ICanvasMode {
   isFlowrunnerPaused: boolean;
   flowType: string;
   editorMode: string;
+  flowsPlayground: any[];
+  flowsWasm: any[];
 }
 
 export const canvasModeReducer = (
@@ -27,6 +31,8 @@ export const canvasModeReducer = (
     isFlowrunnerPaused: false,
     flowType: '',
     editorMode: 'canvas',
+    flowsPlayground: [],
+    flowsWasm : []
   },
   action: any,
 ) => {
@@ -71,6 +77,18 @@ export const canvasModeReducer = (
       return {
         ...state,
         editorMode: action.payload.editorMode,
+      };
+    }
+    case SET_FLOWSPLAYGROUND: {
+      return {
+        ...state,
+        flowsPlayground: action.payload.flows,
+      };
+    }
+    case SET_FLOWSWASM: {
+      return {
+        ...state,
+        flowsWasm: action.payload.flows,
       };
     }
     default:

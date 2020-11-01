@@ -171,9 +171,19 @@ const taskTypeConfig: any = {
     },
   },
   RunWasmFlowTask: {
-    shapeType: 'Rect',
+    hasUI: false,
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        "fieldName" : "flowId",
+        "fieldType" : "select",
+        "required" : true,
+        "datasource" : "[WASMFLOW]"
+      }
+    ],
     presetValues: {
-      flow: [],
+      flow: []      
     },
   },
   GridEditTask: {
@@ -258,6 +268,15 @@ const taskTypeConfig: any = {
         fieldType: 'color',
       },
     ],
+  },
+  FormTask: {
+    hasUI: true,
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    hasMetaInfoInNode: true,
+    presetValues: {
+      "metaInfo":[] 
+    }
   },
   DebugTask: {
     shapeType: 'Html',

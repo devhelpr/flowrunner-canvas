@@ -14,6 +14,7 @@ import { RunWasmFlowTask } from './flowrunner-plugins/run-wasm-flow-task';
 import { DataGridTask } from './flowrunner-plugins/data-grid-task';
 
 import { ScreenTask } from './flowrunner-plugins/screen-task';
+import { FormTask } from './flowrunner-plugins/form-task';
 
 import {
   registerExpressionFunction,
@@ -576,8 +577,11 @@ const onWorkerMessage = event => {
         });
       payload = null;
     } else if (command == 'modifyFlowNode' && data.nodeName) {
+      if (!flow) {
+        return;
+      }
       flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value);
-
+      
       if (data.executeNode !== undefined && data.executeNode !== '') {
         flow
           .executeNode(data.executeNode, {})
@@ -590,6 +594,10 @@ const onWorkerMessage = event => {
       }
 
       if (data.triggerEvent !== undefined && data.triggerEvent !== '') {
+        if (!flow) {
+          return;
+        }
+
         flow
           .triggerEventOnNode(data.nodeName, data.triggerEvent, {})
           .then(result => {
@@ -606,6 +614,11 @@ const onWorkerMessage = event => {
         (observables[data.nodeName] as any).unsubscribe();
         observables[data.nodeName] = undefined;
       }
+
+      if (!flow) {
+        return;
+      }
+      
       const observable = flow.getObservableNode(data.nodeName);
       if (observable) {
         let subscribtion = observable.subscribe({
@@ -629,8 +642,14 @@ const onWorkerMessage = event => {
         payload = null;
       }
     } else if (command == 'PauseFlowrunner') {
+      if (!flow) {
+        return;
+      }
       flow.pauseFlowrunner();
     } else if (command == 'ResumeFlowrunner') {
+      if (!flow) {
+        return;
+      }
       flow.resumeFlowrunner();
     }
 
@@ -683,6 +702,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[]) => {
   flow.registerTask('DataGridTask', DataGridTask);
   flow.registerTask('RunWasmFlowTask', RunWasmFlowTask);
   flow.registerTask('ScreenTask', ScreenTask);
+  flow.registerTask('FormTask', FormTask);
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {

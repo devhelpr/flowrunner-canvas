@@ -7,6 +7,8 @@ export const SET_ALLOWINPUTTOHTMLNODES = 'SET_ALLOWINPUTTOHTMLNODES';
 export const SET_FLOWRUNNERPAUSED = 'SET_FLOWRUNNERPAUSED';
 export const SET_FLOWTYPE = 'SET_FLOWTYPE';
 export const SET_EDITORMODE = 'SET_EDITORMODE';
+export const SET_FLOWSPLAYGROUND = 'SET_FLOWSPLAYGROUND';
+export const SET_FLOWSWASM = 'SET_FLOWSWASM';
 
 export type setConnectiongNodeCanvasModeFunction = (enabled: boolean) => void;
 export type setSelectedTaskFunction = (selectedTask: string) => void;
@@ -15,6 +17,7 @@ export type setAllowInputToHtmlNodesFunction = (allowInputToHtmlNodes: boolean) 
 export type setFlowrunnerPausedFunction = (paused: boolean) => void;
 export type setFlowTypeFunction = (flowType: string) => void;
 export type setEditorModeFunction = (editorMode: string) => void;
+export type setFlowsFunction = (flows: any[]) => void;
 
 export const setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction = enabled =>
   action(SET_CONNECTING_CANVAS_MODE_NODE, { enabled: enabled });
@@ -34,3 +37,7 @@ export const setFlowrunnerPaused: setFlowrunnerPausedFunction = paused =>
 export const setFlowType: setFlowTypeFunction = flowType => action(SET_FLOWTYPE, { flowType: flowType });
 
 export const setEditorMode: setEditorModeFunction = editorMode => action(SET_EDITORMODE, { editorMode: editorMode });
+
+export const setFlowsPlayground: setFlowsFunction = flows => action(SET_FLOWSPLAYGROUND, { flows: flows });
+
+export const setFlowsWasm: setFlowsFunction = flows => action(SET_FLOWSWASM, { flows: flows });

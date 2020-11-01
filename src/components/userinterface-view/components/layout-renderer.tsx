@@ -47,13 +47,14 @@ export const renderFlowNode = (node : any, rootLayout : any) => {
 					position: "relative"						 
 				}}
 			data-node={node.name}
+			data-html-plugin={nodeClone.htmlPlugin}
 			data-node-type={node.taskType}
 			data-node-visualizer={nodeClone.visualizer || ""}	 
 			data-x={node.x} 
 			data-y={node.y} 
 			className="canvas__html-shape">
 				<div className="canvas__html-shape-body">
-				{rootLayout.context.renderHtmlNode && rootLayout.context.renderHtmlNode(nodeClone, rootLayout.context.flowrunnerConnector, rootLayout.context.nodes, rootLayout.context.flow, settings)}</div>										
+				{rootLayout.context.renderHtmlNode && rootLayout.context.renderHtmlNode(nodeClone, rootLayout.context.flowrunnerConnector, rootLayout.context.flow, settings)}</div>										
 				</div>;
 	}
 }
