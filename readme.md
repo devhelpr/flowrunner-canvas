@@ -1,6 +1,7 @@
 # What is Flowrunner-canvas?
 
-Flowrunner-canvas is a flow based programming environment that can very easily be added to an existent frontend javascript/typescript toolchain.
+Flowrunner-canvas is a flow based programming environment that can be used standalone but also very easily be added to an existent frontend javascript/typescript toolchain. 
+When used standalone it can be used without writing code, but it is extendable in various ways depending on your needs.
 
 Flowrunner-canvas is a visual editor for creating flows that can be run with the @devhelpr/flowrunner npm package. It runs within your dev environment in the browser, locally on a dev machine,
 

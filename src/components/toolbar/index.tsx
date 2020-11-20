@@ -290,7 +290,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		}, () => {
 			if (!!pushFlow) {
 				this.props.setFlowrunnerPaused(false);
-				this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow);
+				this.props.flowrunnerConnector.pushFlowToFlowrunner(this.props.flow, true);
 			}
 		});
 	}
@@ -361,6 +361,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	}
 
 	setSelectedFlow = (event) => {
+		this.props.flowrunnerConnector.killAndRecreateWorker();
 		this.setState({selectedFlow : event.target.value});
 		this.loadFlow(event.target.value);		
 	}
@@ -376,6 +377,13 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		return false;
 	}
 
+	exportFlowToPng = (event) => {
+		event.preventDefault();
+		if (this.props.canvasToolbarsubject) {
+			this.props.canvasToolbarsubject.next("export");
+		}
+		return false;
+	}
 	fitStage = (event) => {
 		event.preventDefault();
 		if (this.props.canvasToolbarsubject) {
@@ -518,5 +526,6 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			}
 		
 		}
+// <a href="#" onClick={this.exportFlowToPng} className="ml-2">Export png</a>
 		
 export const Toolbar = connect(mapStateToProps, mapDispatchToProps)(ContainedToolbar);

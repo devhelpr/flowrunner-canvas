@@ -23,7 +23,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
 
-  pushFlowToFlowrunner = (flow: any) => {};
+  pushFlowToFlowrunner = (flow: any, autoStartNodes : boolean = true) => {};
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
@@ -52,6 +52,19 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   };
 
   registerScreenUICallback = (callback: (action: any) => void) => {};
+
+  registerDestroyAndRecreateWorker = (onDestroyAndRecreateWorker: any) => {
+
+  };
+
+  killAndRecreateWorker = () => {
+
+  };
+
+  registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult : any) => {
+
+  }
+
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -89,9 +102,23 @@ export class FlowConnector implements IFlowrunnerConnector {
     worker.addEventListener('message', this.onMessage);
   }
 
+  onReceiveFlowNodeExecuteResult : any;
+  registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult : any) => {
+    this.onReceiveFlowNodeExecuteResult = onReceiveFlowNodeExecuteResult;
+  }
+
   onMessage = (event: any) => {
     //console.log("event from worker", event);
     if (event && event.data) {
+      if (event.data.command == "ExecuteFlowNodeResult") {
+        if (this.onReceiveFlowNodeExecuteResult) {
+          if (!event.data.result) {
+            this.onReceiveFlowNodeExecuteResult(false);
+          } else {
+            this.onReceiveFlowNodeExecuteResult(event.data.payload);
+          }
+        }
+      } else
       if (event.data.command == 'SendNodeExecution') {
         this.nodeExecutions.push(event.data);
         this.nodeExecutions.splice(0, this.nodeExecutions.length - 1000);
@@ -106,7 +133,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         });
       } else if (event.data.command == 'SendObservableNodePayload') {
         // TODO : de eerst keer gaat dit niet goed...
-        console.log('SendObservableNodePayload', event.data);
+        //console.log('SendObservableNodePayload', event.data);
         if (
           event.data.payload &&
           event.data.payload.nodeName &&
@@ -260,8 +287,11 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   updateFlowNode = () => {};
-  pushFlowToFlowrunner = (flow: any) => {
+  pushFlowToFlowrunner = (flow: any, autoStartNodes : boolean = true) => {
     if (this.worker) {
+      if (this.onDestroyAndRecreateWorker) {
+        this.onDestroyAndRecreateWorker();
+      }
       //previously this.observables was cleared here,
       // that causes side effects and is actually not needed because
       // unregistrating and registration is done from within lifecycle events
@@ -279,12 +309,14 @@ export class FlowConnector implements IFlowrunnerConnector {
           command: 'pushFlowToFlowrunner',
           flow: flow,
           pluginRegistry: pluginRegistryTaskNames,
+          autoStartNodes: autoStartNodes
         });
       } else {
         this.worker.postMessage({
           command: 'pushFlowToFlowrunner',
           flow: [],
           pluginRegistry: pluginRegistryTaskNames,
+          autoStartNodes: autoStartNodes
         });
       }
     }
@@ -296,6 +328,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           command: 'executeFlowNode',
           nodeName: nodeName,
           payload: payload,
+          sendMessageOnResolve: true
         });
       }
     }
@@ -358,4 +391,14 @@ export class FlowConnector implements IFlowrunnerConnector {
   registerScreenUICallback = (callback: (action: any) => void) => {
     this.screenUICallback = callback;
   };
+
+  onDestroyAndRecreateWorker : any;
+  registerDestroyAndRecreateWorker = (onDestroyAndRecreateWorker: any) => {
+    this.onDestroyAndRecreateWorker = onDestroyAndRecreateWorker;
+  };
+
+  killAndRecreateWorker = () => {
+    this.onDestroyAndRecreateWorker();
+  };
+
 }

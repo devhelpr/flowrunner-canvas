@@ -9,10 +9,14 @@ import {
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
-export const renderFlowNode = (node : any, rootLayout : any) => {
+export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : boolean = false) => {
 	if (!!node.hideFromUI) {
 		return <React.Fragment></React.Fragment>
 	}
+
+	const onShowNodeSettings = () => {
+		//
+	};
 
 	let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
 	const settings = ShapeSettings.getShapeSettings(node.taskType, node);
@@ -37,6 +41,7 @@ export const renderFlowNode = (node : any, rootLayout : any) => {
 				}
 			}
 		}
+		//console.log("settings ui", node.name, isInEditMode, settings);
 
 		return <div
 			style={{																						
@@ -53,9 +58,15 @@ export const renderFlowNode = (node : any, rootLayout : any) => {
 			data-x={node.x} 
 			data-y={node.y} 
 			className="canvas__html-shape">
+				{!!isInEditMode && settings && !!settings.hasConfigMenu && 
+					<div className="">
+						<a href="#" onClick={onShowNodeSettings.bind(this, node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>
+					</div>
+				}
 				<div className="canvas__html-shape-body">
-				{rootLayout.context.renderHtmlNode && rootLayout.context.renderHtmlNode(nodeClone, rootLayout.context.flowrunnerConnector, rootLayout.context.flow, settings)}</div>										
-				</div>;
+				{rootLayout.context.renderHtmlNode && rootLayout.context.renderHtmlNode(nodeClone, rootLayout.context.flowrunnerConnector, rootLayout.context.flow, settings)}
+				</div>										
+			</div>;
 	}
 }
 
@@ -131,7 +142,7 @@ export const renderLayoutType = (layoutBlock : any,
 	else if (layoutBlock.type === "flowNode") {
 		const node = rootLayout.context.flowHash[layoutBlock.subtitle];
 		if (node) {
-			return renderFlowNode(node, rootLayout);
+			return renderFlowNode(node, rootLayout, false);
 		}
 		return null;
 	}

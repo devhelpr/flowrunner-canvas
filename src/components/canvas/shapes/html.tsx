@@ -86,7 +86,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 			strokeWidth={0}
 			cornerRadius={settings.cornerRadius}
 			width={width || props.node.width || ShapeMeasures.htmlWidth}
-			height={height || props.node.height || ShapeMeasures.htmlHeight}
+			height={(height || props.node.height || ShapeMeasures.htmlHeight)}
 			fill="#000000"
 			opacity={0}  
 			perfectDrawEnabled={false}></KonvaRect>

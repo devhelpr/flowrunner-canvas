@@ -101,37 +101,74 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	unmounted = false;
 	componentWillUnmount() {
 		this.unmounted = true;
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.timer = undefined;
+		}
 		console.log("componentWillUnmount",this.observableId, this.props.node);
 		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
 	}
 
+	timer : any; 
+	lastTime : any;
+	receivedPayloads : any[] = [];
 	receivePayloadFromNode = (payload : any) => {
-		console.log("receivePayloadFromNode", payload, this.props.node);
+		//console.log("receivePayloadFromNode", payload, this.props.node);
 		if (this.unmounted) {
 			return;
 		}		
-
+		
 		if (!!payload.isDebugCommand) {
 			if (payload.debugCommand  === "resetPayloads") {
-				this.setState((state, props) => {
-					return {
-						receivedPayload: []
-					}
-				})
+				if (this.receivedPayloads.length > 0) {
+					this.receivedPayloads = [];
+					this.setState((state, props) => {
+						return {
+							receivedPayload: []
+						}
+					});
+				}
 			}
 			return;
 		}
 
-		this.setState((state, props) => {
-			let receivedPayloads : any[] = [...state.receivedPayload];
-			receivedPayloads.push({...payload});
-			if (receivedPayloads.length > 1) {
-				receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (this.props.node.maxPayloads || 1), 0));
+		let receivedPayloads : any[] = [...this.receivedPayloads];
+		receivedPayloads.push({...payload});
+		if (receivedPayloads.length > 1) {
+			receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (this.props.node.maxPayloads || 1), 0));
+		}
+		this.receivedPayloads = receivedPayloads;
+
+		if (!this.lastTime || performance.now() > this.lastTime + 30) {
+			this.lastTime = performance.now();
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = undefined;
 			}
-			return {
-				receivedPayload: receivedPayloads
+			this.setState({receivedPayload : this.receivedPayloads});
+			/*
+			this.setState((state, props) => {
+				let receivedPayloads : any[] = [...state.receivedPayload];
+				receivedPayloads.push({...payload});
+				if (receivedPayloads.length > 1) {
+					receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (this.props.node.maxPayloads || 1), 0));
+				}
+				return {
+					receivedPayload: receivedPayloads
+				}
+			});
+			*/
+		} else {
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = undefined;
 			}
-		});
+
+			this.timer = setTimeout(() => {
+				this.timer = undefined;		
+				this.setState({receivedPayload : this.receivedPayloads});
+			}, 30);
+		}
 
 		return;
 	}

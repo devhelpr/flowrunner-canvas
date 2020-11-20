@@ -122,7 +122,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 					cornerRadius={settings.cornerRadius}
 					width={8}
 					height={8}
-					fill="#ffffff"
+					fill="#a000a0"
 					title={event.eventName}
 					opacity={1}  
 					perfectDrawEnabled={false}></KonvaRect>	

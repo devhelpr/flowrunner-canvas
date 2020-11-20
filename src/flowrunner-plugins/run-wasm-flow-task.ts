@@ -5,9 +5,6 @@ export class RunWasmFlowTask extends FlowTask {
   webassemblyFlowrunner: any = undefined;
 
   public execute(node: any, services: any) {
-    if (!node.flow) {
-      return false;
-    }
     try {
       if (this.webassemblyFlowrunner === undefined) {
         if (node.flowId) {

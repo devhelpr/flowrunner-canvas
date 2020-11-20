@@ -200,15 +200,18 @@ export class ContainedUserInterfaceViewEditor extends React.Component<UserInterf
 							}
 							return false;
 						}).map((flowNode, index) => {
-							return <div key={"flowNode-"+index} onDragStart={this.onDragStart} data-draggable="flowNode" data-id={flowNode.name} draggable={true} className="layout__draggable"><label>{flowNode.name}</label>
-							{renderFlowNode(flowNode, {
-								context : {
-									getNodeInstance: this.props.getNodeInstance,
-									flowrunnerConnector: this.props.flowrunnerConnector,
-									flow: this.props.flow,
-									renderHtmlNode: this.props.renderHtmlNode
-								}
-							})}</div>
+							//console.log("flowNode", flowNode.name);
+							return <div key={"flowNode-"+index} onDragStart={this.onDragStart} data-draggable="flowNode" data-id={flowNode.name} draggable={true} className="layout__draggable">
+								<label>{flowNode.name}</label>
+								{renderFlowNode(flowNode, {
+									context : {
+										getNodeInstance: this.props.getNodeInstance,
+										flowrunnerConnector: this.props.flowrunnerConnector,
+										flow: this.props.flow,
+										renderHtmlNode: this.props.renderHtmlNode
+									}
+								}, false)}
+							</div>;
 						})
 					}
 					</div>

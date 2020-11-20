@@ -1,7 +1,8 @@
 import fetch from 'cross-fetch';
+import { node } from 'prop-types';
 
 export class FlowLoader {
-  public getFlow = id => {
+  public getFlow = (id, doNotConvertFlowToWasm = false) => {
     return new Promise((resolve, reject) => {
       try {
         fetch('/flow?flow=' + id, {
@@ -20,7 +21,11 @@ export class FlowLoader {
               reject();
             }
             */
-            resolve(this.convertFlowToWasmFlow(response.flow));
+            if (!!doNotConvertFlowToWasm) {
+              resolve(response.flow);
+            } else {
+              resolve(this.convertFlowToWasmFlow(response.flow));
+            }
           })
           .catch(err => {
             console.log('FlowLoader load-flow(1)', err);

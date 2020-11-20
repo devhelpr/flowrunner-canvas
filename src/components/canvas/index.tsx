@@ -15,6 +15,7 @@ import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { ShapeMeasures } from '../../helpers/shape-measures';
 import { Flow } from '../flow';
 import { calculateLineControlPoints } from '../../helpers/line-points'
+import { EditNodeSettings } from '../edit-node-settings';
 
 import * as uuid from 'uuid';
 
@@ -73,6 +74,9 @@ export interface CanvasState {
 	stageHeight: number;
 	canvasOpacity: number;
 	canvasKey : number
+	showNodeSettings: boolean;
+	editNode : any;
+	editNodeSettings: any;
 }
 
 class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
@@ -100,7 +104,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		stageWidth : 0,
 		stageHeight : 0,
 		canvasOpacity: 0,
-		canvasKey : 1
+		canvasKey : 1,
+		showNodeSettings: false,
+		editNode: undefined,
+		editNodeSettings : undefined
 	}
 
 	shapeRefs : any[];
@@ -144,6 +151,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					} else 
 					if (message == "reload") {
 						this.setState({canvasKey : this.state.canvasKey + 1});
+					} else 
+					if (message == "export") {
+						this.export();
 					}
 				}
 			});
@@ -153,15 +163,15 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 
-		
-
 		if (prevProps.flow != this.props.flow) {
 			if (this.flowIsLoading) {
 				this.flowIsLoading = false;
 				this.shapeRefs = [];
 
 				this.props.flow.map((node, index) => {
-					this.shapeRefs[node.name] = React.createRef();
+					if (!this.shapeRefs[node.name]) {
+						this.shapeRefs[node.name] = React.createRef();
+					}
 				});
 				this.fitStage();
 
@@ -353,6 +363,39 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
+	onShowNodeSettings(node, settings, event) {
+		event.preventDefault();
+		this.setState({showNodeSettings : true,
+			editNode: node,
+			editNodeSettings: settings
+		});
+		return false;
+	}
+
+	onCloseEditNodeSettings= () => {
+		this.setState({showNodeSettings : false,
+			editNode: undefined,
+			editNodeSettings: undefined
+		});
+	}
+
+	downloadURI(uri, name) {
+		let link = document.createElement('a');
+		link.download = name;
+		link.href = uri;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);			
+	}
+
+	export = () => {	
+		if (this.stage && this.stage.current) {
+			let stage = (this.stage.current as any).getStage();
+			var dataURL = stage.toDataURL({ pixelRatio: 3 });
+			this.downloadURI(dataURL, 'flow.png');
+		}
+	}
+
 	onMouseOver(node, event) {
 		if (node.notSelectable) {
 			return false;
@@ -416,6 +459,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	}
 
+	mouseDragging : boolean = false;
+
 	onMouseMove(node, event) {
 		if (node && this.touching && this.touchNode && node.name !== this.touchNode.name) {
 			return;
@@ -435,6 +480,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		if (this.touching) {
 			if (event.currentTarget) {
+				this.mouseDragging = true;
 				// this.shapeRefs[nodeName]
 				(this.canvasWrapper.current).classList.add("mouse--moving");
 				this.setNewPositionForNode(node, event.currentTarget, event.evt.screenX ? {
@@ -465,9 +511,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.dragTime = undefined;
 		this.touchNode = undefined;
 		this.touchNodeGroup = undefined;
-		if (event.currentTarget) {
+		if (event.currentTarget && this.mouseDragging) {
+			console.log("onmouseend before setNewPositionForNode");
 			this.setNewPositionForNode(node, event.currentTarget, undefined, true);
 		}
+		this.mouseDragging = false;
 		return false;
 	}
 
@@ -490,6 +538,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.dragTime = undefined;
 		this.touchNode = undefined;
 		this.touchNodeGroup = undefined;
+	
 		return false;
 	}
 
@@ -736,6 +785,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			this.props.selectedNode.shapeType !== "Line") {
 
 			const connection = getNewConnection(this.props.selectedNode.node, node, this.props.getNodeInstance);
+			if (!this.shapeRefs[connection.name]) {
+				this.shapeRefs[connection.name] = React.createRef();
+			}
 			this.props.addConnection(connection);
 			this.props.setConnectiongNodeCanvasMode(false);
 		}
@@ -1134,6 +1186,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 						let realStageWidth = stageContainerElement.clientWidth;
 						let realStageHeight = stageContainerElement.clientHeight;
+						if (realStageHeight < 500) {
+							realStageHeight = 500;
+						}
 
 						if (this.props.flow.length === 1) { 
 							scale = 1;
@@ -1252,6 +1307,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
 					 
+					this.shapeRefs[newNode.name] = React.createRef();
 					this.props.addFlowNode(newNode, this.props.flow);
 
 
@@ -1934,13 +1990,15 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									id={node.name}
 									data-node={node.name}
 									data-html-plugin={nodeClone.htmlPlugin}
+									data-visualizer={node.visualizer || "default"}
 									data-x={node.x} 
 									data-y={node.y}
 									data-top={top}
 									data-height={(height || node.height || 250)}
 									ref={this.htmlElement} 
 									className={"canvas__html-shape canvas__html-shape-" + node.name}>
-										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>{node.label ? node.label : node.name}</div>
+										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}><span className="canvas__html-shape-bar-title">{node.label ? node.label : node.name}</span>
+											{!!settings.hasConfigMenu && <a href="#" onClick={this.onShowNodeSettings.bind(this, node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
 										<div className="canvas__html-shape-body">
 										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.flow, settings)}</div>
 										{settings.events && settings.events.map((event ,eventIndex) => {
@@ -1953,6 +2011,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					}
 				</div>
 			</div>
+			{this.state.showNodeSettings && <EditNodeSettings node={this.state.editNode} settings={this.state.editNodeSettings} flowrunnerConnector={this.props.flowrunnerConnector} onClose={this.onCloseEditNodeSettings}></EditNodeSettings>}
 			<Flow flow={this.props.flow} 
 				flowrunnerConnector={this.props.flowrunnerConnector} />							
 		</>;

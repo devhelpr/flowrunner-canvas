@@ -11,6 +11,7 @@ export interface IShapeSettings {
   subShapeType?: string;
   events?: any[];
   hasUI: boolean;
+  hasConfigMenu?: boolean;
 }
 
 export class ShapeSettings {

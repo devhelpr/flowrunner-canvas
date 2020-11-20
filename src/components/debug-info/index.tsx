@@ -6,7 +6,7 @@ import { Shapes } from '../canvas/shapes';
 import { IFlowrunnerConnector, IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
 
 export interface DebugInfoProps {
-	nodes : any[];
+	//nodes : any[];
 	flow: any[];
 
 	selectedNode : any;
@@ -21,7 +21,7 @@ export interface DebugInfoState {
 const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
-		nodes: state.rawFlow,
+		//nodes: state.rawFlow,
 		selectedNode : state.selectedNode,
 		canvasMode : state.canvasMode		
 	}
@@ -40,22 +40,35 @@ class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState>
 	}
 
 	htmlElement : any;
+	timer : any;
 	componentDidMount() {
 		this.props.flowrunnerConnector.registerFlowExecutionObserver("ContainedDebugInfo" , (executionEvent : IExecutionEvent) => {
-			if (!this.unmounted) {
-				// TODO : fix this nasty workaround
-				this.forceUpdate();
+
+			if (this.timer) {
+				clearTimeout(this.timer);
 			}
 
-			if (executionEvent) {
-				this.setState({payload: executionEvent.payload});
-			}
+			this.timer = setTimeout(() => {
+				if (!this.unmounted) {
+					// TODO : fix this nasty workaround
+					//this.forceUpdate();
+				}
+
+				if (executionEvent) {
+					this.setState({payload: executionEvent.payload});
+				}
+
+			}, 50);
 		});
 	}
 
 	unmounted : boolean = false;
 	componentWillUnmount() {
 		this.unmounted = true;
+		if (this.timer) {
+			clearTimeout(this.timer);
+		}
+		
 		this.props.flowrunnerConnector.unregisterFlowExecuteObserver("ContainedDebugInfo");
 
 	}

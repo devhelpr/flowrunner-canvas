@@ -12,9 +12,12 @@ export interface IMatrix {
 
 export class MatrixTask extends FlowTask {
   webassembly: any = undefined;
+  performance: any = undefined;
   public execute(node: any, services: any) {
     //console.log("MatrixTask execute", node);
-
+    if (this.performance === undefined) {
+      this.performance = performance.now();
+    }
     let _payload = { ...node.payload };
     if (node.name != 'MatrixTask4' && node.name != 'gameOfLive') {
       //console.log(node.name, node);
@@ -378,6 +381,8 @@ export class MatrixTask extends FlowTask {
               //console.log("executeFlowForEachCell", nodeName);
               let promises: any[] = [];
               let loopRows = 0;
+              let time = performance.now() - this.performance;
+              
               while (loopRows < matrix.rows) {
                 let loopColumns = 0;
                 while (loopColumns < matrix.columns) {
@@ -389,6 +394,7 @@ export class MatrixTask extends FlowTask {
                   //console.log(loopRows, loopColumns);
                   ///promises.push(flow.executeNode(node.executeNode, {value: value, x: loopColumns, y: loopRows} || {}));
                   // onCalculateNewGenerationForEachCell
+                  
                   promises.push(
                     services.flowEventRunner.triggerEventOnNode(
                       nodeName,
@@ -399,6 +405,10 @@ export class MatrixTask extends FlowTask {
                         y: loopRows,
                         uuid: currentUUID,
                         neighbourCount: neigbourMatrix.data[index],
+                        time: time,
+                        t: time,
+                        index: loopRows*matrix.columns + loopColumns,
+                        i: loopRows*matrix.columns + loopColumns
                       } || {},
                     ),
                   );
@@ -427,6 +437,9 @@ export class MatrixTask extends FlowTask {
 
                   values.map((resultPayload, index) => {
                     if (resultPayload !== undefined) {
+                      if (resultPayload.isAlive === undefined) {
+                        newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] = resultPayload.value || 0;
+                      } else
                       if (resultPayload.isAlive === 1) {
                         newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] = 1;
                       }
@@ -453,6 +466,7 @@ export class MatrixTask extends FlowTask {
                   _payload = null;
                 })
                 .catch(() => {
+                  //console.log("matrix error");
                   (newMatrix as any) = null;
                   (matrix as any) = null;
                   reject();

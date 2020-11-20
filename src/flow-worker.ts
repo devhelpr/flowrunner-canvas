@@ -1,6 +1,7 @@
 const ctx: Worker = self as any;
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import { BehaviorSubject, Subject } from '@reactivex/rxjs';
+
 import { ExpressionTask } from '@devhelpr/flowrunner-expression';
 import fetch from 'cross-fetch';
 import { replaceValues } from './helpers/replace-values';
@@ -15,6 +16,9 @@ import { DataGridTask } from './flowrunner-plugins/data-grid-task';
 
 import { ScreenTask } from './flowrunner-plugins/screen-task';
 import { FormTask } from './flowrunner-plugins/form-task';
+import { RunFlowTask } from './flowrunner-plugins/run-flow-task';
+
+import { WeightedSumTask, ActivationTask, UpdateWeightsTask } from './flowrunner-plugins/perceptron';
 
 import {
   registerExpressionFunction,
@@ -51,11 +55,37 @@ registerExpressionFunction('sum', (a: number, ...args: number[]) => {
 registerExpressionFunction('Math.PI', (a: number, ...args: number[]) => {
   return Math.PI;
 });
-
+registerExpressionFunction('Math.sqrt', (a: number, ...args: number[]) => {
+  return Math.sqrt(a);
+});
 registerExpressionFunction('Math.sin', (a: number, ...args: number[]) => {
-  return Math.sin((a * Math.PI) / 180);
+  return Math.sin(a);
+});
+registerExpressionFunction('sin', (a: number, ...args: number[]) => {
+  return Math.sin(a);
 });
 
+registerExpressionFunction('hypot', (a: number, ...args: number[]) => {
+  return Math.hypot(a, args[0]);
+});
+
+registerExpressionFunction('Math.sindegree', (a: number, ...args: number[]) => {
+  return Math.sin((a * Math.PI) / 180);
+});
+registerExpressionFunction('Math.random', (a: number, ...args: number[]) => {
+  return Math.random();
+});
+registerExpressionFunction('Math.atan', (a: number, ...args: number[]) => {
+  return Math.atan(a);
+});
+
+// -.4/(hypot(x-((t/1000)%10),y-((t/1000)%8))-((t/1000)%2)*9)
+
+//Math.sin((t/100)-Math.sqrt((x-7.5)^2+(y-6)^2))
+//Math.sin(x+0.5*y+0.5*time/100)
+//Math.sin((Math.sqrt(((x-7.5)*(x-7.5))+((-7.5+y)*(-7.5+y))))*time/10000)
+//Math.sin(time/10000-(Math.sqrt(((x-7.5)*(x-7.5))+((-7.5+y)*(-7.5+y)))))
+//Math.sin(x/2) - Math.sin(x-t/1000) - y+6
 registerExpressionFunction('Math.floor', (a: number, ...args: number[]) => {
   return Math.floor(a);
 });
@@ -151,6 +181,10 @@ export class PreviewTask extends FlowTask {
   public execute(node: any, services: any) {
     //console.log('previewtask', node);
     return true;
+  }
+
+  public isStartingOnInitFlow() {
+    return false;
   }
 
   public getName() {
@@ -317,6 +351,13 @@ export class DebugTask extends ObservableTask {
   public getName() {
     return 'DebugTask';
   }
+
+  public isSampling(node) {
+    if (node.isSampling !== undefined) {
+      return node.isSampling;
+    }
+    return true;
+  }
 }
 
 let flowPluginNodes = {};
@@ -378,6 +419,11 @@ export class TimerTask extends FlowTask {
   clearTimeout: any = undefined;
   node: any = undefined;
 
+  constructor() {
+    super();
+    console.log("create TimerTask");
+  }
+
   public timer = () => {
     /*
 
@@ -427,7 +473,7 @@ export class TimerTask extends FlowTask {
   public execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
-
+console.log("timer execute", node);
     if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
@@ -460,6 +506,8 @@ export class TimerTask extends FlowTask {
 
   isBeingKilled = false;
   public kill() {
+    console.log("kill TimerTask");
+
     this.isBeingKilled = true;
     if (this.clearTimeout) {
       clearTimeout(this.clearTimeout);
@@ -566,14 +614,28 @@ const onWorkerMessage = event => {
       if (!flow) {
         return;
       }
+      const sendMessageOnResolve = !!data.sendMessageOnResolve;
       let payload = { ...data.payload };
       flow
         .executeNode(data.nodeName, payload || {})
         .then(result => {
-          //console.log('result after executeNode', result);
+          if (sendMessageOnResolve) {
+            ctx.postMessage({
+              command: 'ExecuteFlowNodeResult',
+              result: result,
+              payload: { ...result },
+            });
+          }
         })
         .catch(error => {
           console.log('executeNode failed', error);
+          if (sendMessageOnResolve) {
+            ctx.postMessage({
+              command: 'ExecuteFlowNodeResult',
+              result: false,
+              payload: undefined,
+            });
+          }
         });
       payload = null;
     } else if (command == 'modifyFlowNode' && data.nodeName) {
@@ -608,7 +670,7 @@ const onWorkerMessage = event => {
           });
       }
     } else if (command == 'pushFlowToFlowrunner') {
-      startFlow({ flow: data.flow }, data.pluginRegistry);
+      startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes);
     } else if (command == 'registerFlowNodeObserver') {
       if (observables[data.nodeName]) {
         (observables[data.nodeName] as any).unsubscribe();
@@ -668,7 +730,7 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
   });
 };
 
-const startFlow = (flowPackage: any, pluginRegistry: string[]) => {
+const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes : boolean = true) => {
   if (flow !== undefined) {
     for (var key of Object.keys(observables)) {
       observables[key].unsubscribe();
@@ -703,6 +765,11 @@ const startFlow = (flowPackage: any, pluginRegistry: string[]) => {
   flow.registerTask('RunWasmFlowTask', RunWasmFlowTask);
   flow.registerTask('ScreenTask', ScreenTask);
   flow.registerTask('FormTask', FormTask);
+  flow.registerTask('RunFlowTask', RunFlowTask);
+  
+  flow.registerTask('WeightedSumTask', WeightedSumTask);
+  flow.registerTask('ActivationTask', ActivationTask);
+  flow.registerTask('UpdateWeightsTask', UpdateWeightsTask);
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
@@ -747,7 +814,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[]) => {
   };
   let value: boolean = false;
   flow
-    .start(flowPackage, services, true, true)
+    .start(flowPackage, services, true, !!autoStartNodes)
     .then((services: any) => {
       /*
       // see above.. not needed here

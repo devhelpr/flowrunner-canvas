@@ -9,6 +9,9 @@ import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 import { getFormControl } from './form-controls';
 
+import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
+
+
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
@@ -70,6 +73,8 @@ export interface FormNodeHtmlPluginProps {
 	selectedNode: any;
 	canvasMode: ICanvasMode;
 
+	isNodeSettingsUI? : boolean;
+	onSetValue? : (value, fieldName) => void;
 	storeFlowNode: (node, orgNodeName) => void;
 }
 
@@ -164,18 +169,26 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
 	}
 
+	timer : any;
+	lastTime : any;
 	receivePayloadFromNode = (payload : any) => {
 		const maxPayloads = 1;
 		if (this.unmounted) {
 			return;
 		}		
+		
 
 		let metaInfo : any[] = [];
-		if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
-			metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
-		}
-		if (!!this.props.taskSettings.hasMetaInfoInNode) {
-			metaInfo = this.props.node.metaInfo || [];
+
+		if (!!this.props.isNodeSettingsUI) {
+			metaInfo = this.props.taskSettings.configMenu.fields
+		} else {
+			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
+				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
+			}
+			if (!!this.props.taskSettings.hasMetaInfoInNode) {
+				metaInfo = this.props.node.metaInfo || [];
+			}
 		}
 
 		if (!!payload.isDebugCommand) {
@@ -189,24 +202,54 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			return;
 		}
 
-		this.setState((state, props) => {
-			let datasourcePropertyName: any = undefined;
-			metaInfo.map((metaInfo) => {
-				if (metaInfo.datasource && payload[metaInfo.datasource]) {
-					datasourcePropertyName = metaInfo.datasource;
-				}
-		
-			});
-			let datasource = {...state.datasource};
-			if (datasourcePropertyName) {
-				datasource[datasourcePropertyName] = payload[datasourcePropertyName];
+		let datasourcePropertyName: any = undefined;
+		metaInfo.map((metaInfo) => {
+			if (metaInfo.datasource && payload[metaInfo.datasource]) {
+				datasourcePropertyName = metaInfo.datasource;
 			}
-			return {
-				receivedPayload: payload,
-				datasource : datasource
-			}
+	
 		});
 
+		if (datasourcePropertyName) {
+			if (!this.lastTime || performance.now() > this.lastTime + 30) {
+				this.lastTime = performance.now();
+				if (this.timer) {
+					clearTimeout(this.timer);
+					this.timer = undefined;
+				}
+				this.setState((state, props) => {
+					
+					let datasource = {...state.datasource};
+					if (datasourcePropertyName) {
+						datasource[datasourcePropertyName] = payload[datasourcePropertyName];
+					}
+					return {
+						receivedPayload: payload,
+						datasource : datasource
+					}
+				});
+			} else {
+				if (this.timer) {
+					clearTimeout(this.timer);
+					this.timer = undefined;
+				}
+	
+				this.timer = setTimeout(() => {
+					this.timer = undefined;
+					this.setState((state, props) => {
+				
+						let datasource = {...state.datasource};
+						if (datasourcePropertyName) {
+							datasource[datasourcePropertyName] = payload[datasourcePropertyName];
+						}
+						return {
+							receivedPayload: payload,
+							datasource : datasource
+						}
+					});
+				}, 30);
+			}
+		}
 		return;
 	}
 
@@ -229,11 +272,15 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		let errors = {};
 
 		let metaInfo : any[] = [];
-		if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
-			metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
-		}
-		if (!!this.props.taskSettings.hasMetaInfoInNode) {
-			metaInfo = this.props.node.metaInfo || [];
+		if (!!this.props.isNodeSettingsUI) {
+			metaInfo = this.props.taskSettings.configMenu.fields
+		} else {
+			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
+				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
+			}
+			if (!!this.props.taskSettings.hasMetaInfoInNode) {
+				metaInfo = this.props.node.metaInfo || [];
+			}
 		}
 
 		(metaInfo || []).map((metaInfo) => {
@@ -253,71 +300,100 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		return false;
 	}
 
-	throttleTimer : any = undefined;
-	onChange = (fieldName, fieldType, event: any) => {
-
-		if (this.throttleTimer) {
-			clearTimeout(this.throttleTimer)
-		}
-		
-		const value = event.target.value;
-		this.throttleTimer = setTimeout(() => {
-			
-			if (this.props.node && fieldName) {	
-				let errors = {...this.state.errors};
-				if (errors[fieldName]) {
-					delete errors[fieldName];
-				}
-
-				this.setState({values : {
-						...this.state.values,				
-						[fieldName]: value
-					},
-					errors: errors, 	
-					node : {
-						...this.state.node, 
-						[fieldName]: value
-					}
-				}, () => {
-					
-					this.props.storeFlowNode(this.state.node, this.props.node.name);
-				});
+	setValue = (fieldName, value, metaInfo) => {
+		if (this.props.node && fieldName) {	
+			let errors = {...this.state.errors};
+			if (errors[fieldName]) {
+				delete errors[fieldName];
 			}
 
-		}, fieldType == "color" ? 50 : 5);
+			this.setState({values : {
+					...this.state.values,				
+					[fieldName]: value
+				},
+				errors: errors, 	
+				node : {
+					...this.state.node, 
+					[fieldName]: value
+				}
+			}, () => {
+				console.log("this.props.node.name",this.props.node.name, this.state.node);
+				if (!this.props.isNodeSettingsUI) {
+					this.props.storeFlowNode(this.state.node, this.props.node.name);
+				} else if (this.props.onSetValue) {
+					this.props.onSetValue(value, fieldName);
+				}
+			});
+		}
+	}
+
+	throttleTimer : any = undefined;
+	onChange = (fieldName, fieldType, metaInfo, event: any) => {
+		event.preventDefault();
+		let valueForNode : any;
+		if (metaInfo && metaInfo.dataType === "number") {
+			valueForNode = Number(event.target.value);
+		} else {
+			valueForNode = event.target.value;
+		}
+
+		if (fieldType == "color" ) {
+			if (this.throttleTimer) {
+				clearTimeout(this.throttleTimer)
+			}
+						
+			this.throttleTimer = setTimeout(() => {
+				
+				this.setValue(fieldName, valueForNode, metaInfo);
+
+			}, fieldType == "color" ? 50 : 5);
+		} else {					
+			this.setValue(fieldName, valueForNode, metaInfo);
+		}
 		
+
+		return false;
+	}
+
+	setValueViaOnReceive = (value, metaInfo) => {
+		if (this.props.node && metaInfo.fieldName) {	
+			let errors = {...this.state.errors};
+			if (errors[metaInfo.fieldName]) {
+				delete errors[metaInfo.fieldName];
+			}
+
+			this.setState({values : {
+					...this.state.values,				
+					[metaInfo.fieldName]: value
+				},
+				errors: errors, 	
+				node : {
+					...this.state.node, 
+					[metaInfo.fieldName]: value
+				}
+			}, () => {
+				if (!this.props.isNodeSettingsUI) {
+					this.props.storeFlowNode(this.state.node, this.props.node.name);
+				} else  if (this.props.onSetValue) {
+					this.props.onSetValue(value, metaInfo.fieldName);
+				}
+			});
+		}
 	}
 
 	onReceiveValue = (value, metaInfo) => {
 
-		if (this.throttleTimer) {
-			clearTimeout(this.throttleTimer)
-		}
-		
-		this.throttleTimer = setTimeout(() => {
-			
-			if (this.props.node && metaInfo.fieldName) {	
-				let errors = {...this.state.errors};
-				if (errors[metaInfo.fieldName]) {
-					delete errors[metaInfo.fieldName];
-				}
-
-				this.setState({values : {
-						...this.state.values,				
-						[metaInfo.fieldName]: value
-					},
-					errors: errors, 	
-					node : {
-						...this.state.node, 
-						[metaInfo.fieldName]: value
-					}
-				}, () => {
-					
-					this.props.storeFlowNode(this.state.node, this.props.node.name);
-				});
+		if (metaInfo.fieldType == "color") {
+			if (this.throttleTimer) {
+				clearTimeout(this.throttleTimer)
 			}
-
-		}, metaInfo.fieldType == "color" ? 50 : 5);
+			
+			this.throttleTimer = setTimeout(() => {
+				this.setValueViaOnReceive(value, metaInfo);		
+			}, metaInfo.fieldType == "color" ? 50 : 5);
+		} else {
+			this.setValueViaOnReceive(value, metaInfo);
+		}
 		
 	}
 
@@ -333,11 +409,15 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 
 	render() {
 		let metaInfo : any[] = [];
-		if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
-			metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
-		}
-		if (!!this.props.taskSettings.hasMetaInfoInNode) {
-			metaInfo = this.props.node.metaInfo || [];
+		if (!!this.props.isNodeSettingsUI) {
+			metaInfo = this.props.taskSettings.configMenu.fields
+		} else {
+			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
+				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
+			}
+			if (!!this.props.taskSettings.hasMetaInfoInNode) {
+				metaInfo = this.props.node.metaInfo || [];
+			}
 		}
 		return <div className="html-plugin-node" style={{			
 				backgroundColor: "white"
@@ -347,13 +427,20 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 					<>
 						{metaInfo.map((metaInfo, index) => {
 							const fieldType = this.getFieldType(metaInfo);
+							if (metaInfo.visibilityCondition) {
+								const expression = createExpressionTree(metaInfo.visibilityCondition);
+								const result = executeExpressionTree(expression, this.state.values);
+								if (!result) {
+									return <></>;
+								}								
+							}
 							if (!fieldType || fieldType == "text" || fieldType == "color") {						
 								return <React.Fragment key={"index-f-" + index}>
 										<div className="form-group">						
 											<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>
 											<div className="input-group mb-1">
 												<input
-													onChange={this.onChange.bind(this, metaInfo.fieldName, metaInfo.fieldType || "text")}
+													onChange={this.onChange.bind(this, metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo)}
 													key={"index" + index}
 													type={fieldType}
 													className="form-control"
@@ -378,8 +465,6 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 								} else
 								if (metaInfo.datasource && this.state.datasource[metaInfo.datasource]) {
 									datasource = this.state.datasource[metaInfo.datasource];
-								} else {
-									datasource = [];
 								}
 
 								return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{

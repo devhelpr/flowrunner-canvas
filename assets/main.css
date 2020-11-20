@@ -5,7 +5,15 @@
 body, html {
 	height: 100%;
 	min-height: 100%;
-};
+}
+
+.modal {
+	z-index: 10050;
+}
+
+.modal-backdrop.fade {
+	z-index: 10040;
+}
 
 .toolbar__root {
 	height: 72px;
@@ -87,12 +95,12 @@ canvas,.konvajs-content,
 .canvas__html-shape-event {
 	width: 16px;
     height: 16px;
-    background: white;
+    background: #a000a0;
     position: absolute;
     right: -8px;
     top: 36px;
     z-index: 2;
-    border: 2px solid #a000a0;
+	border: 2px solid #a000a0;
 }
 
 .canvas__html-shape-event::before {
@@ -161,12 +169,27 @@ canvas,.konvajs-content,
 	pointer-events: none;
 	height: 32px;
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	flex-direction: row;
+	justify-content: flex-start;
 	align-items: center;
 	background: #c2c2c2;
 	border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+	border-top-right-radius: 8px;	
+}
+
+.canvas__html-shape-bar-title {
+	margin-left: 10px;
+}
+
+.canvas__html-shape-bar-icon {
+	margin-left: auto;
+	margin-right: 10px;
+	color: #000000;
+	pointer-events: auto;
+}
+
+.canvas__html-shape-bar-icon:hover {
+	text-decoration: none;
 }
 
 .canvas__html-shape-bar--selected {
@@ -188,15 +211,19 @@ canvas,.konvajs-content,
     align-items: center;
 }
 
+
+[data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
 	align-items: flex-start;
 	overflow: visible;
 }
 
+[data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node,
 [data-html-plugin="formNode"] .html-plugin-node {
 	height: auto;
 }
 
+[data-html-plugin="debugNode"][data-visualizer="default"] .form,
 [data-html-plugin="formNode"] .form {
 	padding: 0 5px;
 }

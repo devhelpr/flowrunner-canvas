@@ -46,9 +46,18 @@ const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrun
 
 let flowrunnerConnector : any = undefined;
 
+const onDestroyAndRecreateWorker = () => {
+	if (worker) {
+		worker.terminate();
+		worker = new Worker("/worker.js");
+		flowrunnerConnector.registerWorker(worker);
+	}
+}
+
 if (!!hasRunningFlowRunner) {
-	flowrunnerConnector = new FlowConnector();
- 	flowrunnerConnector.registerWorker(worker);
+	flowrunnerConnector = new FlowConnector();	
+	flowrunnerConnector.registerWorker(worker);
+	flowrunnerConnector.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
 } else {
 	flowrunnerConnector = new EmptyFlowConnector();
 }

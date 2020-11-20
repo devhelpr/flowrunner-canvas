@@ -55,20 +55,38 @@ export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState
 				let x = index % (currentPayload.columns);
 				let y = Math.floor(index / currentPayload.rows);
 
-				if (payload == 1) {
+				/*
++ 16 -8
++ 16 -4
+				*/
+				if (payload >= 1 || payload <= -1) {
 					circle = <Circle 
 							key={"xycanvasgrid-" + index}
-							x={(x * 16) + 16}
-							y={(y * 16) + 16}
+							x={(x * 16)+8}
+							y={(y * 16)+8}
 							radius={16}
-							stroke={"#000000"}
+							stroke={payload <= -1 ? "#ff0000" : "#000000"}
 							strokeWidth={2}
 							width={16}
 							height={16}
 							opacity={1}
-							fill={"#000000"} 
+							fill={payload <= -1 ? "#ff0000" : "#000000"} 
 							perfectDrawEnabled={false}>
 						</Circle>
+				} else if (payload != 0) {
+					circle = <Circle 
+					key={"xycanvasgrid-" + index}
+					x={(x * 16)+8}
+					y={(y * 16)+8}
+					radius={16 * Math.abs(payload)}
+					stroke={payload < 0 ? "#ff0000" : "#000000"}
+					strokeWidth={2}
+					width={16 * Math.abs(payload)}
+					height={16 * Math.abs(payload)}
+					opacity={1}
+					fill={payload < 0 ? "#ff0000" : "#000000"} 
+					perfectDrawEnabled={false}>
+				</Circle>
 				}
 			} else
 			if (node.mode !== "matrix" && node.xProperty && node.yProperty) {

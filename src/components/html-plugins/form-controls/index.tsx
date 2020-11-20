@@ -1,10 +1,12 @@
 import * as React from 'react';
+import { RadioButton } from './radiobutton';
 import { Select } from './select';
 import { Input } from './input';
 import { IFormControlProps } from './form-control-interface';
 const formControls = {
 	select: Select,
-	text: Input
+	text: Input,
+	radiobutton : RadioButton
 }
 
 export const getFormControl = (formControl, props : IFormControlProps) => {

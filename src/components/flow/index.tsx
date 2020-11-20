@@ -11,7 +11,8 @@ export interface IFlowProps {
 export const Flow = (props : IFlowProps) => {
 	
 	useEffect(() => {
-		props.flowrunnerConnector.pushFlowToFlowrunner(props.flow);	
+		console.log("Flow", props.flow);
+		props.flowrunnerConnector.pushFlowToFlowrunner(props.flow, true);	
 	}, [props.flow]);
 
 	return <></>;

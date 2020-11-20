@@ -86,6 +86,17 @@ const taskTypeConfig: any = {
   },
   FunctionCallTask: {
     cornerRadius: 10,
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'functionnodeid',
+        required: true,        
+      }
+    ],
+    presetValues:{
+      "functionnodeid":""
+    }
   },
   FunctionInputTask: {
     isStartEnd: true,
@@ -186,6 +197,25 @@ const taskTypeConfig: any = {
       flow: []      
     },
   },
+  RunFlowTask: {
+    hasUI: false,
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        "fieldName" : "flowId",
+        "fieldType" : "select",
+        "required" : true,
+        "datasource" : "[PLAYGROUNDFLOW]"
+      },
+      {
+        "fieldName" : "nodeName",
+        "required" : true
+      }
+    ],
+    presetValues: {
+    },
+  },
   GridEditTask: {
     hasUI: true,
     shapeType: 'Html',
@@ -205,6 +235,7 @@ const taskTypeConfig: any = {
   },
   SliderTask: {
     hasUI: true,
+    hasConfigMenu: true,
     shapeType: 'Html',
     htmlPlugin: 'sliderNode',
     presetValues: {
@@ -217,6 +248,15 @@ const taskTypeConfig: any = {
       afterLabel: '',
       defaultValue: 50,
     },
+    configMenu: {
+      fields: [
+        {"fieldName" : "propertyName","required": true},
+        {"fieldName" : "title"},
+        {"fieldName" : "defaultValue", "dataType": "number"},
+        {"fieldName" : "minValue", "dataType": "number"},
+        {"fieldName" : "maxValue", "dataType": "number"}
+      ]
+    },
     events: [
       {
         eventName: 'onChange',
@@ -228,6 +268,17 @@ const taskTypeConfig: any = {
       {
         eventName: 'onTimer',
       },
+    ],
+  },
+  matrix: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'name',
+        required: true,
+        isNodeId : true
+      }
     ],
   },
   MatrixTask: {
@@ -243,6 +294,12 @@ const taskTypeConfig: any = {
         fieldName: 'action',
         required: true,
       },
+      {
+        "fieldName" : "flowId",
+        "fieldType" : "select",
+        "required" : true,
+        "datasource" : "[WASMFLOW]"
+      }
     ],
   },
   InputTask: {
@@ -281,6 +338,7 @@ const taskTypeConfig: any = {
   DebugTask: {
     shapeType: 'Html',
     hasUI: true,
+    hasConfigMenu: true,
     htmlPlugin: 'debugNode',
     presetValues: {
       htmlPlugin: 'debugNode',
@@ -291,6 +349,50 @@ const taskTypeConfig: any = {
       decimalSeparator: ',',
       afterLabel: '',
     },
+    configMenu: {
+      fields: [
+        {"fieldName" : "visualizer", 
+        "fieldType" : "select", 
+        "options": [
+          {
+            "value": "number",
+            "label": "number"
+          },
+          {
+            "value": "text",
+            "label": "text"
+          },
+          {
+            "value": "color",
+            "label": "color"
+          },
+          {
+            "value": "gridcanvas",
+            "label": "gridcanvas"
+          },
+          {
+            "value": "xycanvas",
+            "label": "xycanvas"
+          },
+          {
+            "value": "children",
+            "label": "children"
+          },
+          {
+            "value": "json",
+            "label": "json"
+          }
+        ]},
+        {"fieldName" : "propertyName"},
+        {"fieldName" : "format"},
+        {"fieldName" : "fixed", "dataType": "number"},
+        {"fieldName" : "decimalSeparator"},
+        {"fieldName" : "afterLabel"},
+        {"fieldName" : "rows", "dataType": "number"},
+        {"fieldName" : "columns", "dataType": "number"},
+        {"fieldName" : "mode", "defaultValue" : "matrix"}        
+      ]
+    }
   },
   ReduxArrayStateType: {
     ...stateTypeTask,

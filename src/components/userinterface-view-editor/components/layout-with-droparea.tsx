@@ -183,7 +183,7 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 				if (layout.title == "flowNode") {
 					const flowNode = this.props.flowHash[layout.subtitle];
 					if (flowNode === undefined) {
-						return <></>;
+						return <React.Fragment key={index}></React.Fragment>;
 					}
 					return <React.Fragment key={index}>
 						<div draggable={true}
@@ -203,8 +203,8 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 									flowrunnerConnector: this.props.flowrunnerConnector,
 									flow: this.props.flow,
 									renderHtmlNode: this.props.renderHtmlNode
-								}
-							})}
+								}							
+							}, true)}
 						</div>
 					</React.Fragment>;
 				}

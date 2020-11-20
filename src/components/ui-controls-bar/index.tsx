@@ -6,7 +6,7 @@ import { selectNode , setPayload} from '../../redux/actions/node-actions';
 import Slider from '@material-ui/core/Slider';
 
 export interface UIControlsBarProps {
-	nodes : any[];
+	//nodes : any[];
 	flow: any[];
 
 	canvasMode : any;
@@ -25,7 +25,7 @@ export interface UIControlsBarState {
 const mapStateToProps = (state : any) => {
 	return {
 		flow: state.flow,
-		nodes: state.rawFlow,
+		//nodes: state.rawFlow,
 		selectedNode : state.selectedNode,		
 		setPayload: state.setPayload,
 		canvasMode : state.canvasMode
@@ -73,7 +73,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 			const maxValue = Math.min(list.length - 1 , maxHeight);
 
 			const nodeInfo = list[(list.length - 1 - maxValue) + (value as number)];
-			let nodes = this.props.nodes.filter(node => {
+			let nodes = this.props.flow.filter(node => {
 				return node.name == nodeInfo.name;
 			});
 			if (nodes.length > 0) {
@@ -89,6 +89,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 		if (this.props.canvasMode.flowType !== "playground") {
 			return <></>;
 		}
+		return <></>;
 		/*if (this.props.selectedNode && this.props.selectedNode.name) {
 			let list = this.props.flowrunnerConnector.getNodeExecutionsByNodeName(this.props.selectedNode.name);
 			

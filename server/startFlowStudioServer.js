@@ -129,6 +129,12 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
 					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
+					tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
+					
+
+					tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
+					tasks.push({className:"ActivationTask", fullName: "ActivationTask", flowType:"playground"});
+					tasks.push({className:"UpdateWeightsTask", fullName: "UpdateWeightsTask", flowType:"playground"});
 
 					tasks.push({className:"assign", fullName: "Assign", flowType:"rustflowrunner"});
 					tasks.push({className:"operation", fullName: "Operation", flowType:"rustflowrunner"});
