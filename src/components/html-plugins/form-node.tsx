@@ -431,7 +431,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 								const expression = createExpressionTree(metaInfo.visibilityCondition);
 								const result = executeExpressionTree(expression, this.state.values);
 								if (!result) {
-									return <></>;
+									return <React.Fragment key={"index-f-" + index}></React.Fragment>;
 								}								
 							}
 							if (!fieldType || fieldType == "text" || fieldType == "color") {						

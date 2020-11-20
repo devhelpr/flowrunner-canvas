@@ -53,7 +53,9 @@ export class FlowToCanvas {
       }
       return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2 + (isEvent ? 18 - 8 : 0),
-        y: newPosition.y - (isEvent ? -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2 : 0),
+        y: newPosition.y - (isEvent ? -28 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2 : 
+           -4 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
+        ),
       };
     } else if (shapeType == 'Circle') {
       return {
@@ -68,8 +70,9 @@ export class FlowToCanvas {
     } else {
       return {
         x: newPosition.x + ShapeMeasures.rectWidht + (isEvent ? 18 - 14 : 0),
-        y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
+        y: newPosition.y + (isEvent ? 4 + 8 + 12 : 4 + 8),
       };
+      // y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
     }
   }
 
@@ -84,15 +87,17 @@ export class FlowToCanvas {
 
     if (shapeType == 'Html') {
       let width = undefined;
+      let height = undefined;
       if (getNodeInstance && endShape) {
         const nodeInstance = getNodeInstance(endShape, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
           width = nodeInstance.getWidth(endShape);
+          height = nodeInstance.getHeight(endShape);
         }
       }
       return {
-        x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2,
-        y: newPosition.y,
+        x: newPosition.x - ((width || endShape.width || ShapeMeasures.htmlWidth) / 2) - 8,
+        y: newPosition.y - ((height || endShape.height || ShapeMeasures.htmlHeight) / 2) + 40 +8,
       };
     } else if (shapeType == 'Circle') {
       return {
@@ -106,9 +111,10 @@ export class FlowToCanvas {
       };
     } else {
       return {
-        x: newPosition.x,
-        y: newPosition.y + ShapeMeasures.rectHeight / 2,
+        x: newPosition.x - 8,
+        y: newPosition.y + (4 + 8),
       };
+      //y: newPosition.y + ShapeMeasures.rectHeight / 2,
     }
   }
 

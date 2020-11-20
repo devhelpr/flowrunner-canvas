@@ -23,10 +23,42 @@ export interface ShapeTypeProps {
 
   onMouseOver: any;
   onMouseOut: any;
+
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
-  onRef: (nodeName: string, ref: any) => void;
+  onRef?: (nodeName: string, ref: any) => void;
+}
+
+export interface ThumbTypeProps {
+  x: number;
+  y: number;
+  name: string;
+  taskType: string;
+  node: any;
+
+  isSelected: boolean;
+  shapeType? : string;
+
+  onMouseConnectionStartOver?: any;
+  onMouseConnectionStartOut?: any;
+  onMouseConnectionStartStart?: any;
+  onMouseConnectionStartMove?: any;
+  onMouseConnectionStartEnd?: any;
+
+  onMouseConnectionEndOver?: any;
+  onMouseConnectionEndOut?: any;
+  onMouseConnectionEndStart?: any;
+  onMouseConnectionEndMove?: any;
+  onMouseConnectionEndEnd?: any;
+
+  onMouseConnectionEndLeave? :any;
+
+  canvasHasSelectedNode: boolean;
+  isConnectedToSelectedNode: boolean;
+
+  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
+
 }
 
 export interface LineTypeProps {
@@ -47,6 +79,8 @@ export interface LineTypeProps {
   selectedNodeName: string;
   startNodeName: string;
   endNodeName: string;
+  opacity? : number;
+  noMouseEvents: boolean;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';

@@ -51,25 +51,28 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			});
 		}
 	}
-	
-	return <Group
+
+	return <><Group
 		ref={ref}
 		x={props.x}
 		y={props.y}
+		
+		draggable={false}
+		order={0}
 		onTouchStart={props.onTouchStart}
 		onTouchMove={props.onTouchMove}
 		onTouchEnd={props.onTouchEnd}
 		onDragStart={props.onDragStart}
 		onDragMove={props.onDragMove}
 		onDragEnd={props.onDragEnd}
-		draggable={false}
-		onClick={props.onClickShape}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}
 		onMouseDown={props.onMouseStart}
 		onMouseMove={props.onMouseMove}
 		onMouseUp={props.onMouseEnd}
-		onMouseLeave={props.onMouseLeave}		
+		onMouseLeave={props.onMouseLeave}
+		onClick={props.onClickShape}
+		listening={true}		
 		opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
 		>
 		<KonvaRect
@@ -112,11 +115,12 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			fill={settings.textColor}
 			perfectDrawEnabled={true}>
 		</Text>
+					
 		{settings.events && settings.events.map((event ,index) => {
 			return <React.Fragment key={index}>
 				<KonvaRect
 					x={ShapeMeasures.rectWidht + 10 - 14}
-					y={index * 10 + 8}
+					y={(index + 1) * 12 + 8}
 					strokeWidth={2}
 					stroke="#a000a0"
 					cornerRadius={settings.cornerRadius}
@@ -128,7 +132,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 					perfectDrawEnabled={false}></KonvaRect>	
 				<KonvaRect
 					x={ShapeMeasures.rectWidht + 10 - 2 - 14}
-					y={index * 10 - 2 + 8}
+					y={(index + 1) * 12 - 2 + 8}
 					strokeWidth={2}
 					stroke="#e2e2e2"
 					cornerRadius={settings.cornerRadius}
@@ -139,5 +143,81 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 					perfectDrawEnabled={false}></KonvaRect>					
 			</React.Fragment>
 		})}		
+	</Group>	
+	</>
+});
+
+/*
+
+<Group
+		x={props.x}
+		y={props.y}
+		onMouseOver={props.onMouseConnectionEndOver}
+			onMouseOut={props.onMouseConnectionEndOut}
+			onMouseDown={props.onMouseConnectionEndStart}
+			onMouseMove={props.onMouseConnectionEndMove}
+			onMouseUp={props.onMouseConnectionEndEnd}
+	>
+		<KonvaRect
+			x={-4}
+			y={8}
+			strokeWidth={2}
+			stroke="#808080"
+			cornerRadius={settings.cornerRadius}
+			width={8}
+			height={8}
+			fill="#808080"
+			opacity={1}  
+			perfectDrawEnabled={false}
+			name={"connectiontionend"}
+			listening={true}
+			
+			></KonvaRect>	
+		<KonvaRect
+			x={-2 -4}
+			y={- 2 + 8}
+			strokeWidth={2}
+			stroke="#e2e2e2"
+			cornerRadius={settings.cornerRadius}
+			width={12}
+			height={12}					
+			opacity={1}  
+			perfectDrawEnabled={false}></KonvaRect>	
+
 	</Group>
-})
+	<Group
+		x={props.x}
+		y={props.y}
+		onMouseOver={props.onMouseConnectionStartOver}
+		onMouseOut={props.onMouseConnectionStartOut}
+		onMouseDown={props.onMouseConnectionStartStart}
+		onMouseMove={props.onMouseConnectionStartMove}
+		onMouseUp={props.onMouseConnectionStartEnd}
+	>			
+		<KonvaRect
+			x={ShapeMeasures.rectWidht + 10 - 14}
+			y={8}
+			strokeWidth={2}
+			stroke="#808080"
+			cornerRadius={settings.cornerRadius}
+			width={8}
+			height={8}
+			fill="#808080"
+			opacity={1}
+			order={1}  
+			perfectDrawEnabled={false}
+			listening={true}
+			name={"connectiontionstart"}
+			
+			></KonvaRect>	
+		<KonvaRect
+			x={ShapeMeasures.rectWidht + 10 - 2 - 14}
+			y={- 2 + 8}
+			strokeWidth={2}
+			stroke="#e2e2e2"
+			cornerRadius={settings.cornerRadius}
+			width={12}
+			height={12}					
+			opacity={1}  
+			perfectDrawEnabled={false}></KonvaRect>	
+	</Group>*/

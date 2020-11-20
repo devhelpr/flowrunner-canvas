@@ -92,6 +92,50 @@ canvas,.konvajs-content,
 	border-radius: 10px;
 }
 
+.canvas__html-shape-thumb-start {
+	width: 16px;
+    height: 16px;
+    background: #808080;
+    position: absolute;
+    right: -8px;
+    top: 36px;
+    z-index: 2;
+	border: 2px solid #808080;
+}
+
+.canvas__html-shape-thumb-start::before {
+	content: "";
+	position: absolute;
+	width: 20px;
+    height: 20px;
+	border: 2px solid #e2e2e2;
+	right: -4px;
+	top: -4px;
+	z-index: 3;
+}
+
+.canvas__html-shape-thumb-end {
+	width: 16px;
+    height: 16px;
+    background: #808080;
+    position: absolute;
+    left: -8px;
+    top: 36px;
+    z-index: 2;
+	border: 2px solid #808080;
+}
+
+.canvas__html-shape-thumb-end::before {
+	content: "";
+	position: absolute;
+	width: 20px;
+    height: 20px;
+	border: 2px solid #e2e2e2;
+	left: -4px;
+	top: -4px;
+	z-index: 3;
+}
+
 .canvas__html-shape-event {
 	width: 16px;
     height: 16px;
@@ -112,6 +156,18 @@ canvas,.konvajs-content,
 	right: -4px;
 	top: -4px;
 	z-index: 3;
+}
+
+.canvas__html-shape-0 {
+	top: 40px;
+}
+
+.canvas__html-shape-1 {
+	top: 64px;
+}
+
+.canvas__html-shape-2 {
+	top: 88px;
 }
 
 .canvas__html-shape--in-bar {
@@ -188,6 +244,10 @@ canvas,.konvajs-content,
 	pointer-events: auto;
 }
 
+.connecting-nodes .canvas__html-shape-bar-icon {
+	pointer-events: none;
+}
+
 .canvas__html-shape-bar-icon:hover {
 	text-decoration: none;
 }
@@ -211,6 +271,9 @@ canvas,.konvajs-content,
     align-items: center;
 }
 
+.connecting-nodes .canvas__html-shape-body {
+	pointer-events: none;
+}
 
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {

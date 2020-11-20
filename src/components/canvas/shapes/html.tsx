@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, RefObject } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 
 import * as Konva from 'react-konva';
 const KonvaRect = Konva.Rect;
@@ -25,14 +25,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 		}	
 	}
 
-	/*const setGroupRef = (ref) => {
-		if (props.onRef) {
-			props.onRef(props.name, ref);
-		}	
-	}
-	*/
-
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (props.getNodeInstance) {
 			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
 			if (instance && instance.getWidth && instance.getHeight) {
@@ -41,26 +34,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				setHeight(instance.getHeight(props.node));
 			}
 		}
-	}, []);
-	
-	/*
-{false && settings && settings.events && settings.events.map((event ,index) => {
-			return <React.Fragment key={index}>
-				<KonvaRect
-					x={(((width || props.node.width || ShapeMeasures.htmlWidth)/2) + 10)}
-					y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + (index * 10) + 32}
-					strokeWidth={2}
-					stroke="#000000"
-					cornerRadius={settings.cornerRadius}
-					width={8}
-					height={8}
-					fill="#e2e2e2"
-					title={event.eventName}
-					opacity={1}  
-					perfectDrawEnabled={false}></KonvaRect>				
-			</React.Fragment>
-		})}		
-	*/
+	}, [props.node]);	
 	
 	return <Group
 		x={props.x}

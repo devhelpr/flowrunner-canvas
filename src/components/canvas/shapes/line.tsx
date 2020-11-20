@@ -46,7 +46,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}
 
-	return <Group>
+	return <Group listening={!props.noMouseEvents}>
 		<KonvaLine
 		 	ref={ref} 
 			points={[props.xstart, props.ystart,
@@ -60,7 +60,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			lineCap="round"
 			lineJoin="round"
 			fill={fillColor} 
-			opacity={opacity}
+			opacity={props.opacity !== undefined ? props.opacity : opacity}
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}
