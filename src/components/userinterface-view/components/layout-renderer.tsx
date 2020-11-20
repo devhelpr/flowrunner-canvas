@@ -60,7 +60,7 @@ export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : bool
 			className="canvas__html-shape">
 				{!!isInEditMode && settings && !!settings.hasConfigMenu && 
 					<div className="">
-						<a href="#" onClick={onShowNodeSettings.bind(this, node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>
+						<a href="#" onClick={onShowNodeSettings.bind(node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>
 					</div>
 				}
 				<div className="canvas__html-shape-body">
