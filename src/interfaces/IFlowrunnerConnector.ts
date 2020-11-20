@@ -7,7 +7,7 @@ export interface IFlowrunnerConnector {
   registerFlowNodeObserver: (nodeName: string, observableId: string, callback: (payload: any) => void) => void;
   unregisterFlowNodeObserver: (nodeName: string, observableId: string) => void;
   updateFlowNode: () => void;
-  pushFlowToFlowrunner: (flow: any, autoStartNodes : boolean) => void;
+  pushFlowToFlowrunner: (flow: any, autoStartNodes: boolean) => void;
   executeFlowNode: (nodeName: string, payload: any) => void;
   modifyFlowNode: (
     nodeName: string,
@@ -38,10 +38,10 @@ export interface IFlowrunnerConnector {
   getAppMode: () => ApplicationMode;
 
   registerScreenUICallback: (callback: (action: any) => void) => void;
-  registerDestroyAndRecreateWorker: (onDestroyAndRecreateWorker: any) => void; 
-  killAndRecreateWorker: () => void; 
+  registerDestroyAndRecreateWorker: (onDestroyAndRecreateWorker: any) => void;
+  killAndRecreateWorker: () => void;
 
-  registerOnReceiveFlowNodeExecuteResult: (onReceiveFlowNodeExecuteResult : any) => void;
+  registerOnReceiveFlowNodeExecuteResult: (onReceiveFlowNodeExecuteResult: any) => void;
 }
 
 export interface IExecutionEvent {

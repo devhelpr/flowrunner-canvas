@@ -382,7 +382,7 @@ export class MatrixTask extends FlowTask {
               let promises: any[] = [];
               let loopRows = 0;
               let time = performance.now() - this.performance;
-              
+
               while (loopRows < matrix.rows) {
                 let loopColumns = 0;
                 while (loopColumns < matrix.columns) {
@@ -394,7 +394,7 @@ export class MatrixTask extends FlowTask {
                   //console.log(loopRows, loopColumns);
                   ///promises.push(flow.executeNode(node.executeNode, {value: value, x: loopColumns, y: loopRows} || {}));
                   // onCalculateNewGenerationForEachCell
-                  
+
                   promises.push(
                     services.flowEventRunner.triggerEventOnNode(
                       nodeName,
@@ -407,8 +407,8 @@ export class MatrixTask extends FlowTask {
                         neighbourCount: neigbourMatrix.data[index],
                         time: time,
                         t: time,
-                        index: loopRows*matrix.columns + loopColumns,
-                        i: loopRows*matrix.columns + loopColumns
+                        index: loopRows * matrix.columns + loopColumns,
+                        i: loopRows * matrix.columns + loopColumns,
                       } || {},
                     ),
                   );
@@ -438,9 +438,9 @@ export class MatrixTask extends FlowTask {
                   values.map((resultPayload, index) => {
                     if (resultPayload !== undefined) {
                       if (resultPayload.isAlive === undefined) {
-                        newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] = resultPayload.value || 0;
-                      } else
-                      if (resultPayload.isAlive === 1) {
+                        newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] =
+                          resultPayload.value || 0;
+                      } else if (resultPayload.isAlive === 1) {
                         newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] = 1;
                       }
                     }

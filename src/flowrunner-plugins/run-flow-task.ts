@@ -25,22 +25,20 @@ import { IWorker } from '../interfaces/IWorker';
     - execute node by nodename
 
 */
-interface Worker {
-
-}
+interface Worker {}
 
 export class RunFlowTask extends FlowTask {
   flowrunner: any = undefined;
-  worker? : Worker = undefined;
-  flowrunnerConnector? : FlowConnector;
+  worker?: Worker = undefined;
+  flowrunnerConnector?: FlowConnector;
 
   public execute(node: any, services: any) {
     try {
       if (!this.worker && !this.flowrunnerConnector) {
-        this.worker = new Worker("/worker.js");
+        this.worker = new Worker('/worker.js');
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IWorker);
-   
+
         if (node.flowId && node.nodeName) {
           const loader = new FlowLoader();
           return new Promise((resolve, reject) => {
@@ -49,10 +47,10 @@ export class RunFlowTask extends FlowTask {
               .then(flow => {
                 console.log('RunFlowTask', node.name, flow);
 
-                let payload = {...node.payload};
+                let payload = { ...node.payload };
                 payload.sendMessageOnResolve = true;
 
-                this.flowrunnerConnector?.registerOnReceiveFlowNodeExecuteResult((payload) => {
+                this.flowrunnerConnector?.registerOnReceiveFlowNodeExecuteResult(payload => {
                   console.log('RunFlowTask payload', node.name, payload);
                   if (payload === false) {
                     reject();
@@ -60,10 +58,9 @@ export class RunFlowTask extends FlowTask {
                     resolve(payload);
                   }
                 });
-                this.flowrunnerConnector?.setFlowType("playground");
+                this.flowrunnerConnector?.setFlowType('playground');
                 this.flowrunnerConnector?.pushFlowToFlowrunner(flow, false);
                 this.flowrunnerConnector?.executeFlowNode(node.nodeName, payload);
-                
               })
               .catch(() => {
                 reject();
@@ -87,7 +84,6 @@ export class RunFlowTask extends FlowTask {
       return false;
     }
   }
-
 
   public kill() {
     if (this.worker) {

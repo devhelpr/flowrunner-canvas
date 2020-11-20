@@ -421,7 +421,7 @@ export class TimerTask extends FlowTask {
 
   constructor() {
     super();
-    console.log("create TimerTask");
+    console.log('create TimerTask');
   }
 
   public timer = () => {
@@ -473,7 +473,7 @@ export class TimerTask extends FlowTask {
   public execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
-console.log("timer execute", node);
+    console.log('timer execute', node);
     if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
@@ -506,7 +506,7 @@ console.log("timer execute", node);
 
   isBeingKilled = false;
   public kill() {
-    console.log("kill TimerTask");
+    console.log('kill TimerTask');
 
     this.isBeingKilled = true;
     if (this.clearTimeout) {
@@ -643,7 +643,7 @@ const onWorkerMessage = event => {
         return;
       }
       flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value);
-      
+
       if (data.executeNode !== undefined && data.executeNode !== '') {
         flow
           .executeNode(data.executeNode, {})
@@ -680,7 +680,7 @@ const onWorkerMessage = event => {
       if (!flow) {
         return;
       }
-      
+
       const observable = flow.getObservableNode(data.nodeName);
       if (observable) {
         let subscribtion = observable.subscribe({
@@ -730,7 +730,7 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
   });
 };
 
-const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes : boolean = true) => {
+const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true) => {
   if (flow !== undefined) {
     for (var key of Object.keys(observables)) {
       observables[key].unsubscribe();
@@ -766,7 +766,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes : 
   flow.registerTask('ScreenTask', ScreenTask);
   flow.registerTask('FormTask', FormTask);
   flow.registerTask('RunFlowTask', RunFlowTask);
-  
+
   flow.registerTask('WeightedSumTask', WeightedSumTask);
   flow.registerTask('ActivationTask', ActivationTask);
   flow.registerTask('UpdateWeightsTask', UpdateWeightsTask);

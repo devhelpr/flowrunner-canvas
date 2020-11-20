@@ -7,7 +7,7 @@ import {
   SET_FLOWTYPE,
   SET_EDITORMODE,
   SET_FLOWSPLAYGROUND,
-  SET_FLOWSWASM
+  SET_FLOWSWASM,
 } from '../actions/canvas-mode-actions';
 
 export interface ICanvasMode {
@@ -32,7 +32,7 @@ export const canvasModeReducer = (
     flowType: '',
     editorMode: 'canvas',
     flowsPlayground: [],
-    flowsWasm : []
+    flowsWasm: [],
   },
   action: any,
 ) => {

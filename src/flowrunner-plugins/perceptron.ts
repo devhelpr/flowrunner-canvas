@@ -6,12 +6,12 @@ function sigmoid(t) {
 
 export class WeightedSumTask extends FlowTask {
   public execute(node: any, services: any) {
-	services.logMessage('RUNNING WeightedSumTask: ' + node.id + ' - ' + node.name);
-	//const weights = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'weights');
+    services.logMessage('RUNNING WeightedSumTask: ' + node.id + ' - ' + node.name);
+    //const weights = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'weights');
     //const bias = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'bias');
 
-	const weights = node.payload.weights || [];
-	const bias = node.payload.bias;
+    const weights = node.payload.weights || [];
+    const bias = node.payload.bias;
 
     const weightedSum = node.payload.inputs.reduce((accumulator, input, index) => {
       if (index < weights.length) {
@@ -19,10 +19,15 @@ export class WeightedSumTask extends FlowTask {
       }
       return accumulator;
     }, 0);
-    console.log("weightedSum + node.bias", weightedSum + bias, node.payload.expected, node.payload.inputs, weights, bias);
-    return {...node.payload,
-      output: weightedSum + bias,
-    };
+    console.log(
+      'weightedSum + node.bias',
+      weightedSum + bias,
+      node.payload.expected,
+      node.payload.inputs,
+      weights,
+      bias,
+    );
+    return { ...node.payload, output: weightedSum + bias };
   }
 
   public getName() {
@@ -37,11 +42,9 @@ export class WeightedSumTask extends FlowTask {
 export class ActivationTask extends FlowTask {
   public execute(node: any, services: any) {
     services.logMessage('RUNNING ActivationTask: ' + node.id + ' - ' + node.name);
-	const sigmoidResult = sigmoid(node.payload.output);
-	console.log("sigmoidResult", sigmoidResult, sigmoidResult >= node.threshold, node.threshold);
-    return {...node.payload,
-      output: sigmoidResult >= node.threshold ? 1 : 0,
-    };
+    const sigmoidResult = sigmoid(node.payload.output);
+    console.log('sigmoidResult', sigmoidResult, sigmoidResult >= node.threshold, node.threshold);
+    return { ...node.payload, output: sigmoidResult >= node.threshold ? 1 : 0 };
   }
 
   public getName() {
@@ -65,8 +68,8 @@ export class UpdateWeightsTask extends FlowTask {
     );
 
     if (node.payload.output === node.payload.expected) {
-	 	console.log("UpdateWeightsTask zonder", node.payload);
-      return {...node.payload};
+      console.log('UpdateWeightsTask zonder', node.payload);
+      return { ...node.payload };
     }
 
     const learnRate = 0.5;
@@ -76,9 +79,9 @@ export class UpdateWeightsTask extends FlowTask {
     //const weights = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'weights');
     //let bias = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'bias');
 
-	let weights = [...node.payload.weights];
-	let bias = node.payload.bias;
-	console.log("UpdateWeightsTask", weights, bias);
+    let weights = [...node.payload.weights];
+    let bias = node.payload.bias;
+    console.log('UpdateWeightsTask', weights, bias);
     for (let index = 0; index < node.payload.inputs.length; index++) {
       let input = node.payload.inputs[index];
       let d = delta(node.payload.output, node.payload.expected, input, learnRate);
@@ -95,14 +98,14 @@ export class UpdateWeightsTask extends FlowTask {
     //console.log("delta bias", d);
     bias = bias + d;
 
-	console.log("UpdateWeightsTask na delta", weights, bias);
-	
+    console.log('UpdateWeightsTask na delta', weights, bias);
+
     //services.flowEventRunner.setPropertyOnNode(node.weightsNode, 'weights', weights);
     //services.flowEventRunner.setPropertyOnNode(node.weightsNode, 'bias', bias);
-	let payload = {...node.payload};
-	payload.weights = weights;
-	payload.bias = bias; 
-	console.log("UpdateWeightsTask na delta payload", payload);
+    let payload = { ...node.payload };
+    payload.weights = weights;
+    payload.bias = bias;
+    console.log('UpdateWeightsTask na delta payload', payload);
     return payload;
   }
 

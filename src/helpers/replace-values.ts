@@ -1,4 +1,4 @@
-export const replaceValues = (content: string, payload: any, keepUnknownFields :  boolean = false) => {
+export const replaceValues = (content: string, payload: any, keepUnknownFields: boolean = false) => {
   let resultContent = content;
   let matches = resultContent.match(/{.+?}/g);
   if (matches) {

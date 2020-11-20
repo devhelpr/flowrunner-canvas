@@ -1,12 +1,12 @@
-import { FlowTask,ObservableTask } from '@devhelpr/flowrunner';
+import { FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
 export class FormTask extends ObservableTask {
   public execute(node: any, services: any) {
     //console.log('FormTask', node);
-    try {      
-      let values : any = {};
+    try {
+      let values: any = {};
       let isValid = true;
       (node.metaInfo || []).map((metaInfo, index) => {
         if (metaInfo.fieldName && node[metaInfo.fieldName]) {
@@ -17,7 +17,7 @@ export class FormTask extends ObservableTask {
           isValid = false;
         }
       });
-      let payload = {...node.payload, ...values};
+      let payload = { ...node.payload, ...values };
       payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
       super.execute({ ...node, sendNodeName: true, payload: payload }, services);
       if (isValid) {

@@ -23,7 +23,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
 
-  pushFlowToFlowrunner = (flow: any, autoStartNodes : boolean = true) => {};
+  pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true) => {};
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
@@ -53,18 +53,11 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   registerScreenUICallback = (callback: (action: any) => void) => {};
 
-  registerDestroyAndRecreateWorker = (onDestroyAndRecreateWorker: any) => {
+  registerDestroyAndRecreateWorker = (onDestroyAndRecreateWorker: any) => {};
 
-  };
+  killAndRecreateWorker = () => {};
 
-  killAndRecreateWorker = () => {
-
-  };
-
-  registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult : any) => {
-
-  }
-
+  registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult: any) => {};
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -102,15 +95,15 @@ export class FlowConnector implements IFlowrunnerConnector {
     worker.addEventListener('message', this.onMessage);
   }
 
-  onReceiveFlowNodeExecuteResult : any;
-  registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult : any) => {
+  onReceiveFlowNodeExecuteResult: any;
+  registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult: any) => {
     this.onReceiveFlowNodeExecuteResult = onReceiveFlowNodeExecuteResult;
-  }
+  };
 
   onMessage = (event: any) => {
     //console.log("event from worker", event);
     if (event && event.data) {
-      if (event.data.command == "ExecuteFlowNodeResult") {
+      if (event.data.command == 'ExecuteFlowNodeResult') {
         if (this.onReceiveFlowNodeExecuteResult) {
           if (!event.data.result) {
             this.onReceiveFlowNodeExecuteResult(false);
@@ -118,8 +111,7 @@ export class FlowConnector implements IFlowrunnerConnector {
             this.onReceiveFlowNodeExecuteResult(event.data.payload);
           }
         }
-      } else
-      if (event.data.command == 'SendNodeExecution') {
+      } else if (event.data.command == 'SendNodeExecution') {
         this.nodeExecutions.push(event.data);
         this.nodeExecutions.splice(0, this.nodeExecutions.length - 1000);
         if (!this.nodeExecutionsByNode[event.data.name]) {
@@ -287,7 +279,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   updateFlowNode = () => {};
-  pushFlowToFlowrunner = (flow: any, autoStartNodes : boolean = true) => {
+  pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true) => {
     if (this.worker) {
       if (this.onDestroyAndRecreateWorker) {
         this.onDestroyAndRecreateWorker();
@@ -309,14 +301,14 @@ export class FlowConnector implements IFlowrunnerConnector {
           command: 'pushFlowToFlowrunner',
           flow: flow,
           pluginRegistry: pluginRegistryTaskNames,
-          autoStartNodes: autoStartNodes
+          autoStartNodes: autoStartNodes,
         });
       } else {
         this.worker.postMessage({
           command: 'pushFlowToFlowrunner',
           flow: [],
           pluginRegistry: pluginRegistryTaskNames,
-          autoStartNodes: autoStartNodes
+          autoStartNodes: autoStartNodes,
         });
       }
     }
@@ -328,7 +320,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           command: 'executeFlowNode',
           nodeName: nodeName,
           payload: payload,
-          sendMessageOnResolve: true
+          sendMessageOnResolve: true,
         });
       }
     }
@@ -392,7 +384,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     this.screenUICallback = callback;
   };
 
-  onDestroyAndRecreateWorker : any;
+  onDestroyAndRecreateWorker: any;
   registerDestroyAndRecreateWorker = (onDestroyAndRecreateWorker: any) => {
     this.onDestroyAndRecreateWorker = onDestroyAndRecreateWorker;
   };
@@ -400,5 +392,4 @@ export class FlowConnector implements IFlowrunnerConnector {
   killAndRecreateWorker = () => {
     this.onDestroyAndRecreateWorker();
   };
-
 }
