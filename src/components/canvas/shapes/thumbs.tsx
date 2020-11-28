@@ -3,6 +3,8 @@ import { useState, useEffect, useLayoutEffect } from 'react';
 
 import * as Konva from 'react-konva';
 const KonvaRect = Konva.Rect;
+const KonvaRegularPolygon = Konva.RegularPolygon;
+const KonvaCircle = Konva.Circle;
 
 import { Group, Text } from 'react-konva';
 import { ThumbTypeProps } from './shape-types';
@@ -30,7 +32,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 
 	if (settings.isSkewed) {
 		skewX = -0.5;
-		skewXOffset = (ShapeMeasures.rectWidht/8);
+		skewXOffset = (ShapeMeasures.rectWidht/8) - 12;
 	}
 
 	/*
@@ -39,7 +41,7 @@ x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 	*/
 	return <><Group
 		ref={ref}
-		x={props.x}
+		x={props.x + skewXOffset}
 		y={props.y}
 		onMouseOver={props.onMouseConnectionEndOver}
 		onMouseOut={props.onMouseConnectionEndOut}
@@ -50,8 +52,52 @@ x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 		width={12}
 		height={12}
 	>
-		{props.shapeType === "Rect" && <>
+		{props.shapeType === "Rect" && <>			
+			<KonvaRegularPolygon
+				x={4}
+				y={12}
+				sides={3}
+				radius={8}
+				fill="#000000"
+				rotation={90}
+				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			></KonvaRegularPolygon>
+			<KonvaCircle
+				x={0}
+				y={12}
+				radius={12}
+				opacity={0}
+			></KonvaCircle>
+		</>}
+		{props.shapeType === "Html" && <>
 			<KonvaRect
+				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2) - 16}
+				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 36}
+				strokeWidth={0}
+				stroke="#808080"
+				cornerRadius={settings.cornerRadius}
+				width={24}
+				height={24}
+				fill="#ff0000"
+				opacity={0}  
+				perfectDrawEnabled={false}
+				name={"connectiontionend"}
+				listening={true}
+				
+				></KonvaRect>
+			<KonvaCircle
+				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
+				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 52}
+				radius={12}
+				opacity={0}
+			></KonvaCircle>					
+		</>}			
+	</Group>
+	</>
+})
+
+/*
+<KonvaRect
 				x={-4}
 				y={8}
 				strokeWidth={2}
@@ -76,24 +122,4 @@ x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 				height={12}					
 				opacity={1}  
 			perfectDrawEnabled={false}></KonvaRect>
-		</>}
-		{props.shapeType === "Html" && <>
-			<KonvaRect
-				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2) - 16}
-				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 36}
-				strokeWidth={0}
-				stroke="#808080"
-				cornerRadius={settings.cornerRadius}
-				width={24}
-				height={24}
-				fill="#ff0000"
-				opacity={0}  
-				perfectDrawEnabled={false}
-				name={"connectiontionend"}
-				listening={true}
-				
-				></KonvaRect>				
-		</>}			
-	</Group>
-	</>
-})
+*/

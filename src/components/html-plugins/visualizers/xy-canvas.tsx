@@ -297,26 +297,36 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 			});
 		}
 		const yAdd = 6;
-		return <Stage				
+		return <>
+			<Stage				
 				pixelRatio={1} 
 				width={(this.props.node.width || 250) + 1}
 				height={height}>		
-			<Layer>
-			{circles}
-			{this.getCurrentDebugNotifier()}
-			<Text width={(this.props.node.width || 250) - 12}
-				align="right"
-				fontSize={18}
-				y={yAdd + 0 * 24}
-				text={"min:" + minmax.min?.toFixed(2)}
-			></Text>
-			<Text width={(this.props.node.width || 250) - 12}
-				align="right"
-				fontSize={18}
-				y={yAdd + 1 * 24}
-				text={"max:" + minmax.max?.toFixed(2)}
-			></Text>			
-			</Layer>
-		</Stage>;
+				<Layer>
+				{circles}
+				{this.getCurrentDebugNotifier()}							
+				</Layer>
+			</Stage>
+			<div className="xy-canvas__legend">	
+				<div className="xy-canvas__text">min: {minmax.min?.toFixed(2)}</div>
+				<div className="xy-canvas__text">max: {minmax.max?.toFixed(2)}</div>
+			</div>
+		</>;
 	}
 }
+
+/*
+<Text width={(this.props.node.width || 250) - 12}
+					align="right"
+					fontSize={18}
+					y={yAdd + 0 * 24}
+					text={"min:" + minmax.min?.toFixed(2)}
+				></Text>
+				<Text width={(this.props.node.width || 250) - 12}
+					align="right"
+					fontSize={18}
+					y={yAdd + 1 * 24}
+					text={"max:" + minmax.max?.toFixed(2)}
+				></Text>
+
+*/

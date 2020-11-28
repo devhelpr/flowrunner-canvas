@@ -12,6 +12,7 @@ export interface IShapeSettings {
   events?: any[];
   hasUI: boolean;
   hasConfigMenu?: boolean;
+  icon? : string;
 }
 
 export class ShapeSettings {

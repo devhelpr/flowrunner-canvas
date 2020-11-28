@@ -8,11 +8,11 @@ import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 export class DataGridNodeHtmlPluginInfo {
 	getWidth = (node) => {
-		return (node && node.columns && ((node.columns + 1) * 100)) || 250;
+		return (node && node.columns && ((node.columns + 1) * 100) + 24) || 250;
 	}
 
 	getHeight(node) {
-		return  ((node && node.rows && ((node.rows + 2) * 50)) + 20 )  || 250;
+		return  ((node && node.rows && ((node.rows + 2) * 50)) + 20 + 24 )  || 250;
 	}
 }
 
@@ -131,6 +131,48 @@ class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPl
 		return this.info.getHeight(node);
 	}
 
+	addColumn = (event) => {
+		event.preventDefault();
+
+		let data : any[] = [...this.state.values];
+		data = data.map((row) => {
+			let newRow = [...row];
+			newRow.push("0");
+			return newRow;
+		});
+		
+		this.setState({
+			values: data, 
+			node: {...this.props.node, values: data,
+				columns: (this.state.node as any).columns + 1
+			}
+		}, () => {
+			this.props.storeFlowNode({...this.state.node}, 
+				this.props.node.name
+			);
+		});
+		return false;
+	}
+
+	addRow = (event) => {
+		event.preventDefault();
+
+		let data : any[] = [...this.state.values];
+		data.push(new Array(this.props.node.columns || 8).fill("0"));
+		this.setState({
+			values: data, 
+			node: {...this.props.node, values: data,
+				rows: (this.state.node as any).rows + 1
+			}
+		}, () => {
+			this.props.storeFlowNode({...this.state.node}, 
+				this.props.node.name
+			);
+		});
+
+		return false;
+	}
+
 	getColumnTitles = () => {
 		let columnTitlesItems : any[] = [];
 		let loop = 0;
@@ -144,6 +186,7 @@ class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPl
 			{columnTitlesItems.map((title, index) => {
 				return <div key={"cell-title-" + index} className="d-table-cell text-center data-grid__cell-title">{title}</div>;
 			})}
+			<a href="#" onClick={this.addColumn} className="d-table-cell text-center data-grid__cell-title data-grid__cell-add-column">+</a>
 		</div>;
 	}
 
@@ -194,6 +237,9 @@ class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPl
 								</div>;
 							}
 						})}
+						<div className="d-table-row">
+							<a href="#" onClick={this.addRow} className="d-table-cell text-center data-grid__cell-title data-grid__cell-add-row">+</a>
+						</div>
 					</div>						
 					<button className="d-none">OK</button>
 				</form>

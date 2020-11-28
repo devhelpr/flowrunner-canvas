@@ -13,7 +13,7 @@ const uuidV4 = uuid.v4;
 
 export class GridEditNodeHtmlPluginInfo {
 	getWidth(node) {
-		return (((node && node.columns) || 8) * 16) + 20;
+		return (((node && node.columns) || 8) * 16) + 20 + 60;
 	}
 
 	getHeight(node) {
@@ -79,11 +79,13 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 				this.props.node.defaultValue || 0,
 				""
 			);
-			this.setState({data : new Array(this.props.node.columns * this.props.node.rows).fill(0).map((item, index) => {
+			this.setState({data : new Array(
+					(this.props.node.columns || 8) * 
+					(this.props.node.rows || 8)).fill(0).map((item, index) => {
 					return {
 						value : 0,
-						x: index % this.props.node.columns,
-						y: Math.floor(index / this.props.node.columns)
+						x: index % (this.props.node.columns || 8),
+						y: Math.floor(index / (this.props.node.columns || 8))
 					}
 				})
 			});
@@ -127,7 +129,7 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 
 		if (matrixValue) {
 			let list = [...this.state.data as IMatrixValue[]];
-			let item = list[matrixValue.x + matrixValue.y * ((this.props.node && this.props.node.columns) || 16)];
+			let item = list[matrixValue.x + matrixValue.y * ((this.props.node && this.props.node.columns) || 8)];
 			item.value = (item.value == 1 ? 0 : 1);
 
 			this.setState({data: list});
@@ -170,16 +172,16 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 	onSetData = (data) => {
 
 		let values : IMatrixValue[] = [];
-		let list = new Array(this.props.node.columns * this.props.node.rows).fill(0).map((item, index) => {
+		let list = new Array((this.props.node.columns || 8) * (this.props.node.rows || 8)).fill(0).map((item, index) => {
 			return {
 				value : 0,
-				x: index % this.props.node.columns,
-				y: Math.floor(index / this.props.node.columns)
+				x: index % (this.props.node.columns || 8),
+				y: Math.floor(index / (this.props.node.columns || 8))
 			}
 		});
 		data.map((value, index) => {
 			if (value.value == 1) {
-				list[value.y * this.props.node.columns + value.x].value = 1;
+				list[value.y * (this.props.node.columns || 8) + value.x].value = 1;
 				values.push({...value});
 			}
 		});

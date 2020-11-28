@@ -35,11 +35,25 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			console.log("metaDataInfo", this.props.canvasMode.flowType, metaDataInfo);
-			this.setState({metaDataInfo:metaDataInfo.filter((task) => { 
-					return task.flowType == this.props.canvasMode.flowType; 
-				})
+			const taskPluginsSortedList = metaDataInfo.sort((a, b) => {
+				if (a.fullName < b.fullName) {
+					return -1;
+				}
+				if (a.fullName > b.fullName) {
+					return 1;
+				}
+				return 0;
 			});
+			
+			this.setState({metaDataInfo: taskPluginsSortedList.filter((task) => { 
+					return task.flowType == this.props.canvasMode.flowType; 
+				}).map((task) => {
+						const taskSettings = FlowToCanvas.getTaskSettings(task.className);
+						return {...task, 
+							icon : taskSettings.icon || ""
+						};
+					})
+				});
 		})
 		.catch(err => {
 			console.error(err);
@@ -62,7 +76,7 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 		event.dataTransfer.setData("data-task", event.target.getAttribute("data-task"));
 	}
 
-	renderRect = (className) => {
+	renderRect = (className, taskMetaData) => {
 		/*
 		style={{				
 					fill: "rgb(255,255,255)",
@@ -75,39 +89,59 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 		const shapeType = FlowToCanvas.getShapeType("Rect", className, false);
 
 		if (shapeType == "Circle") {
-			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>				
+			/*
 				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36">
 					<circle cx="18" cy="18" r="14" className="taskbar__task-circle" />
 					<text fill="#000000" className="taskbar__task-text" x="50%" y="19px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={36} width={32}>{className.substring(0,2)}</text>
 				</svg>
+
+			*/
+			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>				
+				<div className="taskbar__taskname">{className}</div>
 			</div>;
 		}
 
 		if (shapeType == "Ellipse") {
-			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>				
+			/*
 				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36">
 					<ellipse cx="18" cy="18" rx="14" ry="10" className="taskbar__task-circle" />
 					<text fill="#000000" className="taskbar__task-text" x="50%" y="19px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={36} width={32}>{className.substring(0,2)}</text>
 				</svg>
+
+			*/
+			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>	
+				<div className="taskbar__taskname">{className}</div>			
 			</div>;
 		}
 
-		if (shapeType == "Diamond") {
-			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>				
+		if (shapeType == "Diamond") {						
+			/*
 				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36">
 					<polygon points="18,4,34,20,18,36,2,20" className="taskbar__task-circle"  />
 					<text fill="#000000" className="taskbar__task-text" x="50%" y="19px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={36} width={32}>{className.substring(0,2)}</text>
-				</svg>
+				</svg>							
+
+			*/
+			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>				
+				<div className="taskbar__taskname">{className}</div>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+					<polygon points="8,2,14,8,8,14,2,8"  className="taskbar__task-circle"  />
+				</svg>							
 			</div>;	
 		}
 
-		return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>
-		<svg xmlns="http://www.w3.org/2000/svg" width="36" height="20" viewBox="0 0 36 22">
-			<rect fill="#ffffff" strokeWidth={2} stroke="#000000" width="32" y="1" x="2" height="20" rx="0" ry="0"  />
-			<text fill="#000000" className="taskbar__task-text" x="50%" y="13px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={20} width={32}>{className.substring(0,2)}</text>
-		</svg>
-	</div>;
+		/*
+			<svg xmlns="http://www.w3.org/2000/svg" width="36" height="20" viewBox="0 0 36 22">
+				<rect fill="#ffffff" strokeWidth={2} stroke="#000000" width="32" y="1" x="2" height="20" rx="0" ry="0"  />
+				<text fill="#000000" className="taskbar__task-text" x="50%" y="13px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={20} width={32}>{className.substring(0,2)}</text>
+			</svg>
 
+		*/	
+
+		return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={this.onDragStart}>
+			<div className="taskbar__taskname">{className}</div>
+			{taskMetaData.icon && <span className={"taskbar__task-icon fas " +  taskMetaData.icon}></span>}			
+		</div>;
 	}
 
 	/*
@@ -123,8 +157,8 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 			<div className="taskbar">
 				{this.state.metaDataInfo.map((taskMetaData : any, index) => {
 					//return <img key={"metadata-"+index} src="/svg/flow-rect.svg" alt={taskMetaData.fullName} data-task={taskMetaData.className}  draggable={true} onDragStart={this.onDragStart} />
-					return <React.Fragment key={index}>
-						{this.renderRect(taskMetaData.className)}
+					return <React.Fragment key={index}>					
+						{this.renderRect(taskMetaData.className, taskMetaData)}
 					</React.Fragment>
 				})}
 			</div>

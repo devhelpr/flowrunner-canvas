@@ -27,6 +27,7 @@ const taskTypeConfig: any = {
     ...variableAttached,
   },
   AssignTask: {
+    icon: 'fa-cube',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     metaInfo: [
@@ -67,6 +68,7 @@ const taskTypeConfig: any = {
       'value {condition=>"eq":"=","not-equals":"<>","lower":"<","lowereq":"<=","bigger-or-equal":">=","bigger":">","default":""} {valueInt}',
   },
   InjectIntoPayloadTask: {
+    icon: 'fa-cubes',
     shapeType: 'Rect',
     layout: {
       strokeColor: '#d61bd8',
@@ -110,6 +112,7 @@ const taskTypeConfig: any = {
     },
   },
   ApiProxyTask: {
+    icon: 'fa-globe',
     shapeType: 'Rect',
     isSkewed: true,
     presetValues: {
@@ -119,6 +122,7 @@ const taskTypeConfig: any = {
   },
   ExpressionTask: {
     shapeType: 'Html',
+    icon: 'fa-calculator',
     presetValues: {
       expression: '',
       assignToProperty: '',
@@ -227,9 +231,16 @@ const taskTypeConfig: any = {
   DataGridTask: {
     shapeType: 'Html',
     htmlPlugin: 'dataGridNode',
+    icon: 'fa-table',
     presetValues: {
       htmlPlugin: 'dataGridNode',
       propertyName: '',
+      rows : 2,
+      columns: 2,
+      values: [
+        ["0","0"],
+        ["0","0"]
+      ]
     },
   },
   SliderTask: {
@@ -263,6 +274,7 @@ const taskTypeConfig: any = {
     ],
   },
   TimerTask: {
+    icon: 'fa-clock',
     events: [
       {
         eventName: 'onTimer',

@@ -52,9 +52,10 @@ export class FlowToCanvas {
         }
       }
       return {
-        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2 + (isEvent ? 18 - 8 : 0),
-        y: newPosition.y - (isEvent ? -28 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2 : 
-           -4 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
+        //(isEvent ? 18 - 8 : 0)
+        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2 ,
+        y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2 : 
+           -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
         ),
       };
     } else if (shapeType == 'Circle') {
@@ -68,8 +69,13 @@ export class FlowToCanvas {
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
+      let skewXOffset = 0;
+      if (taskSettings.isSkewed) {
+        skewXOffset = (ShapeMeasures.rectWidht/8) - 4;
+      }
       return {
-        x: newPosition.x + ShapeMeasures.rectWidht + (isEvent ? 18 - 14 : 0),
+        // + (isEvent ? 18 - 14 : 0)
+        x: newPosition.x + ShapeMeasures.rectWidht + skewXOffset,
         y: newPosition.y + (isEvent ? 4 + 8 + 12 : 4 + 8),
       };
       // y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
@@ -96,8 +102,8 @@ export class FlowToCanvas {
         }
       }
       return {
-        x: newPosition.x - ((width || endShape.width || ShapeMeasures.htmlWidth) / 2) - 8,
-        y: newPosition.y - ((height || endShape.height || ShapeMeasures.htmlHeight) / 2) + 40 +8,
+        x: newPosition.x - ((width || endShape.width || ShapeMeasures.htmlWidth) / 2) - 4,
+        y: newPosition.y - ((height || endShape.height || ShapeMeasures.htmlHeight) / 2) + 40 + 12,
       };
     } else if (shapeType == 'Circle') {
       return {
@@ -110,8 +116,12 @@ export class FlowToCanvas {
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
+      let skewXOffset = 0;
+      if (taskSettings.isSkewed) {
+        skewXOffset = (ShapeMeasures.rectWidht/8) - 8;
+      }
       return {
-        x: newPosition.x - 8,
+        x: newPosition.x + skewXOffset,
         y: newPosition.y + (4 + 8),
       };
       //y: newPosition.y + ShapeMeasures.rectHeight / 2,

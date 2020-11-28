@@ -95,68 +95,53 @@ canvas,.konvajs-content,
 .canvas__html-shape-thumb-start {
 	width: 16px;
     height: 16px;
-    background: #808080;
+    background: transparent;
     position: absolute;
-    right: -8px;
+    right: 0px;
     top: 36px;
-    z-index: 2;
-	border: 2px solid #808080;
-}
+	z-index: 2;
+	pointer-events: none;
+	cursor: pointer;
 
-.canvas__html-shape-thumb-start::before {
-	content: "";
-	position: absolute;
-	width: 20px;
-    height: 20px;
-	border: 2px solid #e2e2e2;
-	right: -4px;
-	top: -4px;
-	z-index: 3;
+	width: 0px;
+    height: 0px;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 12px solid #c2c2c2;
 }
 
 .canvas__html-shape-thumb-end {
 	width: 16px;
     height: 16px;
-    background: #808080;
+    background: transparent;
     position: absolute;
-    left: -8px;
+	left: 0px;
     top: 36px;
-    z-index: 2;
-	border: 2px solid #808080;
-}
+	z-index: 2;
+	pointer-events: none;
+	cursor: pointer;
 
-.canvas__html-shape-thumb-end::before {
-	content: "";
-	position: absolute;
-	width: 20px;
-    height: 20px;
-	border: 2px solid #e2e2e2;
-	left: -4px;
-	top: -4px;
-	z-index: 3;
+	width: 0px;
+    height: 0px;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 12px solid #c2c2c2;
 }
 
 .canvas__html-shape-event {
 	width: 16px;
     height: 16px;
-    background: #a000a0;
+    background: transparent;
     position: absolute;
-    right: -8px;
+	right: 0px;
     top: 36px;
     z-index: 2;
-	border: 2px solid #a000a0;
+
+	border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 12px solid #a000a0;
 }
 
-.canvas__html-shape-event::before {
-	content: "";
-	position: absolute;
-	width: 20px;
-    height: 20px;
-	border: 2px solid #e2e2e2;
-	right: -4px;
-	top: -4px;
-	z-index: 3;
-}
 
 .canvas__html-shape-0 {
 	top: 40px;
@@ -184,7 +169,7 @@ canvas,.konvajs-content,
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	padding: 10px;
+	padding: 20px;
 	height: calc(100% - 32px);
 	width: 100%;
 
@@ -237,6 +222,10 @@ canvas,.konvajs-content,
 	margin-left: 10px;
 }
 
+.canvas__html-shape-title-icon {
+	margin-right: 10px;
+}
+
 .canvas__html-shape-bar-icon {
 	margin-left: auto;
 	margin-right: 10px;
@@ -258,7 +247,7 @@ canvas,.konvajs-content,
 
 .canvas__html-shape-body {
 	position: relative;
-	pointer-events: auto;
+	pointer-events: none;
 	min-height: calc(100% - 32px);
 	height: auto;
 	width: 100%;
@@ -275,17 +264,20 @@ canvas,.konvajs-content,
 	pointer-events: none;
 }
 
+[data-html-plugin="dataGridNode"] .canvas__html-shape-body,
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
 	align-items: flex-start;
 	overflow: visible;
 }
 
+[data-html-plugin="dataGridNode"] .html-plugin-node,
 [data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node,
 [data-html-plugin="formNode"] .html-plugin-node {
 	height: auto;
 }
 
+[data-html-plugin="dataGridNode"] .form,
 [data-html-plugin="debugNode"][data-visualizer="default"] .form,
 [data-html-plugin="formNode"] .form {
 	padding: 0 5px;
@@ -295,13 +287,30 @@ canvas,.konvajs-content,
 	pointer-events: none;
 }
 
+.html-plugin-node {
+	pointer-events: none;
+}
 .html-plugin-node > div {
 	height: 100%;
+	pointer-events: auto;
+}
+
+[data-html-plugin="executeNode"] .html-plugin-node a {
+	pointer-events: auto;
 }
 
 .html-plugin-node > div.stage-div {
 	height: auto;
 }
+
+.connecting-nodes .html-plugin-node > div {
+	pointer-events: none;
+}
+
+.mouse--moving .html-plugin-node > div {
+	pointer-events: none;
+}
+
 
 .html-plugin-node .konvajs-content {
 	margin-bottom: 0;
@@ -315,10 +324,12 @@ canvas,.konvajs-content,
 .taskbar {
 	position: fixed;
     top: 72px;
-    width: 48px;
+	width: 48px;
+	width: 128px;
     background: #f8f8f8;
     left: 0;
-    height: calc(100vh - 127px);
+	height: calc(100vh - 127px);
+	padding: 5px;
 	z-index: 10000;
 	
 	display: flex;
@@ -340,8 +351,31 @@ canvas,.konvajs-content,
 .taskbar__task {
 	background: transparent;	
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 5px;
+    border: 1px solid #e2e2e2;
+    margin-bottom: 2px;
 }
 
+.taskbar__task-icon {
+	margin-left: auto;
+}
+
+.taskbar__task svg {
+	flex: 0 0 auto;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.taskbar__taskname {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+	flex: 0 1 auto;
+	font-size: 12px;
+}
 .taskbar__task-text {
 	fill: #000000;
 }
@@ -532,6 +566,21 @@ textarea.form-control {
 	left: 1px;
 }
 
+.xy-canvas__legend {
+	position: absolute;
+	right: 15px;
+    top: 15px;
+	background: rgba(0,0,0,0.2);
+	padding: 5px;
+	height: auto !important;
+}
+
+.xy-canvas__text {
+	position: relative;
+	top: auto;
+}
+
+
 .data-grid__row-title {
     width: 50px;
     text-align: center;
@@ -546,6 +595,14 @@ textarea.form-control {
 	border-radius: 4px;
 	height: 38px;
 	vertical-align: middle;
+}
+
+.data-grid__cell-add-column {
+	width: 24px;
+}
+
+.data-grid__cell-add-row {
+	height: 24px;
 }
 
 .ui-view__html-elements {

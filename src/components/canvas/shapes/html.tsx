@@ -16,15 +16,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 	const [height, setHeight] = useState(0);
 
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
-	let rect : any = undefined;	
 	
-	const setRef = (ref) => {
-		rect = ref;	
-		if (props.onRef) {
-			props.onRef(props.name, ref);
-		}	
-	}
-
 	useLayoutEffect(() => {
 		if (props.getNodeInstance) {
 			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
@@ -53,8 +45,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 		onMouseLeave={props.onMouseLeave}
 		onMouseOver={props.onMouseOver}
 		onMouseOut={props.onMouseOut}				
-		><KonvaRect
-			ref={ref => (setRef(ref))}
+		><KonvaRect			
 			x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 			y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
 			strokeWidth={0}
@@ -63,8 +54,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 			height={(height || props.node.height || ShapeMeasures.htmlHeight)}
 			fill="#000000"
 			opacity={0}  
-			perfectDrawEnabled={false}></KonvaRect>
-		
+			perfectDrawEnabled={false}></KonvaRect>		
 	</Group>
 });
 

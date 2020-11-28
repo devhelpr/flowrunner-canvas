@@ -1,6 +1,7 @@
 import { FlowToCanvas } from '../helpers/flow-to-canvas';
 
 import * as uuid from 'uuid';
+import { BooleanLiteral } from '@babel/types';
 const uuidV4 = uuid.v4;
 
 export const getNewNode = (node: any, flow: any[]) => {
@@ -37,14 +38,14 @@ export const getNewNode = (node: any, flow: any[]) => {
   return newNode;
 };
 
-export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?) => {
+export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?, isEvent? : any) => {
   const nodeFromPosition = FlowToCanvas.getStartPointForLine(
     nodeFrom,
     {
       x: nodeFrom.x,
       y: nodeFrom.y,
     },
-    {},
+    isEvent || {},
     getNodeInstance,
   );
   const nodeToPosition = FlowToCanvas.getEndPointForLine(
