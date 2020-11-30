@@ -38,7 +38,7 @@ export interface ThumbTypeProps {
   node: any;
 
   isSelected: boolean;
-  shapeType? : string;
+  shapeType?: string;
 
   onMouseConnectionStartOver?: any;
   onMouseConnectionStartOut?: any;
@@ -52,13 +52,12 @@ export interface ThumbTypeProps {
   onMouseConnectionEndMove?: any;
   onMouseConnectionEndEnd?: any;
 
-  onMouseConnectionEndLeave? :any;
+  onMouseConnectionEndLeave?: any;
 
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
 
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
-
 }
 
 export interface LineTypeProps {
@@ -79,7 +78,7 @@ export interface LineTypeProps {
   selectedNodeName: string;
   startNodeName: string;
   endNodeName: string;
-  opacity? : number;
+  opacity?: number;
   noMouseEvents: boolean;
 }
 

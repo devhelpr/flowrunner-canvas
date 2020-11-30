@@ -38,7 +38,7 @@ export const getNewNode = (node: any, flow: any[]) => {
   return newNode;
 };
 
-export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?, isEvent? : any) => {
+export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?, isEvent?: any) => {
   const nodeFromPosition = FlowToCanvas.getStartPointForLine(
     nodeFrom,
     {

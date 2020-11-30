@@ -151,7 +151,7 @@ const taskTypeConfig: any = {
             value: 'numeric',
             label: 'Numeric',
           },
-        ]
+        ],
       },
     ],
   },
@@ -250,19 +250,18 @@ const taskTypeConfig: any = {
     metaInfo: [
       {
         fieldName: 'filterColumn',
-        required: true
+        required: true,
       },
       {
         fieldName: 'filterValueFromProperty',
-        required: true
-      },      
+        required: true,
+      },
       {
         fieldName: 'namespace',
-        required: true
-      }
+        required: true,
+      },
     ],
-    presetValues: {
-    },
+    presetValues: {},
   },
   SearchDataGridTask: {
     shapeType: 'Html',
@@ -271,27 +270,26 @@ const taskTypeConfig: any = {
     metaInfo: [
       {
         fieldName: 'searchColumn',
-        required: true
+        required: true,
       },
       {
         fieldName: 'searchValueFromProperty',
-        required: true
+        required: true,
       },
       {
         fieldName: 'outputProperty',
-        required: true
+        required: true,
       },
       {
         fieldName: 'outputColumn',
-        required: true
+        required: true,
       },
       {
         fieldName: 'namespace',
-        required: true
-      }
+        required: true,
+      },
     ],
-    presetValues: {
-    },
+    presetValues: {},
   },
   DataGridTask: {
     shapeType: 'Html',
@@ -300,12 +298,12 @@ const taskTypeConfig: any = {
     presetValues: {
       htmlPlugin: 'dataGridNode',
       propertyName: '',
-      rows : 2,
+      rows: 2,
       columns: 2,
       values: [
-        ["0","0"],
-        ["0","0"]
-      ]
+        ['0', '0'],
+        ['0', '0'],
+      ],
     },
   },
   SliderTask: {
@@ -384,9 +382,7 @@ const taskTypeConfig: any = {
     htmlPlugin: 'inputNode',
     hasConfigMenu: true,
     configMenu: {
-      fields: [        
-        { fieldName: 'propertyName' }
-      ],
+      fields: [{ fieldName: 'propertyName' }],
     },
   },
   ScreenTask: {

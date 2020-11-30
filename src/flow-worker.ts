@@ -22,7 +22,6 @@ import { WeightedSumTask, ActivationTask, UpdateWeightsTask } from './flowrunner
 import { SearchDataGridTask } from './flowrunner-plugins/search-datagrid-task';
 import { FilterDataGridTask } from './flowrunner-plugins/filter-datagrid-task';
 
-
 import {
   registerExpressionFunction,
   isRangeValue,

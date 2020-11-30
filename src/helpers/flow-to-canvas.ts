@@ -53,10 +53,12 @@ export class FlowToCanvas {
       }
       let result = {
         //(isEvent ? 18 - 8 : 0)
-        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2 ,
-        y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2 : 
-           -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
-        ),
+        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
+        y:
+          newPosition.y -
+          (isEvent
+            ? -32 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
+            : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
       };
 
       return result;
@@ -73,7 +75,7 @@ export class FlowToCanvas {
     } else {
       let skewXOffset = 0;
       if (taskSettings.isSkewed) {
-        skewXOffset = (ShapeMeasures.rectWidht/8) - 4;
+        skewXOffset = ShapeMeasures.rectWidht / 8 - 4;
       }
       return {
         // + (isEvent ? 18 - 14 : 0)
@@ -104,8 +106,8 @@ export class FlowToCanvas {
         }
       }
       const endpoint = {
-        x: newPosition.x - ((width || endShape.width || ShapeMeasures.htmlWidth) / 2) - 4,
-        y: newPosition.y - ((height || endShape.height || ShapeMeasures.htmlHeight) / 2) + 40 + 12,
+        x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2 - 4,
+        y: newPosition.y - (height || endShape.height || ShapeMeasures.htmlHeight) / 2 + 40 + 12,
       };
       return endpoint;
     } else if (shapeType == 'Circle') {
@@ -121,7 +123,7 @@ export class FlowToCanvas {
     } else {
       let skewXOffset = 0;
       if (taskSettings.isSkewed) {
-        skewXOffset = (ShapeMeasures.rectWidht/8) - 8;
+        skewXOffset = ShapeMeasures.rectWidht / 8 - 8;
       }
       return {
         x: newPosition.x + skewXOffset,
