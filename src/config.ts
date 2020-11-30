@@ -138,6 +138,21 @@ const taskTypeConfig: any = {
         fieldName: 'assignToProperty',
         required: true,
       },
+      ,
+      {
+        fieldName: 'mode',
+        fieldType: 'select',
+        options: [
+          {
+            value: 'default',
+            label: 'Default',
+          },
+          {
+            value: 'numeric',
+            label: 'Numeric',
+          },
+        ]
+      },
     ],
   },
   ObservableTask: {
@@ -226,6 +241,56 @@ const taskTypeConfig: any = {
     presetValues: {
       htmlPlugin: 'gridEditNode',
       propertyName: '',
+    },
+  },
+  FilterDataGridTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    icon: 'fa-filter',
+    metaInfo: [
+      {
+        fieldName: 'filterColumn',
+        required: true
+      },
+      {
+        fieldName: 'filterValueFromProperty',
+        required: true
+      },      
+      {
+        fieldName: 'namespace',
+        required: true
+      }
+    ],
+    presetValues: {
+    },
+  },
+  SearchDataGridTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    icon: 'fa-search',
+    metaInfo: [
+      {
+        fieldName: 'searchColumn',
+        required: true
+      },
+      {
+        fieldName: 'searchValueFromProperty',
+        required: true
+      },
+      {
+        fieldName: 'outputProperty',
+        required: true
+      },
+      {
+        fieldName: 'outputColumn',
+        required: true
+      },
+      {
+        fieldName: 'namespace',
+        required: true
+      }
+    ],
+    presetValues: {
     },
   },
   DataGridTask: {
@@ -317,6 +382,12 @@ const taskTypeConfig: any = {
     hasUI: true,
     shapeType: 'Html',
     htmlPlugin: 'inputNode',
+    hasConfigMenu: true,
+    configMenu: {
+      fields: [        
+        { fieldName: 'propertyName' }
+      ],
+    },
   },
   ScreenTask: {
     hasUI: false,

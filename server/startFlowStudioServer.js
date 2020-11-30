@@ -82,6 +82,11 @@ function start(flowFileName, taskPlugins, options) {
 		defaultPlugins = true;
 	}
 
+	let config = {};
+	if (!!options && options.config) {
+		config = options.config;
+	}
+
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
 		if (defaultPlugins) {
 			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
@@ -126,6 +131,9 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"MatrixTask", fullName: "MatrixTask", flowType:"playground"});
 					tasks.push({className:"GridEditTask", fullName: "GridEditTask", flowType:"playground"});
 					tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
+					tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
+					tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
+					
 					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
 					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
@@ -224,6 +232,10 @@ function start(flowFileName, taskPlugins, options) {
 
 		app.get('/get-flows', (req, res) => {			
 			res.send(flowFiles);
+		});
+
+		app.get('/get-config', (req, res) => {			
+			res.send(JSON.stringify(config));
 		});
 
 		const flowRouteHandler = (req, res) => {

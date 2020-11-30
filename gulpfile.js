@@ -198,6 +198,7 @@ gulp.task('startFlowServer', function(cb) {
   [{
     className: "TestCustomConfigTask",
     fullName:"TestCustomConfigTask",
+    flowType:"playground",
     config: {
       presetValues: {
         "hello" : "custom"
@@ -208,7 +209,13 @@ gulp.task('startFlowServer', function(cb) {
     hasPreviewPlugin: true,
     isStandalone: true,
     defaultPlugins: true,
-
+    config: {
+      "TestCustomConfigTask": {
+        presetValues: {
+          "test" : "hello config"
+        }
+      }
+    }
   });
   cb();
 });

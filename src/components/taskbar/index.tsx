@@ -50,7 +50,7 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 				}).map((task) => {
 						const taskSettings = FlowToCanvas.getTaskSettings(task.className);
 						return {...task, 
-							icon : taskSettings.icon || ""
+							icon : taskSettings.icon || task.icon || ""
 						};
 					})
 				});

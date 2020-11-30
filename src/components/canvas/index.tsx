@@ -171,6 +171,51 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	connectionForDraggingName = "_connection-dragging";
+	recalculateStartEndpoints = () => {
+
+		// TODO : fix dit... want het werkt nog niet
+		//  ... probleem is dat het kan gebeuren dat het eindpunt later wordt berekend 
+		//    zonder dat het opnieuw berekend wordt
+		//      .. bij 'Demo'-flow wordt de AssignTask gerenderd nadat Datagrid is berekend
+		//      .. dus dat geeft verkeerde waardes
+		//
+		//      .. moet ook aangepast worden voor endlines
+
+		setTimeout(() => {
+			//console.log("recalculateStartEndpoints");
+			this.props.flow.map((node, index) => {
+				if (node.shapeType !== "Line") {
+					let shapeRef = this.shapeRefs[node.name];
+					if (shapeRef && shapeRef.current) {
+						//console.log("recalculateStartEndpoints", node.name, node, shapeRef.current);
+/*
+{
+							x:node.x,
+							y:node.y
+						}
+
+
+						data-x="888.2905825739357" data-y="814.6706657310602" data-top="-297" 
+						parseInt(style.top) ..
+*/
+						let element = document.getElementById(node.name);
+						if (element) {
+							this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale,node.x,node.y,node);
+							this.setNewPositionForNode(node, shapeRef.current, {x:node.x,y:node.y}, false, true);
+						}
+					}
+				}
+			});
+
+			if (this.stage && this.stage.current) {
+				let stage = (this.stage.current as any).getStage();
+				if (stage) {
+					stage.batchDraw();
+				}
+			}
+		}, 1);
+		
+	}
 
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 
@@ -208,6 +253,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				}
 
 				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
+				this.recalculateStartEndpoints();
+
 			} else {
 				//this.shapeRefs = [];
 
@@ -228,6 +275,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						} 
 					}
 				});
+
+				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
+				this.recalculateStartEndpoints();
+
 			}		
 		}
 
@@ -257,30 +308,32 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	}
 
-	setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean) => {
+	setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean) => {
 		const selectedNodeOpacity = 0.15;
 
-		this.props.flow.map((flowNode) => {
-			if (flowNode.name !== node.name) {
-				if (this.shapeRefs[flowNode.name] && 
-					this.shapeRefs[flowNode.name].current) {
-					const shape = this.shapeRefs[flowNode.name].current;
-					if (shape) {
-						shape.opacity(selectedNodeOpacity);					
-					}				
+		if (!linesOnly) {
+			this.props.flow.map((flowNode) => {
+				if (flowNode.name !== node.name) {
+					if (this.shapeRefs[flowNode.name] && 
+						this.shapeRefs[flowNode.name].current) {
+						const shape = this.shapeRefs[flowNode.name].current;
+						if (shape) {
+							shape.opacity(selectedNodeOpacity);					
+						}				
+					}
+					const element = document.getElementById(flowNode.name);
+					if (element) {
+						element.style.opacity = "0.5";
+					} 
 				}
-				const element = document.getElementById(flowNode.name);
-				if (element) {
-					element.style.opacity = "0.5";
-				} 
-			}
-		});
+			});
+		}
 
 		const x = group.attrs["x"];
 		const y = group.attrs["y"];
 		let newPosition = position || {x:x, y:y};
 
-		if (newPosition) {
+		if (newPosition && !linesOnly) {
 			if (this.stage && this.stage.current) {
 				let stage = (this.stage.current as any).getStage();
 				if (stage) {
@@ -290,7 +343,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					newPosition.x = ((touchPos.x - (stage).x()) / scaleFactor) - this.mouseStartX;
 					newPosition.y = ((touchPos.y - (stage).y()) / scaleFactor) - this.mouseStartY;
 						
-					let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
+					//let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
 				}
 			}
 			if (this.shapeRefs[node.name]) {
@@ -335,32 +388,41 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale, newPosition.x, newPosition.y, node);						
 
 		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(this.props.flow, node);
-
 		let lines = {};
 		if (startLines) {			
 			startLines.map((lineNode) => {				
 				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
+				let endNodes = this.props.flow.filter((node) => {
+					return node.name == lineNode.endshapeid;
+				})
+				let endNode = endNodes[0];
+				const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
+					x: endNode.x,
+					y: endNode.y
+				}, node, this.props.getNodeInstance);
+
 				const lineRef = this.shapeRefs[lineNode.name];
 				if (lineRef && lineRef.current) {
 
 					let controlPoints = calculateLineControlPoints(
 						newStartPosition.x, newStartPosition.y, 
-						lineNode.xend, lineNode.yend);
+						newEndPosition.x, newEndPosition.y);
 
 					lineRef.current.points([newStartPosition.x, newStartPosition.y,
 						controlPoints.controlPointx1, controlPoints.controlPointy1,
 						controlPoints.controlPointx2, controlPoints.controlPointy2,
-						lineNode.xend, lineNode.yend]);
+						newEndPosition.x, newEndPosition.y]);
+		
 					lineRef.current.opacity(1);
 				}
-				const endNode = this.shapeRefs[lineNode.endshapeid];
-				if (endNode && endNode.current) {
-					endNode.current.opacity(1);
+				const endNodeRef = this.shapeRefs[lineNode.endshapeid];
+				if (endNodeRef && endNodeRef.current) {
+					endNodeRef.current.opacity(1);
 				}
 				if (!!isCommitingToStore) {
 					this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
 				}
-				lines[lineNode.name] = {xstart: newStartPosition.x, ystart: newStartPosition.y};
+				lines[lineNode.name] = {x: newStartPosition.x, y: newStartPosition.y};
 			})
 		}
 
@@ -370,22 +432,31 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			endLines.map((lineNode) => {
 				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, this.props.getNodeInstance);
 				let startPos = {
-					xstart : lineNode.xstart,
-					ystart : lineNode.ystart
+					x : lineNode.xstart,
+					y : lineNode.ystart
 				};
 
+				let startNodes = this.props.flow.filter((node) => {
+					return node.name == lineNode.startshapeid;
+				})
+				let startNode = startNodes[0];
+				let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
+					x: startNode.x,
+					y: startNode.y
+				}, node, this.props.getNodeInstance);
+
 				if (lines[lineNode.name]) {
-					startPos = lines[lineNode.name];
+					newStartPosition = lines[lineNode.name];					
 				}
 
 				const lineRef = this.shapeRefs[lineNode.name];
 				if (lineRef && lineRef.current) {
 
 					let controlPoints = calculateLineControlPoints(
-						startPos.xstart, startPos.ystart, 
+						newStartPosition.x, newStartPosition.y, 
 						newEndPosition.x, newEndPosition.y);
 
-					lineRef.current.points([startPos.xstart, startPos.ystart,
+					lineRef.current.points([newStartPosition.x, newStartPosition.y,
 						controlPoints.controlPointx1, controlPoints.controlPointy1,
 						controlPoints.controlPointx2, controlPoints.controlPointy2,
 						newEndPosition.x, newEndPosition.y]);
@@ -393,9 +464,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					lineRef.current.opacity(1);
 				}
 
-				const startNode = this.shapeRefs[lineNode.startshapeid];
-				if (startNode && startNode.current) {
-					startNode.current.opacity(1);
+				const startNodeRef = this.shapeRefs[lineNode.startshapeid];
+				if (startNodeRef && startNodeRef.current) {
+					startNodeRef.current.opacity(1);
 				}
 				if (!!isCommitingToStore) {
 					this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
@@ -539,7 +610,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				this.setNewPositionForNode(node, event.currentTarget, event.evt.screenX ? {
 					x: event.evt.screenX,
 					y: event.evt.screenY
-				} : undefined);
+				} : undefined, false, false);
 			}
 		}
 		
@@ -555,7 +626,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			eventHelper.event = this.connectionNodeEventName;
 		}
 
-console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName, this.connectionNodeEvent, isNaN(this.connectionNodeEvent as number));
+//console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName, this.connectionNodeEvent, isNaN(this.connectionNodeEvent as number));
 
 		const connection = getNewConnection(this.touchNode, node, this.props.getNodeInstance, eventHelper);
 		if (!this.shapeRefs[connection.name]) {
@@ -613,7 +684,7 @@ console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName
 		this.touchNode = undefined;
 		this.touchNodeGroup = undefined;
 		if (event.currentTarget && this.mouseDragging) {
-			this.setNewPositionForNode(node, event.currentTarget, undefined, true);
+			this.setNewPositionForNode(node, event.currentTarget, undefined, true, false);
 		}
 		this.mouseDragging = false;
 		return false;
@@ -772,7 +843,7 @@ console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName
 		if (this.touchNode && this.touchNodeGroup) {			
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
-			this.setNewPositionForNode(this.touchNode, this.touchNodeGroup);
+			this.setNewPositionForNode(this.touchNode, this.touchNodeGroup, false, false);
 			this.cancelDragStage();
 			return false;
 		} else {
@@ -869,7 +940,7 @@ console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName
 			this.setNewPositionForNode(node, event.currentTarget, event.evt.touches.length > 0 ? {
 				x: event.evt.touches[0].screenX,
 				y: event.evt.touches[0].screenY
-			} : undefined);
+			} : undefined, false, false);
 		}
 		return false;
 	}
@@ -904,7 +975,7 @@ console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName
 			this.setNewPositionForNode(node, event.currentTarget, event.evt.changedTouches.length > 0 ? {
 				x: event.evt.changedTouches[0].screenX,
 				y: event.evt.changedTouches[0].screenY
-			} : undefined);
+			} : undefined, false, false);
 		}
 		return false;
 	}
@@ -1045,7 +1116,7 @@ console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName
 			this.draggingWhileTouching = true;
 			return false;
 		}
-		this.setNewPositionForNode(node, event.currentTarget);		
+		this.setNewPositionForNode(node, event.currentTarget, false, false);		
 	}
 
 	onDragEnd(node, event) {
@@ -2105,6 +2176,7 @@ console.log("connectConnectionToNode", eventHelper, this.connectionNodeEventName
 
 		const connections = this.props.canvasMode.showDependencies ? this.getDependentConnections() : [];
 		let nodesConnectedToSelectedNode : any = {};
+
 		/*onPaste={this.onPaste}	
 		suppressContentEditableWarning={true}
 				contentEditable={false}	

@@ -57,7 +57,7 @@ export class DataGridTask extends FlowTask {
             if (cellValue === '' || (cellValue != '' && cellValue[0] !== '=')) {
               let letter = String.fromCharCode((columnIndex % 26) + 65);
               let value = Number(cellValue);
-              if (isNaN(value)) {
+              if (isNaN(value) || isNaN(cellValue)) {
                 value = cellValue;
               }
               variables[letter + (rowIndex + 1)] = value;

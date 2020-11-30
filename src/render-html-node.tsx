@@ -85,7 +85,7 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 }
 
 
-export const getNodeInstance = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => {
+export const getNodeInstance = (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => {
 	
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {

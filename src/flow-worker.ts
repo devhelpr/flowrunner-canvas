@@ -19,6 +19,9 @@ import { FormTask } from './flowrunner-plugins/form-task';
 import { RunFlowTask } from './flowrunner-plugins/run-flow-task';
 
 import { WeightedSumTask, ActivationTask, UpdateWeightsTask } from './flowrunner-plugins/perceptron';
+import { SearchDataGridTask } from './flowrunner-plugins/search-datagrid-task';
+import { FilterDataGridTask } from './flowrunner-plugins/filter-datagrid-task';
+
 
 import {
   registerExpressionFunction,
@@ -766,7 +769,8 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   flow.registerTask('ScreenTask', ScreenTask);
   flow.registerTask('FormTask', FormTask);
   flow.registerTask('RunFlowTask', RunFlowTask);
-
+  flow.registerTask('SearchDataGridTask', SearchDataGridTask);
+  flow.registerTask('FilterDataGridTask', FilterDataGridTask);
   flow.registerTask('WeightedSumTask', WeightedSumTask);
   flow.registerTask('ActivationTask', ActivationTask);
   flow.registerTask('UpdateWeightsTask', UpdateWeightsTask);
