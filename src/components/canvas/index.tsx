@@ -104,6 +104,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		this.shapeRefs = [];
 		this.shapeRefs[this.connectionForDraggingName] = React.createRef();
+		
 	}
 
 
@@ -181,7 +182,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		//
 		//      .. moet ook aangepast worden voor endlines
 
-		setTimeout(() => {
+		//setTimeout(() => {
 			//console.log("recalculateStartEndpoints");
 			this.props.flow.map((node, index) => {
 				if (node.shapeType !== "Line") {
@@ -213,8 +214,54 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					stage.batchDraw();
 				}
 			}
-		}, 1);
+		//}, 1);
 		
+	}
+
+	shouldComponentUpdate(nextProps : CanvasProps, nextState : CanvasState) {
+
+		if (nextProps.flow != this.props.flow && nextProps.flow) {
+			nextProps.flow.map((node, index) => {
+				if (!this.shapeRefs[node.name]) {
+					const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+console.log("create ref",node.name);
+					this.shapeRefs[node.name] = React.createRef();
+					this.shapeRefs["thumb_" + node.name] = React.createRef();
+					this.shapeRefs["thumbstart_" + node.name] = React.createRef();
+
+					if (settings.events) {
+						settings.events.map((event ,eventIndex) => {
+							this.shapeRefs["thumbstartevent_" + node.name + eventIndex] = React.createRef();
+						});
+					} 
+				}
+			});
+		}
+
+		if (nextProps.flow != this.props.flow ||
+			nextProps.storeFlow != this.props.storeFlow ||
+			nextProps.storeFlowNode != this.props.storeFlowNode ||
+			nextProps.addFlowNode != this.props.addFlowNode ||
+			nextProps.selectNode != this.props.selectNode ||
+			nextProps.addConnection != this.props.addFlowNode ||
+			nextProps.deleteConnection != this.props.deleteConnection ||
+			nextProps.deleteNode != this.props.deleteNode ||
+			nextProps.selectedNode != this.props.selectedNode ||			
+			nextProps.canvasMode != this.props.canvasMode ||
+			nextProps.canvasToolbarsubject != this.props.canvasToolbarsubject ||
+			nextState.stageWidth != this.state.stageWidth ||
+			nextState.stageHeight != this.state.stageHeight ||
+			nextState.canvasOpacity != this.state.canvasOpacity ||
+			nextState.canvasKey != this.state.canvasKey ||
+			nextState.showNodeSettings != this.state.showNodeSettings ||
+			nextState.editNode != this.state.editNode ||
+			nextState.editNodeSettings != this.state.editNodeSettings ||
+			nextState.isConnectingNodesByDragging != this.state.isConnectingNodesByDragging ||
+			nextState.connectionX != this.state.connectionX ||
+			nextState.connectionY != this.state.connectionY) {
+				return true;
+			}
+		return false;
 	}
 
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
@@ -222,9 +269,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (prevProps.flow != this.props.flow) {
 			if (this.flowIsLoading) {
 				this.flowIsLoading = false;
-				this.shapeRefs = [];
-
-				this.shapeRefs[this.connectionForDraggingName] = React.createRef();
+//				this.shapeRefs = [];
+				/*if (this.shapeRefs[this.connectionForDraggingName]) {
+					this.shapeRefs[this.connectionForDraggingName] = React.createRef();
+				}
 
 				this.props.flow.map((node, index) => {
 					if (!this.shapeRefs[node.name]) {
@@ -241,6 +289,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						} 
 					}
 				});
+				*/
 				this.fitStage();
 
 				if (this.stage && this.stage.current) {
@@ -260,7 +309,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 				//this.shapeRefs[this.connectionForDraggingName] = React.createRef();
 
-				this.props.flow.map((node, index) => {
+				/*this.props.flow.map((node, index) => {
 					if (!this.shapeRefs[node.name]) {
 						const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 
@@ -275,6 +324,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						} 
 					}
 				});
+				*/
 
 				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
 				this.recalculateStartEndpoints();
@@ -413,15 +463,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						controlPoints.controlPointx2, controlPoints.controlPointy2,
 						newEndPosition.x, newEndPosition.y]);
 		
-					lineRef.current.opacity(1);
+					lineRef.current.opacity(1);					
 				}
 				const endNodeRef = this.shapeRefs[lineNode.endshapeid];
 				if (endNodeRef && endNodeRef.current) {
 					endNodeRef.current.opacity(1);
 				}
 				if (!!isCommitingToStore) {
-					this.props.storeFlowNode(Object.assign({}, lineNode, {xstart: newStartPosition.x, ystart: newStartPosition.y} ), lineNode.name);
+					this.props.storeFlowNode(Object.assign({}, lineNode, {
+						xstart: newStartPosition.x, ystart: newStartPosition.y,
+						xend: newEndPosition.x, yend: newEndPosition.y
+					} ), lineNode.name);
 				}
+				//console.log("linenode start",endNodes.length, lineNode.name, newStartPosition, newEndPosition);
 				lines[lineNode.name] = {x: newStartPosition.x, y: newStartPosition.y};
 			})
 		}
@@ -448,6 +502,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				if (lines[lineNode.name]) {
 					newStartPosition = lines[lineNode.name];					
 				}
+				//console.log("linenode end",startNodes.length, lineNode.name, newStartPosition, newEndPosition);
 
 				const lineRef = this.shapeRefs[lineNode.name];
 				if (lineRef && lineRef.current) {
@@ -460,7 +515,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						controlPoints.controlPointx1, controlPoints.controlPointy1,
 						controlPoints.controlPointx2, controlPoints.controlPointy2,
 						newEndPosition.x, newEndPosition.y]);
-
+//lineRef.current.stroke("#ff0000");
+//lineRef.current.draw();
 					lineRef.current.opacity(1);
 				}
 
@@ -468,8 +524,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				if (startNodeRef && startNodeRef.current) {
 					startNodeRef.current.opacity(1);
 				}
+
 				if (!!isCommitingToStore) {
-					this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {xend: newEndPosition.x, yend: newEndPosition.y} ), lineNode.name);
+					this.props.storeFlowNode(Object.assign({}, lineNode, startPos, {
+						xstart: newStartPosition.x, ystart: newStartPosition.y,
+						xend: newEndPosition.x, yend: newEndPosition.y
+					} ), lineNode.name);
 				}
 			})
 		}
@@ -2171,6 +2231,45 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 	}
 
+	/*
+						{this.props.flow.map((node, index) => {
+							let Shape = Shapes[node.shapeType];
+							if (node.shapeType === "Line"  && Shape) {
+
+								if (canvasHasSelectedNode &&  this.props.selectedNode &&  this.props.selectedNode.node) {
+									if (node.startshapeid === this.props.selectedNode.node.name) {
+										nodesConnectedToSelectedNode[node.endshapeid] = true;
+									}
+	
+									if (node.endshapeid === this.props.selectedNode.node.name) {
+										nodesConnectedToSelectedNode[node.startshapeid] = true;
+									}								
+								}
+
+								return <Shape key={"node-"+index}
+									ref={this.shapeRefs[node.name]}
+									onMouseOver={this.onMouseOver.bind(this, node)}
+									onMouseOut={this.onMouseOut.bind(this)}
+									onClickLine={this.onClickLine.bind(this, node)}
+									canvasHasSelectedNode={canvasHasSelectedNode}
+									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
+									isErrorColor={node.followflow === 'onfailure'}
+									isSuccessColor={node.followflow === 'onsuccess'}
+									xstart={node.xstart} 
+									ystart={node.ystart}
+									xend={node.xend} 
+									yend={node.yend}
+									isEventNode={node.event !== undefined && node.event !== ""}
+									selectedNodeName={canvasHasSelectedNode ? this.props.selectedNode.node.name : ""}
+									startNodeName={node.startshapeid}
+									endNodeName={node.endshapeid}
+									noMouseEvents={false}									
+								></Shape>;
+							} 
+							return null;
+						})}
+	*/
+
 	render() {
 		const canvasHasSelectedNode : boolean = !!this.props.selectedNode && !!this.props.selectedNode.node;	
 
@@ -2241,48 +2340,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									></Shapes.Line>})
 						}
 
-						{this.props.flow.map((node, index) => {
-							let Shape = Shapes[node.shapeType];
-							if (node.shapeType === "Line"  && Shape) {
 
-								if (canvasHasSelectedNode &&  this.props.selectedNode &&  this.props.selectedNode.node) {
-									if (node.startshapeid === this.props.selectedNode.node.name) {
-										nodesConnectedToSelectedNode[node.endshapeid] = true;
-									}
-	
-									if (node.endshapeid === this.props.selectedNode.node.name) {
-										nodesConnectedToSelectedNode[node.startshapeid] = true;
-									}								
-								}
-
-								/*
-								onRef={(nodeName , ref) => {
-										this.shapeRefs[nodeName] = ref;
-										return true; 
-									}}
-								*/
-								return <Shape key={"node-"+index}
-									ref={this.shapeRefs[node.name]}
-									onMouseOver={this.onMouseOver.bind(this, node)}
-									onMouseOut={this.onMouseOut.bind(this)}
-									onClickLine={this.onClickLine.bind(this, node)}
-									canvasHasSelectedNode={canvasHasSelectedNode}
-									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
-									isErrorColor={node.followflow === 'onfailure'}
-									isSuccessColor={node.followflow === 'onsuccess'}
-									xstart={node.xstart} 
-									ystart={node.ystart}
-									xend={node.xend} 
-									yend={node.yend}
-									isEventNode={node.event !== undefined && node.event !== ""}
-									selectedNodeName={canvasHasSelectedNode ? this.props.selectedNode.node.name : ""}
-									startNodeName={node.startshapeid}
-									endNodeName={node.endshapeid}
-									noMouseEvents={false}									
-								></Shape>;
-							} 
-							return null;
-						})}
 						{this.props.flow.map((node, index) => {
 							let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
 							const settings = ShapeSettings.getShapeSettings(node.taskType, node);
@@ -2312,9 +2370,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									x={node.x} 
 									y={node.y} 
 									name={node.name}
+									flow={this.props.flow}
 									taskType={node.taskType}
 									node={node}																	
 									ref={this.shapeRefs[node.name]}
+									shapeRefs={this.shapeRefs}
 									canvasHasSelectedNode={canvasHasSelectedNode}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}

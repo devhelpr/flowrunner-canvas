@@ -6,7 +6,7 @@ export interface ShapeTypeProps {
   name: string;
   taskType: string;
   node: any;
-
+  flow: any;
   onDragStart: any;
   onDragMove: any;
   onDragEnd: any;
@@ -24,6 +24,8 @@ export interface ShapeTypeProps {
   onMouseOver: any;
   onMouseOut: any;
 
+  shapeRefs : any[];
+  
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;

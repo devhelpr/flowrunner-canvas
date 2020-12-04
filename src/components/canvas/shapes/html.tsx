@@ -1,14 +1,11 @@
 import * as React from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
 
-import * as Konva from 'react-konva';
-const KonvaRect = Konva.Rect;
-
-import * as KonvaDirect from 'konva';
-import { Group, Text } from 'react-konva';
+import { Group, Rect as KonvaRect } from 'react-konva';
 import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
+import { getLines } from './line-helper';
 
 export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 
@@ -28,34 +25,43 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 		}
 	}, [props.node]);	
 	
-	return <Group
-		x={props.x}
-		y={props.y}
-		ref={ref}
-		onDragMove={props.onDragMove}
-		onDragEnd={props.onDragEnd}
-		draggable={false}
-		onClick={props.onClickShape}
-		onTouchStart={props.onTouchStart}
-		onTouchMove={props.onTouchMove}
-		onTouchEnd={props.onTouchEnd}
-		onMouseDown={props.onMouseStart}
-		onMouseMove={props.onMouseMove}
-		onMouseUp={props.onMouseEnd}
-		onMouseLeave={props.onMouseLeave}
-		onMouseOver={props.onMouseOver}
-		onMouseOut={props.onMouseOut}				
-		><KonvaRect			
-			x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
-			y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
-			strokeWidth={0}
-			cornerRadius={settings.cornerRadius}
-			width={width || props.node.width || ShapeMeasures.htmlWidth}
-			height={(height || props.node.height || ShapeMeasures.htmlHeight)+5}
-			fill="#000000"
-			opacity={0}  
-			perfectDrawEnabled={false}></KonvaRect>		
-	</Group>
+	return <>
+		<Group
+			x={props.x}
+			y={props.y}
+			ref={ref}
+			onDragMove={props.onDragMove}
+			onDragEnd={props.onDragEnd}
+			draggable={false}
+			onClick={props.onClickShape}
+			onTouchStart={props.onTouchStart}
+			onTouchMove={props.onTouchMove}
+			onTouchEnd={props.onTouchEnd}
+			onMouseDown={props.onMouseStart}
+			onMouseMove={props.onMouseMove}
+			onMouseUp={props.onMouseEnd}
+			onMouseLeave={props.onMouseLeave}
+			onMouseOver={props.onMouseOver}
+			onMouseOut={props.onMouseOut}				
+			><KonvaRect			
+				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
+				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
+				strokeWidth={0}
+				cornerRadius={settings.cornerRadius}
+				width={width || props.node.width || ShapeMeasures.htmlWidth}
+				height={(height || props.node.height || ShapeMeasures.htmlHeight)+5}
+				fill="#000000"
+				opacity={0}  
+				perfectDrawEnabled={false}></KonvaRect>		
+		</Group>
+		{getLines(
+				props.flow, 
+				props.node,
+				props.getNodeInstance,
+				props.canvasHasSelectedNode,
+				props.isSelected,props.shapeRefs)
+		}
+	</>;
 });
 
 /*
