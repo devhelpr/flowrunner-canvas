@@ -444,7 +444,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 													key={"index" + index}
 													type={fieldType}
 													className="form-control"
-													value={this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName]}
+													value={this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || ""}
 													id={"input-" + this.props.node.name + "-" +metaInfo.fieldName}
 													data-index={index}
 													disabled={!!this.props.canvasMode.isFlowrunnerPaused}													 

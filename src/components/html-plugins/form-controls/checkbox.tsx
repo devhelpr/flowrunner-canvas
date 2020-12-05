@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { IFormControlProps } from './form-control-interface';
-import { useFormControl } from './use-form-control';
+import { useFormControlFromCode } from './use-form-control';
 
 export interface IRadioButtonOption {
 	value : string;
@@ -10,7 +10,7 @@ export interface IRadioButtonOption {
 
 export const CheckBox = (props: IFormControlProps) => {
 	const {metaInfo, node} = props;
-	let formControl = useFormControl(props.value, metaInfo, props.onChange);
+	let formControl = useFormControlFromCode(props.value, metaInfo, props.onChange);
 	const onClick = (event) => {
 		formControl.handleChangeByValue(!formControl.value);
 	}	

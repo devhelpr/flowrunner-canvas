@@ -344,6 +344,9 @@ const taskTypeConfig: any = {
       },
     ],
   },
+  DeepReassignTask: {
+    icon: 'fa-random'
+  },
   SortTask: {
     icon: 'fa-sort',
     shapeType: 'Html',
