@@ -24,7 +24,7 @@ import { FilterDataGridTask } from './flowrunner-plugins/filter-datagrid-task';
 
 import { TransformTask } from './flowrunner-plugins/transform-task';
 import { SortTask } from './flowrunner-plugins/sort-task';
-import { DeepReassignTask } from './flowrunner-plugins/deep-reassign-task';
+import { DeepAssignTask } from './flowrunner-plugins/deep-assign-task';
 
 import {
   registerExpressionFunction,
@@ -33,7 +33,6 @@ import {
   getRangeValueParameters,
 } from '@devhelpr/expressionrunner';
 
-import { IServicesInterface } from '@devhelpr/flowrunner/lib/interfaces/ServicesInterface';
 const uuidV4 = uuid.v4;
 
 registerExpressionFunction('sum', (a: number, ...args: number[]) => {
@@ -779,7 +778,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   flow.registerTask('UpdateWeightsTask', UpdateWeightsTask);
   flow.registerTask('TransformTask', TransformTask);
   flow.registerTask('SortTask', SortTask);
-  flow.registerTask('DeepReassignTask', DeepReassignTask);
+  flow.registerTask('DeepAssignTask', DeepAssignTask);
 
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
