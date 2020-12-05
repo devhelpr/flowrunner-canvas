@@ -38,6 +38,10 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 	/*
 x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 			y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
+
+
+			sides={3}
+			rotation={90}
 	*/
 	return <><Group
 		ref={ref}
@@ -53,15 +57,20 @@ x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 		height={12}
 	>
 		{props.shapeType === "Rect" && <>			
-			<KonvaRegularPolygon
-				x={4}
-				y={12}
-				sides={3}
+			<KonvaCircle
+				x={0}
+				y={12}				
 				radius={8}
-				fill="#000000"
-				rotation={90}
+				fill="#000000"				
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
-			></KonvaRegularPolygon>
+			></KonvaCircle>
+			<KonvaCircle
+				x={0}
+				y={12}				
+				radius={6}
+				fill="#ffffff"				
+				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			></KonvaCircle>
 			<KonvaCircle
 				x={0}
 				y={12}

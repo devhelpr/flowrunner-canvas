@@ -22,6 +22,9 @@ import { WeightedSumTask, ActivationTask, UpdateWeightsTask } from './flowrunner
 import { SearchDataGridTask } from './flowrunner-plugins/search-datagrid-task';
 import { FilterDataGridTask } from './flowrunner-plugins/filter-datagrid-task';
 
+import { TransformTask } from './flowrunner-plugins/transform-task';
+import { SortTask } from './flowrunner-plugins/sort-task';
+
 import {
   registerExpressionFunction,
   isRangeValue,
@@ -773,7 +776,9 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   flow.registerTask('WeightedSumTask', WeightedSumTask);
   flow.registerTask('ActivationTask', ActivationTask);
   flow.registerTask('UpdateWeightsTask', UpdateWeightsTask);
-
+  flow.registerTask('TransformTask', TransformTask);
+  flow.registerTask('SortTask', SortTask);
+  
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
       console.log('pluginName', pluginName);

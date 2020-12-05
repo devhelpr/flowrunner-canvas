@@ -30,6 +30,13 @@ export interface ShapeTypeProps {
   isConnectedToSelectedNode: boolean;
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
   onRef?: (nodeName: string, ref: any) => void;
+
+  onLineMouseOver : any;
+  onLineMouseOut : any;
+  onClickLine : any;
+  selectedNode : any;
+
+  canvasComponentInstance : any;
 }
 
 export interface ThumbTypeProps {

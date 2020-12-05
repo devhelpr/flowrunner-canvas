@@ -106,7 +106,7 @@ export class FlowToCanvas {
         }
       }
       const endpoint = {
-        x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2 - 4,
+        x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2 - 8,
         y: newPosition.y - (height || endShape.height || ShapeMeasures.htmlHeight) / 2 + 40 + 12,
       };
       return endpoint;
@@ -126,7 +126,7 @@ export class FlowToCanvas {
         skewXOffset = ShapeMeasures.rectWidht / 8 - 8;
       }
       return {
-        x: newPosition.x + skewXOffset,
+        x: newPosition.x + skewXOffset - 8,
         y: newPosition.y + (4 + 8),
       };
       //y: newPosition.y + ShapeMeasures.rectHeight / 2,

@@ -133,6 +133,8 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
 					tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
 					tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
+					tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
+					tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
 					
 					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});

@@ -59,7 +59,14 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				props.node,
 				props.getNodeInstance,
 				props.canvasHasSelectedNode,
-				props.isSelected,props.shapeRefs)
+				props.selectedNode,
+				props.isSelected,
+				props.shapeRefs,
+				props.onLineMouseOver,
+				props.onLineMouseOut,
+				props.onClickLine,
+				props.canvasComponentInstance
+		)
 		}
 	</>;
 });

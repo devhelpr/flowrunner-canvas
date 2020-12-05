@@ -344,6 +344,88 @@ const taskTypeConfig: any = {
       },
     ],
   },
+  SortTask: {
+    icon: 'fa-sort',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'mode',
+        required: true,
+        fieldType: 'select',
+        options: [
+          {
+            value: 'ascending',
+            label: 'Ascending',
+          },
+          {
+            value: 'descending',
+            label: 'Descending',
+          }
+        ]        
+      },
+      {
+        fieldName: 'sortProperty',
+        required: true
+      },
+      {
+        fieldName: 'compareField',
+        required: true
+      }
+    ],
+    presetValues: {
+      "mode": "ascending",
+      "sortProperty" : "",
+      "compareField" : ""
+    }
+  },
+  TransformTask: {
+    icon: 'fa-random',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'mode',
+        required: true,
+        fieldType: 'select',
+        options: [
+          {
+            value: 'default',
+            label: 'Default',
+          },
+          {
+            value: 'indexedObjects',
+            label: 'IndexedObjects',
+          },
+          {
+            value: 'array',
+            label: 'Array',
+          }
+        ]        
+      },
+      {
+        fieldName: 'transformProperty',
+      },
+      {
+        fieldName: 'outputProperty',
+      },
+      {
+        fieldName: 'clearPayload',
+        fieldType: 'checkbox',
+      }
+    ],
+    presetValues: {
+      mode: "default",
+      transformProperty: "",
+      mappings: [
+        {
+          "sourceProperty": "source",
+          "targetProperty": "target"
+        }
+      ],
+      outputProperty: ""
+    },
+  },
   matrix: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',

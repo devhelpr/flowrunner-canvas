@@ -34,7 +34,10 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 		skewX = -0.5;
 		skewXOffset = (ShapeMeasures.rectWidht/8) - 4;
 	}
-
+/*
+	sides={3}
+	rotation={270}
+*/
 	return <><Group
 		ref={ref}
 		x={props.x + skewXOffset}
@@ -49,17 +52,22 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 	>			
 		{props.shapeType === "Rect" && <>
 				
-			<KonvaRegularPolygon
-				x={ShapeMeasures.rectWidht + 10 - 14}
-				y={12}
-				sides={3}
-				radius={8}
-				fill="#000000"
-				rotation={270}
-				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
-			></KonvaRegularPolygon>
 			<KonvaCircle
-				x={ShapeMeasures.rectWidht + 10 - 14}
+				x={ShapeMeasures.rectWidht}
+				y={12}				
+				radius={8}
+				fill="#000000"				
+				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			></KonvaCircle>
+			<KonvaCircle
+				x={ShapeMeasures.rectWidht}
+				y={12}				
+				radius={6}
+				fill="#ffffff"				
+				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			></KonvaCircle>
+			<KonvaCircle
+				x={ShapeMeasures.rectWidht}
 				y={12}
 				radius={12}
 				opacity={0}

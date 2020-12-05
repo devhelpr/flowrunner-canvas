@@ -9,8 +9,14 @@ export const useFormControl = (initialValue, metaInfo: any, sendChange: (value, 
     sendChange(event.target.value, metaInfo);
   };
 
+  const handleChangeByValue = value => {
+    setValue(value);
+    sendChange(value, metaInfo);
+  };
+
   return {
     value: value,
     onChange: handleChange,
+    handleChangeByValue: handleChangeByValue
   };
 };

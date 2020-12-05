@@ -98,7 +98,7 @@ canvas,.konvajs-content,
     background: transparent;
     position: absolute;
     right: 0px;
-    top: 36px;
+    top: 44px;
 	z-index: 2;
 	pointer-events: none;
 	cursor: pointer;
@@ -107,7 +107,14 @@ canvas,.konvajs-content,
     height: 0px;
     border-top: 12px solid transparent;
     border-bottom: 12px solid transparent;
-    border-right: 12px solid #c2c2c2;
+	border-right: 12px solid #c2c2c2;
+	
+	width: 16px;
+    height: 16px;
+	border-radius: 50%;
+	right: -8px;
+	border: 2px #000000 solid;
+	background: #ffffff;
 }
 
 .canvas__html-shape-thumb-end {
@@ -116,7 +123,7 @@ canvas,.konvajs-content,
     background: transparent;
     position: absolute;
 	left: 0px;
-    top: 36px;
+    top: 44px;
 	z-index: 2;
 	pointer-events: none;
 	cursor: pointer;
@@ -125,7 +132,14 @@ canvas,.konvajs-content,
     height: 0px;
     border-top: 12px solid transparent;
     border-bottom: 12px solid transparent;
-    border-left: 12px solid #c2c2c2;
+	border-left: 12px solid #c2c2c2;
+	
+	width: 16px;
+	height: 16px;
+	left: -8px;
+	border-radius: 50%;
+	border: 2px #000000 solid;
+	background: #ffffff;
 }
 
 .canvas__html-shape-event {
@@ -134,25 +148,32 @@ canvas,.konvajs-content,
     background: transparent;
     position: absolute;
 	right: 0px;
-    top: 36px;
+    top: 44px;
     z-index: 2;
 
 	border-top: 12px solid transparent;
     border-bottom: 12px solid transparent;
-    border-right: 12px solid #a000a0;
+	border-right: 12px solid #a000a0;
+	
+	width: 16px;
+	height: 16px;
+	right: -8px;
+	border-radius: 50%;
+	border: 0 transparent none;
+	background: #a000a0;
 }
 
 
 .canvas__html-shape-0 {
-	top: 40px;
+	top: 44px;
 }
 
 .canvas__html-shape-1 {
-	top: 64px;
+	top: 68px;
 }
 
 .canvas__html-shape-2 {
-	top: 88px;
+	top: 92px;
 }
 
 .canvas__html-shape--in-bar {
@@ -295,6 +316,10 @@ canvas,.konvajs-content,
 	pointer-events: auto;
 }
 
+.html-plugin-node .form {
+	pointer-events: auto;
+}
+
 [data-html-plugin="executeNode"] .html-plugin-node a {
 	pointer-events: auto;
 }
@@ -308,6 +333,14 @@ canvas,.konvajs-content,
 }
 
 .mouse--moving .html-plugin-node > div {
+	pointer-events: none;
+}
+
+.connecting-nodes .html-plugin-node .form {
+	pointer-events: none;
+}
+
+.mouse--moving .html-plugin-node .form {
 	pointer-events: none;
 }
 

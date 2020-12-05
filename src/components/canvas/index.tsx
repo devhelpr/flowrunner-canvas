@@ -2376,6 +2376,14 @@ console.log("create ref",node.name);
 									ref={this.shapeRefs[node.name]}
 									shapeRefs={this.shapeRefs}
 									canvasHasSelectedNode={canvasHasSelectedNode}
+									
+									selectedNode={this.props.selectedNode}
+									onLineMouseOver={this.onMouseOver}
+									onLineMouseOut={this.onMouseOut}
+									onClickLine={this.onClickLine}
+
+									canvasComponentInstance={this}
+
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onDragStart={this.onDragStart.bind(this, node)}
@@ -2426,7 +2434,7 @@ console.log("create ref",node.name);
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isConnectedToSelectedNode={isConnectedToSelectedNode}									
 									canvasHasSelectedNode={canvasHasSelectedNode}
-
+									
 									onMouseConnectionStartOver={this.onMouseConnectionStartOver.bind(this,node,false)}
 									onMouseConnectionStartOut={this.onMouseConnectionStartOut.bind(this,node,false)}
 									onMouseConnectionStartStart={this.onMouseConnectionStartStart.bind(this,node,false,"")}

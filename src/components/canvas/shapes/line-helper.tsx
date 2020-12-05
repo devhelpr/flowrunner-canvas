@@ -2,7 +2,19 @@ import * as React from 'react';
 import { Line } from './line';
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 
-export const getLines = (flow: any[], node : any, getNodeInstance : any, canvasHasSelectedNode : boolean, isSelected: boolean, shapeRefs) => {
+export const getLines = (
+		flow : any[], 
+		node : any, 
+		getNodeInstance : any, 
+		canvasHasSelectedNode : boolean, 
+		isSelected : boolean,
+		selectedNode : any, 
+		shapeRefs,
+		onLineMouseOver,
+		onLineMouseOut,
+		onClickLine,
+		canvasComponentInstance
+	) => {
 	return flow.map((lineNode, index) => {
 		
 		if (lineNode.startshapeid == node.name && lineNode.shapeType === "Line") {
@@ -23,11 +35,12 @@ export const getLines = (flow: any[], node : any, getNodeInstance : any, canvasH
 
 			return <Line key={"node-"+index}
 				ref={shapeRefs[lineNode.name]}
-				onMouseOver={undefined}
-				onMouseOut={undefined}
-				onClickLine={undefined}
+				onMouseOver={onLineMouseOver.bind(canvasComponentInstance, lineNode)}
+				onMouseOut={onLineMouseOut.bind(canvasComponentInstance, lineNode)}
+				onClickLine={onClickLine.bind(canvasComponentInstance, lineNode)}
 				canvasHasSelectedNode={canvasHasSelectedNode}
-				isSelected={false}
+				isSelected={selectedNode && selectedNode.name === node.name}
+									
 				isErrorColor={lineNode.followflow === 'onfailure'}
 				isSuccessColor={lineNode.followflow === 'onsuccess'}
 				xstart={newStartPosition.x} 
