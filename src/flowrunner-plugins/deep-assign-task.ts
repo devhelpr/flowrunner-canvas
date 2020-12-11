@@ -1,6 +1,4 @@
 import { FlowTask } from '@devhelpr/flowrunner';
-import { isArray } from 'lodash';
-
 /*
 
   - rules : array[IDeepReassignRule]
@@ -9,8 +7,7 @@ import { isArray } from 'lodash';
 
     both should be able to have a format like
       property1.property2.[x].property3.[y] 
-
-      start with no support for [x]
+      
 */
 
 export interface IDeepReassignRuleMapping {
@@ -64,7 +61,7 @@ export class DeepAssignTask extends FlowTask {
           error = true;
           return false;
         } else
-        if (data[propertyKey]) {
+        if (data[propertyKey] !== undefined) {
           data = data[propertyKey];
           return true;
         }
@@ -84,9 +81,17 @@ export class DeepAssignTask extends FlowTask {
           let newItem = {};
           mappings.map((fieldMap : IDeepReassignRuleMapping) => {
             if (dataItem[fieldMap.sourceProperty]) {
-              newItem[fieldMap.targetProperty] = dataItem[fieldMap.sourceProperty]; 
+              if (fieldMap.targetProperty !== undefined) {
+                newItem[fieldMap.targetProperty] = dataItem[fieldMap.sourceProperty]; 
+              } else {
+                newItem = dataItem[fieldMap.sourceProperty];
+              }
             } else {
-              newItem[fieldMap.targetProperty] = fieldMap.defaultValue || "";
+              if (fieldMap.targetProperty !== undefined) {
+                newItem[fieldMap.targetProperty] = fieldMap.defaultValue || "";
+              } else {
+                newItem = fieldMap.defaultValue || "";
+              }
             }
           });
           newData.push(newItem);
@@ -95,7 +100,7 @@ export class DeepAssignTask extends FlowTask {
       } else {
         let newData = {};
         mappings.map((fieldMap : IDeepReassignRuleMapping) => {
-          if (data[fieldMap.sourceProperty]) {
+          if (data[fieldMap.sourceProperty] !== undefined) {
             newData[fieldMap.targetProperty] = data[fieldMap.sourceProperty]; 
           } else {
             newData[fieldMap.targetProperty] = fieldMap.defaultValue || "";
@@ -125,7 +130,7 @@ export class DeepAssignTask extends FlowTask {
           error = true;
           return false;
         } else  
-        if (payload[propertyKey]) {
+        if (payload[propertyKey] !== undefined) {
           if (index == splittedTarget.length  - 1) {
             payload[propertyKey] = data;
           } else {

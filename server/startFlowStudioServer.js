@@ -135,8 +135,12 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
 					tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
 					tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
-					tasks.push({className:"DeepReassignTask", fullName: "DeepReassignTask", flowType: "playground"});
-					
+					tasks.push({className:"DeepAssignTask", fullName: "DeepAssignTask", flowType: "playground"});
+					tasks.push({className:"ExtractUniqueTask", fullName: "ExtractUniqueTask", flowType: "playground"});									
+					tasks.push({className:"FilterTask", fullName: "FilterTask", flowType: "playground"});									
+					tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
+					tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
+						
 					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
 					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
@@ -384,7 +388,12 @@ function start(flowFileName, taskPlugins, options) {
 				flowType: req.query.flowType || "playground"
 			});
 
-			fs.writeFileSync(fileName, "[]");
+			if (!!req.query.addJSONFlow) {
+				console.log("nodes", req.body);
+				fs.writeFileSync(fileName, JSON.stringify(req.body.nodes));
+			} else {
+				fs.writeFileSync(fileName, "[]");
+			}
 			fs.writeFileSync(flowsFileName, JSON.stringify(flowFiles));
 
 			res.send(JSON.stringify({ status: true, id: newId }));

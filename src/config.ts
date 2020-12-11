@@ -118,7 +118,42 @@ const taskTypeConfig: any = {
     presetValues: {
       url: '',
       method: 'get',
+      sendPayloadToApi: false
     },
+  },
+  CustomCodeTask: {
+    shapeType: 'Html',
+    icon: 'fa-code',
+    presetValues: {
+      expression: '',
+      assignToProperty: '',
+      forceNumeric: true,
+    },
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'code',
+        required: true,
+      }, 
+      {
+        fieldName: 'outputProperty',
+        required: true,
+      },      
+      {
+        fieldName: 'mode',
+        fieldType: 'select',
+        options: [
+          {
+            value: 'custom',
+            label: 'Custom',
+          },
+          {
+            value: 'matrix',
+            label: 'Matrix',
+          },
+        ],
+      },
+    ],
   },
   ExpressionTask: {
     shapeType: 'Html',
@@ -138,7 +173,6 @@ const taskTypeConfig: any = {
         fieldName: 'assignToProperty',
         required: true,
       },
-      ,
       {
         fieldName: 'mode',
         fieldType: 'select',
@@ -344,6 +378,74 @@ const taskTypeConfig: any = {
       },
     ],
   },
+  CountTask : {
+    icon: 'fa-calculator',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [      
+      {
+        fieldName: 'arrayProperty',
+        required: true
+      },
+      {
+        fieldName: 'outputProperty',
+        required: true
+      }
+    ],
+    presetValues: {
+      "arrayProperty" : "",
+      "outputProperty" : ""
+    }
+  },
+  ExtractUniqueTask: {
+    icon: 'fa-fingerprint',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [      
+      {
+        fieldName: 'sourceProperty',
+        required: true
+      },
+      {
+        fieldName: 'outputProperty',
+        required: true
+      },
+      {
+        fieldName: 'extractFromProperty'
+      },
+      {
+        fieldName: 'isOutputForDropdown',
+        fieldType: 'checkbox'
+      }
+    ],
+    presetValues: {
+      "sortProperty" : "",
+      "outputProperty" : ""
+    }
+  },
+  FilterTask: {
+    icon: 'fa-filter',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [    
+      {
+        fieldName: 'expression'
+      },  
+      {
+        fieldName: 'sourceProperty',
+        required: true
+      },
+      {
+        fieldName: 'outputProperty',
+        required: true
+      }
+    ],
+    presetValues: {
+      "expression" : "",
+      "sortProperty" : "",
+      "outputProperty" : ""
+    }
+  },
   DeepReassignTask: {
     icon: 'fa-random'
   },
@@ -525,6 +627,10 @@ const taskTypeConfig: any = {
             {
               value: 'text',
               label: 'text',
+            },
+            {
+              value: 'list',
+              label: 'list',
             },
             {
               value: 'color',

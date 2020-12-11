@@ -9,7 +9,7 @@ export class FormTask extends ObservableTask {
       let values: any = {};
       let isValid = true;
       (node.metaInfo || []).map((metaInfo, index) => {
-        if (metaInfo.fieldName && node[metaInfo.fieldName]) {
+        if (metaInfo.fieldName && node[metaInfo.fieldName] !== undefined) {
           values[metaInfo.fieldName] = node[metaInfo.fieldName];
         }
 

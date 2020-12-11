@@ -28,7 +28,7 @@ export class FlowToCanvas {
     });
   }
 
-  static getStartPointForLine(startShape, newPosition, node?: any, getNodeInstance?: any) {
+  static getStartPointForLine(startShape, newPosition, lineNodeToCheckIfIsEvent?: any, getNodeInstance?: any) {
     const taskSettings = FlowToCanvas.getTaskSettings(startShape.taskType);
     const shapeType = FlowToCanvas.getShapeTypeUsingSettings(
       startShape.shapeType,
@@ -37,7 +37,7 @@ export class FlowToCanvas {
       taskSettings,
     );
     let isEvent: boolean = false;
-    if (node && node.event && node.event !== '') {
+    if (lineNodeToCheckIfIsEvent && lineNodeToCheckIfIsEvent.event && lineNodeToCheckIfIsEvent.event !== '') {
       isEvent = true;
     }
 
@@ -86,7 +86,7 @@ export class FlowToCanvas {
     }
   }
 
-  static getEndPointForLine(endShape, newPosition, node?: any, getNodeInstance?: any) {
+  static getEndPointForLine(endShape, newPosition, nodeParameterThatIsNotUsed?: any, getNodeInstance?: any) {
     const taskSettings = FlowToCanvas.getTaskSettings(endShape.taskType);
     const shapeType = FlowToCanvas.getShapeTypeUsingSettings(
       endShape.shapeType,

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
 import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
-import { InputNodeHtmlPlugin } from './components/html-plugins/input-node';
+import { InputNodeHtmlPlugin , InputNodeHtmlPluginInfo } from './components/html-plugins/input-node';
 import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-plugins/form-node';
 import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components/html-plugins/grid-edit';
 
@@ -104,7 +104,7 @@ export const getNodeInstance = (node: any, flowrunnerConnector?: IFlowrunnerConn
 		return new GridEditNodeHtmlPluginInfo();
 	} else
 	if (htmlPlugin == "inputNode") {
-		return;	
+		return new InputNodeHtmlPluginInfo();	
 	} else	
 	if (htmlPlugin == "formNode") {
 		

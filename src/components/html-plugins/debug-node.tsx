@@ -7,6 +7,7 @@ import { XYCanvas } from './visualizers/xy-canvas';
 import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';
+import { List } from './visualizers/list';
 
 import { GridCanvas, GridCanvasInfo } from './visualizers/grid-canvas';
 
@@ -58,20 +59,20 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	observableId = uuidV4();
 
 	componentDidMount() {
-		console.log("registerFlowNodeObserver", this.props.node.name, this.observableId);
+		//console.log("registerFlowNodeObserver", this.props.node.name, this.observableId);
 		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 	}
 
 	componentDidUpdate(prevProps : any) {
 		if (prevProps.flow != this.props.flow) {
-			console.log("componentDidUpdate 1",this.observableId,  this.props.node);
+			//console.log("componentDidUpdate 1",this.observableId,  this.props.node);
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
 			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
 
 		if (!prevProps || !prevProps.node || 
 			(prevProps.node.name != this.props.node.name)) {
-				console.log("componentDidUpdate 2", this.observableId, this.props.node);
+			//console.log("componentDidUpdate 2", this.observableId, this.props.node);
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
 			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
@@ -203,6 +204,9 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 		} else
 		if (this.props.node.visualizer == "text") {
 			visualizer = <Text node={this.props.node} payloads={this.state.receivedPayload}></Text>
+		} else
+		if (this.props.node.visualizer == "list") {
+			visualizer = <List node={this.props.node} payloads={this.state.receivedPayload}></List>
 		} else
 		if (this.props.node.visualizer == "color") {
 			additionalCssClass = "html-plugin-node__h-100";

@@ -25,6 +25,10 @@ import { FilterDataGridTask } from './flowrunner-plugins/filter-datagrid-task';
 import { TransformTask } from './flowrunner-plugins/transform-task';
 import { SortTask } from './flowrunner-plugins/sort-task';
 import { DeepAssignTask } from './flowrunner-plugins/deep-assign-task';
+import { ExtractUniqueTask } from './flowrunner-plugins/extract-unique-task';
+import { FilterTask } from './flowrunner-plugins/filter-task';
+import { CountTask } from './flowrunner-plugins/count-task';
+import { CustomCodeTask } from './flowrunner-plugins/custom-code-task';
 
 import {
   registerExpressionFunction,
@@ -557,7 +561,7 @@ export class ApiProxyTask extends FlowTask {
           },
           body: JSON.stringify({
             url: replaceValues(node.url, node.payload, true),
-            body: node.payload,
+            body: !!node.sendPayloadToApi && node.payload,
             httpMethod: node.httpMethod || 'get',
           }),
         })
@@ -568,13 +572,14 @@ export class ApiProxyTask extends FlowTask {
             return res.json();
           })
           .then(response => {
-            resolve(response);
+            resolve({...node.payload,...response});
           })
           .catch(err => {
             console.error(err);
             reject('Api-proxy : Bad response from server (' + node.name + ') : ' + err);
           });
       } catch (err) {
+        console.error(err);
         reject('Api-proxy : Bad response from server (' + node.name + ') : ' + err);
       }
     });
@@ -779,7 +784,11 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   flow.registerTask('TransformTask', TransformTask);
   flow.registerTask('SortTask', SortTask);
   flow.registerTask('DeepAssignTask', DeepAssignTask);
-
+  flow.registerTask('ExtractUniqueTask', ExtractUniqueTask);
+  flow.registerTask('FilterTask', FilterTask);
+  flow.registerTask('CountTask', CountTask);
+  flow.registerTask('CustomCodeTask', CustomCodeTask);
+  
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
       console.log('pluginName', pluginName);

@@ -936,17 +936,17 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@devhelpr/expressionrunner@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.3.tgz#5d898f7d4eca03728e81983f29309d098ff14c87"
-  integrity sha512-AGU1HH9LgaOcuAOLwuLUn8HnyoUYPCFa+YFWVP2u3YdqQqJ6kEYlY5qgPvooeA/zQJPTrPYz+G0yD96aNlm5jg==
+"@devhelpr/expressionrunner@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.4.tgz#79de28a26c035bf199bc2058d44a1ce17d5d1567"
+  integrity sha512-vOJ5vumYTmAGl1lIQhV8871XI4ad4LEALgl4mhJU6AiCl5nBKVjCngpdG7LSrMTjE+s1i+BGQS+zkTFn+Ypdfw==
 
-"@devhelpr/flowrunner-expression@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-expression/-/flowrunner-expression-0.2.3.tgz#143b5994a0d128ed325b928108c5fd33046d4b7e"
-  integrity sha512-tR2jdjso7c1rNHmZB2cLHQzc8TIRQDX3ApZi6o1OY8E9O4B93eNp0iW1+gKSzSQq8H+ZFgtx3Yhzo4f6X1i+Jg==
+"@devhelpr/flowrunner-expression@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-expression/-/flowrunner-expression-0.2.4.tgz#7ca902a90ad04e56a3b71fdf1d54806387e242da"
+  integrity sha512-Do/7tzKJ8ogKszMctQ1Zd9YyVJlHXEhC5yG17AhJ5dhf6xZy6WX0BYXrwXzUnklzQr7Ob6Uh2LxjzGrhnCQ9zg==
   dependencies:
-    "@devhelpr/expressionrunner" "^0.2.3"
+    "@devhelpr/expressionrunner" "^0.2.4"
     "@devhelpr/flowrunner" "^0.10.9"
     "@types/jexl" "^2.2.0"
     promise "^8.0.3"

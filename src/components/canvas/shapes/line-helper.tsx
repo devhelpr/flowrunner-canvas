@@ -23,7 +23,7 @@ export const getLines = (
 				- lijnen vanuit de huidige node naar een andere node
 			*/
 			let newPosition ={x:node.x, y:node.y};
-			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, node, getNodeInstance);
+			const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, getNodeInstance);
 			let endNodes = flow.filter((node) => {
 				return node.name == lineNode.endshapeid;
 			})
@@ -39,7 +39,8 @@ export const getLines = (
 				onMouseOut={onLineMouseOut.bind(canvasComponentInstance, lineNode)}
 				onClickLine={onClickLine.bind(canvasComponentInstance, lineNode)}
 				canvasHasSelectedNode={canvasHasSelectedNode}
-				isSelected={selectedNode && selectedNode.name === node.name}
+				isSelected={selectedNode && selectedNode.node && 
+					selectedNode.node.name === lineNode.name}
 									
 				isErrorColor={lineNode.followflow === 'onfailure'}
 				isSuccessColor={lineNode.followflow === 'onsuccess'}
@@ -48,7 +49,8 @@ export const getLines = (
 				xend={newEndPosition.x} 
 				yend={newEndPosition.y}
 				isEventNode={lineNode.event !== undefined && lineNode.event !== ""}
-				selectedNodeName={isSelected ? node.name : ""}
+				selectedNodeName={isSelected && selectedNode && 
+					selectedNode.node ?selectedNode.node.name : ""}
 				startNodeName={lineNode.startshapeid}
 				endNodeName={lineNode.endshapeid}
 				noMouseEvents={false}												

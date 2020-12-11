@@ -6,6 +6,17 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { storeFlowNode } from '../../redux/actions/flow-actions';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
+
+export class InputNodeHtmlPluginInfo {
+	getWidth = (node) => {
+		return 300;
+	}
+
+	getHeight(node) {		
+		return 300;
+	}
+}
+
 /*
 	#TODO
 

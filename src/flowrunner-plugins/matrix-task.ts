@@ -422,7 +422,7 @@ export class MatrixTask extends FlowTask {
 
             let promise = new Promise((resolve, reject) => {
               Promise.all(executeFlowForEachCell(node.name))
-                .then(values => {
+                .then(values => {                
                   (matrix as any) = null;
                   //let _matrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
 

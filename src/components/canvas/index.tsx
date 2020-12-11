@@ -224,7 +224,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			nextProps.flow.map((node, index) => {
 				if (!this.shapeRefs[node.name]) {
 					const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-console.log("create ref",node.name);
 					this.shapeRefs[node.name] = React.createRef();
 					this.shapeRefs["thumb_" + node.name] = React.createRef();
 					this.shapeRefs["thumbstart_" + node.name] = React.createRef();
@@ -497,7 +496,7 @@ console.log("create ref",node.name);
 				let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
 					x: startNode.x,
 					y: startNode.y
-				}, node, this.props.getNodeInstance);
+				}, lineNode, this.props.getNodeInstance);
 
 				if (lines[lineNode.name]) {
 					newStartPosition = lines[lineNode.name];					
@@ -694,7 +693,8 @@ console.log("create ref",node.name);
 		}
 		if (this.connectionNodeEventName !== "" && 
 			!isNaN(this.connectionNodeEvent as number)) {
-			(connection as any).event = this.connectionNodeEventName;
+			(connection as any).event = this.connectionNodeEventName; // this is an object not a string!!
+			console.log("this.connectionNodeEventName is object or string?", this.connectionNodeEventName);
 		}
 		this.touching = false
 		this.isConnectingNodesByDragging = false;
@@ -2459,7 +2459,7 @@ console.log("create ref",node.name);
 
 										onMouseConnectionStartOver={this.onMouseConnectionStartOver.bind(this,node,eventIndex)}
 										onMouseConnectionStartOut={this.onMouseConnectionStartOut.bind(this,node,eventIndex)}
-										onMouseConnectionStartStart={this.onMouseConnectionStartStart.bind(this,node,eventIndex, event)}
+										onMouseConnectionStartStart={this.onMouseConnectionStartStart.bind(this,node,eventIndex, event.eventName)}
 										onMouseConnectionStartMove={this.onMouseConnectionStartMove.bind(this,node,eventIndex)}
 										onMouseConnectionStartEnd={this.onMouseConnectionStartEnd.bind(this,node,eventIndex)}
 

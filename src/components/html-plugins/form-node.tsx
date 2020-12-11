@@ -307,6 +307,10 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				delete errors[fieldName];
 			}
 
+			if (metaInfo.fieldType == "date") {
+				console.log("setValue date", value);
+			}
+
 			this.setState({values : {
 					...this.state.values,				
 					[fieldName]: value
@@ -360,7 +364,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			let errors = {...this.state.errors};
 			if (errors[metaInfo.fieldName]) {
 				delete errors[metaInfo.fieldName];
-			}
+			}			
 
 			this.setState({values : {
 					...this.state.values,				
@@ -434,7 +438,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 									return <React.Fragment key={"index-f-" + index}></React.Fragment>;
 								}								
 							}
-							if (!fieldType || fieldType == "text" || fieldType == "color") {						
+							if (!fieldType || fieldType == "text" || fieldType == "color" || fieldType == "date") {						
 								return <React.Fragment key={"index-f-" + index}>
 										<div className="form-group">						
 											<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>

@@ -20,6 +20,8 @@ export interface NewFlowState {
 	orgNodeValues: any;
 	requiredNodeValues: any;
 	flowType: string;
+	addJSONFlow: boolean;
+	json: string;
 }
 
 const mapStateToProps = (state : any) => {
@@ -41,7 +43,9 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 		orgNodeName : "",
 		orgNodeValues: {},
 		requiredNodeValues: {},
-		flowType: "playground"
+		flowType: "playground",
+		addJSONFlow : false,
+		json: ""
 	}
 
 	componentDidMount() {
@@ -49,9 +53,29 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 	}
 
 	saveNode(e) {
+		if (this.state.addJSONFlow) {
+			try {
+				let flow = JSON.parse(this.state.json);
+				if (!Array.isArray(flow)) {
+					alert("The JSON should be an array of nodes and connections");
+					return;
+				}
+			} catch (err) {
+				alert("Error in JSON: " + err);
+				return;
+			}
+		}
 		try {
-			fetch('/flow?flow=' + this.state.value + "&flowType=" + this.state.flowType, {
-				method : "post"
+			fetch('/flow?flow=' + this.state.value + 
+				"&flowType=" + this.state.flowType +
+				"&addJSONFlow=" + this.state.addJSONFlow, {
+				method : "post",
+				body: JSON.stringify({
+					nodes : JSON.parse(this.state.json)
+				}),
+				headers: {
+					"Content-Type": "application/json"
+				}
 			}).then((response) => {
 				if (response.status >= 400) {
 					throw new Error("Bad response from server");
@@ -69,8 +93,16 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 		return false;
 	}
 
+	onAddJSONFlow = (event) => {
+		this.setState({addJSONFlow: !this.state.addJSONFlow});
+	}
+
+	onChangeJson = (event) => {
+		this.setState({json: event.target.value})
+	}
+
 	render() {
-		return <Modal show={true} centered size="sm">
+		return <Modal show={true} centered size={this.state.addJSONFlow ? "xl" : "sm"}>
 		<Modal.Header>
 		  <Modal.Title>Add new Flow</Modal.Title>
 		</Modal.Header>
@@ -93,8 +125,16 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 					<option value="rustflowrunner">Rust flowrunner</option>
 					<option value="mobile-app">Mobile app</option>
 					<option value="backend">Backend</option>
-				</select>
+				</select>				
 			</div>
+			<div className="form-group">
+				<input id="addJSONFlow" type="checkbox" checked={this.state.addJSONFlow} onChange={this.onAddJSONFlow} />
+				<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
+			</div>
+			{this.state.addJSONFlow && <div className="form-group">
+				<textarea className="form-control" onChange={this.onChangeJson}>{this.state.json}</textarea>
+			</div>
+			}
 		</Modal.Body>
 	  
 		<Modal.Footer>

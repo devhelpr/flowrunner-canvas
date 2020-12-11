@@ -708,6 +708,13 @@ textarea.form-control {
 	min-height: auto !important;
 	width: 100% !important;
 }
+
+
+.ui-view-layout__container .canvas__html-shape[data-html-plugin="PieChartVisualizer"] {
+	min-height: 300px !important;	
+}
+
+
 .ui-view-layout__container .canvas__html-shape[data-node-visualizer="text"],
 .ui-view-layout__container .canvas__html-shape[data-node-visualizer="number"] {
 	min-height: auto !important;
