@@ -1359,7 +1359,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (this.props.flowrunnerConnector.hasStorageProvider) {
 			return;
 		}
-		
+		return;
 		fetch('/save-editor-state', {
 			method: "POST",
 			body: JSON.stringify({state:{
@@ -2370,7 +2370,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										return true; 
 									}}
 								*/
-								return <><Shape key={"node-"+index} 
+								return <React.Fragment key={"node-fragment-"+index} ><Shape key={"node-"+index} 
 									x={node.x} 
 									y={node.y} 
 									name={node.name}
@@ -2470,7 +2470,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										getNodeInstance={this.props.getNodeInstance}										
 								></ThumbsStart>
 								})}
-								</>;
+								</React.Fragment>;
 							}
 							return null;
 						})}
