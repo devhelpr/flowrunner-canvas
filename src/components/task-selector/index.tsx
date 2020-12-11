@@ -30,7 +30,44 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 		metaDataInfo: []
 	}
 
+	setupTasks(metaDataInfo : any[]) {
+		if (metaDataInfo) {
+			metaDataInfo.map((taskPlugin) => {
+				if (taskPlugin.config) {
+					setCustomConfig(taskPlugin.className, taskPlugin.config);
+				}
+			})
+		}
+		const pluginRegistry = this.props.flowrunnerConnector.getPluginRegistry();
+		if (pluginRegistry && this.props.canvasMode.flowType == "playground") {
+
+			for (var key of Object.keys(pluginRegistry)) {
+				const plugin = pluginRegistry[key];
+				if (plugin) {
+					metaDataInfo.push({className:key, fullName: key});
+				}
+			  }
+
+		  }
+
+		// tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
+		this.setState({selectedTaskClassName:"",
+			metaDataInfo:metaDataInfo.filter((task) => { 
+				return task.flowType == this.props.canvasMode.flowType; 
+			})
+		}, () => {
+			this.props.selectTask("");
+		});
+	}
+
 	loadTasks = () => {
+
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			let tasks : any[] = this.props.flowrunnerConnector.storageProvider?.getTasks() || [];
+			this.setupTasks(tasks);
+			return;
+		}
+
 		fetch('/tasks')
 		.then(res => {
 			if (res.status >= 400) {
@@ -39,33 +76,7 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			if (metaDataInfo) {
-				metaDataInfo.map((taskPlugin) => {
-					if (taskPlugin.config) {
-						setCustomConfig(taskPlugin.className, taskPlugin.config);
-					}
-				})
-			}
-			const pluginRegistry = this.props.flowrunnerConnector.getPluginRegistry();
-			if (pluginRegistry && this.props.canvasMode.flowType == "playground") {
-
-				for (var key of Object.keys(pluginRegistry)) {
-					const plugin = pluginRegistry[key];
-					if (plugin) {
-						metaDataInfo.push({className:key, fullName: key});
-					}
-				  }
-
-			  }
-
-			// tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
-			this.setState({selectedTaskClassName:"",
-				metaDataInfo:metaDataInfo.filter((task) => { 
-					return task.flowType == this.props.canvasMode.flowType; 
-				})
-			}, () => {
-				this.props.selectTask("");
-			});
+			this.setupTasks(metaDataInfo);
 		})
 		.catch(err => {
 			console.error(err);

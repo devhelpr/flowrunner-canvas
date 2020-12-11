@@ -1,9 +1,16 @@
+import { IStorageProvider } from './IStorageProvider';
+
+
 export enum ApplicationMode {
   Canvas = 0,
   UI,
 }
 
 export interface IFlowrunnerConnector {
+
+  storageProvider : IStorageProvider | undefined;
+  hasStorageProvider: boolean;
+
   registerFlowNodeObserver: (nodeName: string, observableId: string, callback: (payload: any) => void) => void;
   unregisterFlowNodeObserver: (nodeName: string, observableId: string) => void;
   updateFlowNode: () => void;

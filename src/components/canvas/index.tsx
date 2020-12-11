@@ -1356,6 +1356,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	saveEditorState = (scale, x ,y) => {
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			return;
+		}
+		
 		fetch('/save-editor-state', {
 			method: "POST",
 			body: JSON.stringify({state:{
@@ -2282,7 +2286,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				*/
 		return <>
 			<div 
-				key={"stage-layer-" + this.state.canvasKey} ref={this.canvasWrapper} 
+				key={"stage-layer-wrapper-" + this.state.canvasKey} ref={this.canvasWrapper} 
 				style={{opacity: this.state.canvasOpacity}} 
 				className="canvas-controller__scroll-container"
 				onDragOver={this.onAllowDrop}
@@ -2550,7 +2554,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										})}
 										</div>;
 							}
-							return null;
+							return <React.Fragment key={"html" + index}></React.Fragment>;
 						})
 					}
 				</div>

@@ -3,9 +3,11 @@ import fetch from 'cross-fetch';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { connect } from "react-redux";
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface TaskbarProps {
 	canvasMode: ICanvasMode;
+	flowrunnerConnector : IFlowrunnerConnector;
 }
 
 export interface TaskbarState {
@@ -25,8 +27,36 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 		metaDataInfo : []
 	}
 
+	setupTasks(metaDataInfo : any[]) {
+		const taskPluginsSortedList = metaDataInfo.sort((a, b) => {
+			if (a.fullName < b.fullName) {
+				return -1;
+			}
+			if (a.fullName > b.fullName) {
+				return 1;
+			}
+			return 0;
+		});
+		
+		this.setState({metaDataInfo: taskPluginsSortedList.filter((task) => { 
+				return task.flowType == this.props.canvasMode.flowType; 
+			}).map((task) => {
+					const taskSettings = FlowToCanvas.getTaskSettings(task.className);
+					return {...task, 
+						icon : taskSettings.icon || task.icon || ""
+					};
+				})
+			});
+	}
 
 	loadTasks = () => {
+
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			let tasks : any[] = this.props.flowrunnerConnector.storageProvider?.getTasks() || [];
+			this.setupTasks(tasks);
+			return;
+		}
+
 		fetch('/tasks')
 		.then(res => {
 			if (res.status >= 400) {
@@ -35,25 +65,7 @@ export class ContainedTaskbar extends React.Component<TaskbarProps, TaskbarState
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			const taskPluginsSortedList = metaDataInfo.sort((a, b) => {
-				if (a.fullName < b.fullName) {
-					return -1;
-				}
-				if (a.fullName > b.fullName) {
-					return 1;
-				}
-				return 0;
-			});
-			
-			this.setState({metaDataInfo: taskPluginsSortedList.filter((task) => { 
-					return task.flowType == this.props.canvasMode.flowType; 
-				}).map((task) => {
-						const taskSettings = FlowToCanvas.getTaskSettings(task.className);
-						return {...task, 
-							icon : taskSettings.icon || task.icon || ""
-						};
-					})
-				});
+			this.setupTasks(metaDataInfo);
 		})
 		.catch(err => {
 			console.error(err);

@@ -137,6 +137,9 @@ export class DeepAssignTask extends FlowTask {
               payload = payload[propertyKey];
             }
             return true;
+          } else if (splittedTarget.length == 1) {
+            payload[propertyKey] = data;
+            return true;
           }
         }
         error = true;

@@ -23,8 +23,8 @@ export class List extends React.Component<ListProps, ListState> {
 		const node = this.props.node;
 		return <div className="h-auto">
 			{node && node.list && node.list.map((listItem, index) => {
-				return <div key={"index-" + index}>
-					<label className="font-weight-bolder">{listItem.label}</label>
+				return <div key={"index-" + index} className="mb-1">
+					<label className="font-weight-bolder mb-0">{listItem.label}</label>
 					<div>{payload && payload[listItem.propertyName]}</div>
 				</div>
 			})}

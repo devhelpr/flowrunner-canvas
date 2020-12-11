@@ -116,7 +116,9 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"PreviewTask", fullName:"PreviewTask", flowType:"playground"});
 				}
 
+				// if something is added here .. also check out index.ejs for the storageprovider
 				if (isStandalone) {
+					
 					tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
 					tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
 					tasks.push({className:"RandomTask", fullName:"RandomTask", flowType:"playground"});

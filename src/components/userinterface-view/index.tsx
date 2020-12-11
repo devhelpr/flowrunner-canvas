@@ -21,6 +21,7 @@ import fetch from 'cross-fetch';
 const uuidV4 = uuid.v4;
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { flowAction } from '@devhelpr/flowrunner-redux';
 
 export interface UserInterfaceViewProps {	
 
@@ -188,8 +189,39 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 
 	}
 
+	setupFlow(flowPackage: any) {
+		setTimeout(() => {
+			if (flowPackage.flowType === "playground") {
+				this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+				this.props.setFlowrunnerPaused(false);
+				this.props.setFlowType(flowPackage.flowType || "playground");
+				//this.props.flowrunnerConnector.(flowPackage.flow);			
+				this.props.storeFlow(flowPackage.flow);
+				this.props.storeLayout(JSON.stringify(flowPackage.layout));
+				
+				let flowHash = {};
+				flowPackage.flow.map((node) => {
+					flowHash[node.name] = node;
+					return true;
+				});
+
+				this.setState({
+					flowName : flowPackage.name,
+					flowHash: flowHash,
+					isFlowLoaded : true
+				});
+			}
+
+		} , 500);
+	}
 	htmlWrapper : any;
 	loadFlow = (flowId) => {
+
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			const flowPackage : any = this.props.flowrunnerConnector.storageProvider?.getFlow(flowId) as any;
+			this.setupFlow(flowPackage);
+			return;
+		}
 
 		fetch('/flowui?flow=' + flowId)
 		.then(res => {
@@ -200,29 +232,7 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 		})
 		.then(flowPackage => {
 
-			setTimeout(() => {
-				if (flowPackage.flowType === "playground") {
-					this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
-					this.props.setFlowrunnerPaused(false);
-					this.props.setFlowType(flowPackage.flowType || "playground");
-					//this.props.flowrunnerConnector.(flowPackage.flow);			
-					this.props.storeFlow(flowPackage.flow);
-					this.props.storeLayout(JSON.stringify(flowPackage.layout));
-					
-					let flowHash = {};
-					flowPackage.flow.map((node) => {
-						flowHash[node.name] = node;
-						return true;
-					});
-
-					this.setState({
-						flowName : flowPackage.name,
-						flowHash: flowHash,
-						isFlowLoaded : true
-					});
-				}
-
-			} , 500);
+			this.setupFlow(flowPackage);
 			
 		})
 		.catch(err => {

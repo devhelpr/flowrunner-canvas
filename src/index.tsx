@@ -19,9 +19,39 @@ import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
 import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
+import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
 import { setPluginRegistry , renderHtmlNode , getNodeInstance } from './render-html-node';
+
+let hasStorageProvider = false;
+
+let storageProvider : IStorageProvider | undefined= undefined;
+if ((window as any).flowrunnerStorageProvider !== undefined) {
+	storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
+	hasStorageProvider = true;
+}
+
+const options : any = {
+	reduxMiddleware: undefined
+}
+
+if (hasStorageProvider) {
+	options.reduxMiddleware = function(middlewareAPI: any) {
+		return function(next: any) {
+		  return function(action: any) {	
+			var result = next(action);
+	
+			let nextState = middlewareAPI.getState();
+			if (storageProvider) {
+				storageProvider.storeFlowPackage(nextState);
+			}
+			return result;
+		  };
+		};
+	  };
+	options.initialStoreState = storageProvider?.getFlowPackage();
+}
 
 let worker : Worker;
 
@@ -61,6 +91,8 @@ if (!!hasRunningFlowRunner) {
 } else {
 	flowrunnerConnector = new EmptyFlowConnector();
 }
+flowrunnerConnector.hasStorageProvider = hasStorageProvider;
+flowrunnerConnector.storageProvider = storageProvider;
 
 let applicationMode = ApplicationMode.Canvas;
  
@@ -108,7 +140,7 @@ if (applicationMode === ApplicationMode.Canvas) {
 			return <>
 				{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 					<>
-						{editorMode == "canvas" && <Taskbar></Taskbar>}
+						{editorMode == "canvas" && <Taskbar flowrunnerConnector={flowrunnerConnector}></Taskbar>}
 						{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
 							flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
 						{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
@@ -134,10 +166,24 @@ if (applicationMode === ApplicationMode.Canvas) {
 				}
 			</>;
 		}
-
-		startFlow(flowPackage, reducers).then((services : any) => {
+		
+		startFlow(flowPackage, reducers , options).then((services : any) => {
 			
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
+
+			const start = (isLoggednIn) => {
+				console.log("pluginRegistry", pluginRegistry);
+				// (ReactDOM as any).createRoot(
+				(ReactDOM as any).render(<Provider store={services.getStore()}>
+						<App isLoggedIn={isLoggednIn}></App>
+					</Provider>, root
+				);
+			}
+
+			if (hasStorageProvider) {
+				start(true);
+				return;
+			}
 
 			fetch('/api/verify-token', {
 				method: "GET",			
@@ -156,17 +202,11 @@ if (applicationMode === ApplicationMode.Canvas) {
 				}
 			})
 			.then(response => {
-				console.log("pluginRegistry", pluginRegistry);
-				// (ReactDOM as any).createRoot(
-				(ReactDOM as any).render(<Provider store={services.getStore()}>
-						<App isLoggedIn={(response as any).isLoggedIn}></App>
-					</Provider>, root
-				);	
+				start((response as any).isLoggedIn);	
 			})
 			.catch(err => {
 				console.error(err);
 			});
-
 						
 				
 		}).catch((err) => {
@@ -185,7 +225,7 @@ if (applicationMode === ApplicationMode.UI) {
 			></UserInterfaceView>;
 		};
 
-		startFlow(flowPackage, reducers).then((services : any) => {
+		startFlow(flowPackage, reducers, options).then((services : any) => {
 			
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
 

@@ -137,7 +137,43 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		this.getFlows();
 	}
 
+	setFlows = (flows : any[], id?: number | string) => {
+		if (flows.length > 0) {
+			const flowId = (id === undefined) ? flows[0].id : id;
+
+			this.props.setFlowsPlayground(flows.filter((flow)=> {
+				return flow.flowType == "playground";
+			}).map((flow) => {
+				return {
+					"label" : flow.name,
+					"value" : flow.id
+				}
+			}));
+			
+			this.props.setFlowsWasm(flows.filter((flow)=> {
+				return flow.flowType == "rustflowrunner";
+			}).map((flow) => {
+				return {
+					"label" : flow.name,
+					"value" : flow.id
+				}
+			}));
+
+			if (this.props.flowrunnerConnector.hasStorageProvider) {
+				this.props.flowrunnerConnector.storageProvider?.setSelectedFlow(flowId);
+			}
+			this.setState({flowFiles : flows, selectedFlow : flowId});
+			this.loadFlow(flowId);
+		}
+	}
+
 	getFlows = (id? : number | string) => {
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			const flows = this.props.flowrunnerConnector.storageProvider?.getFlows();
+			this.setFlows(flows as any[], id);
+			return;
+		};
+
 		fetch('/get-flows')
 		.then(res => {
 			if (res.status >= 400) {
@@ -146,30 +182,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 			return res.json();
 		})
 		.then(flows => {
-			if (flows.length > 0) {
-				const flowId = (id === undefined) ? flows[0].id : id;
-
-				this.props.setFlowsPlayground(flows.filter((flow)=> {
-					return flow.flowType == "playground";
-				}).map((flow) => {
-					return {
-						"label" : flow.name,
-						"value" : flow.id
-					}
-				}));
-				
-				this.props.setFlowsWasm(flows.filter((flow)=> {
-					return flow.flowType == "rustflowrunner";
-				}).map((flow) => {
-					return {
-						"label" : flow.name,
-						"value" : flow.id
-					}
-				}));
-
-				this.setState({flowFiles : flows, selectedFlow : flowId});
-				this.loadFlow(flowId);
-			}
+			this.setFlows(flows, id);
 		})
 		.catch(err => {
 			console.error(err);
@@ -332,8 +345,22 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 
 		if (!withoutRefit) {
 			if (this.props.canvasToolbarsubject) {
-				this.props.canvasToolbarsubject.next("loadFlow");
+				setTimeout(() => {
+					this.props.canvasToolbarsubject.next("loadFlow");
+				}, 5);
 			}
+		}
+
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			const flowPackage : any = this.props.flowrunnerConnector.storageProvider?.getFlow(flowId) as any;
+			setTimeout(() => {
+				this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+				this.props.setFlowrunnerPaused(false);
+				this.props.setFlowType(flowPackage.flowType || "playground");
+				this.props.storeFlow(flowPackage.flow);
+				this.props.storeLayout(JSON.stringify(flowPackage.layout));
+			}, 500);
+			return;
 		}
 
 		fetch('/flow?flow=' + flowId)
@@ -345,14 +372,11 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		})
 		.then(flowPackage => {
 
-			console.log("flowpackage", flowPackage);
-			//setTimeout(() => {
-				this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
-				this.props.setFlowrunnerPaused(false);
-				this.props.setFlowType(flowPackage.flowType || "playground");
-				this.props.storeFlow(flowPackage.flow);
-				this.props.storeLayout(JSON.stringify(flowPackage.layout));
-			//} , 500);
+			this.props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+			this.props.setFlowrunnerPaused(false);
+			this.props.setFlowType(flowPackage.flowType || "playground");
+			this.props.storeFlow(flowPackage.flow);
+			this.props.storeLayout(JSON.stringify(flowPackage.layout));
 			
 		})
 		.catch(err => {
@@ -363,6 +387,10 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 	setSelectedFlow = (event) => {
 		this.props.flowrunnerConnector.killAndRecreateWorker();
 		this.setState({selectedFlow : event.target.value});
+		if (this.props.flowrunnerConnector.hasStorageProvider && 
+			this.props.flowrunnerConnector.storageProvider) {
+			this.props.flowrunnerConnector.storageProvider.setSelectedFlow(event.target.value);
+		}
 		this.loadFlow(event.target.value);		
 	}
 
@@ -440,9 +468,10 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 												return <option key={index} value={flow.id}>{flow.name}</option>;
 											})}								
 										</select>
-										<a href="#" onClick={this.addNewFlow} 
+										{!this.props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={this.addNewFlow} 
 											className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.name || this.props.canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
-											title="Add new flow"><span>New</span></a>
+											title="Add new flow"><span>New</span></a>}
+										{this.props.flowrunnerConnector.hasStorageProvider && <span className="mr-4"></span>}
 									</>
 									{this.props.canvasMode.flowType === "playground" && this.props.canvasMode.editorMode === "canvas" && 
 										<img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />
@@ -498,7 +527,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 									{this.props.canvasMode.editorMode === "canvas" && 
 										<a href="#" onClick={this.fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
 									}
-									<a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>
+									{!this.props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={this.saveFlow} className="ml-2 btn btn-primary">Save</a>}
 									<span className="ml-auto"></span>
 									{this.props.canvasMode.flowType == "playground" && 
 										<a href={"/ui/" + this.state.selectedFlow} className="ml-2">UI View</a>

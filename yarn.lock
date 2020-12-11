@@ -951,18 +951,18 @@
     "@types/jexl" "^2.2.0"
     promise "^8.0.3"
 
-"@devhelpr/flowrunner-redux@0.5.8":
-  version "0.5.8"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-redux/-/flowrunner-redux-0.5.8.tgz#1d65493ee7c25b948930315a45d5df4788986da7"
-  integrity sha512-/BGg11ILgB2qwZh09WhieQjgzzzyiaT0zSgQYxml2Jg9AwzlZRCTLo80uqs4UjUlATG96OSKYOOxDXZz8ZV54w==
+"@devhelpr/flowrunner-redux@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-redux/-/flowrunner-redux-0.6.0.tgz#b6bd8914eb1bf03b55960ce5cab96dc8bcce53bf"
+  integrity sha512-+iNa+NoTmwtchZTLbIPBHOI8fJ6ev2UEQ5AZf2bXYJOBEEzzVMmGnOEln9XsNRANM6d0t2MQ3JzUQ9KwWey6yw==
   dependencies:
-    "@devhelpr/flowrunner" "0.7.4"
+    "@devhelpr/flowrunner" "^0.10.9"
     "@reactivex/rxjs" "^6.5.4"
-    "@types/lodash" "^4.14.149"
+    "@types/lodash" "^4.14.165"
     "@types/react" "^16.9.22"
-    lodash "^4.17.15"
+    lodash "^4.17.20"
     promise "^8.0.3"
-    react "^16.12.0"
+    react "^17.0.1"
     redux "^4.0.5"
     redux-thunk "^2.3.0"
     rxjs "^6.5.4"
@@ -973,19 +973,6 @@
   version "0.10.9"
   resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.10.9.tgz#6069196d2000f420980ab0879c5adf28a462a16f"
   integrity sha512-24DgLqp0nux3xknP5dkyReTAx+1urvPE6GCDAfOI9OkbhK/uvfv+i6Aq3Q7nUzBEOw4uX10eryFNUdhyS4ocfA==
-  dependencies:
-    "@reactivex/rxjs" "^6.4.0"
-    "@types/uuid" "^3.4.4"
-    moment "^2.24.0"
-    promise "^8.0.2"
-    rxjs "^6.4.0"
-    rxjs-compat "^6.4.0"
-    uuid "^3.3.2"
-
-"@devhelpr/flowrunner@0.7.4":
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.7.4.tgz#52bef78192f2f21f03e8da00492d6ea467cb50a1"
-  integrity sha512-GSu8Of5GTMWKo0QO4tHyGwksMZ+LzpVV7Xr3J+bSjKduAnnpP5SEB+Xl1qLWGB9FfNQM+PipNm94+MBdOa0LiQ==
   dependencies:
     "@reactivex/rxjs" "^6.4.0"
     "@types/uuid" "^3.4.4"
@@ -1401,10 +1388,10 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.6.tgz#f4c7ec43e81b319a9815115031709f26987891f0"
   integrity sha512-3c+yGKvVP5Y9TYBEibGNR+kLtijnj7mYrXRg+WpFb2X9xm04g/DXYkfg4hmzJQosc9snFNUPkbYIhu+KAm6jJw==
 
-"@types/lodash@^4.14.149":
-  version "4.14.162"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.162.tgz#65d78c397e0d883f44afbf1f7ba9867022411470"
-  integrity sha512-alvcho1kRUnnD1Gcl4J+hK0eencvzq9rmzvFPRmP5rPHx9VVsJj6bKLTATPVf9ktgv4ujzh7T+XWKp+jhuODig==
+"@types/lodash@^4.14.165":
+  version "4.14.165"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.165.tgz#74d55d947452e2de0742bad65270433b63a8c30f"
+  integrity sha512-tjSSOTHhI5mCHTy/OOXYIhi2Wt1qcbHmuXD1Ha7q70CgI/I71afO4XtLb/cVexki1oVYchpul/TOuu3Arcdxrg==
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -5690,7 +5677,7 @@ lodash.templatesettings@^4.0.0:
   dependencies:
     lodash._reinterpolate "^3.0.0"
 
-lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.19:
+lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
@@ -6932,15 +6919,6 @@ react-transition-group@4.4.1, react-transition-group@^4.4.0, react-transition-gr
     "@babel/runtime" "^7.5.5"
     dom-helpers "^5.0.1"
     loose-envify "^1.4.0"
-    prop-types "^15.6.2"
-
-react@^16.12.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
-  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
     prop-types "^15.6.2"
 
 react@^17.0.1:
