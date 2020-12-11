@@ -1,7 +1,6 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class CountTask extends FlowTask {
-  
   public execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.outputProperty && node.arrayProperty && Array.isArray(payload[node.arrayProperty])) {
@@ -12,5 +11,5 @@ export class CountTask extends FlowTask {
 
   public getName() {
     return 'CountTask';
-  }    
+  }
 }

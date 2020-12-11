@@ -118,7 +118,7 @@ const taskTypeConfig: any = {
     presetValues: {
       url: '',
       method: 'get',
-      sendPayloadToApi: false
+      sendPayloadToApi: false,
     },
   },
   CustomCodeTask: {
@@ -134,11 +134,11 @@ const taskTypeConfig: any = {
       {
         fieldName: 'code',
         required: true,
-      }, 
+      },
       {
         fieldName: 'outputProperty',
         required: true,
-      },      
+      },
       {
         fieldName: 'mode',
         fieldType: 'select',
@@ -378,76 +378,76 @@ const taskTypeConfig: any = {
       },
     ],
   },
-  CountTask : {
+  CountTask: {
     icon: 'fa-calculator',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    metaInfo: [      
+    metaInfo: [
       {
         fieldName: 'arrayProperty',
-        required: true
+        required: true,
       },
       {
         fieldName: 'outputProperty',
-        required: true
-      }
+        required: true,
+      },
     ],
     presetValues: {
-      "arrayProperty" : "",
-      "outputProperty" : ""
-    }
+      arrayProperty: '',
+      outputProperty: '',
+    },
   },
   ExtractUniqueTask: {
     icon: 'fa-fingerprint',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    metaInfo: [      
+    metaInfo: [
       {
         fieldName: 'sourceProperty',
-        required: true
+        required: true,
       },
       {
         fieldName: 'outputProperty',
-        required: true
+        required: true,
       },
       {
-        fieldName: 'extractFromProperty'
+        fieldName: 'extractFromProperty',
       },
       {
         fieldName: 'isOutputForDropdown',
-        fieldType: 'checkbox'
-      }
+        fieldType: 'checkbox',
+      },
     ],
     presetValues: {
-      "sortProperty" : "",
-      "outputProperty" : ""
-    }
+      sortProperty: '',
+      outputProperty: '',
+    },
   },
   FilterTask: {
     icon: 'fa-filter',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    metaInfo: [    
+    metaInfo: [
       {
-        fieldName: 'expression'
-      },  
+        fieldName: 'expression',
+      },
       {
         fieldName: 'sourceProperty',
-        required: true
+        required: true,
       },
       {
         fieldName: 'outputProperty',
-        required: true
-      }
+        required: true,
+      },
     ],
     presetValues: {
-      "expression" : "",
-      "sortProperty" : "",
-      "outputProperty" : ""
-    }
+      expression: '',
+      sortProperty: '',
+      outputProperty: '',
+    },
   },
   DeepReassignTask: {
-    icon: 'fa-random'
+    icon: 'fa-random',
   },
   SortTask: {
     icon: 'fa-sort',
@@ -466,23 +466,23 @@ const taskTypeConfig: any = {
           {
             value: 'descending',
             label: 'Descending',
-          }
-        ]        
+          },
+        ],
       },
       {
         fieldName: 'sortProperty',
-        required: true
+        required: true,
       },
       {
         fieldName: 'compareField',
-        required: true
-      }
+        required: true,
+      },
     ],
     presetValues: {
-      "mode": "ascending",
-      "sortProperty" : "",
-      "compareField" : ""
-    }
+      mode: 'ascending',
+      sortProperty: '',
+      compareField: '',
+    },
   },
   TransformTask: {
     icon: 'fa-random',
@@ -505,8 +505,8 @@ const taskTypeConfig: any = {
           {
             value: 'array',
             label: 'Array',
-          }
-        ]        
+          },
+        ],
       },
       {
         fieldName: 'transformProperty',
@@ -517,18 +517,18 @@ const taskTypeConfig: any = {
       {
         fieldName: 'clearPayload',
         fieldType: 'checkbox',
-      }
+      },
     ],
     presetValues: {
-      mode: "default",
-      transformProperty: "",
+      mode: 'default',
+      transformProperty: '',
       mappings: [
         {
-          "sourceProperty": "source",
-          "targetProperty": "target"
-        }
+          sourceProperty: 'source',
+          targetProperty: 'target',
+        },
       ],
-      outputProperty: ""
+      outputProperty: '',
     },
   },
   matrix: {

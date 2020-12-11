@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 
 export const useFormControl = (initialValue, metaInfo: any, sendChange: (value, metaInfo) => void) => {
-  const [value, setValue] = useState(initialValue || "");
+  const [value, setValue] = useState(initialValue || '');
 
   const handleChange = event => {
     setValue(event.target.value);
@@ -11,12 +11,12 @@ export const useFormControl = (initialValue, metaInfo: any, sendChange: (value, 
 
   return {
     value: value,
-    onChange: handleChange
+    onChange: handleChange,
   };
 };
 
 export const useFormControlFromCode = (initialValue, metaInfo: any, sendChange: (value, metaInfo) => void) => {
-  const [value, setValue] = useState(initialValue || "");
+  const [value, setValue] = useState(initialValue || '');
 
   const handleChange = event => {
     setValue(event.target.value);
@@ -31,6 +31,6 @@ export const useFormControlFromCode = (initialValue, metaInfo: any, sendChange: 
   return {
     value: value,
     onChange: handleChange,
-    handleChangeByValue: handleChangeByValue
+    handleChangeByValue: handleChangeByValue,
   };
 };

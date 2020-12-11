@@ -31,12 +31,12 @@ export interface ShapeTypeProps {
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
   onRef?: (nodeName: string, ref: any) => void;
 
-  onLineMouseOver : any;
-  onLineMouseOut : any;
-  onClickLine : any;
-  selectedNode : any;
+  onLineMouseOver: any;
+  onLineMouseOut: any;
+  onClickLine: any;
+  selectedNode: any;
 
-  canvasComponentInstance : any;
+  canvasComponentInstance: any;
 }
 
 export interface ThumbTypeProps {

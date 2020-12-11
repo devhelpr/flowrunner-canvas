@@ -1,14 +1,10 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
-import {
-  createExpressionTree,
-  executeExpressionTree
-} from '@devhelpr/expressionrunner';
+import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 
 export class FilterTask extends FlowTask {
-  
-  expression : string = "";
-  expressionTree : any = undefined;
+  expression: string = '';
+  expressionTree: any = undefined;
 
   public execute(node: any, services: any) {
     let payload = { ...node.payload };
@@ -18,9 +14,9 @@ export class FilterTask extends FlowTask {
     }
     if (node.sourceProperty && node.outputProperty && node.expression) {
       if (payload[node.sourceProperty] && Array.isArray(payload[node.sourceProperty])) {
-        let data : any[] = [];
-        payload[node.sourceProperty].map((item) => {
-          const result = executeExpressionTree(this.expressionTree, {...payload,...item});
+        let data: any[] = [];
+        payload[node.sourceProperty].map(item => {
+          const result = executeExpressionTree(this.expressionTree, { ...payload, ...item });
           if (result == 1) {
             data.push(item);
           }
@@ -33,5 +29,5 @@ export class FilterTask extends FlowTask {
 
   public getName() {
     return 'FilterTask';
-  }    
+  }
 }

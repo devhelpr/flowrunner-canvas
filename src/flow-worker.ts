@@ -572,7 +572,7 @@ export class ApiProxyTask extends FlowTask {
             return res.json();
           })
           .then(response => {
-            resolve({...node.payload,...response});
+            resolve({ ...node.payload, ...response });
           })
           .catch(err => {
             console.error(err);
@@ -788,7 +788,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   flow.registerTask('FilterTask', FilterTask);
   flow.registerTask('CountTask', CountTask);
   flow.registerTask('CustomCodeTask', CustomCodeTask);
-  
+
   if (pluginRegistry) {
     pluginRegistry.map(pluginName => {
       console.log('pluginName', pluginName);

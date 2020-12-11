@@ -12,12 +12,11 @@ export class ExtractUniqueTask extends FlowTask {
     let payload = { ...node.payload };
     if (node.sourceProperty && node.outputProperty) {
       if (payload[node.sourceProperty] && Array.isArray(payload[node.sourceProperty])) {
-        let data : any[] = [];
-        payload[node.sourceProperty].map((item) => {
-          if (typeof item == "object") {                     
+        let data: any[] = [];
+        payload[node.sourceProperty].map(item => {
+          if (typeof item == 'object') {
             if (node.extractFromProperty && item[node.extractFromProperty] !== undefined) {
               if (data.indexOf(item[node.extractFromProperty]) < 0) {
-
                 data.push(item[node.extractFromProperty]);
               }
             }
@@ -28,10 +27,10 @@ export class ExtractUniqueTask extends FlowTask {
           }
         });
         if (!!node.isOutputForDropdown) {
-          payload[node.outputProperty] = data.map((item) => {
+          payload[node.outputProperty] = data.map(item => {
             return {
               label: item,
-              value: item
+              value: item,
             };
           });
         } else {
@@ -44,5 +43,5 @@ export class ExtractUniqueTask extends FlowTask {
 
   public getName() {
     return 'ExtractUniqueTask';
-  }    
+  }
 }
