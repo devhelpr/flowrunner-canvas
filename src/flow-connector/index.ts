@@ -2,7 +2,6 @@ import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../inter
 import { IWorker } from '../interfaces/IWorker';
 
 export class EmptyFlowConnector implements IFlowrunnerConnector {
-
   storageProvider = undefined;
   hasStorageProvider = false;
 
@@ -65,10 +64,9 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
-
   storageProvider = undefined;
   hasStorageProvider = false;
-  
+
   worker?: IWorker = undefined;
   observables: any[] = [];
 
