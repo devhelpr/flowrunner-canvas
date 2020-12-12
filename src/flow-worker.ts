@@ -126,7 +126,7 @@ registerExpressionFunction('vlookup', (a: number, ...args: number[]) => {
 
 let webAssembly;
 
-import('../assets/wasm/crate_wasm.js',).then(wasm => {
+import('../assets/wasm/crate_wasm.js').then(wasm => {
   wasm.init();
 
   webAssembly = wasm;
