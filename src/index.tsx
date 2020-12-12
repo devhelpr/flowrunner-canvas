@@ -1,4 +1,5 @@
-import Worker from "worker-loader!./flow-worker";
+//import Worker from "worker-loader!./flow-worker";
+
 
 import { startFlow } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
@@ -57,7 +58,7 @@ export const startEditor = () => {
 	}
 
 	let worker : Worker;
-	worker = new Worker();
+	worker = new Worker(new URL("./flow-worker", import.meta.url));
 
 	//worker = new Worker("/worker.js");
 
@@ -83,7 +84,8 @@ export const startEditor = () => {
 	const onDestroyAndRecreateWorker = () => {
 		if (worker) {
 			worker.terminate();
-			worker = new Worker();
+			//worker = new Worker();
+			worker = new Worker(new URL("./flow-worker", import.meta.url));
 			//worker = new Worker("/worker.js");
 			flowrunnerConnector.registerWorker(worker);
 		}

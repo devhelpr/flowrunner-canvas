@@ -40,17 +40,7 @@ function buildTypescript() {
                 },
               ],
             },
-            {
-              test: /\.flow-worker\.ts$/,
-              use: {
-                  loader: 'worker-loader',
-                  options: {
-                      //name: '[name].[hash:8].js',
-                      // notice here
-                      inline: "no-fallback"
-                  }
-              }
-            },
+            
             {
               test: /\.tsx?$/,
               loader: "ts-loader",
@@ -79,7 +69,20 @@ function buildTypescript() {
           })
         ]        
       }, webpack));
-  
+  /*
+
+  {
+              test: /\.flow-worker\.ts$/,
+              use: {
+                  loader: 'worker-loader',
+                  options: {
+                      //name: '[name].[hash:8].js',
+                      // notice here
+                      inline: "no-fallback"
+                  }
+              }
+            },
+            */
   return task.pipe(gulp.dest('./lib'));
 };
 
@@ -93,10 +96,10 @@ function buildTypescript() {
 
 function buildPluginTypescript() {
 
-  const webpack = require('webpack-stream');
+  const gulpwebpack = require('webpack-stream');
   var task = gulp.src('src-plugins/index.tsx')
       .pipe(named())
-      .pipe(webpack({
+      .pipe(gulpwebpack({
         mode:"development",
         output: {
           path: path.join(__dirname, "assets"),
@@ -104,7 +107,7 @@ function buildPluginTypescript() {
           filename:'[name].plugin.bundle.js',
           chunkFilename: "[name].plugin.chunk.js",
           publicPath: "/",
-          jsonpFunction: 'webpackJsonpPlugin'
+          chunkLoadingGlobal: 'webpackJsonpPlugin'
         } ,
         module: {
           rules: [
@@ -144,7 +147,7 @@ function buildPluginTypescript() {
             contextRegExp: /moment$/
           })
         ]        
-      }));
+      }, webpack));
   
   return task.pipe(gulp.dest('./assets'));
 };
