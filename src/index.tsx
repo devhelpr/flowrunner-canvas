@@ -1,3 +1,5 @@
+import Worker from "worker-loader!./flow-worker";
+
 import { startFlow } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
 import { useState } from 'react';
@@ -55,8 +57,9 @@ export const startEditor = () => {
 	}
 
 	let worker : Worker;
+	worker = new Worker();
 
-	worker = new Worker("/worker.js");
+	//worker = new Worker("/worker.js");
 
 	// TODO : improve this.. currently needed to be able to use react in an external script
 	// which is used by the online editor to provide external defined tasks
@@ -80,7 +83,8 @@ export const startEditor = () => {
 	const onDestroyAndRecreateWorker = () => {
 		if (worker) {
 			worker.terminate();
-			worker = new Worker("/worker.js");
+			worker = new Worker();
+			//worker = new Worker("/worker.js");
 			flowrunnerConnector.registerWorker(worker);
 		}
 	}

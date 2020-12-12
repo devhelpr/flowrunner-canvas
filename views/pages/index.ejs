@@ -22,6 +22,12 @@
 
 		function getTasks() {
 			tasks = [];
+
+			tasks.push({className:"AssignTask", fullName:"AssignTask", flowType:"playground"});
+			tasks.push({className:"ClearTask", fullName:"ClearTask", flowType:"playground"});
+			tasks.push({className:"InjectIntoPayloadTask", fullName:"InjectIntoPayloadTask", flowType:"playground"});
+			tasks.push({className:"IfConditionTask", fullName:"IfConditionTask", flowType:"playground"});
+
 			tasks.push({className:"PreviewTask", fullName:"PreviewTask", flowType:"playground"});
 			tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
 			tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
@@ -111,8 +117,8 @@
 		}
 
 		// enable this to override storage via api's
-		/*
-		window.flowrunnerStorageProvider = {
+		
+		/*window.flowrunnerStorageProvider = {
 			storeFlowPackage: storeFlowPackage,
 			getFlowPackage: getFlowPackage,
 			getFlows: getFlows,
@@ -121,9 +127,8 @@
 			setSelectedFlow: setSelectedFlow,
 			getSelectedFlow: getSelectedFlow,
 			getTasks: getTasks
-		};
+		};		
 		*/
-
 		window.autoStartFlowrunnerEditor = true;
 	</script>
 

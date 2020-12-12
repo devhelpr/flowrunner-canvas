@@ -874,3 +874,5 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
 ctx.addEventListener('message', onWorkerMessage);
 
 console.log('flowrunner web-worker started');
+
+export default null as any;
