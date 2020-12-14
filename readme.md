@@ -67,6 +67,19 @@ with contents an empty aray : []
 
 - either add the startFlowServer task to your other gulp tasks using gulp.series and just run gulp or start it directly from the commandline using 'gulp startFlowServer'
 
+
+# How to use Flowrunner-canvas in your own project with webpack and as import
+
+Requirements : 
+- webpack 5
+- webpack 5 required config :
+	experiments: {
+    	asyncWebAssembly: true
+    }
+- wasm extension should be allowed on your webserver
+
+
+
 # Publish and build instruction in case you want to contribute to flowrunner-canvas itself
 
 - npx gulp 

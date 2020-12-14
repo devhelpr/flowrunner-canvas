@@ -9,4 +9,5 @@ export interface IStorageProvider {
   getApiProxyUrl: () => string;
   setSelectedFlow: (flowId: string) => void;
   getSelectedFlow: () => string;
+  isUI: boolean;
 }

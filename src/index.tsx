@@ -27,6 +27,15 @@ import { IStorageProvider } from './interfaces/IStorageProvider';
 import { setCustomConfig } from './config';
 import { setPluginRegistry , renderHtmlNode , getNodeInstance } from './render-html-node';
 
+// TODO : improve this.. currently needed to be able to use react in an external script
+// which is used by the online editor to provide external defined tasks
+// solution could be to import flowrunner-canvas and build/package it like that by
+// the webpack-build pipeline from the online editor it self
+//
+// This is basically a trick to have "micro-frontends" in react
+//
+(window as any).react = React;
+
 export const startEditor = () => {
 	let hasStorageProvider = false;
 
@@ -62,15 +71,6 @@ export const startEditor = () => {
 
 	//worker = new Worker("/worker.js");
 
-	// TODO : improve this.. currently needed to be able to use react in an external script
-	// which is used by the online editor to provide external defined tasks
-	// solution could be to import flowrunner-canvas and build/package it like that by
-	// the webpack-build pipeline from the online editor it self
-	//
-	// This is basically a trick to have "micro-frontends" in react
-	//
-	(window as any).react = React;
-
 	let pluginRegistry = {};
 	setPluginRegistry(pluginRegistry);
 
@@ -102,7 +102,12 @@ export const startEditor = () => {
 	flowrunnerConnector.storageProvider = storageProvider;
 
 	let applicationMode = ApplicationMode.Canvas;
-	
+	if (hasStorageProvider) {
+		if (!!(storageProvider as any).isUI) {
+			applicationMode = ApplicationMode.UI;
+		}
+	}
+
 	const paths = location.pathname.split("/");
 	if (paths.length > 1) {
 		if (paths[1] == "ui") {

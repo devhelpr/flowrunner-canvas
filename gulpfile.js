@@ -5,7 +5,8 @@ var startFlowStudioServer = require('./server/startFlowStudioServer');
 var named = require('vinyl-named'),   
     path = require("path"),
     webpackIgnorePlugin = require('webpack').IgnorePlugin,
-    cleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
+    cleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin,
+    moduleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
 var tsProject = ts.createProject('tsconfig.json');
 
@@ -26,6 +27,17 @@ function buildTypescript() {
         },
         experiments: {
           asyncWebAssembly: true
+        },
+        optimization: {
+          splitChunks: {
+            cacheGroups: {
+              react: {
+                test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+                name: 'react',
+                chunks: 'all',
+              }
+            }
+          }
         },
         module: {
           rules: [
@@ -66,7 +78,7 @@ function buildTypescript() {
           new webpackIgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/
-          })
+          })          
         ]        
       }, webpack));
   /*
@@ -109,6 +121,17 @@ function buildPluginTypescript() {
           publicPath: "/",
           chunkLoadingGlobal: 'webpackJsonpPlugin'
         } ,
+        optimization: {
+          splitChunks: {
+            cacheGroups: {
+              react: {
+                test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+                name: 'react',
+                chunks: 'all',
+              }
+            }
+          }
+        },
         module: {
           rules: [
             {

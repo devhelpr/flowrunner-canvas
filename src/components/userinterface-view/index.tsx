@@ -176,6 +176,11 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 
 		this.props.flowrunnerConnector.registerScreenUICallback(this.screenUICallback);
 		const paths = location.pathname.split("/");
+
+		if (this.props.flowrunnerConnector.hasStorageProvider) {
+			// TODO : make this data dependent instead of fixed
+			this.loadFlow("flow");
+		} else 
 		if (paths.length > 2) {
 			if (paths[1] == "ui") {
 				const flowId = paths[2];
