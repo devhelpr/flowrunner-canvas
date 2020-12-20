@@ -38,6 +38,13 @@ const mapDispatchToProps = (dispatch : any) => {
 }
 
 class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
+
+	constructor(props: any) {
+		super(props);
+		this.ref = React.createRef();
+	}
+	ref;
+
 	state = {
 		value: "",
 		orgNodeName : "",
@@ -102,46 +109,48 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 	}
 
 	render() {
-		return <Modal show={true} centered size={this.state.addJSONFlow ? "xl" : "sm"}>
-		<Modal.Header>
-		  <Modal.Title>Add new Flow</Modal.Title>
-		</Modal.Header>
-	  
-		<Modal.Body>
-			<div className="form-group">
-				<label>Flow name</label>
-				<input className="form-control"
-					value={this.state.value} 
-					required
-					onChange={(e) => {this.setState({value: e.target.value})}}
-				></input>
-			</div>
-			<div className="form-group">
-				<label>Flow type</label>
-				<select className="form-control" value={this.state.flowType}
-					onChange={(e) => {this.setState({flowType: e.target.value})}}
-				>
-					<option value="playground">Playground</option>
-					<option value="rustflowrunner">Rust flowrunner</option>
-					<option value="mobile-app">Mobile app</option>
-					<option value="backend">Backend</option>
-				</select>				
-			</div>
-			<div className="form-group">
-				<input id="addJSONFlow" type="checkbox" checked={this.state.addJSONFlow} onChange={this.onAddJSONFlow} />
-				<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
-			</div>
-			{this.state.addJSONFlow && <div className="form-group">
-				<textarea className="form-control" onChange={this.onChangeJson}>{this.state.json}</textarea>
-			</div>
-			}
-		</Modal.Body>
-	  
-		<Modal.Footer>
-		  <Button variant="secondary" onClick={this.props.onClose}>Close</Button>
-		  <Button variant="primary" onClick={this.saveNode.bind(this)}>Add</Button>
-		</Modal.Footer>
-	  </Modal>;
+		return <div ref={this.ref}>
+			<Modal show={true} centered size={this.state.addJSONFlow ? "xl" : "sm"} container={this.ref.current}>
+				<Modal.Header>
+				<Modal.Title>Add new Flow</Modal.Title>
+				</Modal.Header>
+			
+				<Modal.Body>
+					<div className="form-group">
+						<label>Flow name</label>
+						<input className="form-control"
+							value={this.state.value} 
+							required
+							onChange={(e) => {this.setState({value: e.target.value})}}
+						></input>
+					</div>
+					<div className="form-group">
+						<label>Flow type</label>
+						<select className="form-control" value={this.state.flowType}
+							onChange={(e) => {this.setState({flowType: e.target.value})}}
+						>
+							<option value="playground">Playground</option>
+							<option value="rustflowrunner">Rust flowrunner</option>
+							<option value="mobile-app">Mobile app</option>
+							<option value="backend">Backend</option>
+						</select>				
+					</div>
+					<div className="form-group">
+						<input id="addJSONFlow" type="checkbox" checked={this.state.addJSONFlow} onChange={this.onAddJSONFlow} />
+						<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
+					</div>
+					{this.state.addJSONFlow && <div className="form-group">
+						<textarea className="form-control" onChange={this.onChangeJson}>{this.state.json}</textarea>
+					</div>
+					}
+				</Modal.Body>
+			
+				<Modal.Footer>
+				<Button variant="secondary" onClick={this.props.onClose}>Close</Button>
+				<Button variant="primary" onClick={this.saveNode.bind(this)}>Add</Button>
+				</Modal.Footer>
+			</Modal>
+	  </div>;
 	}
 }
 

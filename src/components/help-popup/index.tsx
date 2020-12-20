@@ -5,66 +5,77 @@ import fetch from 'cross-fetch';
 // /api/taskdoc/
 
 export interface HelpPopupProps {
-  taskName : string;
+  taskName: string;
 }
 
 export interface HelpPopupState {
-  open : boolean;
+  open: boolean;
   content: string;
-  taskName : string;
+  taskName: string;
 }
 
 export class HelpPopup extends React.Component<HelpPopupProps, HelpPopupState> {
+  constructor(props: any) {
+    super(props);
+    this.ref = React.createRef();
+  }
+  ref;
 
-	state = {
+  state = {
     open: false,
-    content: "",
-    taskName: ""    
-	}
-	handleClickOpen = () => {
-		this.setState({open: true});
-	};
-	handleClose = () => {
-		this.setState({open: false});
+    content: '',
+    taskName: '',
   };
-  
+  handleClickOpen = () => {
+    this.setState({ open: true });
+  };
+  handleClose = () => {
+    this.setState({ open: false });
+  };
+
   componentDidMount() {
     fetch('/api/taskdoc/' + this.props.taskName)
-		.then(res => {
-			if (res.status >= 400) {
-				throw new Error("Bad response from server");
-			}
-			return res.json();
-		})
-		.then(documentation => {
-      // documentation.content
-      // documentation.taskname
-      console.log("documentation", documentation);
-      this.setState({
+      .then(res => {
+        if (res.status >= 400) {
+          throw new Error('Bad response from server');
+        }
+        return res.json();
+      })
+      .then(documentation => {
+        // documentation.content
+        // documentation.taskname
+        console.log('documentation', documentation);
+        this.setState({
           open: true,
-          content: documentation.content, 
-          taskName : documentation.taskname
+          content: documentation.content,
+          taskName: documentation.taskname,
+        });
+      })
+      .catch(err => {
+        console.error(err);
       });
-		})
-		.catch(err => {
-			console.error(err);
-		});
   }
 
-  render () {
-  	return <Modal show={this.state.open} centered size="lg">
-      <Modal.Header>
-        <Modal.Title>{this.state.taskName}</Modal.Title>
-      </Modal.Header>
-      
-      <Modal.Body>
-        <div>{this.state.content}</div>
-      </Modal.Body>
-      
-      <Modal.Footer>
-        <Button variant="secondary" onClick={this.handleClose}>Close</Button>
-      </Modal.Footer>
-	  </Modal>;
+  render() {
+    return (
+      <div ref={this.ref}>
+        <Modal show={this.state.open} centered size="lg" container={this.ref.current}>
+          <Modal.Header>
+            <Modal.Title>{this.state.taskName}</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <div>{this.state.content}</div>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClose}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    );
   }
 }
 

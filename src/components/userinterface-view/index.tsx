@@ -301,7 +301,7 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 					<h1 className={h1ClassName}>{title}</h1>
 				</nav>
 			</div>
-			<div className="container">
+			<div className="container container__ui-view">
 				<Layout nodeName="ui"
 					renderLayoutType={renderLayoutType}
 					payload={{

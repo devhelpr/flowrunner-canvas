@@ -662,6 +662,12 @@ const taskTypeConfig: any = {
         { fieldName: 'rows', dataType: 'number' },
         { fieldName: 'columns', dataType: 'number' },
         { fieldName: 'mode', defaultValue: 'matrix' },
+        { fieldName: 'template' },
+        { fieldName: 'replaceValues', fieldType: 'checkbox'},
+        { fieldName: 'asElement', fieldType: 'checkbox'},
+        { fieldName: 'htmlElement' },
+        { fieldName: 'cssClassName' },
+        { fieldName: 'visibilityCondition' }
       ],
     },
   },

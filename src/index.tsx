@@ -147,6 +147,7 @@ export const startEditor = () => {
 				}
 
 				const onEditorMode = (editorMode) => {
+					flowrunnerConnector.flowView = editorMode;
 					setEditorMode(editorMode);
 				}
 				return <>
@@ -183,6 +184,8 @@ export const startEditor = () => {
 				
 				flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
+				// isLoggedIn is set below and it forced to true when running using a storageProvider
+				// or it is not used if data-has-login="false" is set on the document root used by reactdom.render
 				const start = (isLoggednIn) => {
 					console.log("pluginRegistry", pluginRegistry);
 					// (ReactDOM as any).createRoot(
@@ -191,6 +194,7 @@ export const startEditor = () => {
 						</Provider>, root
 					);
 				}
+
 
 				if (hasStorageProvider) {
 					start(true);
@@ -229,6 +233,9 @@ export const startEditor = () => {
 	if (applicationMode === ApplicationMode.UI) {
 		import('./components/userinterface-view').then((module) => {
 			const UserInterfaceView = module.UserInterfaceView;
+
+			flowrunnerConnector.flowView = "uiview";
+
 			const App = (props) => {
 				return <UserInterfaceView 						
 					renderHtmlNode={renderHtmlNode}

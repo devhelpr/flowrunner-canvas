@@ -38,12 +38,20 @@ const mapDispatchToProps = (dispatch : any) => {
 // 
 
 class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState> {
+
+	constructor(props : any) {
+		super(props);
+		this.ref = React.createRef();
+	}
+
 	state = {
 		value: "",
 		orgNodeName : "",
 		orgNodeValues: {},
 		requiredNodeValues: {}
 	}
+
+	ref;
 
 	componentDidMount() {
 		const node = {...this.props.selectedNode.node};
@@ -133,26 +141,29 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 	}
 
 	render() {
-		return <Modal show={true} centered size="lg">
-		<Modal.Header>
-		  <Modal.Title>Edit Node JSON</Modal.Title>
-		</Modal.Header>
-	  
-		<Modal.Body>
-			<div className="form-group">
-				<label>Node JSON</label>
-				<textarea className="form-control" rows={8} 
-					value={this.state.value} 
-					onChange={(e) => {this.setState({value: e.target.value})}}
-				></textarea>
-			</div>
-		</Modal.Body>
-	  
-		<Modal.Footer>
-		  <Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
-		  <Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
-		</Modal.Footer>
-	  </Modal>;
+		// container="flowstudio-root" .. gives errors 
+		return <div ref={this.ref}>
+			<Modal show={true} centered size="lg" container={this.ref.current}>
+				<Modal.Header>
+					<Modal.Title>Edit Node JSON</Modal.Title>
+				</Modal.Header>
+		
+				<Modal.Body>
+					<div className="form-group">
+						<label>Node JSON</label>
+						<textarea className="form-control" rows={8} 
+							value={this.state.value} 
+							onChange={(e) => {this.setState({value: e.target.value})}}
+						></textarea>
+					</div>
+				</Modal.Body>
+		
+			<Modal.Footer>
+				<Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
+				<Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
+			</Modal.Footer>
+		</Modal>
+	  </div>;
 	}
 }
 

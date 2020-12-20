@@ -145,6 +145,13 @@ const mapDispatchToProps = (dispatch: any) => {
 
 
 class ContainedShowSchemaPopup extends React.Component<ShowSchemaPopupProps, ShowSchemaPopupState> {
+	
+	constructor(props: any) {
+		super(props);
+		this.ref = React.createRef();
+	}
+	ref;
+
 	state = {
 		value: "",
 		orgNodeName: "",
@@ -182,23 +189,25 @@ class ContainedShowSchemaPopup extends React.Component<ShowSchemaPopupProps, Sho
 	}
 
 	render() {
-		return <Modal show={true} centered size="xl">
-			<Modal.Header>
-			<Modal.Title>{"Node: " + (this.state.node && this.state.node.name ? this.state.node.name : "")}</Modal.Title>
-			</Modal.Header>
+		return <div ref={this.ref}>
+			<Modal show={true} centered size="xl" container={this.ref.current}>
+				<Modal.Header>
+				<Modal.Title>{"Node: " + (this.state.node && this.state.node.name ? this.state.node.name : "")}</Modal.Title>
+				</Modal.Header>
 
-			<Modal.Body>
-				<div className="form-group">
-					{this.state.node && this.state.node.objectSchema == "layout" && <>
-						<LayoutSchema isBordered={true} isColumn={false} layout={this.state.node.object} captionProperty="caption" ></LayoutSchema>
-					</>}
-				</div>
-			</Modal.Body>
+				<Modal.Body>
+					<div className="form-group">
+						{this.state.node && this.state.node.objectSchema == "layout" && <>
+							<LayoutSchema isBordered={true} isColumn={false} layout={this.state.node.object} captionProperty="caption" ></LayoutSchema>
+						</>}
+					</div>
+				</Modal.Body>
 
-			<Modal.Footer>
-				<Button variant="secondary" onClick={this.props.onClose}>Close</Button>
-			</Modal.Footer>
-		</Modal>;
+				<Modal.Footer>
+					<Button variant="secondary" onClick={this.props.onClose}>Close</Button>
+				</Modal.Footer>
+			</Modal>
+		</div>;
 	}
 }
 

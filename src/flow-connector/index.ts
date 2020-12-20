@@ -4,6 +4,7 @@ import { IWorker } from '../interfaces/IWorker';
 export class EmptyFlowConnector implements IFlowrunnerConnector {
   storageProvider = undefined;
   hasStorageProvider = false;
+  flowView = "";
 
   getNodeExecutions() {
     return [];
@@ -78,6 +79,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   flowType: string = 'playground';
 
   applicationMode: ApplicationMode = ApplicationMode.Canvas;
+  flowView = "";
 
   screenUICallback: (action: any) => void = action => {
     return;

@@ -3,13 +3,17 @@ import { RadioButton } from './radiobutton';
 import { Select } from './select';
 import { Input } from './input';
 import { CheckBox } from './checkbox';
+import { Textarea } from './textarea';
+import { InputSlider } from './input-slider';
 import { IFormControlProps } from './form-control-interface';
 
 const formControls = {
 	select: Select,
 	text: Input,
 	radiobutton : RadioButton,
-	checkbox: CheckBox
+	checkbox: CheckBox,
+	textarea: Textarea,
+	slider: InputSlider
 }
 
 export const getFormControl = (formControl, props : IFormControlProps) => {

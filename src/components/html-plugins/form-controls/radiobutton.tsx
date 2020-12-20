@@ -21,14 +21,14 @@ export const RadioButton = (props: IFormControlProps) => {
 						<input 
 							type="radio" 
 							className="form-check-input"
-							id={props.node.name + "-" + index}
-							name={props.node.name} 
+							id={metaInfo.fieldName + "-" + index}
+							name={metaInfo.fieldName} 
 							value={option.value} 
 							onChange={formControl.onChange} 
 							checked={formControl.value === option.value}></input>
 						<label 
 							className="form-check-label"
-							htmlFor={props.node.name + "-" + index}>{option.label}</label>
+							htmlFor={metaInfo.fieldName + "-" + index}>{option.label}</label>
 					</div>
 				</React.Fragment>
 			})}

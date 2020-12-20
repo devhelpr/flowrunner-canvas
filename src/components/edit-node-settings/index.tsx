@@ -40,6 +40,13 @@ const mapDispatchToProps = (dispatch : any) => {
 // 
 
 class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, EditNodeSettingsState> {
+	
+	constructor(props : any) {
+		super(props);
+		this.ref = React.createRef();
+	}
+	ref;
+
 	state = {
 		value: {},
 		orgNodeName : "",
@@ -139,28 +146,30 @@ class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, E
 	}
 
 	render() {
-		return <Modal show={true} centered size="lg">
-		<Modal.Header>
-			<Modal.Title>Edit {this.props.node.name}</Modal.Title>
-		</Modal.Header>
-	  
-		<Modal.Body>
-			<div className="form-group">
-				<FormNodeHtmlPlugin 
-					isNodeSettingsUI={true} 
-					node={this.props.node} 
-					taskSettings={this.props.settings}
-					onSetValue={this.onSetValue}
-					flowrunnerConnector={this.props.flowrunnerConnector}
-					></FormNodeHtmlPlugin>
-			</div>
-		</Modal.Body>
-	  
-		<Modal.Footer>
-		  <Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
-		  <Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
-		</Modal.Footer>
-	  </Modal>;
+		return <div className="edit-node-settings" ref={this.ref}>
+			<Modal show={true} centered size="lg" container={this.ref.current}>
+				<Modal.Header>
+					<Modal.Title>Edit {this.props.node.name}</Modal.Title>
+				</Modal.Header>
+			
+				<Modal.Body>
+					<div className="form-group">
+						<FormNodeHtmlPlugin 
+							isNodeSettingsUI={true} 
+							node={this.props.node} 
+							taskSettings={this.props.settings}
+							onSetValue={this.onSetValue}
+							flowrunnerConnector={this.props.flowrunnerConnector}
+							></FormNodeHtmlPlugin>
+					</div>
+				</Modal.Body>
+			
+				<Modal.Footer>
+				<Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
+				<Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
+				</Modal.Footer>
+			</Modal>
+	  	</div>;
 	}
 }
 

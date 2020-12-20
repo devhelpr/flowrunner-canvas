@@ -10,6 +10,7 @@ import { Text } from './visualizers/text';
 import { List } from './visualizers/list';
 
 import { GridCanvas, GridCanvasInfo } from './visualizers/grid-canvas';
+import { createExpressionTree, executeExpressionTree, ExpressionNode } from '@devhelpr/expressionrunner';
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -49,11 +50,13 @@ const mapStateToProps = (state : any) => {
 
 export interface DebugNodeHtmlPluginState {
 	receivedPayload : any[];
+	expressionTree : any;
 }
 
 export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProps, DebugNodeHtmlPluginState> {
 	state = {
-		receivedPayload : []
+		receivedPayload : [],
+		expressionTree: undefined
 	}
 
 	observableId = uuidV4();
@@ -61,9 +64,20 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 	componentDidMount() {
 		//console.log("registerFlowNodeObserver", this.props.node.name, this.observableId);
 		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+		if (this.props.node.visibilityCondition && 
+			this.props.node.visibilityCondition !== "") {				
+			this.setState({expressionTree: createExpressionTree(this.props.node.visibilityCondition)})
+		}
+
 	}
 
 	componentDidUpdate(prevProps : any) {
+		if (prevProps.node.visibilityCondition != this.props.node.visibilityCondition && 
+			this.props.node.visibilityCondition && 
+			this.props.node.visibilityCondition !== "") {				
+			this.setState({expressionTree: createExpressionTree(this.props.node.visibilityCondition)})
+		}
+
 		if (prevProps.flow != this.props.flow) {
 			//console.log("componentDidUpdate 1",this.observableId,  this.props.node);
 			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
@@ -179,6 +193,31 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 		let visualizer = <></>;
 		let additionalCssClass = "";
 
+		/*
+			const AppViewTemplate = getComponent(this.props.flowrunnerConnector.flowView)
+
+			if this.props.flowrunnerConnector.flowView == "uiview" 
+				check visbilityCondition
+				if !visible then <></>
+
+			<AppViewTemplate>{children}</AppViewTemplate>
+
+		*/
+		let visible = true;
+		if (this.props.node.visibilityCondition && this.state.expressionTree) {
+			let payload = this.state.receivedPayload.length > 0 ? this.state.receivedPayload[this.state.receivedPayload.length - 1] : {};
+			const result = executeExpressionTree(this.state.expressionTree as unknown as ExpressionNode, payload);
+			console.log("executeExpressionTree", result, result == 1, !(result == 1) && this.state.expressionTree && 
+				this.props.flowrunnerConnector.flowView != "uiview", payload);
+			visible = result == 1;
+		}
+
+		if (this.props.flowrunnerConnector.flowView == "uiview" && this.state.expressionTree) {
+			if (!visible) {
+				return <></>;
+			} 
+		}
+		
 		if (this.state.receivedPayload.length == 0) {
 			visualizer = <div style={{		
 				backgroundColor: "#f2f2f2"
@@ -227,10 +266,14 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 			//console.log("debugtask" , this.props.node, payload, this.state);
 			visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
 		}
-		return <div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer + " " + additionalCssClass} style={{		
-			backgroundColor: "white"
-		}}>{visualizer}			
-		</div>;
+		return <>
+			{!visible && this.state.expressionTree && 
+				this.props.flowrunnerConnector.flowView != "uiview" && <div className="html-plugin-node__visibility fas fa-eye-slash"></div>}
+			<div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer + " " + additionalCssClass} style={{		
+				backgroundColor: "white"
+			}}>{visualizer}			
+			</div>
+		</>;
 		
 	
 	}
