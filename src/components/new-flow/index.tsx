@@ -78,7 +78,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 				"&addJSONFlow=" + this.state.addJSONFlow, {
 				method : "post",
 				body: JSON.stringify({
-					nodes : JSON.parse(this.state.json)
+					nodes : JSON.parse(this.state.json || "[]")
 				}),
 				headers: {
 					"Content-Type": "application/json"
@@ -93,6 +93,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 			});
 			
 		} catch (err) {
+			console.log("new-flow err", err);
 			alert("Error while adding flow");
 		}
 

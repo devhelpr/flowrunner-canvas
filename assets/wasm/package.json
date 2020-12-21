@@ -1,0 +1,21 @@
+{
+  "name": "crate-wasm",
+  "collaborators": [
+    "The RustWasm Developers"
+  ],
+  "description": "My super awesome WebAssembly crate!",
+  "version": "0.1.0",
+  "license": "Apache-2.0/MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rustwasm/rust-wasm-worker-template"
+  },
+  "files": [
+    "crate_wasm_bg.wasm",
+    "crate_wasm.js",
+    "crate_wasm.d.ts"
+  ],
+  "module": "crate_wasm.js",
+  "types": "crate_wasm.d.ts",
+  "sideEffects": false
+}

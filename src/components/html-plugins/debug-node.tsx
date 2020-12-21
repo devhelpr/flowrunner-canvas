@@ -9,6 +9,8 @@ import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';
 import { List } from './visualizers/list';
 
+import { AnimatedGridCanvas, AnimatedGridCanvasInfo } from './visualizers/animated-grid-canvas';
+
 import { GridCanvas, GridCanvasInfo } from './visualizers/grid-canvas';
 import { createExpressionTree, executeExpressionTree, ExpressionNode } from '@devhelpr/expressionrunner';
 
@@ -21,6 +23,10 @@ export class DebugNodeHtmlPluginInfo {
 		if (node && node.visualizer && node.visualizer == "gridcanvas") {
 			const visualizerInfo = new GridCanvasInfo();
 			return visualizerInfo.getWidth(node);
+		} else
+		if (node && node.visualizer && node.visualizer == "animatedgridcanvas") {
+			const visualizerInfo = new AnimatedGridCanvasInfo();
+			return visualizerInfo.getWidth(node);
 		}
 		return;
 	}
@@ -29,7 +35,11 @@ export class DebugNodeHtmlPluginInfo {
 		if (node && node.visualizer && node.visualizer == "gridcanvas") {
 			const visualizerInfo = new GridCanvasInfo();
 			return visualizerInfo.getHeight(node);
-		}
+		} else
+		if (node && node.visualizer && node.visualizer == "animatedgridcanvas") {
+			const visualizerInfo = new AnimatedGridCanvasInfo();
+			return visualizerInfo.getHeight(node);
+		} 
 		return;
 	}
 }
@@ -254,6 +264,10 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 		if (this.props.node.visualizer == "gridcanvas") {
 			additionalCssClass = "html-plugin-node__h-100";
 			visualizer = <GridCanvas node={this.props.node} payloads={this.state.receivedPayload}></GridCanvas>
+		} else
+		if (this.props.node.visualizer == "animatedgridcanvas") {
+			additionalCssClass = "html-plugin-node__h-100";
+			visualizer = <AnimatedGridCanvas node={this.props.node} payloads={this.state.receivedPayload}></AnimatedGridCanvas>
 		} else
 		if (this.props.node.visualizer == "xycanvas") {
 			additionalCssClass = "html-plugin-node__h-100";

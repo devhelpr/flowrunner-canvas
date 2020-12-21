@@ -91,7 +91,7 @@ export class MatrixTask extends FlowTask {
             uuid: uuidV4(),
             data: new Array(node.columns * node.rows).fill(node.defaultValue || 0),
           };
-          console.log('matrix new', matrix);
+          //console.log('matrix new', matrix);
           services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, matrix);
         } else if (node.action == 'get') {
           if (matrix.uuid != payload.uuid) {
@@ -174,7 +174,7 @@ export class MatrixTask extends FlowTask {
             uuid: uuidV4(),
             data: new Array(node.columns * node.rows).fill(node.defaultValue || 0),
           };
-          console.log('matrix setup', node, matrix, _payload);
+          //console.log('matrix setup', node, matrix, _payload);
           // matrix
           // values[] : x,y,value
           try {
@@ -242,7 +242,7 @@ export class MatrixTask extends FlowTask {
                   loader
                     .getFlow(node.flowId)
                     .then(flow => {
-                      console.log('RunWasmFlowTask', node.name, flow);
+                      //console.log('RunWasmFlowTask', node.name, flow);
 
                       const webAssembly = services.getWebAssembly();
                       this.webassembly = webAssembly.Flowrunner.new(

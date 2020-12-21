@@ -9,6 +9,12 @@ Flowrunner-canvas uses Nodejs express to add some basic http services to read an
 
 The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but you can add plugins depending on your needs.
 
+# The simplest way to start playing with flowrunner-canvas
+
+- clone the github repo
+- yarn install
+- npx gulp
+
 # How to use Flowrunner-canvas in your own project directly with Node.js
 
 The following instructions assume yarn/node.js.

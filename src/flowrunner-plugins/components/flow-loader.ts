@@ -1,5 +1,4 @@
 import fetch from 'cross-fetch';
-import { node } from 'prop-types';
 
 export class FlowLoader {
   public getFlow = (id, doNotConvertFlowToWasm = false) => {

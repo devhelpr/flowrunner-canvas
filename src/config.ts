@@ -637,6 +637,10 @@ const taskTypeConfig: any = {
               label: 'color',
             },
             {
+              value: 'animatedgridcanvas',
+              label: 'animatedgridcanvas',
+            },
+            {
               value: 'gridcanvas',
               label: 'gridcanvas',
             },
@@ -667,7 +671,12 @@ const taskTypeConfig: any = {
         { fieldName: 'asElement', fieldType: 'checkbox'},
         { fieldName: 'htmlElement' },
         { fieldName: 'cssClassName' },
-        { fieldName: 'visibilityCondition' }
+        { fieldName: 'visibilityCondition' },
+        { fieldName: 'flowId', 
+          visibilityCondition:'visualizer == "animatedgridcanvas"',
+          fieldType: 'select',
+          datasource: '[PLAYGROUNDFLOW]'
+        }
       ],
     },
   },
