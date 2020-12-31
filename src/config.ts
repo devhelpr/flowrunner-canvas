@@ -59,7 +59,7 @@ const taskTypeConfig: any = {
     },
     _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
-      '{compareProperty} {usingCondition=>"equals":"=","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} {withProperty|withValue}',
+      '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
   },
   if: {
     shapeType: 'Diamond',
@@ -542,7 +542,7 @@ const taskTypeConfig: any = {
       },
     ],
   },
-  MatrixTask: {
+  MatrixTask: {    
     events: [
       {
         eventName: 'onCalculateNewGenerationForEachCell',
@@ -550,10 +550,18 @@ const taskTypeConfig: any = {
     ],
     shapeType: 'Html',
     htmlPlugin: 'formNode',
+    presetValues : {
+      action: "",
+      calculateNeighbours: true
+    },
     metaInfo: [
       {
         fieldName: 'action',
         required: true,
+      },
+      {
+        fieldName: 'calculateNeighbours',
+        fieldType: 'checkbox'
       },
       {
         fieldName: 'flowId',

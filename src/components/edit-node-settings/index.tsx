@@ -165,8 +165,8 @@ class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, E
 				</Modal.Body>
 			
 				<Modal.Footer>
-				<Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
-				<Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
+					<Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
+					<Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
 				</Modal.Footer>
 			</Modal>
 	  	</div>;

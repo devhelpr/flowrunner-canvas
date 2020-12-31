@@ -117,7 +117,7 @@ export class FlowToCanvas {
       };
     } else if (shapeType == 'Diamond') {
       return {
-        x: newPosition.x,
+        x: newPosition.x - 6 - 2,
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
@@ -182,5 +182,33 @@ export class FlowToCanvas {
       resultShapeType = 'Ellipse';
     }
     return resultShapeType;
+  }
+
+  static getThumbEndPosition(shapeType : string, node : any) {
+
+    if (shapeType == "Diamond") {
+      return {
+        x: node.x,
+        y: node.y + (ShapeMeasures.diamondSize/2) - 12
+      }
+    }
+
+    return {
+      x: node.x,
+      y: node.y 
+    }
+  }
+
+  static getThumbStartPosition(shapeType : string, node : any, offset) {
+    if (shapeType == "Diamond") {
+      return {
+        x: node.x,
+        y: node.y + (ShapeMeasures.diamondSize/2) + (offset * 24) - 12
+      }
+    }
+    return {
+      x: node.x,
+      y: node.y + (offset * 24)
+    }
   }
 }

@@ -6,6 +6,7 @@ import { Thumbs }  from './shapes/thumbs';
 import { ThumbsStart }  from './shapes/thumbsstart';
 import { storeFlow, storeFlowNode, addConnection, addFlowNode,deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
+import { setNodeState, clearNodeState } from '../../redux/actions/node-state-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
@@ -22,7 +23,6 @@ import { EditNodeSettings } from '../edit-node-settings';
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
-import thunk from 'redux-thunk';
 
 const uuidV4 = uuid.v4;
 
@@ -35,11 +35,15 @@ export interface CanvasProps {
 	selectNode: any;
 	addConnection: any;
 
+	setNodeState : (nodeName, nodeState) => void;
+
 	deleteConnection: any;
 	deleteNode: any;
 
 	selectedNode : any;
 	canvasMode: ICanvasMode;
+	nodeState : any;
+
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 	canvasToolbarsubject : Subject<string>;
@@ -55,6 +59,7 @@ const mapStateToProps = (state : any) => {
 		flow: state.flow,
 		selectedNode : state.selectedNode,
 		canvasMode: state.canvasMode,
+		nodeState : state.nodeState
 	}
 }
 
@@ -69,6 +74,7 @@ const mapDispatchToProps = (dispatch : any) => {
 		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode: (node) => dispatch(deleteNode(node)),
+		setNodeState : (nodeName, nodeState) => dispatch(setNodeState(nodeName, nodeState))
 	}
 }
 
@@ -169,6 +175,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				}
 			});
 		}
+
+		this.props.flowrunnerConnector.registerNodeStateObserver("canvas", this.nodeStateObserver);
+	}
+
+	nodeStateObserver = (nodeName: string, nodeState : string) => {
+		this.props.setNodeState(nodeName, nodeState);
 	}
 
 	connectionForDraggingName = "_connection-dragging";
@@ -346,6 +358,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	unmounted = false;
 	componentWillUnmount() {
 		this.unmounted = true;
+
+		this.props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 
 		document.removeEventListener('paste', this.onPaste);
 
@@ -2351,6 +2365,13 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 							const Shape = Shapes[shapeType];
 							if (node.shapeType !== "Line" && Shape) {
+
+								let nodeState = "";
+
+								if (this.props.nodeState[node.name]) {
+									nodeState = this.props.nodeState[node.name];
+								}
+
 								let isConnectedToSelectedNode = this.props.selectedNode && nodesConnectedToSelectedNode[node.name] === true;
 								if (this.props.selectedNode && 
 									this.props.selectedNode.node && 
@@ -2370,7 +2391,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										return true; 
 									}}
 								*/
-								return <React.Fragment key={"node-fragment-"+index} ><Shape key={"node-"+index} 
+								return <React.Fragment key={"node-fragment-" + index} ><Shape key={"node-"+index} 
 									x={node.x} 
 									y={node.y} 
 									name={node.name}
@@ -2381,6 +2402,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									shapeRefs={this.shapeRefs}
 									canvasHasSelectedNode={canvasHasSelectedNode}
 									
+									nodeState={nodeState}
 									selectedNode={this.props.selectedNode}
 									onLineMouseOver={this.onMouseOver}
 									onLineMouseOut={this.onMouseOut}
@@ -2405,10 +2427,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
 									getNodeInstance={this.props.getNodeInstance}
 								></Shape>
-								{(shapeType === "Rect" || shapeType === "Html") && <Thumbs
-									key={"node-thumb-"+index} 
-									x={node.x} 
-									y={node.y}
+								{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <Thumbs
+									key={"node-thumb-" + index} 
+									position={FlowToCanvas.getThumbEndPosition(shapeType, node)}
 									name={node.name}
 									taskType={node.taskType}
 									shapeType={shapeType}
@@ -2426,10 +2447,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									onMouseConnectionEndLeave={this.onMouseConnectionEndLeave.bind(this,node,false)}
 									getNodeInstance={this.props.getNodeInstance}
 								></Thumbs>}
-								{(shapeType === "Rect" || shapeType === "Html") && <ThumbsStart
-									key={"node-thumbstart-"+index} 
-									x={node.x} 
-									y={node.y}
+								{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <ThumbsStart
+									key={"node-thumbstart-" + index} 
+									position={FlowToCanvas.getThumbStartPosition(shapeType, node, 0)}
 									name={node.name}
 									taskType={node.taskType}
 									shapeType={shapeType}
@@ -2447,11 +2467,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 									getNodeInstance={this.props.getNodeInstance}										
 								></ThumbsStart>}
-								{(shapeType === "Rect" || shapeType === "Html") && settings.events && settings.events.map((event ,eventIndex) => {
+								{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && settings.events && settings.events.map((event ,eventIndex) => {
 									return <ThumbsStart
 										key={"node-thumbstart-" + index + "-" + eventIndex} 
-										x={node.x} 
-										y={node.y + (eventIndex + 1) * 24}
+										position={FlowToCanvas.getThumbStartPosition(shapeType, node, eventIndex + 1)}
 										name={node.name}
 										taskType={node.taskType}
 										shapeType={shapeType}
@@ -2504,7 +2523,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 							const Shape = Shapes[shapeType];
 							if (shapeType === "Html" && Shape) {
 								const nodeClone = {...node};
+								let nodeState = "";
 
+								if (this.props.nodeState[node.name]) {
+									nodeState = " " + (this.props.nodeState[node.name] == "error" ? " has-error" : "")
+								}
 								const isSelected = this.props.selectedNode && this.props.selectedNode.name === node.name;
 								nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
 								
@@ -2541,7 +2564,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									data-top={top}
 									data-height={(height || node.height || 250)}
 									ref={this.htmlElement} 
-									className={"canvas__html-shape canvas__html-shape-" + node.name}>
+									className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState}>
 										<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
 											<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>									
 											{!!settings.hasConfigMenu && <a href="#" onClick={this.onShowNodeSettings.bind(this, node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>

@@ -25,7 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "@devhelpr/expressionrunner": "^0.2.5",
-    "@devhelpr/flowrunner": "0.10.9",
+    "@devhelpr/flowrunner": "^0.10.12",
     "@devhelpr/flowrunner-expression": "^0.2.5",
     "@devhelpr/flowrunner-redux": "^0.6.0",
     "@devhelpr/layoutrunner": "^0.0.2",

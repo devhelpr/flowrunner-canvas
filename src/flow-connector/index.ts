@@ -17,6 +17,15 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   registerWorker(worker: IWorker) {}
 
   onMessage = (event: any) => {};
+
+  registerNodeStateObserver = (observableId: string, callback: (nodeName: string, nodeState: string) => void) => {
+
+  };
+
+  unregisterNodeStateObserver = (observableId: string) => {
+    
+  };
+
   registerFlowNodeObserver = (nodeName: string, observableId: string, callback: (payload: any) => void) => {};
 
   unregisterFlowNodeObserver = (nodeName, observableId) => {};
@@ -81,6 +90,8 @@ export class FlowConnector implements IFlowrunnerConnector {
   applicationMode: ApplicationMode = ApplicationMode.Canvas;
   flowView = "";
 
+  nodeState : any = {}
+
   screenUICallback: (action: any) => void = action => {
     return;
   };
@@ -120,6 +131,17 @@ export class FlowConnector implements IFlowrunnerConnector {
           }
         }
       } else if (event.data.command == 'SendNodeExecution') {
+        
+        if (event.data) {
+          if (this.nodeState[event.data.name] === undefined ||
+              this.nodeState[event.data.name] != event.data.result) {
+              this.nodeStateObservables.map((callbackInfo, index) => {
+                callbackInfo.callback(event.data.name, event.data.result)
+              });
+          }
+          this.nodeState[event.data.name] = event.data.result;
+        }
+
         this.nodeExecutions.push(event.data);
         this.nodeExecutions.splice(0, this.nodeExecutions.length - 1000);
         if (!this.nodeExecutionsByNode[event.data.name]) {
@@ -288,6 +310,9 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true) => {
+    
+    this.nodeState = {};
+
     if (this.worker) {
       if (this.onDestroyAndRecreateWorker) {
         this.onDestroyAndRecreateWorker();
@@ -400,4 +425,33 @@ export class FlowConnector implements IFlowrunnerConnector {
   killAndRecreateWorker = () => {
     this.onDestroyAndRecreateWorker();
   };
+
+  nodeStateObservables: any[] = [];
+
+  registerNodeStateObserver = (observableId : string, callback: (observableId: string, nodeName: string, nodeState: string) => void) => {
+    this.nodeStateObservables.push({
+      callback: callback,
+      id: observableId,
+    });
+  };
+
+  unregisterNodeStateObserver = (observableId: string) => {
+    let indexes: number[] = [];
+
+    // TODO : refactor this to a better way !!
+    this.nodeStateObservables.map((observable, index) => {
+      if (observable.id === observableId) {
+        if (indexes.length === 0) {
+          indexes.push(index);
+        }
+      }
+    });
+
+    indexes.map((indexInObservables: number) => {
+      this.nodeStateObservables[indexInObservables] = undefined;
+      delete this.nodeStateObservables[indexInObservables];
+      this.nodeStateObservables.splice(indexInObservables, 1);
+    });  
+  };
+
 }

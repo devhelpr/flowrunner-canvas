@@ -43,8 +43,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 		super(props);
 		this.ref = React.createRef();
 	}
-	ref;
-
+	
 	state = {
 		value: "",
 		orgNodeName : "",
@@ -55,8 +54,14 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 		json: ""
 	}
 
+	ref;
+
 	componentDidMount() {
-		//
+		
+		// this is needed to prevent unnessary rerender because of the container ref reference
+		// when this is not here, the component rerenders after first input in input controls
+
+		this.setState({value: ""});
 	}
 
 	saveNode(e) {
@@ -102,18 +107,39 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 	}
 
 	onAddJSONFlow = (event) => {
+		event.preventDefault();
 		this.setState({addJSONFlow: !this.state.addJSONFlow});
+		return false;
 	}
 
 	onChangeJson = (event) => {
+		event.preventDefault();
 		this.setState({json: event.target.value})
+		return false;
+	}
+
+	onChangeFlowName = (event) => {
+		event.preventDefault();
+		this.setState({value: event.target.value});
+		return false;
+
+	}
+
+	onChangeFlowType = (event) => {
+		event.preventDefaul();
+		this.setState({flowType: event.target.value});
+		return false;
 	}
 
 	render() {
 		return <div ref={this.ref}>
-			<Modal show={true} centered size={this.state.addJSONFlow ? "xl" : "sm"} container={this.ref.current}>
+			<Modal 
+				show={true} 
+				centered 
+				size={this.state.addJSONFlow ? "xl" : "sm"} 
+				container={this.ref.current}>
 				<Modal.Header>
-				<Modal.Title>Add new Flow</Modal.Title>
+					<Modal.Title>Add new Flow</Modal.Title>
 				</Modal.Header>
 			
 				<Modal.Body>
@@ -122,13 +148,13 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 						<input className="form-control"
 							value={this.state.value} 
 							required
-							onChange={(e) => {this.setState({value: e.target.value})}}
+							onChange={this.onChangeFlowName}
 						></input>
 					</div>
 					<div className="form-group">
 						<label>Flow type</label>
 						<select className="form-control" value={this.state.flowType}
-							onChange={(e) => {this.setState({flowType: e.target.value})}}
+							onChange={this.onChangeFlowType}
 						>
 							<option value="playground">Playground</option>
 							<option value="rustflowrunner">Rust flowrunner</option>
@@ -137,18 +163,21 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 						</select>				
 					</div>
 					<div className="form-group">
-						<input id="addJSONFlow" type="checkbox" checked={this.state.addJSONFlow} onChange={this.onAddJSONFlow} />
+						<input id="addJSONFlow" type="checkbox" checked={this.state.addJSONFlow} 
+							onChange={this.onAddJSONFlow} />
 						<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
 					</div>
 					{this.state.addJSONFlow && <div className="form-group">
-						<textarea className="form-control" onChange={this.onChangeJson}>{this.state.json}</textarea>
+						<textarea className="form-control" 
+							value={this.state.json} 
+							onChange={this.onChangeJson}></textarea>
 					</div>
 					}
 				</Modal.Body>
 			
 				<Modal.Footer>
-				<Button variant="secondary" onClick={this.props.onClose}>Close</Button>
-				<Button variant="primary" onClick={this.saveNode.bind(this)}>Add</Button>
+					<Button variant="secondary" onClick={this.props.onClose}>Close</Button>
+					<Button variant="primary" onClick={this.saveNode.bind(this)}>Add</Button>
 				</Modal.Footer>
 			</Modal>
 	  </div>;

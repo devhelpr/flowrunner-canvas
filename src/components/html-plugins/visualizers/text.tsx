@@ -50,7 +50,7 @@ export class Text extends React.Component<TextProps, TextState> {
 			return <Element cssClassName={this.props.node.cssClassName} tag={this.props.node.htmlElement} value={data}></Element>
 		}
 		
-		return <div className="h-auto">
+		return <div className="h-auto d-flex align-items-center">
 			<strong className="h1 font-weight-bolder">{data}{afterLabel}</strong>
 		</div>;
 	}

@@ -14,6 +14,8 @@ export interface ShapeTypeProps {
   onTouchMove: any;
   onTouchEnd: any;
 
+  nodeState : string;
+
   onClickShape: any;
   isSelected: boolean;
   onMouseStart: any;
@@ -39,9 +41,13 @@ export interface ShapeTypeProps {
   canvasComponentInstance: any;
 }
 
+export interface ThumbPosition {
+  x : number;
+  y : number; 
+}
+
 export interface ThumbTypeProps {
-  x: number;
-  y: number;
+  position: ThumbPosition;
   name: string;
   taskType: string;
   node: any;

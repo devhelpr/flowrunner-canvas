@@ -16,6 +16,21 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 		labelText= replaceValuesExpressions((settings as any).label, props.node, "-");
 	}
 
+	let textDecoration = "";
+
+	let strokeColor = settings.strokeColor;
+	let fillColor = props.isSelected ? settings.fillSelectedColor : settings.fillColor;
+	if (props.nodeState === "error") {
+		strokeColor = props.isSelected ? "#f00000" : "#e00000";
+		fillColor = props.isSelected ? "#ff5454" : "#ff9d9d";
+		textDecoration = "line-through"
+	} else 
+	if (props.nodeState === "ok") {
+		strokeColor = props.isSelected ? "#00f000" : "#00e000";
+		fillColor = props.isSelected ? "#54ff54" : "#9dff9d";
+	}
+	
+	console.log("props.nodeState diamond", props.nodeState);
 	return <>
 		<Group
 			x={props.x}
@@ -39,13 +54,14 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 			<RegularPolygon 
 				x={ShapeMeasures.diamondSize/2}
 				y={ShapeMeasures.diamondSize/2}
-				stroke={settings.strokeColor}
+				stroke={strokeColor}
 				strokeWidth={4}
+				cornerRadius={4}
 				sides={4}
 				radius={ShapeMeasures.diamondSize}
 				width={ShapeMeasures.diamondSize}
 				height={ShapeMeasures.diamondSize}
-				fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
+				fill={fillColor}  
 				perfectDrawEnabled={false}>
 			</RegularPolygon>
 			<Text
@@ -58,6 +74,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				verticalAlign="middle"
 				listening={false}
 				wrap="word"
+				textDecoration={textDecoration}
 				fontSize={18}
 				ellipsis={true}
 				fill={settings.textColor}

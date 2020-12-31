@@ -191,10 +191,11 @@ canvas,.konvajs-content,
 	justify-content: center;
 	align-items: center;
 	padding: 20px;
-	height: calc(100% - 32px);
+	height: 100%;
 	width: 100%;
 
 	margin: 0 auto;
+	position: relative;
 }
 
 .html-plugin-node__visibility {
@@ -276,12 +277,11 @@ canvas,.konvajs-content,
 .canvas__html-shape-body {
 	position: relative;
 	pointer-events: none;
-	min-height: calc(100% - 32px);
+	min-height: 100%;
 	height: auto;
 	width: 100%;
-	overflow: hidden;
 
-	flex: 1 1 calc(100% - 32px);
+	flex: 1 1 100%;
     background: white;
     display: flex;
     flex-direction: row;
@@ -303,6 +303,7 @@ canvas,.konvajs-content,
 [data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node,
 [data-html-plugin="formNode"] .html-plugin-node {
 	height: auto;
+	min-height: 100%;
 }
 
 [data-html-plugin="dataGridNode"] .form,
@@ -321,6 +322,22 @@ canvas,.konvajs-content,
 .html-plugin-node > div {
 	height: 100%;
 	pointer-events: auto;
+}
+
+.html-plugin-node::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -32px;
+    left: -8px;
+    width: calc(100% + 16px);
+    height: calc(100% + 40px);
+    border: 2px #cccccc solid;
+    border-radius: 8px;
+}
+
+.has-error .html-plugin-node::before {
+	border: 2px #e00000 solid;
 }
 
 .html-plugin-node .form {
@@ -749,7 +766,7 @@ textarea.form-control {
 }
 
 .ui-view-layout__container .html-plugin-node__h-100 {
-	height: calc(100% - 32px);
+	height: 100%;
 	position: relative;
 }
 

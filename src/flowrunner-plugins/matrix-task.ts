@@ -250,7 +250,7 @@ export class MatrixTask extends FlowTask {
                         `{"flow":${JSON.stringify(flow)}}
 										`,
                       );
-                      resolve();
+                      resolve({});
                     })
                     .catch(() => {
                       reject();
@@ -328,55 +328,56 @@ export class MatrixTask extends FlowTask {
               uuid: matrix.uuid,
               data: new Array(matrix.columns * matrix.rows).fill(node.defaultValue || 0),
             };
+            if (node.calculateNeighbours === undefined || node.calculateNeighbours === true) {
+              let loopRows = 0;
+              while (loopRows < matrix.rows) {
+                let loopColumns = 0;
+                while (loopColumns < matrix.columns) {
+                  const getNeighbourState = (x, y) => {
+                    let result = 0;
+                    let helperRows = loopRows + y;
+                    let helperColumns = loopColumns + x;
+                    if (helperRows < 0) {
+                      helperRows = matrix.rows + helperRows;
+                    }
+                    if (helperColumns < 0) {
+                      helperColumns = matrix.columns + helperColumns;
+                    }
 
-            let loopRows = 0;
-            while (loopRows < matrix.rows) {
-              let loopColumns = 0;
-              while (loopColumns < matrix.columns) {
-                const getNeighbourState = (x, y) => {
-                  let result = 0;
-                  let helperRows = loopRows + y;
-                  let helperColumns = loopColumns + x;
-                  if (helperRows < 0) {
-                    helperRows = matrix.rows + helperRows;
-                  }
-                  if (helperColumns < 0) {
-                    helperColumns = matrix.columns + helperColumns;
-                  }
+                    if (helperRows >= matrix.rows) {
+                      helperRows = helperRows - matrix.rows;
+                    }
 
-                  if (helperRows >= matrix.rows) {
-                    helperRows = helperRows - matrix.rows;
-                  }
+                    if (helperColumns >= matrix.columns) {
+                      helperColumns = helperColumns - matrix.columns;
+                    }
 
-                  if (helperColumns >= matrix.columns) {
-                    helperColumns = helperColumns - matrix.columns;
-                  }
+                    let index = matrix.columns * helperRows + helperColumns;
+                    //indexes.push(index);
+                    if (index < matrix.data.length && matrix.data[index] > 0) {
+                      result++;
+                    }
+                    return result;
+                  };
 
-                  let index = matrix.columns * helperRows + helperColumns;
-                  //indexes.push(index);
-                  if (index < matrix.data.length && matrix.data[index] > 0) {
-                    result++;
-                  }
-                  return result;
-                };
+                  let neighbourCount =
+                    getNeighbourState(-1, -1) +
+                    getNeighbourState(0, -1) +
+                    getNeighbourState(1, -1) +
+                    getNeighbourState(-1, 0) +
+                    getNeighbourState(1, 0) +
+                    getNeighbourState(-1, 1) +
+                    getNeighbourState(0, 1) +
+                    getNeighbourState(1, 1);
+                  let index = matrix.columns * loopRows + loopColumns;
+                  neigbourMatrix.data[index] = neighbourCount;
 
-                let neighbourCount =
-                  getNeighbourState(-1, -1) +
-                  getNeighbourState(0, -1) +
-                  getNeighbourState(1, -1) +
-                  getNeighbourState(-1, 0) +
-                  getNeighbourState(1, 0) +
-                  getNeighbourState(-1, 1) +
-                  getNeighbourState(0, 1) +
-                  getNeighbourState(1, 1);
-                let index = matrix.columns * loopRows + loopColumns;
-                neigbourMatrix.data[index] = neighbourCount;
-
-                loopColumns++;
+                  loopColumns++;
+                }
+                loopRows++;
               }
-              loopRows++;
             }
-
+            
             const executeFlowForEachCell = nodeName => {
               //console.log("executeFlowForEachCell", nodeName);
               let promises: any[] = [];

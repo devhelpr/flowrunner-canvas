@@ -40,8 +40,8 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 */
 	return <><Group
 		ref={ref}
-		x={props.x + skewXOffset}
-		y={props.y}
+		x={props.position.x + skewXOffset}
+		y={props.position.y}
 		onMouseOver={props.onMouseConnectionStartOver}
 		onMouseOut={props.onMouseConnectionStartOut}
 		onMouseDown={props.onMouseConnectionStartStart}
@@ -50,7 +50,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 		width={12}
 		height={12}
 	>			
-		{props.shapeType === "Rect" && <>
+		{(props.shapeType === "Rect" || props.shapeType === "Diamond") && <>
 				
 			<KonvaCircle
 				x={ShapeMeasures.rectWidht}

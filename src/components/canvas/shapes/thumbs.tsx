@@ -45,8 +45,8 @@ x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 	*/
 	return <><Group
 		ref={ref}
-		x={props.x + skewXOffset}
-		y={props.y}
+		x={props.position.x + skewXOffset}
+		y={props.position.y}
 		onMouseOver={props.onMouseConnectionEndOver}
 		onMouseOut={props.onMouseConnectionEndOut}
 		onMouseDown={props.onMouseConnectionEndStart}
@@ -56,7 +56,7 @@ x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 		width={12}
 		height={12}
 	>
-		{props.shapeType === "Rect" && <>			
+		{(props.shapeType === "Rect" || props.shapeType === "Diamond") && <>			
 			<KonvaCircle
 				x={0}
 				y={12}				

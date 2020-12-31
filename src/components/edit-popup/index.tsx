@@ -141,9 +141,12 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 	}
 
 	render() {
-		// container="flowstudio-root" .. gives errors 
 		return <div ref={this.ref}>
-			<Modal show={true} centered size="lg" container={this.ref.current}>
+			<Modal 
+				show={true} 
+				centered 
+				size="lg" 
+				container={this.ref.current}>
 				<Modal.Header>
 					<Modal.Title>Edit Node JSON</Modal.Title>
 				</Modal.Header>

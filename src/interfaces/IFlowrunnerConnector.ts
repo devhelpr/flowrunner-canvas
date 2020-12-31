@@ -10,6 +10,8 @@ export interface IFlowrunnerConnector {
   hasStorageProvider: boolean;
 
   flowView : string;
+  registerNodeStateObserver: (observableId: string, callback: (nodeName: string, nodeState: string) => void) => void;
+  unregisterNodeStateObserver: (observableId: string) => void;
 
   registerFlowNodeObserver: (nodeName: string, observableId: string, callback: (payload: any) => void) => void;
   unregisterFlowNodeObserver: (nodeName: string, observableId: string) => void;
