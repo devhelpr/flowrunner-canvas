@@ -35,7 +35,7 @@ export class RunFlowTask extends FlowTask {
   public execute(node: any, services: any) {
     try {
       if (!this.worker && !this.flowrunnerConnector) {
-        this.worker = new Worker('/worker.js');
+        this.worker = new Worker(new URL("../flow-worker", import.meta.url));
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IWorker);
 
