@@ -80,7 +80,7 @@ export class FlowToCanvas {
       return {
         // + (isEvent ? 18 - 14 : 0)
         x: newPosition.x + ShapeMeasures.rectWidht + skewXOffset,
-        y: newPosition.y + (isEvent ? 4 + 8 + 12 : 4 + 8),
+        y: newPosition.y + (ShapeMeasures.rectHeight/2) - 12 + (isEvent ? 4 + 8 + 12 : 4 + 8),
       };
       // y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
     }
@@ -127,7 +127,7 @@ export class FlowToCanvas {
       }
       return {
         x: newPosition.x + skewXOffset - 8,
-        y: newPosition.y + (4 + 8),
+        y: newPosition.y + (ShapeMeasures.rectHeight/2) - 12 + (4 + 8),
       };
       //y: newPosition.y + ShapeMeasures.rectHeight / 2,
     }
@@ -193,6 +193,13 @@ export class FlowToCanvas {
       }
     }
 
+    if (shapeType == "Rect") {
+      return {
+        x: node.x,
+        y: node.y + (ShapeMeasures.rectHeight/2) - 12
+      }
+    }
+
     return {
       x: node.x,
       y: node.y 
@@ -204,6 +211,12 @@ export class FlowToCanvas {
       return {
         x: node.x,
         y: node.y + (ShapeMeasures.diamondSize/2) + (offset * 24) - 12
+      }
+    }
+    if (shapeType == "Rect") {
+      return {
+        x: node.x,
+        y: node.y + (ShapeMeasures.rectHeight/2) + (offset * 24) - 12
       }
     }
     return {
