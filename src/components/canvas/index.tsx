@@ -416,17 +416,26 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					currentGroup.y(newPosition.y);
 					currentGroup.opacity(1);
 					
+
+					const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
+
 					let currentGroupThumbs = this.shapeRefs["thumb_" + node.name].current;
 					if (currentGroupThumbs) {
-						currentGroupThumbs.x(newPosition.x);
-						currentGroupThumbs.y(newPosition.y);
+
+						const thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition);
+
+						currentGroupThumbs.x(thumbPosition.x);
+						currentGroupThumbs.y(thumbPosition.y);
 						currentGroupThumbs.opacity(1);
 					}
 
 					currentGroupThumbs = this.shapeRefs["thumbstart_" + node.name].current;
 					if (currentGroupThumbs) {
-						currentGroupThumbs.x(newPosition.x);
-						currentGroupThumbs.y(newPosition.y);
+
+						const thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0);
+
+						currentGroupThumbs.x(thumbPosition.x);
+						currentGroupThumbs.y(thumbPosition.y);
 						currentGroupThumbs.opacity(1);
 					}
 

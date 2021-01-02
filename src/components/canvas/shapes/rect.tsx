@@ -111,9 +111,27 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				ellipsis={true}
 				fill={settings.textColor}
 				perfectDrawEnabled={true}>
-			</Text>
-						
-			{settings.events && settings.events.map((event ,index) => {
+			</Text>									
+		</Group>		
+		{
+			getLines(
+					props.flow, 
+					props.node,
+					props.getNodeInstance,
+					props.canvasHasSelectedNode,
+					props.selectedNode,
+					props.isSelected,
+					props.shapeRefs,props.onLineMouseOver,
+					props.onLineMouseOut,
+					props.onClickLine,
+					props.canvasComponentInstance
+			)
+		}
+	</>
+});
+
+/*
+{settings.events && settings.events.map((event ,index) => {
 				return <React.Fragment key={index}>
 					<KonvaRect
 						x={ShapeMeasures.rectWidht + 10 - 14}
@@ -139,27 +157,8 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 						opacity={1}  
 						perfectDrawEnabled={false}></KonvaRect>					
 				</React.Fragment>
-			})}		
-		</Group>		
-		{
-			getLines(
-					props.flow, 
-					props.node,
-					props.getNodeInstance,
-					props.canvasHasSelectedNode,
-					props.selectedNode,
-					props.isSelected,
-					props.shapeRefs,props.onLineMouseOver,
-					props.onLineMouseOut,
-					props.onClickLine,
-					props.canvasComponentInstance
-			)
-		}
-	</>
-});
-
-/*
-
+			})}	
+			
 <Group
 		x={props.x}
 		y={props.y}

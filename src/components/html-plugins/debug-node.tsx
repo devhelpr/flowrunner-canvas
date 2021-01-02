@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 
 import { Children, isValidElement, cloneElement } from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { XYCanvas } from './visualizers/xy-canvas';
+import { XYCanvas, XYCanvasInfo } from './visualizers/xy-canvas';
 import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';
@@ -20,6 +20,10 @@ const uuidV4 = uuid.v4;
 export class DebugNodeHtmlPluginInfo {
 	getWidth = (node) => {
 
+		if (node && node.visualizer && node.visualizer == "xycanvas") {
+			const visualizerInfo = new XYCanvasInfo();
+			return visualizerInfo.getWidth(node);
+		} else
 		if (node && node.visualizer && node.visualizer == "gridcanvas") {
 			const visualizerInfo = new GridCanvasInfo();
 			return visualizerInfo.getWidth(node);
@@ -32,6 +36,10 @@ export class DebugNodeHtmlPluginInfo {
 	}
 
 	getHeight(node) {
+		if (node && node.visualizer && node.visualizer == "xycanvas") {
+			const visualizerInfo = new XYCanvasInfo();
+			return visualizerInfo.getHeight(node);
+		} else
 		if (node && node.visualizer && node.visualizer == "gridcanvas") {
 			const visualizerInfo = new GridCanvasInfo();
 			return visualizerInfo.getHeight(node);
