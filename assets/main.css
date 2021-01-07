@@ -324,7 +324,7 @@ canvas,.konvajs-content,
 	pointer-events: auto;
 }
 
-.html-plugin-node::before {
+.canvas-controller__scroll-container .html-plugin-node::before {
     content: "";
     display: block;
     position: absolute;
@@ -528,6 +528,17 @@ canvas,.konvajs-content,
 	padding: 10px;
 	padding-left: 5px;
 	padding-right: 15px;
+}
+
+.debug-info--fullscreen {
+	width: calc(100% - 40px);
+	height: calc(100% - 40px);
+	right: auto;
+	left: 20px;
+	top: 20px;
+	bottom: auto;
+	z-index: 20000;
+	padding: 20px;
 }
 
 .debug-info::-webkit-scrollbar {
@@ -835,4 +846,15 @@ textarea.form-control {
 .container__ui-view [data-node-visualizer="list"] .html-plugin-node {
 	align-items: flex-start;
 	text-align: left
+}
+
+.debug-info__window-maximize {
+	color: #ffffff;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+}
+
+.debug-info__window-maximize:hover {
+	color: #ffffff;
 }

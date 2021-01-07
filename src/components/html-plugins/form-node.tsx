@@ -323,7 +323,17 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			}, () => {
 				console.log("this.props.node.name",this.props.node.name, this.state.node);
 				if (!this.props.isNodeSettingsUI) {
-					this.props.storeFlowNode(this.state.node, this.props.node.name);
+					if (this.props.node.taskType == "FormTask") {
+						this.props.flowrunnerConnector.modifyFlowNode(
+							this.props.node.name, 
+							fieldName, 
+							value,
+							this.props.node.name
+						);
+					} else {
+						this.props.storeFlowNode(this.state.node, this.props.node.name);
+					}
+					
 				} else if (this.props.onSetValue) {
 					this.props.onSetValue(value, fieldName);
 				}
@@ -377,7 +387,16 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				}
 			}, () => {
 				if (!this.props.isNodeSettingsUI) {
-					this.props.storeFlowNode(this.state.node, this.props.node.name);
+					if (this.props.node.taskType == "FormTask") {
+						this.props.flowrunnerConnector.modifyFlowNode(
+							this.props.node.name, 
+							metaInfo.fieldName, 
+							value,
+							this.props.node.name
+						);
+					} else { 					
+						this.props.storeFlowNode(this.state.node, this.props.node.name);
+					}
 				} else  if (this.props.onSetValue) {
 					this.props.onSetValue(value, metaInfo.fieldName);
 				}

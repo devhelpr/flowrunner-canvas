@@ -58,13 +58,16 @@ export const Select = (props: IFormControlProps) => {
 		}
 	}, [metaInfo.options]);
 	*/
-	
+	let showDefaultOption = true;
+	if (metaInfo.hideDefaultOption === true) {
+		showDefaultOption = false;
+	}
 	return <div className="form-group">						
 		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 		<div className="input-group mb-1">
 			<select className="form-control" required={props.metaInfo && !!props.metaInfo.required} 
 				{...formControl} >
-				<option value="" disabled>Select value</option>
+				{showDefaultOption === true && <option value="" disabled>Select value</option>}
 				{metaInfo && (props.datasource || metaInfo.options || []).map((option : ISelectOption, index) => {
 					return <React.Fragment key={"select"+index}>
 						<option value={option.value}>{option.label}</option>

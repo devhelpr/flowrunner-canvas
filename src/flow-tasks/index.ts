@@ -21,6 +21,7 @@ import { FilterTask } from '../flowrunner-plugins/filter-task';
 import { CountTask } from '../flowrunner-plugins/count-task';
 import { CustomCodeTask } from '../flowrunner-plugins/custom-code-task';
 import { DebugTask } from '../flowrunner-plugins/debug-task';
+import { GroupAndSumTask } from '../flowrunner-plugins/group-and-sum-task';
 
 export const registerTasks = (flow) => {
 	flow.registerTask('SliderTask', SliderTask);
@@ -45,4 +46,5 @@ export const registerTasks = (flow) => {
 	flow.registerTask('CountTask', CountTask);
 	flow.registerTask('CustomCodeTask', CustomCodeTask);
 	flow.registerTask('DebugTask', DebugTask);
+	flow.registerTask('GroupAndSumTask', GroupAndSumTask);
 }

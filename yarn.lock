@@ -936,17 +936,17 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@devhelpr/expressionrunner@^0.2.5":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.5.tgz#bda7492acfe1e5706d6261dd55fbcdb0f968a85f"
-  integrity sha512-GtgC/StcuPGQnqS1YviZlHbTBZ/yQZ/YoRrcBHSLpuoScl8u01Zt/O5mGyvLgLx4dr03MtDPEkwzM+ZEyEu/eg==
+"@devhelpr/expressionrunner@^0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.7.tgz#6fd5ebf4cf45086e5969ecc0c4a6a7b81d2c939e"
+  integrity sha512-CwVVIRTqPPXN2KF9QRlh55Ts7PPYN2vKf9+/Yux7vToisKTyy5VWkc9wX1CqJtsiTj+wfC7acGhk7W4pxV5Kbg==
 
-"@devhelpr/flowrunner-expression@^0.2.5":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-expression/-/flowrunner-expression-0.2.5.tgz#19e8da293e9ba2f6e8558616e7fcdd06d1921618"
-  integrity sha512-4pXCdLDYgpdJDW3PNGfm2uhmB8Lqaag6qZQoykoenp7ZcRWDTflhnbNu88zzq1madRP9kpOfFQfpoPUW7GZoOw==
+"@devhelpr/flowrunner-expression@^0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-expression/-/flowrunner-expression-0.2.6.tgz#7cc1cc61c7054085723703ef2451a5caa9b4d0ef"
+  integrity sha512-SQGlqS5PiFPjZWFN3tx0Mj/d+o+S29Q2fBlF0JfzFrdV1kb5Z+eRZN6b1A1xC8tGq/v5cVF2zKsfgKEsracR1g==
   dependencies:
-    "@devhelpr/expressionrunner" "^0.2.5"
+    "@devhelpr/expressionrunner" "^0.2.7"
     "@devhelpr/flowrunner" "^0.10.9"
     "@types/jexl" "^2.2.0"
     promise "^8.0.3"
@@ -969,10 +969,10 @@
     rxjs-compat "^6.5.4"
     utility-types "^3.10.0"
 
-"@devhelpr/flowrunner@^0.10.12":
-  version "0.10.12"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.10.12.tgz#2f901039c33652c6143161cc466b1423be6a6afe"
-  integrity sha512-69jmkc6zyYNDr4NMrcSSr4tuKH5atvg6hnLQtkaMNu9ctu4Wp1iBGW2gtLyrcVhzAF8YzaHcNi8DqOIk/t2ffw==
+"@devhelpr/flowrunner@^0.10.13":
+  version "0.10.13"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.10.13.tgz#7a8b6ac58e736f8d61c79e8d080e82139192049f"
+  integrity sha512-3JgvwaGgsRTh/4kcoIiCVlQpIzI6wmvVj+YL37F/GBMerh4s57tHURE23NWPkZpNkVgeGGgbDoPmmivfHk2jaA==
   dependencies:
     "@reactivex/rxjs" "^6.4.0"
     "@types/uuid" "^3.4.4"

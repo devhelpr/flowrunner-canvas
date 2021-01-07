@@ -33,6 +33,13 @@ export class TransformTask extends FlowTask {
           for (var key of Object.keys(transformObject)) {
             if (!isNaN(parseInt(key))) {
               result.push(this.mapObject(node, transformObject[key]));
+                      
+              if (node.transformProperty !== undefined && node.transformProperty == '') {
+                delete payload[key];
+              } else if (node.transformProperty !== undefined && payload[node.transformProperty]) {
+                delete payload[node.transformProperty][key];
+              }
+
             }
           }
 

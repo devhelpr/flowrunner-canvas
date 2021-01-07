@@ -136,6 +136,7 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
 					tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
 					tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
+					tasks.push({className:"GroupAndSumTask", fullName: "GroupAndSumTask", flowType: "playground"});
 					tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
 					tasks.push({className:"DeepAssignTask", fullName: "DeepAssignTask", flowType: "playground"});
 					tasks.push({className:"ExtractUniqueTask", fullName: "ExtractUniqueTask", flowType: "playground"});									

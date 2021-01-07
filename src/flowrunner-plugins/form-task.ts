@@ -9,7 +9,38 @@ export class FormTask extends ObservableTask {
       let values: any = {};
       let isValid = true;
       (node.metaInfo || []).map((metaInfo, index) => {
-        if (metaInfo.fieldName && node[metaInfo.fieldName] !== undefined) {
+
+        let currentValue;
+        if (metaInfo.fieldName) {
+          currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);
+          if (currentValue !== undefined) {
+
+            // TODO : (naiev approach)
+            // (.. check if metaInfo.fieldType == select/radiobutton)
+            // .. check if currentValue exists in datasource
+            // .. if not.. then use defaultValue or ""
+            
+            if (metaInfo.datasource && node.payload[metaInfo.datasource]) {
+                const datasource = node.payload[metaInfo.datasource];
+                if (datasource) {
+                  let isFound = false;
+                  datasource.map((item) => {
+                    if (item.value !== undefined && item.value === currentValue) {
+                      isFound = true;
+                    }
+                  });
+
+                  if (!isFound) {
+                    currentValue = "";
+                  }
+                }
+            }
+            
+            values[metaInfo.fieldName] = currentValue;
+          }
+        }
+
+        if (currentValue === undefined && metaInfo.fieldName && node[metaInfo.fieldName] !== undefined) {
           values[metaInfo.fieldName] = node[metaInfo.fieldName];
         }
 

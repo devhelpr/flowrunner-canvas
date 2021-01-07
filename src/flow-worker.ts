@@ -618,7 +618,7 @@ const onWorkerMessage = event => {
 
       if (data.executeNode !== undefined && data.executeNode !== '') {
         flow
-          .executeNode(data.executeNode, {})
+          .retriggerNode(data.executeNode)
           .then(result => {
             //console.log('result after modifyFlowNode executeNode', result);
           })

@@ -531,6 +531,29 @@ const taskTypeConfig: any = {
       outputProperty: '',
     },
   },
+  GroupAndSumTask: {
+    icon: 'fa-random',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'groupProperty',
+      },
+      {
+        fieldName: 'outputProperty',
+      },
+      {
+        fieldName: 'clearPayload',
+        fieldType: 'checkbox',
+      },
+    ],
+    presetValues: {
+      groupProperty: '',      
+      outputProperty: '',
+      groupBy: [],
+      sumProperties: []
+    },
+  },
   matrix: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',

@@ -16,6 +16,7 @@ export interface DebugInfoProps {
 
 export interface DebugInfoState {
 	payload : any;
+	fullscreen: boolean;
 }
 
 const mapStateToProps = (state : any) => {
@@ -36,7 +37,8 @@ class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState>
 	}
 
 	state = {
-		payload : undefined
+		payload : undefined,
+		fullscreen: false
 	}
 
 	htmlElement : any;
@@ -73,18 +75,29 @@ class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState>
 
 	}
 
+	onToggleFullscreen = () => {
+		this.setState({fullscreen: !this.state.fullscreen})
+	}
+
 	render() {
 
 		if (this.props.canvasMode.flowType !== "playground") {
 			return <></>;
 		}
 		
+		let fullscreenCss = "";
+		let iconCss = "debug-info__window-maximize far fa-window-maximize";
+		if (this.state.fullscreen) {
+			fullscreenCss = " debug-info--fullscreen";
+			iconCss = "debug-info__window-maximize far fa-window-minimize";
+		}
 		if (this.props.selectedNode && this.props.selectedNode.name) {
-
+			
 			if (this.props.selectedNode.payload) {
 				const debugInfo = JSON.stringify(this.props.selectedNode.payload, null, 2);
-				return <div className="debug-info">
+				return <div className={"debug-info" + fullscreenCss}>
 					<div className="debug-info__debug-info">
+						<a href="#" onClick={this.onToggleFullscreen} className={iconCss}></a> 
 						<div className="debug-info__debug-info-content">
 							<strong>{this.props.selectedNode.name}</strong><br />
 							{debugInfo}
@@ -96,8 +109,9 @@ class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState>
 
 				if (list && list.length > 0) {
 					const debugInfo = JSON.stringify(list[list.length - 1], null, 2);
-					return <div className="debug-info">
+					return <div className={"debug-info" + fullscreenCss}>
 						<div className="debug-info__debug-info">
+							<a href="#" onClick={this.onToggleFullscreen} className={iconCss}></a> 
 							<div className="debug-info__debug-info-content">
 								<strong>{this.props.selectedNode.name}</strong><br />
 								{debugInfo}
