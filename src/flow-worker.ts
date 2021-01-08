@@ -329,8 +329,6 @@ export class InputTask extends FlowTask {
   }
 }
 
-
-
 let flowPluginNodes = {};
 
 const FlowPluginWrapperTask = pluginName => {

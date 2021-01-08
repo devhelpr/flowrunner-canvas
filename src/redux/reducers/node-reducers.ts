@@ -21,5 +21,5 @@ export const nodeReducer = (state: any = {}, action: any) => {
       default:
         return draft;
     }
-  })
+  });
 };

@@ -548,10 +548,10 @@ const taskTypeConfig: any = {
       },
     ],
     presetValues: {
-      groupProperty: '',      
+      groupProperty: '',
       outputProperty: '',
       groupBy: [],
-      sumProperties: []
+      sumProperties: [],
     },
   },
   matrix: {
@@ -565,7 +565,7 @@ const taskTypeConfig: any = {
       },
     ],
   },
-  MatrixTask: {    
+  MatrixTask: {
     events: [
       {
         eventName: 'onCalculateNewGenerationForEachCell',
@@ -573,9 +573,9 @@ const taskTypeConfig: any = {
     ],
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    presetValues : {
-      action: "",
-      calculateNeighbours: true
+    presetValues: {
+      action: '',
+      calculateNeighbours: true,
     },
     metaInfo: [
       {
@@ -584,7 +584,7 @@ const taskTypeConfig: any = {
       },
       {
         fieldName: 'calculateNeighbours',
-        fieldType: 'checkbox'
+        fieldType: 'checkbox',
       },
       {
         fieldName: 'flowId',
@@ -698,16 +698,17 @@ const taskTypeConfig: any = {
         { fieldName: 'columns', dataType: 'number' },
         { fieldName: 'mode', defaultValue: 'matrix' },
         { fieldName: 'template' },
-        { fieldName: 'replaceValues', fieldType: 'checkbox'},
-        { fieldName: 'asElement', fieldType: 'checkbox'},
+        { fieldName: 'replaceValues', fieldType: 'checkbox' },
+        { fieldName: 'asElement', fieldType: 'checkbox' },
         { fieldName: 'htmlElement' },
         { fieldName: 'cssClassName' },
         { fieldName: 'visibilityCondition' },
-        { fieldName: 'flowId', 
-          visibilityCondition:'visualizer == "animatedgridcanvas"',
+        {
+          fieldName: 'flowId',
+          visibilityCondition: 'visualizer == "animatedgridcanvas"',
           fieldType: 'select',
-          datasource: '[PLAYGROUNDFLOW]'
-        }
+          datasource: '[PLAYGROUNDFLOW]',
+        },
       ],
     },
   },

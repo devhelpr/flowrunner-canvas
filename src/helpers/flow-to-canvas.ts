@@ -80,7 +80,7 @@ export class FlowToCanvas {
       return {
         // + (isEvent ? 18 - 14 : 0)
         x: newPosition.x + ShapeMeasures.rectWidht + skewXOffset,
-        y: newPosition.y + (ShapeMeasures.rectHeight/2) - 12 + (isEvent ? 4 + 8 + 24 : 4 + 8),
+        y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (isEvent ? 4 + 8 + 24 : 4 + 8),
       };
       // y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
     }
@@ -127,7 +127,7 @@ export class FlowToCanvas {
       }
       return {
         x: newPosition.x + skewXOffset - 8,
-        y: newPosition.y + (ShapeMeasures.rectHeight/2) - 12 + (4 + 8),
+        y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (4 + 8),
       };
       //y: newPosition.y + ShapeMeasures.rectHeight / 2,
     }
@@ -184,44 +184,43 @@ export class FlowToCanvas {
     return resultShapeType;
   }
 
-  static getThumbEndPosition(shapeType : string, position : any) {
-
-    if (shapeType == "Diamond") {
+  static getThumbEndPosition(shapeType: string, position: any) {
+    if (shapeType == 'Diamond') {
       return {
         x: position.x,
-        y: position.y + (ShapeMeasures.diamondSize/2) - 12
-      }
+        y: position.y + ShapeMeasures.diamondSize / 2 - 12,
+      };
     }
 
-    if (shapeType == "Rect") {
+    if (shapeType == 'Rect') {
       return {
         x: position.x,
-        y: position.y + (ShapeMeasures.rectHeight/2) - 12
-      }
+        y: position.y + ShapeMeasures.rectHeight / 2 - 12,
+      };
     }
 
     return {
       x: position.x,
-      y: position.y 
-    }
+      y: position.y,
+    };
   }
 
-  static getThumbStartPosition(shapeType : string, position : any, offset) {
-    if (shapeType == "Diamond") {
+  static getThumbStartPosition(shapeType: string, position: any, offset) {
+    if (shapeType == 'Diamond') {
       return {
         x: position.x,
-        y: position.y + (ShapeMeasures.diamondSize/2) + (offset * 24) - 12
-      }
+        y: position.y + ShapeMeasures.diamondSize / 2 + offset * 24 - 12,
+      };
     }
-    if (shapeType == "Rect") {
+    if (shapeType == 'Rect') {
       return {
         x: position.x,
-        y: position.y + (ShapeMeasures.rectHeight/2) + (offset * 24) - 12
-      }
+        y: position.y + ShapeMeasures.rectHeight / 2 + offset * 24 - 12,
+      };
     }
     return {
       x: position.x,
-      y: position.y + (offset * 24)
-    }
+      y: position.y + offset * 24,
+    };
   }
 }

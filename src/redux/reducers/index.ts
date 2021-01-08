@@ -9,5 +9,5 @@ export const reducers = {
   selectedNode: nodeReducer,
   canvasMode: canvasModeReducer,
   layout: layoutReducer,
-  nodeState: nodeStateReducer
+  nodeState: nodeStateReducer,
 };

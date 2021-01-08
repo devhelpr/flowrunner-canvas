@@ -14,7 +14,7 @@ export interface ShapeTypeProps {
   onTouchMove: any;
   onTouchEnd: any;
 
-  nodeState : string;
+  nodeState: string;
 
   onClickShape: any;
   isSelected: boolean;
@@ -42,8 +42,8 @@ export interface ShapeTypeProps {
 }
 
 export interface ThumbPosition {
-  x : number;
-  y : number; 
+  x: number;
+  y: number;
 }
 
 export interface ThumbTypeProps {

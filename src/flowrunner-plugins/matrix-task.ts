@@ -377,7 +377,7 @@ export class MatrixTask extends FlowTask {
                 loopRows++;
               }
             }
-            
+
             const executeFlowForEachCell = nodeName => {
               //console.log("executeFlowForEachCell", nodeName);
               let promises: any[] = [];

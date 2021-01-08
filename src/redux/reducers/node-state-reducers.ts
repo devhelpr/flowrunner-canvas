@@ -7,16 +7,15 @@ export const nodeStateReducer = (state: any = {}, action: any) => {
       case SET_NODE_STATE: {
         return {
           ...draft,
-          [action.payload.nodeName] : action.payload.nodeState
+          [action.payload.nodeName]: action.payload.nodeState,
         };
       }
       case CLEAR_NODE_STATES: {
-        return {          
-        };
+        return {};
       }
 
       default:
         return draft;
     }
-  })
+  });
 };
