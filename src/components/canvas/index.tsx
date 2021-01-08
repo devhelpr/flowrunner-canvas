@@ -1437,7 +1437,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			(element as any).style.transform = 						
 				"translate(" + (stageX  + x * stageScale) + "px," + 
 					(stageY + top + y * stageScale) + "px) "+
-				"scale(" + (stageScale) + "," + (stageScale) + ") ";
+				"scale(" + (stageScale) + "," + (stageScale) + ") ";						
 		}
 	}
 
