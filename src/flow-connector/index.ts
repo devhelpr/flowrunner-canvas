@@ -18,7 +18,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   onMessage = (event: any) => {};
 
-  registerNodeStateObserver = (observableId: string, callback: (nodeName: string, nodeState: string) => void) => {};
+  registerNodeStateObserver = (observableId: string, callback: (nodeName: string, nodeState: string, touchedNodes : any) => void) => {};
 
   unregisterNodeStateObserver = (observableId: string) => {};
 
@@ -130,7 +130,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         if (event.data) {
           if (this.nodeState[event.data.name] === undefined || this.nodeState[event.data.name] != event.data.result) {
             this.nodeStateObservables.map((callbackInfo, index) => {
-              callbackInfo.callback(event.data.name, event.data.result);
+              callbackInfo.callback(event.data.name, event.data.result, event.data.touchedNodes);
             });
           }
           this.nodeState[event.data.name] = event.data.result;
@@ -423,7 +423,7 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   registerNodeStateObserver = (
     observableId: string,
-    callback: (observableId: string, nodeName: string, nodeState: string) => void,
+    callback: (nodeName: string, nodeState: string, touchedNodes : any) => void,
   ) => {
     this.nodeStateObservables.push({
       callback: callback,

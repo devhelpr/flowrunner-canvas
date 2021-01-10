@@ -39,6 +39,7 @@ export interface ShapeTypeProps {
   selectedNode: any;
 
   canvasComponentInstance: any;
+  touchedNodes: any;
 }
 
 export interface ThumbPosition {
@@ -95,6 +96,8 @@ export interface LineTypeProps {
   endNodeName: string;
   opacity?: number;
   noMouseEvents: boolean;
+  touchedNodes? : any;
+  name?: string;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';

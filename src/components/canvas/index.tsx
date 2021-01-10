@@ -110,7 +110,6 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 		this.shapeRefs = [];
 		this.shapeRefs[this.connectionForDraggingName] = React.createRef();
-		
 	}
 
 
@@ -179,8 +178,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		this.props.flowrunnerConnector.registerNodeStateObserver("canvas", this.nodeStateObserver);
 	}
 
-	nodeStateObserver = (nodeName: string, nodeState : string) => {
+	touchedNodes = {};
+	nodeStateObserver = (nodeName: string, nodeState : string, touchedNodes : any) => {
 		this.props.setNodeState(nodeName, nodeState);
+		this.touchedNodes = touchedNodes || {};
 	}
 
 	connectionForDraggingName = "_connection-dragging";
@@ -1441,6 +1442,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
+	oldwheeltime = 0;
 	wheelEvent(e) {
 
 		if (e.toElement && e.toElement.closest) {
@@ -1459,7 +1461,20 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			let stage = (this.stage.current as any).getStage();
 			//if (this.refs.stage !== undefined) {
 
-			let scaleBy = 1.03;
+			// workaround to get at least faster zooming with big flows
+			// its not buttery smooth but it will have to do for now
+			let scaleBy = 1.23;
+			if (this.oldwheeltime == 0) {
+				scaleBy = 1.03;
+			} else {
+				const timeDiff = performance.now() - this.oldwheeltime;
+				if (timeDiff > 50) {
+					scaleBy = 1.23;
+				} else {
+					scaleBy = 1.03 + (0.2 * timeDiff/50);
+				} 
+			}
+
 			//let stage = (this.refs.stage as any).getStage();
 			if (stage !== undefined && stage.getPointerPosition() !== undefined) {
 				const oldScale = stage.scaleX();
@@ -1480,7 +1495,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					x: -(mousePointTo.x - stage.getPointerPosition().x / newScale),
 					y: -(mousePointTo.y - stage.getPointerPosition().y / newScale)
 				};
-
+				
 				stage.position(newPos);
 				stage.batchDraw();
 
@@ -1490,11 +1505,11 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 				this.setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
 
-				setTimeout(() => {
-					this.saveEditorState(stage.scale().x, stage.x(), stage.y())
-				}, 1);
+				
 			}
+			this.oldwheeltime = performance.now();
 		}
+		return false;
 	}
 
 	updateDimensions() {
@@ -2435,6 +2450,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
 									getNodeInstance={this.props.getNodeInstance}
+									touchedNodes={this.touchedNodes}
 								></Shape>
 								{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <Thumbs
 									key={"node-thumb-" + index} 

@@ -11,6 +11,7 @@ import { getLines } from './line-helper';
 export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	let rect : any = undefined;	
+	let textRef : any = undefined;
 	let skewX = 0;
 	let skewXOffset = 0;
 	let includeSvgIcon = false;
@@ -28,13 +29,17 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	}
 	
 	useEffect(() => {
-		if (rect) {
+		if (rect) {			
 			rect.skew({
 				x: skewX,
 				y: 0
 			});
+			rect.cache();
 		}
 
+		if (textRef) {
+			textRef.cache();
+		}
 		
 	});
 
@@ -46,6 +51,10 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				y: 0
 			});
 		}
+	}	
+
+	const setTextRef =  (ref) => {
+		textRef = ref;		
 	}	
 
 	return <>
@@ -77,6 +86,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				x={skewXOffset}
 				y={0}
 				stroke={settings.strokeColor}
+				hitStrokeWidth={0}			
 				strokeWidth={4}
 				cornerRadius={settings.cornerRadius}
 				width={ShapeMeasures.rectWidht}
@@ -98,6 +108,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				y={8} 
 			/>}
 			<Text
+				ref={ref => (setTextRef(ref))}
 				x={0}
 				y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
 				text={props.node && props.node.label ? props.node.label : props.name}
@@ -110,7 +121,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				wrap="none"
 				ellipsis={true}
 				fill={settings.textColor}
-				perfectDrawEnabled={true}>
+				perfectDrawEnabled={false}>
 			</Text>									
 		</Group>		
 		{
@@ -124,7 +135,8 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 					props.shapeRefs,props.onLineMouseOver,
 					props.onLineMouseOut,
 					props.onClickLine,
-					props.canvasComponentInstance
+					props.canvasComponentInstance,
+					props.touchedNodes
 			)
 		}
 	</>

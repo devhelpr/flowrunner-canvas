@@ -697,6 +697,7 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
     payload: { ...payload, nodeExecutionId: uuidV4() },
     name: id,
     nodeType: nodeType,
+    touchedNodes: flow.getTouchedNodes()
   });
 };
 

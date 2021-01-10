@@ -69,7 +69,8 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 					props.onLineMouseOver,
 					props.onLineMouseOut,
 					props.onClickLine,
-					props.canvasComponentInstance
+					props.canvasComponentInstance,
+					props.touchedNodes
 			)
 		}
 	</>

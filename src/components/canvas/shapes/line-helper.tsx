@@ -13,10 +13,10 @@ export const getLines = (
 		onLineMouseOver,
 		onLineMouseOut,
 		onClickLine,
-		canvasComponentInstance
+		canvasComponentInstance,
+		touchedNodes
 	) => {
-	return flow.map((lineNode, index) => {
-		
+	return flow.map((lineNode, index) => {		
 		if (lineNode.startshapeid == node.name && lineNode.shapeType === "Line") {
 
 			/*
@@ -34,7 +34,7 @@ export const getLines = (
 			}, endNode, getNodeInstance);
 
 			return <Line key={"node-"+index}
-				ref={shapeRefs[lineNode.name]}
+				ref={shapeRefs[lineNode.name]}									
 				onMouseOver={onLineMouseOver.bind(canvasComponentInstance, lineNode)}
 				onMouseOut={onLineMouseOut.bind(canvasComponentInstance, lineNode)}
 				onClickLine={onClickLine.bind(canvasComponentInstance, lineNode)}
@@ -53,7 +53,9 @@ export const getLines = (
 					selectedNode.node ?selectedNode.node.name : ""}
 				startNodeName={lineNode.startshapeid}
 				endNodeName={lineNode.endshapeid}
-				noMouseEvents={false}												
+				noMouseEvents={false}	
+				touchedNodes={touchedNodes}
+				name={lineNode.name}											
 			></Line>;
 		} 
 		return null;

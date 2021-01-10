@@ -102,6 +102,11 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}
 */
+	let dash : any[] = [];
+	if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
+		dash = [5,10];
+	}
+
 	return <Group listening={!props.noMouseEvents}>
 		<KonvaLine
 		 	ref={ref} 
@@ -115,6 +120,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			pointerWidth={10}
 			lineCap="round"
 			lineJoin="round"
+			dash={dash}
 			fill={fillColor} 
 			opacity={props.opacity !== undefined ? props.opacity : opacity}
 			tension={0}

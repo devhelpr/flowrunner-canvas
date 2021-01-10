@@ -92,7 +92,8 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 					props.onLineMouseOver,
 					props.onLineMouseOut,
 					props.onClickLine,
-					props.canvasComponentInstance
+					props.canvasComponentInstance,
+					props.touchedNodes
 			)
 		}
 	</>

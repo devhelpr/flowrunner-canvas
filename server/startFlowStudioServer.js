@@ -416,7 +416,9 @@ function start(flowFileName, taskPlugins, options) {
 			}).then(json => {
 				console.log("api proxy", json);
 				res.send(json);
-			})
+			}).catch(() => {
+				res.send({});
+			});
 			
 		});
 
