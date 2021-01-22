@@ -690,6 +690,11 @@ const taskTypeConfig: any = {
                   fieldType: "text"
                 }
               ]
+            },
+            ,
+            {
+              fieldName: "visibilityCondition",
+              fieldType: "textarea"
             }
           ]
         }
