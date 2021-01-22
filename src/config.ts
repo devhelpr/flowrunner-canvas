@@ -56,6 +56,7 @@ const taskTypeConfig: any = {
       withValue: '',
       usingCondition: 'equals, not-equals, smaller, bigger, smaller-or-equal, bigger-or-equal',
       dataType: 'string',
+      dontTriggerOnEmptyValues: true
     },
     _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
@@ -627,9 +628,73 @@ const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     hasMetaInfoInNode: true,
+    hasConfigMenu: true,
     presetValues: {
       metaInfo: [],
     },
+    configMenu: {
+      fields: [
+        {
+          fieldName: 'metaInfo',
+          fieldType: 'objectList',
+          metaInfo : [
+            {
+              fieldName: "fieldName",
+              fieldType: "text"
+            },
+            {
+              fieldName: "fieldType",
+              fieldType: 'select',
+              options: [
+                {
+                  value: 'text',
+                  label: 'Text Input'
+                },
+                {
+                  value: 'radiobutton',
+                  label: 'Radiobuttons'
+                },
+                {
+                  value: 'checkbox',
+                  label: 'Checkbox'
+                },
+                {
+                  value: 'textarea',
+                  label: 'Textarea'
+                },
+                {
+                  value: 'slider',
+                  label: 'Slider'
+                },
+                {
+                  value: 'select',
+                  label: 'Select'
+                }
+              ]
+            },
+            {
+              fieldName: "label",
+              fieldType: "text"
+            },
+            {
+              visibilityCondition: "(fieldType=='radiobutton')",
+              fieldName: "options",
+              fieldType: "objectList",
+              metaInfo : [
+                {
+                  fieldName: "value",
+                  fieldType: "text"
+                },
+                {
+                  fieldName: "label",
+                  fieldType: "text"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+    }
   },
   DebugTask: {
     shapeType: 'Html',

@@ -145,7 +145,7 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 			<Modal 
 				show={true} 
 				centered 
-				size="lg" 
+				size="xl" 
 				container={this.ref.current}>
 				<Modal.Header>
 					<Modal.Title>Edit Node JSON</Modal.Title>
@@ -154,7 +154,7 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 				<Modal.Body>
 					<div className="form-group">
 						<label>Node JSON</label>
-						<textarea className="form-control" rows={8} 
+						<textarea className="form-control edit-popup__json" rows={8} 
 							value={this.state.value} 
 							onChange={(e) => {this.setState({value: e.target.value})}}
 						></textarea>

@@ -2,7 +2,6 @@ const ctx: Worker = self as any;
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 
-import { ExpressionTask } from '@devhelpr/flowrunner-expression';
 import fetch from 'cross-fetch';
 import { replaceValues } from './helpers/replace-values';
 import * as uuid from 'uuid';
@@ -612,7 +611,7 @@ const onWorkerMessage = event => {
       if (!flow) {
         return;
       }
-      flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value);
+      flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value, data.additionalValues || {});
 
       if (data.executeNode !== undefined && data.executeNode !== '') {
         flow
@@ -689,16 +688,21 @@ const onWorkerMessage = event => {
   }
 };
 
+let lastDate = new Date();
+
 const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
-  ctx.postMessage({
-    command: 'SendNodeExecution',
-    result: result,
-    dateTime: dateTime,
-    payload: { ...payload, nodeExecutionId: uuidV4() },
-    name: id,
-    nodeType: nodeType,
-    touchedNodes: flow.getTouchedNodes()
-  });
+  //if (dateTime >= lastDate) {
+    lastDate = dateTime;
+    ctx.postMessage({
+      command: 'SendNodeExecution',
+      result: result,
+      dateTime: dateTime,
+      payload: { ...payload, nodeExecutionId: uuidV4() },
+      name: id,
+      nodeType: nodeType,
+      touchedNodes: flow.getTouchedNodes()
+    });
+  //}
 };
 
 const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true) => {
@@ -722,7 +726,6 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   flow.registerTask('InputTask', InputTask);
   flow.registerTask('TimerTask', TimerTask);
   flow.registerTask('RandomTask', RandomTask);
-  flow.registerTask('ExpressionTask', ExpressionTask);
   flow.registerTask('OutputValueTask', OutputValueTask);
   flow.registerTask('ApiProxyTask', ApiProxyTask);
   flow.registerTask('MapPayloadTask', MapPayloadTask);

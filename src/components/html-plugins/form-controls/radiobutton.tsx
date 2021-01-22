@@ -11,9 +11,13 @@ export interface IRadioButtonOption {
 export const RadioButton = (props: IFormControlProps) => {
 	const {metaInfo, node} = props;
 	let formControl = useFormControl(props.value, metaInfo, props.onChange);
-		
+
+	useEffect(() => {
+		formControl.setValue(props.value);
+	}, [props.value]);
+
 	return <div className="form-group">						
-		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
+		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 		<div className="mb-1">
 			{metaInfo && (props.datasource || metaInfo.options || []).map((option : IRadioButtonOption, index) => {
 				return <React.Fragment key={"radiobutton"+index}>

@@ -17,19 +17,27 @@ const uuidV4 = uuid.v4;
 
 
 /*
-	import { useSelector } from 'react-redux'
-	import { useDispatch } from 'react-redux'
+
+	Limitations
+
+		- can currently have only 1 datasource per form
 
 
-	export const CounterComponent = () => {
-		const counter = useSelector(state => state.counter);
-		const dispatch = useDispatch();
-		return <><div>{counter}</div>
-			<button onClick={() => dispatch({ type: 'increment-counter' })}>
-				Increment counter
-			</button>
-		</>
-	}
+	Example redux and hooks
+
+		import { useSelector } from 'react-redux'
+		import { useDispatch } from 'react-redux'
+
+
+		export const CounterComponent = () => {
+			const counter = useSelector(state => state.counter);
+			const dispatch = useDispatch();
+			return <><div>{counter}</div>
+				<button onClick={() => dispatch({ type: 'increment-counter' })}>
+					Increment counter
+				</button>
+			</>
+		}
 */
 export class FormNodeHtmlPluginInfo {
 
@@ -65,15 +73,19 @@ export class FormNodeHtmlPluginInfo {
 
 
 export interface FormNodeHtmlPluginProps {
-	flowrunnerConnector : IFlowrunnerConnector;
+	flowrunnerConnector? : IFlowrunnerConnector;
 	node : any;
-	flow: any;
-	taskSettings : any;
+	flow? : any;
+	taskSettings? : any;
 
-	selectedNode: any;
-	canvasMode: ICanvasMode;
+	selectedNode?: any;
+	canvasMode?: ICanvasMode;
+
+	isObjectListNodeEditing? : boolean;
+	isReadOnly? : boolean;
 
 	isNodeSettingsUI? : boolean;
+
 	onSetValue? : (value, fieldName) => void;
 	storeFlowNode: (node, orgNodeName) => void;
 }
@@ -124,36 +136,40 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 					this.setState({node: this.props.node, value : this.props.node.value || this.props.node.defaultValue || ""});
 				}
 			} else {
-				this.props.flowrunnerConnector.modifyFlowNode(
-					this.props.node.name, 
-					this.props.node.propertyName, 
-					this.props.node.defaultValue || "",
-					""
-				);
-				this.setState({node: this.props.node, value : this.props.node.defaultValue || ""});
+				if (this.props.node.taskType == "FormTask") {
+					this.props.flowrunnerConnector?.modifyFlowNode(
+						this.props.node.name, 
+						this.props.node.propertyName, 
+						this.props.node.defaultValue || "",
+						""
+					);
+				}
+				this.setState({node: this.props.node, values: [], value : this.props.node.defaultValue || ""});
 			}
 		}
 
-		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+		this.props.flowrunnerConnector?.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 
 	}
 
 	componentDidUpdate(prevProps : FormNodeHtmlPluginProps) {
 		if (prevProps.node !== this.props.node) {
 			this.setState({
-				node: this.props.node 
+				node: this.props.node,				
 			});
 		}
 
 		if (prevProps.flow != this.props.flow) {
-			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
-			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+			this.props.flowrunnerConnector?.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
+			this.props.flowrunnerConnector?.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+
+			this.setState({values: []});
 		}
 
 		if (!prevProps || !prevProps.node || 
 			(prevProps.node.name != this.props.node.name)) {
-			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
-			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+			this.props.flowrunnerConnector?.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
+			this.props.flowrunnerConnector?.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
 		}
 
 	}
@@ -166,7 +182,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			this.throttleTimer = undefined;
 		}
 
-		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
+		this.props.flowrunnerConnector?.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
 	}
 
 	timer : any;
@@ -195,7 +211,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			if (payload.debugCommand  === "resetPayloads") {
 				this.setState((state, props) => {
 					return {
-						receivedPayload: {}
+						receivedPayload: {}						
 					}
 				})
 			}
@@ -249,6 +265,12 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 					});
 				}, 30);
 			}
+		} else {
+			this.setState((state, props) => {
+				return {
+					receivedPayload: payload
+				}
+			});
 		}
 		return;
 	}
@@ -272,6 +294,9 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		let errors = {};
 
 		let metaInfo : any[] = [];
+		if (!!this.props.isObjectListNodeEditing) {
+			metaInfo = this.props.node.metaInfo || [];
+		} else
 		if (!!this.props.isNodeSettingsUI) {
 			metaInfo = this.props.taskSettings.configMenu.fields
 		} else {
@@ -282,6 +307,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				metaInfo = this.props.node.metaInfo || [];
 			}
 		}
+		
 
 		(metaInfo || []).map((metaInfo) => {
 			if (metaInfo && !!metaInfo.required) {
@@ -310,9 +336,18 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			if (metaInfo.fieldType == "date") {
 				console.log("setValue date", value);
 			}
-
+			let clearValues = {};
+			if (this.state.values[fieldName] === undefined || value != this.state.values[fieldName]) {
+				if (metaInfo.clearFields) {
+					metaInfo.clearFields.map((fieldName) => {
+						clearValues[fieldName] = "";
+					})
+				}
+			}
+			console.log("setValueViaOnReceive", metaInfo.fieldName, clearValues);
 			this.setState({values : {
-					...this.state.values,				
+					...this.state.values,
+					...clearValues,			
 					[fieldName]: value
 				},
 				errors: errors, 	
@@ -321,20 +356,26 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 					[fieldName]: value
 				}
 			}, () => {
-				console.log("this.props.node.name",this.props.node.name, this.state.node);
-				if (!this.props.isNodeSettingsUI) {
+				console.log("this.props.node.name",value,this.props.node.name, this.state);
+				if (!this.props.isNodeSettingsUI && !this.props.isObjectListNodeEditing) {
 					if (this.props.node.taskType == "FormTask") {
-						this.props.flowrunnerConnector.modifyFlowNode(
+						console.log("here1");
+						this.props.flowrunnerConnector?.modifyFlowNode(
 							this.props.node.name, 
 							fieldName, 
 							value,
-							this.props.node.name
+							this.props.node.name,
+							'',
+							this.state.values
 						);
 					} else {
+						console.log("here2");
 						this.props.storeFlowNode(this.state.node, this.props.node.name);
 					}
 					
 				} else if (this.props.onSetValue) {
+					console.log("here3");
+
 					this.props.onSetValue(value, fieldName);
 				}
 			});
@@ -365,7 +406,6 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			this.setValue(fieldName, valueForNode, metaInfo);
 		}
 		
-
 		return false;
 	}
 
@@ -376,8 +416,19 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				delete errors[metaInfo.fieldName];
 			}			
 
+			let clearValues = {};
+			if (this.state.values[metaInfo.fieldName] === undefined || value != this.state.values[metaInfo.fieldName]) {
+				if (metaInfo.clearFields) {
+					metaInfo.clearFields.map((fieldName) => {
+						clearValues[fieldName] = "";
+					})
+				}
+			}
+			console.log("setValueViaOnReceive", metaInfo.fieldName, clearValues);
+
 			this.setState({values : {
-					...this.state.values,				
+					...this.state.values,
+					...clearValues,				
 					[metaInfo.fieldName]: value
 				},
 				errors: errors, 	
@@ -386,13 +437,19 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 					[metaInfo.fieldName]: value
 				}
 			}, () => {
-				if (!this.props.isNodeSettingsUI) {
+				if (!this.props.isNodeSettingsUI && !this.props.isObjectListNodeEditing) {
 					if (this.props.node.taskType == "FormTask") {
-						this.props.flowrunnerConnector.modifyFlowNode(
+
+						// TODO : this should also push through all fields from this formnode
+						// 		kan dat de hele state.values zijn ?
+
+						this.props.flowrunnerConnector?.modifyFlowNode(
 							this.props.node.name, 
 							metaInfo.fieldName, 
 							value,
-							this.props.node.name
+							this.props.node.name,
+							'',
+							this.state.values
 						);
 					} else { 					
 						this.props.storeFlowNode(this.state.node, this.props.node.name);
@@ -438,74 +495,115 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
 				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
 			}
-			if (!!this.props.taskSettings.hasMetaInfoInNode) {
+			if (!!this.props.isObjectListNodeEditing || 
+				!!this.props.taskSettings.hasMetaInfoInNode) {
 				metaInfo = this.props.node.metaInfo || [];
 			}
+		}
+
+		const renderFields = () => {
+			return <>
+				{metaInfo.map((metaInfo, index) => {
+					const fieldType = this.getFieldType(metaInfo);
+					if (metaInfo.visibilityCondition) {				
+						console.log("visibilityCondition", this.state, this.props);				
+						const expression = createExpressionTree(metaInfo.visibilityCondition);
+						let data = {};
+						if (!!this.props.isObjectListNodeEditing) {
+							data = {...this.props.node, ...this.state.receivedPayload, ...this.state.values};
+						} else {
+							data = {...this.state.receivedPayload, ...this.state.values};
+						}
+						const result = executeExpressionTree(expression, data);
+						if (!result) {
+							return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
+						}								
+					}
+					if (!fieldType || fieldType == "text" || fieldType == "color" || fieldType == "date") {
+						if (!!this.props.isReadOnly) {
+							return <React.Fragment key={"index-f-r-" + index}>
+								<div className="form-group">						
+									<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong></label>
+									<div className="">{this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || ""}</div>
+								</div>
+							</React.Fragment>
+						}						
+						return <React.Fragment key={"index-f-" + index}>
+								<div className="form-group">						
+									<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>
+									<div className="input-group mb-1">
+										<input
+											onChange={this.onChange.bind(this, metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo)}
+											key={"index" + index}
+											type={fieldType}
+											className="form-control"
+											value={this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || ""}
+											id={"input-" + this.props.node.name + "-" +metaInfo.fieldName}
+											data-index={index}
+											disabled={!!this.props.canvasMode?.isFlowrunnerPaused}													 
+										/>			
+									</div>
+									{this.state.errors[metaInfo.fieldName] && <div className="text-danger">{this.state.errors[metaInfo.fieldName]}</div>}
+								</div>
+						</React.Fragment>
+					}
+					if (fieldType) {
+						let datasource : any;
+
+						if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
+							datasource = this.props.canvasMode?.flowsPlayground;
+						} else
+						if (metaInfo.datasource == "[WASMFLOW]") {
+							datasource = this.props.canvasMode?.flowsWasm;
+						} else
+						if (metaInfo.datasource && this.state.datasource[metaInfo.datasource]) {
+							datasource = this.state.datasource[metaInfo.datasource];
+						}
+
+						if (!!this.props.isReadOnly) {
+							let data = "";
+							if (metaInfo.fieldType == "objectList") {
+								data = "[Object]";
+							} else {
+								data = this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || "";
+							}
+							return <React.Fragment key={"index-f-r-" + index}>
+								<div className="form-group">						
+									<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong></label>
+									<div className="">{data}</div>
+								</div>
+							</React.Fragment>
+						}	
+
+						return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{
+							value: this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || "",
+							onChange: this.onReceiveValue,
+							node: this.props.node,
+							fieldName: metaInfo.fieldName,
+							fieldType: metaInfo.fieldType,
+							metaInfo: metaInfo,
+							datasource : datasource
+						})}</React.Fragment>
+					}
+					return null;
+				})}
+				{!this.props.isReadOnly && !this.props.isObjectListNodeEditing &&
+					<button className="d-none">OK</button>}
+			</>; 
 		}
 		return <div className="html-plugin-node" style={{			
 				backgroundColor: "white"
 			}}>
 			<div className={"w-100 h-auto"}>
-				<form className="form" onSubmit={this.onSubmit}>
-					<>
-						{metaInfo.map((metaInfo, index) => {
-							const fieldType = this.getFieldType(metaInfo);
-							if (metaInfo.visibilityCondition) {
-								const expression = createExpressionTree(metaInfo.visibilityCondition);
-								const result = executeExpressionTree(expression, this.state.values);
-								if (!result) {
-									return <React.Fragment key={"index-f-" + index}></React.Fragment>;
-								}								
-							}
-							if (!fieldType || fieldType == "text" || fieldType == "color" || fieldType == "date") {						
-								return <React.Fragment key={"index-f-" + index}>
-										<div className="form-group">						
-											<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>
-											<div className="input-group mb-1">
-												<input
-													onChange={this.onChange.bind(this, metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo)}
-													key={"index" + index}
-													type={fieldType}
-													className="form-control"
-													value={this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || ""}
-													id={"input-" + this.props.node.name + "-" +metaInfo.fieldName}
-													data-index={index}
-													disabled={!!this.props.canvasMode.isFlowrunnerPaused}													 
-												/>			
-											</div>
-											{this.state.errors[metaInfo.fieldName] && <div className="text-danger">{this.state.errors[metaInfo.fieldName]}</div>}
-										</div>
-								</React.Fragment>
-							}
-							if (fieldType) {
-								let datasource : any;
-
-								if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
-									datasource = this.props.canvasMode.flowsPlayground;
-								} else
-								if (metaInfo.datasource == "[WASMFLOW]") {
-									datasource = this.props.canvasMode.flowsWasm;
-								} else
-								if (metaInfo.datasource && this.state.datasource[metaInfo.datasource]) {
-									datasource = this.state.datasource[metaInfo.datasource];
-								}
-
-								return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{
-									value: this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || "",
-									onChange: this.onReceiveValue,
-									node: this.props.node,
-									fieldName: metaInfo.fieldName,
-									fieldType: metaInfo.fieldType,
-									metaInfo: metaInfo,
-									datasource : datasource
-								})}</React.Fragment>
-							}
-							return null;
-						})}
-						<button className="d-none">OK</button>
-					</> 
-																				
+				{!!this.props.isObjectListNodeEditing ?
+				<div className="form">
+					{renderFields()}
+				</div>
+				:
+				<form className="form" onSubmit={this.onSubmit}>				
+					{renderFields()}
 				</form>
+				}
 			</div>
 		</div>;
 	}

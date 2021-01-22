@@ -46,6 +46,7 @@ export class FormTask extends ObservableTask {
           isValid = false;
         }
       });
+      console.log("form task", values);
       let payload = { ...node.payload, ...values };
       payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
       super.execute({ ...node, sendNodeName: true, payload: payload }, services);

@@ -51,6 +51,8 @@ export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : bool
 					opacity: 1,
 					position: "relative"						 
 				}}
+			id={node.name}
+			data-task={node.taskType}
 			data-node={node.name}
 			data-html-plugin={nodeClone.htmlPlugin}
 			data-node-type={node.taskType}
@@ -83,31 +85,35 @@ export const renderLayoutType = (layoutBlock : any,
 		}
 		return <div className="layout-container__layout2columns">
 				<div className="row">
-					<div className="col-12 col-md-6 ui-view-layout__container-row layout-container__layout2columns-col-1">
-					{layoutBlock.layout[0].map((layout, index) => {
-						return <React.Fragment key={"layout-" + index}>
-							<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
-								layout,
-								isInForm,
-								form, 
-								setLayoutVisibleState,
-								rootLayout
-							)}
-							</div>
-						</React.Fragment>})}
+					<div className="col-12 col-md-6">
+						<div className="ui-view-layout__container-row layout-container__layout2columns-col-1">
+							{layoutBlock.layout[0].map((layout, index) => {
+								return <React.Fragment key={"layout-" + index}>
+									<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
+										layout,
+										isInForm,
+										form, 
+										setLayoutVisibleState,
+										rootLayout
+									)}
+									</div>
+								</React.Fragment>})}
+						</div>
 					</div>
-					<div className="col-12 col-md-6 ui-view-layout__container-row layout-container__layout2columns-col-2">
-					{layoutBlock.layout[1].map((layout, index) => {
-						return <React.Fragment key={"layout-" + index}>
-							<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
-								layout,
-								isInForm,
-								form, 
-								setLayoutVisibleState,
-								rootLayout
-							)}
-							</div>
-						</React.Fragment>})}
+					<div className="col-12 col-md-6 ">
+						<div className="ui-view-layout__container-row layout-container__layout2columns-col-2">
+							{layoutBlock.layout[1].map((layout, index) => {
+								return <React.Fragment key={"layout-" + index}>
+									<div className="ui-view-layout__container d-flex flex-row justify-content-center">{renderLayoutType(
+										layout,
+										isInForm,
+										form, 
+										setLayoutVisibleState,
+										rootLayout
+									)}
+									</div>
+								</React.Fragment>})}
+						</div>
 					</div>
 				</div>
 			</div>;

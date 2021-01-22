@@ -450,6 +450,14 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 		if (selectedNode && selectedNode.node) {
 			shapeType = FlowToCanvas.getShapeType(selectedNode.node.shapeType, selectedNode.node.taskType, selectedNode.node.isStartEnd);
 		}
+		/*
+			{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && 
+				<TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>
+			}
+			{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && 
+				<a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>
+			}
+		*/
 		return <>
 			<div className="bg-dark sticky-top toolbar__root">
 				<div className="toolbar__container">
@@ -479,12 +487,7 @@ class ContainedToolbar extends React.Component<ToolbarProps, ToolbarState> {
 									{this.props.canvasMode.flowType === "rustflowrunner" && this.props.canvasMode.editorMode === "canvas" && 
 										<img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />
 									}
-									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && 
-										<TaskSelector flowrunnerConnector={this.props.flowrunnerConnector} selectTask={this.onSelectTask}></TaskSelector>
-									}
-									{!!!selectedNode.name && this.props.canvasMode.editorMode === "canvas" && 
-										<a href="#" onClick={this.addNode} className="mx-2 btn btn-outline-light">Add</a>
-									}
+									
 									{!!selectedNode.name && selectedNode.node.shapeType !== "Line" && 
 										<a href="#" onClick={this.editNode} className="mx-2 btn btn-outline-light">Edit</a>
 									}

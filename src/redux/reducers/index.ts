@@ -1,6 +1,7 @@
 import { flowReducer } from './flow-reducers';
 import { nodeReducer } from './node-reducers';
 import { nodeStateReducer } from './node-state-reducers';
+import { nodesTouchedReducer } from './nodes-touched-reducers';
 import { canvasModeReducer } from './canvas-mode-reducers';
 import { layoutReducer } from './layout-reducers';
 
@@ -10,4 +11,5 @@ export const reducers = {
   canvasMode: canvasModeReducer,
   layout: layoutReducer,
   nodeState: nodeStateReducer,
+  nodesTouched: nodesTouchedReducer
 };

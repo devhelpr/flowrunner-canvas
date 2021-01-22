@@ -175,6 +175,11 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 	componentDidMount() {
 
 		this.props.flowrunnerConnector.registerScreenUICallback(this.screenUICallback);
+
+		this.props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+		this.props.flowrunnerConnector.registerNodeStateObserver("canvas", this.nodeStateObserver);
+
+
 		const paths = location.pathname.split("/");
 
 		if (this.props.flowrunnerConnector.hasStorageProvider) {
@@ -256,9 +261,50 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 			});
 		}
 
+		this.updateTouchedNodes();
+
 	}
 
-	// todo : create layout for Layout via tree..
+	unmounted = false;
+	componentWillUnmount() {
+		this.unmounted = true;
+		this.props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+
+	}
+
+	nodeStateStore : any = {};
+	touchedNodes : any = {};
+
+
+	updateTouchedNodes = () => {
+		if (this.touchedNodes) {
+			//console.log("touchedNodes", this.touchedNodes);
+			Object.keys(this.touchedNodes).map((touchNodeId: string) => {
+				const element = document.getElementById(touchNodeId);
+				if (element) {
+					if (this.touchedNodes[touchNodeId] === true) {
+						element.classList.remove("untouched");
+					} else {
+						element.classList.add("untouched");
+					}
+
+					
+				}
+			})
+		}
+	}
+	nodeStateObserver = (nodeName: string, nodeState : string, touchedNodes : any) => {
+
+		// TODO : check if nodeSate is the same as currentstate.. only set when it is different
+		//let currentNodeState = this.props.nodeState["nodeName"];
+		this.nodeStateStore[nodeName] = nodeState;
+		
+		//
+		// TODO : dont handle this by state/reducer but directly
+		//this.props.setNodesTouched(touchedNodes);
+		this.touchedNodes = touchedNodes;
+		this.updateTouchedNodes();
+	}
 
 	render() {
 		if (!this.state.isFlowLoaded) {
@@ -295,7 +341,7 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 		}
 		console.log("state", this.state,style);
 
-		return <div className="pb-4">
+		return <div className="pb-4 container__background">
 			<div style={style} className={navContainerClassName}>
 				<nav style={style} className={navbarClassName}>
 					<h1 className={h1ClassName}>{title}</h1>

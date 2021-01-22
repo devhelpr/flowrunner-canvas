@@ -36,7 +36,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string) => {};
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string, additionalValues?: any) => {};
 
   isActiveFlowRunner = () => {
     return false;
@@ -128,11 +128,11 @@ export class FlowConnector implements IFlowrunnerConnector {
         }
       } else if (event.data.command == 'SendNodeExecution') {
         if (event.data) {
-          if (this.nodeState[event.data.name] === undefined || this.nodeState[event.data.name] != event.data.result) {
+          //if (this.nodeState[event.data.name] === undefined || this.nodeState[event.data.name] != event.data.result) {
             this.nodeStateObservables.map((callbackInfo, index) => {
               callbackInfo.callback(event.data.name, event.data.result, event.data.touchedNodes);
             });
-          }
+         //}
           this.nodeState[event.data.name] = event.data.result;
         }
 
@@ -352,7 +352,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     }
   };
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string) => {
+  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string, additionalValues?: any) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
         this.worker.postMessage({
@@ -362,6 +362,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           value: value,
           executeNode: executeNode || '',
           triggerEvent: eventName || '',
+          additionalValues: additionalValues
         });
       }
     }

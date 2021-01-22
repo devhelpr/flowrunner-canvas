@@ -23,6 +23,8 @@ import { CustomCodeTask } from '../flowrunner-plugins/custom-code-task';
 import { DebugTask } from '../flowrunner-plugins/debug-task';
 import { GroupAndSumTask } from '../flowrunner-plugins/group-and-sum-task';
 
+import { ExpressionTask } from '../flowrunner-plugins/expression-task';
+
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);
@@ -47,4 +49,5 @@ export const registerTasks = flow => {
   flow.registerTask('CustomCodeTask', CustomCodeTask);
   flow.registerTask('DebugTask', DebugTask);
   flow.registerTask('GroupAndSumTask', GroupAndSumTask);
+  flow.registerTask('ExpressionTask', ExpressionTask);
 };

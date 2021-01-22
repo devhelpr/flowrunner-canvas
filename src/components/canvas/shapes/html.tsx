@@ -5,7 +5,7 @@ import { Group, Rect as KonvaRect } from 'react-konva';
 import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
-import { getLines } from './line-helper';
+import { Lines } from './line-helper';
 
 export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 
@@ -54,21 +54,19 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				opacity={0}  
 				perfectDrawEnabled={false}></KonvaRect>		
 		</Group>
-		{getLines(
-				props.flow, 
-				props.node,
-				props.getNodeInstance,
-				props.canvasHasSelectedNode,
-				props.selectedNode,
-				props.isSelected,
-				props.shapeRefs,
-				props.onLineMouseOver,
-				props.onLineMouseOut,
-				props.onClickLine,
-				props.canvasComponentInstance,
-				props.touchedNodes
-		)
-		}
+		<Lines flow={props.flow}
+				node={props.node}
+				getNodeInstance={props.getNodeInstance}
+				canvasHasSelectedNode={props.canvasHasSelectedNode}
+				selectedNode={props.selectedNode}
+				isSelected={props.isSelected}
+				shapeRefs={props.shapeRefs}
+				onLineMouseOver={props.onLineMouseOver}
+				onLineMouseOut={props.onLineMouseOut}
+				onClickLine={props.onClickLine}
+				canvasComponentInstance={props.canvasComponentInstance}
+				touchedNodes={props.touchedNodes}
+		></Lines>	
 	</>;
 });
 

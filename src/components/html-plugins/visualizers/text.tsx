@@ -47,11 +47,12 @@ export class Text extends React.Component<TextProps, TextState> {
 		}
 
 		if (!!this.props.node.asElement) {
-			return <Element cssClassName={this.props.node.cssClassName} tag={this.props.node.htmlElement} value={data}></Element>
+			return <Element cssClassName={this.props.node.cssClassName} tag={this.props.node.htmlElement} value={ data + afterLabel}></Element>
 		}
 		
 		return <div className="h-auto d-flex align-items-center">
-			<strong className="h1 font-weight-bolder">{data}{afterLabel}</strong>
+			{this.props.node.cssClassName ? <span className={this.props.node.cssClassName}>{data}{afterLabel}</span> :
+				<strong className={"h1 font-weight-bolder text-wrap" + this.props.node.cssClassName || ""}>{data}{afterLabel}</strong>}
 		</div>;
 	}
 }

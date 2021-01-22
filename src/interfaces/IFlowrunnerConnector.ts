@@ -24,6 +24,7 @@ export interface IFlowrunnerConnector {
     value: any,
     executeNode?: string,
     eventName?: string,
+    additionalValues?: any
   ) => void;
 
   getNodeExecutions: () => any[];

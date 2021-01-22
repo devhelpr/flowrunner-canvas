@@ -5,6 +5,8 @@ import { Input } from './input';
 import { CheckBox } from './checkbox';
 import { Textarea } from './textarea';
 import { InputSlider } from './input-slider';
+import { List } from './list';
+import { ObjectList } from './object-list';
 import { IFormControlProps } from './form-control-interface';
 
 const formControls = {
@@ -13,7 +15,9 @@ const formControls = {
 	radiobutton : RadioButton,
 	checkbox: CheckBox,
 	textarea: Textarea,
-	slider: InputSlider
+	slider: InputSlider,
+	list: List,
+	objectList: ObjectList
 }
 
 export const getFormControl = (formControl, props : IFormControlProps) => {

@@ -12,6 +12,10 @@ export const Select = (props: IFormControlProps) => {
 	const {metaInfo, node} = props;
 	let formControl = useFormControl(props.value, metaInfo, props.onChange);
 
+	useEffect(() => {
+		formControl.setValue(props.value);
+	}, [props.value]);
+	
 	/*useEffect(() => {
 		let isOptionFound = false;
 		let trigger = false;

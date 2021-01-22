@@ -941,6 +941,11 @@
   resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.8.tgz#53fd3f74dcce43e4578698adbdb89eda2f991a88"
   integrity sha512-v2H53kMlMdYEnDiJTBJZ0RZfD8s8i6xJhpNOLGVyDnN0+MDFQvCMBWVlMU1bAfUfpZjzzKEj8JiRteDKK+yTGA==
 
+"@devhelpr/expressionrunner@^0.2.9":
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.9.tgz#32d80a07febe1f3e5f46e5fb8b4f28432e738664"
+  integrity sha512-z0xZlaxH+2fsDyWb5NmiG//NDB/qCXgc0JaYLPva+EkqTxDa7NKdeCcZGftL1/ACoTZg0jPcQPxTWVyWMMlyLA==
+
 "@devhelpr/flowrunner-expression@^0.2.7":
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner-expression/-/flowrunner-expression-0.2.7.tgz#035f3cae632caae451cade12263cb3bc27b77224"
@@ -969,10 +974,10 @@
     rxjs-compat "^6.5.4"
     utility-types "^3.10.0"
 
-"@devhelpr/flowrunner@^0.10.18":
-  version "0.10.18"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.10.18.tgz#3dc41ba1ff7a09de699a30245b56e8cabf084a20"
-  integrity sha512-YS+LJ0pBj5e+kkKGkgjZixq5ReaxmDrn/Q0wOyFVfuOY5ygttu0DMFiZdL6WEiI6iOc7BKrcKDyBxk4DoEio2A==
+"@devhelpr/flowrunner@^0.10.26":
+  version "0.10.26"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.10.26.tgz#f8b444580b32e1c2f7c872bb2de2194816428588"
+  integrity sha512-c+Xohb4eZfyydQsALH6ADtaaTGcHKZNYbzNLPXw7FqCghl/3CTGs6xUkQn3Wu2TfowBai4Dd+retylZrjLi/qg==
   dependencies:
     "@reactivex/rxjs" "^6.4.0"
     "@types/uuid" "^3.4.4"
@@ -4588,10 +4593,10 @@ iferr@^0.1.5:
   resolved "https://registry.yarnpkg.com/iferr/-/iferr-0.1.5.tgz#c60eed69e6d8fdb6b3104a1fcbca1c192dc5b501"
   integrity sha1-xg7taebY/bazEEofy8ocGS3FtQE=
 
-immer@^6.0.1:
-  version "6.0.9"
-  resolved "https://registry.yarnpkg.com/immer/-/immer-6.0.9.tgz#b9dd69b8e69b3a12391e87db1e3ff535d1b26485"
-  integrity sha512-SyCYnAuiRf67Lvk0VkwFvwtDoEiCMjeamnHvRfnVDyc7re1/rQrNxuL+jJ7lA3WvdC4uznrvbmm+clJ9+XXatg==
+immer@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-8.0.1.tgz#9c73db683e2b3975c424fb0572af5889877ae656"
+  integrity sha512-aqXhGP7//Gui2+UrEtvxZxSquQVXTpZ7KDxfCcKAF3Vysvw0CViVaW9RZ1j1xlIYqaaaipBoqdqeibkc18PNvA==
 
 import-local@^3.0.2:
   version "3.0.2"

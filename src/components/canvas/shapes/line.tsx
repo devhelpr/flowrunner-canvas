@@ -15,6 +15,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	const [fillColor, setFillColor] = useState("#000000");
 	const [strokeWidth, setStrokeWidth] = useState(2);
 	const [opacity, setOpacity] = useState(1);
+	const [dash, setDash] = useState(props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5,10] : [1,1]);
 
 	useEffect(() => {
 		let _fillColor = props.isSelected ? "#606060" : "#000000";	
@@ -51,9 +52,25 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			}
 		}
 
+		let dash : any[] = [];
+		if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
+			dash = [5,10];
+			_strokeWidth = 8;
+			_opacity = 1;
+		} else {
+			_opacity = 0.5;
+		}
+
+
 		setFillColor(_fillColor);
 		setStrokeWidth(_strokeWidth);
 		setOpacity(_opacity);
+
+		if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
+			setDash([5,10]);
+		} else {
+			setDash([]);
+		}
 	},[props.isSelected, 
 		props.isErrorColor,
 		props.isSuccessColor,
@@ -63,7 +80,9 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		props.canvasHasSelectedNode,
 		props.selectedNodeName,
 		props.startNodeName,
-		props.endNodeName])
+		props.endNodeName,
+		props.touchedNodes
+	]);
 	
 
 	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend);
@@ -102,11 +121,6 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}
 */
-	let dash : any[] = [];
-	if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
-		dash = [5,10];
-	}
-
 	return <Group listening={!props.noMouseEvents}>
 		<KonvaLine
 		 	ref={ref} 

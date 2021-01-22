@@ -6,7 +6,7 @@ import { ShapeTypeProps } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { replaceValuesExpressions } from '../../../helpers/replace-values';
-import { getLines } from './line-helper';
+import { Lines } from './line-helper';
 
 export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
@@ -30,7 +30,6 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 		fillColor = props.isSelected ? "#54ff54" : "#9dff9d";
 	}
 	
-	console.log("props.nodeState diamond", props.nodeState);
 	return <>
 		<Group
 			x={props.x}
@@ -81,20 +80,18 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				perfectDrawEnabled={true}>
 			</Text>
 		</Group>
-		{
-			getLines(
-					props.flow, 
-					props.node,
-					props.getNodeInstance,
-					props.canvasHasSelectedNode,
-					props.selectedNode,
-					props.isSelected,props.shapeRefs,
-					props.onLineMouseOver,
-					props.onLineMouseOut,
-					props.onClickLine,
-					props.canvasComponentInstance,
-					props.touchedNodes
-			)
-		}
+		<Lines flow={props.flow}
+				node={props.node}
+				getNodeInstance={props.getNodeInstance}
+				canvasHasSelectedNode={props.canvasHasSelectedNode}
+				selectedNode={props.selectedNode}
+				isSelected={props.isSelected}
+				shapeRefs={props.shapeRefs}
+				onLineMouseOver={props.onLineMouseOver}
+				onLineMouseOut={props.onLineMouseOut}
+				onClickLine={props.onClickLine}
+				canvasComponentInstance={props.canvasComponentInstance}
+				touchedNodes={props.touchedNodes}
+		></Lines>	
 	</>
 });

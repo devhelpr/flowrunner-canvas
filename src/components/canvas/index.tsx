@@ -7,6 +7,7 @@ import { ThumbsStart }  from './shapes/thumbsstart';
 import { storeFlow, storeFlowNode, addConnection, addFlowNode,deleteConnection, deleteNode } from '../../redux/actions/flow-actions';
 import { selectNode } from '../../redux/actions/node-actions';
 import { setNodeState, clearNodeState } from '../../redux/actions/node-state-actions';
+import { setNodesTouched, clearNodesTouched } from '../../redux/actions/nodes-touched-actions';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, setSelectedTask, setSelectedTaskFunction } from '../../redux/actions/canvas-mode-actions';
@@ -44,6 +45,9 @@ export interface CanvasProps {
 	canvasMode: ICanvasMode;
 	nodeState : any;
 
+	nodesTouched: any;
+	setNodesTouched : (nodesTouched: any) => void;
+	clearNodesTouched: () => void;
 	setConnectiongNodeCanvasMode: setConnectiongNodeCanvasModeFunction;
 	setSelectedTask: setSelectedTaskFunction;
 	canvasToolbarsubject : Subject<string>;
@@ -59,7 +63,8 @@ const mapStateToProps = (state : any) => {
 		flow: state.flow,
 		selectedNode : state.selectedNode,
 		canvasMode: state.canvasMode,
-		nodeState : state.nodeState
+		nodeState : state.nodeState,
+		nodesTouched: state.nodesTouched
 	}
 }
 
@@ -74,7 +79,9 @@ const mapDispatchToProps = (dispatch : any) => {
 		setSelectedTask : (selectedTask : string) => dispatch(setSelectedTask(selectedTask)),
 		deleteConnection: (node) => dispatch(deleteConnection(node)),
 		deleteNode: (node) => dispatch(deleteNode(node)),
-		setNodeState : (nodeName, nodeState) => dispatch(setNodeState(nodeName, nodeState))
+		setNodeState : (nodeName, nodeState) => dispatch(setNodeState(nodeName, nodeState)),
+		setNodesTouched: (nodesTouched) => dispatch(setNodesTouched(nodesTouched)),
+		clearNodesTouched: (nodesTouched) => dispatch(clearNodesTouched())
 	}
 }
 
@@ -175,13 +182,76 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			});
 		}
 
+		this.props.clearNodesTouched();
+		this.props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 		this.props.flowrunnerConnector.registerNodeStateObserver("canvas", this.nodeStateObserver);
 	}
 
-	touchedNodes = {};
+	nodeStateStore : any = {};
+	touchedNodes : any = {};
+
+	updateTouchedNodes = () => {
+		// DONT UPDATE STATE HERE!!!
+		if  (this.touchedNodes) {
+			if (this.stage && this.stage.current) {
+				let stage = (this.stage.current as any).getStage();
+				if (stage) {
+					Object.keys(this.shapeRefs).map((touchNodeId) => {
+						const lineRef = this.shapeRefs[touchNodeId];
+						if (lineRef && lineRef.current && lineRef.current.getClassName() == "Arrow") {
+							if (this.touchedNodes[touchNodeId] ) {
+								const dash = [5,10];
+								const _strokeWidth = 8;
+								const _opacity = 1;
+								lineRef.current.opacity(_opacity);
+								lineRef.current.strokeWidth (_strokeWidth);
+								lineRef.current.dash(dash);
+							} else {
+								const dash = [];
+								const _strokeWidth = 4;
+								const _opacity = 0.5;
+								lineRef.current.opacity(_opacity);
+								lineRef.current.strokeWidth (_strokeWidth);
+								lineRef.current.dash(dash);
+							}
+						}
+					});
+					stage.batchDraw();
+				}
+			}
+		}
+	}
+
 	nodeStateObserver = (nodeName: string, nodeState : string, touchedNodes : any) => {
-		this.props.setNodeState(nodeName, nodeState);
-		this.touchedNodes = touchedNodes || {};
+
+		// TODO : check if nodeSate is the same as currentstate.. only set when it is different
+		//let currentNodeState = this.props.nodeState["nodeName"];
+		if (this.nodeStateStore[nodeName] != nodeState) {
+			this.props.setNodeState(nodeName, nodeState);
+		}
+		this.nodeStateStore[nodeName] = nodeState;
+		if (touchedNodes) {
+			console.log("touchedNodes", touchedNodes);
+			Object.keys(touchedNodes).map((touchNodeId: string) => {
+				const lineRef = this.shapeRefs[touchNodeId];
+				if (lineRef && lineRef.current && lineRef.current.getClassName() == "Arrow") {
+					return;
+				}
+				const element = document.getElementById(touchNodeId);
+				if (element) {
+					if (touchedNodes[touchNodeId] === true) {
+						element.classList.remove("untouched");
+					} else {
+						element.classList.add("untouched");
+					}
+				}
+			})
+		}
+		//
+		// TODO : dont handle this by state/reducer but directly
+		//this.props.setNodesTouched(touchedNodes);
+		this.touchedNodes = touchedNodes;
+		this.updateTouchedNodes();
 	}
 
 	connectionForDraggingName = "_connection-dragging";
@@ -269,6 +339,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			nextState.editNode != this.state.editNode ||
 			nextState.editNodeSettings != this.state.editNodeSettings ||
 			nextState.isConnectingNodesByDragging != this.state.isConnectingNodesByDragging ||
+			nextProps.nodesTouched != this.props.nodesTouched ||
+			nextProps.nodeState != this.props.nodeState ||
 			nextState.connectionX != this.state.connectionX ||
 			nextState.connectionY != this.state.connectionY) {
 				return true;
@@ -279,6 +351,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 
 		if (prevProps.flow != this.props.flow) {
+			this.nodeStateStore = {};
 			if (this.flowIsLoading) {
 				this.flowIsLoading = false;
 //				this.shapeRefs = [];
@@ -341,8 +414,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
 				this.recalculateStartEndpoints();
 
-			}		
-		}
+			}
+			this.props.setNodesTouched(this.touchedNodes);			
+		}	
 
 		if (prevState.canvasKey !== this.state.canvasKey) {
 			this.updateDimensions();			
@@ -352,7 +426,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				(this.canvasWrapper.current as any).addEventListener('wheel', this.wheelEvent);
 			}			
 		}
-
+		this.updateTouchedNodes();	
 
 	}
 
@@ -560,6 +634,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		
 		let stage = (this.stage.current as any).getStage();
 		stage.batchDraw();
+		this.updateTouchedNodes();
 
 		if (!!isCommitingToStore) {
 			this.props.selectNode(node.name, node);
@@ -2450,7 +2525,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 									isSelected={this.props.selectedNode && this.props.selectedNode.name === node.name}
 									isConnectedToSelectedNode={isConnectedToSelectedNode}
 									getNodeInstance={this.props.getNodeInstance}
-									touchedNodes={this.touchedNodes}
+									touchedNodes={this.props.nodesTouched}
 								></Shape>
 								{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <Thumbs
 									key={"node-thumb-" + index} 
@@ -2582,6 +2657,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 										}}
 									id={node.name}
 									data-node={node.name}
+									data-task={node.taskType}
 									data-html-plugin={nodeClone.htmlPlugin}
 									data-visualizer={node.visualizer || "default"}
 									data-x={node.x} 

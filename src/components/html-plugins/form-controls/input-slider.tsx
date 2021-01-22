@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
+
 import { IFormControlProps } from './form-control-interface';
 import { useFormControlFromCode } from './use-form-control';
 import Slider from '@material-ui/core/Slider';
@@ -7,6 +9,10 @@ export const InputSlider = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
 	let formControl = useFormControlFromCode(props.value, metaInfo, props.onChange);
 	
+	useEffect(() => {
+		formControl.setValue(props.value);
+	}, [props.value]);
+
 	const onChange = (event: object, value: number | number[]) => {
 		formControl.handleChangeByValue(value);
 	}

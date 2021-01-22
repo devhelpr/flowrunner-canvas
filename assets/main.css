@@ -333,6 +333,10 @@ canvas,.konvajs-content,
 	padding: 0 5px;
 }
 
+[data-html-plugin="formNode"] .html-plugin-node {
+	justify-content: flex-start;
+}
+
 .mouse--moving .canvas__html-shape-body {
 	pointer-events: none;
 }
@@ -749,10 +753,12 @@ textarea.form-control {
 	padding: 5px;
 }
 
+/*
 .ui-view-layout__container {
 	background: #e2e2e7;
 	padding: 20px;
 }
+*/
 
 .ui-view-layout__container-row {
 	display: flex;
@@ -878,4 +884,56 @@ textarea.form-control {
 
 .debug-info__window-maximize:hover {
 	color: #ffffff;
+}
+
+.edit-popup__json {
+	min-height: 500px;
+}
+
+[data-task="FormTask"].untouched .html-plugin-node .form {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+[data-task="DebugTask"].untouched .html-plugin-node {
+	display: none;
+}
+
+.container__ui-view [data-task="FormTask"].untouched {
+	display: none;
+}
+
+.container__ui-view [data-task="DebugTask"].untouched {
+	display: none;
+}
+
+.container__ui-view [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched,
+.container__ui-view [data-task="DebugTask"][data-visualizer="gridcanvas"].untouched,
+.container__ui-view [data-task="DebugTask"][data-visualizer="xycanvas"].untouched {
+	display: block;
+}
+
+[data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node ,
+[data-task="DebugTask"][data-visualizer="gridcanvas"].untouched .html-plugin-node ,
+[data-task="DebugTask"][data-visualizer="xycanvas"].untouched .html-plugin-node  {
+	display: block;
+}
+
+.container__background {
+	background: #f2f2f2;
+}
+
+.container__ui-view .ui-view-layout__container-row {
+	background: white;
+	padding: 40px;
+}
+
+.form-control__object-list-node {
+	border: 1px solid #d0d0d0;
+	border-radius: 3px;
+	margin-bottom: 10px;
+}
+
+.form-control__object-list-node-controls {
+	padding: 20px;
 }
