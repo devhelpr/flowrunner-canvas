@@ -96,6 +96,7 @@ export interface CanvasState {
 	isConnectingNodesByDragging : boolean;
 	connectionX: number;
 	connectionY: number;
+	updateNodeTouchedState : boolean;
 }
 
 class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
@@ -130,7 +131,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		editNodeSettings : undefined,
 		isConnectingNodesByDragging : false,
 		connectionX: 0,
-		connectionY: 0
+		connectionY: 0,
+		updateNodeTouchedState: true
 	}
 
 	shapeRefs : any[];
@@ -223,6 +225,9 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	}
 
 	nodeStateObserver = (nodeName: string, nodeState : string, touchedNodes : any) => {
+		if (!this.state.updateNodeTouchedState) {
+			return;
+		}
 
 		// TODO : check if nodeSate is the same as currentstate.. only set when it is different
 		//let currentNodeState = this.props.nodeState["nodeName"];
@@ -342,7 +347,8 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 			nextProps.nodesTouched != this.props.nodesTouched ||
 			nextProps.nodeState != this.props.nodeState ||
 			nextState.connectionX != this.state.connectionX ||
-			nextState.connectionY != this.state.connectionY) {
+			nextState.connectionY != this.state.connectionY||
+			nextState.updateNodeTouchedState != this.state.updateNodeTouchedState) {
 				return true;
 			}
 		return false;
@@ -388,7 +394,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 				this.setHtmlElementsPositionAndScale(this.stageX, this.stageY, this.stageScale);
 				this.recalculateStartEndpoints();
-
+				
 			} else {
 				//this.shapeRefs = [];
 
@@ -415,7 +421,22 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				this.recalculateStartEndpoints();
 
 			}
-			this.props.setNodesTouched(this.touchedNodes);			
+			this.props.setNodesTouched(this.touchedNodes);
+			
+			let disabledUpdateTouchedState = false;
+			this.props.flow.map((node, index) => {
+				if (node.taskType === "TimerTask" || 
+					(node.taskType == "DebugTask" && 
+						node.visualizer == "animatedgridcanvas")) {
+					disabledUpdateTouchedState = true;
+				}
+			});
+
+			if (!!disabledUpdateTouchedState) {
+				this.setState({updateNodeTouchedState : false});
+			} else {
+				this.setState({updateNodeTouchedState : true});
+			}			
 		}	
 
 		if (prevState.canvasKey !== this.state.canvasKey) {

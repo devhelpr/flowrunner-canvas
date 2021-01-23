@@ -84,7 +84,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				fill={settings.textColor}
 				perfectDrawEnabled={true}>
 			</Text>
-			<KonvaImage image={image}
+			{!!settings.hasConfigMenu && <KonvaImage image={image}
 				pathColor={settings.textColor} 		
 				width={Math.round(ShapeMeasures.diamondSize / 8)}
 				height={Math.round(ShapeMeasures.diamondSize / 8)}			
@@ -92,7 +92,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				x={Math.round((ShapeMeasures.diamondSize / 2) - ShapeMeasures.diamondSize / 16)}
 				y={16}
 				onClick={props.onClickSetup} 
-			/>
+			/>}
 		</Group>
 		<Lines flow={props.flow}
 				node={props.node}

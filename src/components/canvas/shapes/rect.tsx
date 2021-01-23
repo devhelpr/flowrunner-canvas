@@ -16,6 +16,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	let skewXOffset = 0;
 	let includeSvgIcon = false;
 	const [image] = useImage("/svg/layout.svg");
+	const [cogImage] = useImage("/svg/cog.svg");
 
 	if (settings.isSkewed) {
 		skewX = -0.5;
@@ -122,7 +123,16 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				ellipsis={true}
 				fill={settings.textColor}
 				perfectDrawEnabled={false}>
-			</Text>									
+			</Text>
+			{!!settings.hasConfigMenu && <KonvaImage image={cogImage}
+				pathColor={settings.textColor} 		
+				width={Math.round(ShapeMeasures.rectWidht / 8)}
+				height={Math.round(ShapeMeasures.rectWidht / 8)}
+				keepRatio={true}
+				x={Math.round(ShapeMeasures.rectWidht - (ShapeMeasures.rectWidht / 8) - 4)}
+				y={4}
+				onClick={props.onClickSetup} 
+			/>}
 		</Group>		
 		<Lines flow={props.flow}
 				node={props.node}

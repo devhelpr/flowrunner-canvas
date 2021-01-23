@@ -70,7 +70,8 @@ export const Select = (props: IFormControlProps) => {
 		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 		<div className="input-group mb-1">
 			<select className="form-control" required={props.metaInfo && !!props.metaInfo.required} 
-				{...formControl} >
+				value={formControl.value} 
+				onChange={formControl.onChange} >
 				{showDefaultOption === true && <option value="" disabled>Select value</option>}
 				{metaInfo && (props.datasource || metaInfo.options || []).map((option : ISelectOption, index) => {
 					return <React.Fragment key={"select"+index}>

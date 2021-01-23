@@ -421,6 +421,29 @@ const taskTypeConfig: any = {
         eventName: 'onTimer',
       },
     ],
+    hasConfigMenu: true,
+    configMenu: {
+      fields: [
+        { 
+          fieldName: 'interval', 
+          required: true,
+          label: 'Interval(ms)',
+          dataType: 'number'
+        },
+        { 
+          fieldName: 'mode', 
+          fieldType: 'select',
+          options: [
+            {label:"default", value: "default"},
+            {label:"executeNode", value: "executeNode"}
+          ]
+        },
+        {
+          fieldName: 'executeNode',
+          visibilityCondition: 'mode="executeNode"'
+        }            
+      ],
+    },
   },
   CountTask: {
     icon: 'fa-calculator',

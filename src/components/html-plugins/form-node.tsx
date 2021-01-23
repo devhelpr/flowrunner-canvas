@@ -506,7 +506,6 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				{metaInfo.map((metaInfo, index) => {
 					const fieldType = this.getFieldType(metaInfo);
 					if (metaInfo.visibilityCondition) {				
-						console.log("visibilityCondition", this.state, this.props);				
 						const expression = createExpressionTree(metaInfo.visibilityCondition);
 						let data = {};
 						if (!!this.props.isObjectListNodeEditing) {
