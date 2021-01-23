@@ -30,7 +30,6 @@ export const ObjectList = (props: IFormControlProps) => {
 		formControl.setValue(props.value);
 	}, [props.value]);
 
-	// TODO : add delete option for form-controls
 	const deleteClick = (event, index) => {
 		event.preventDefault();
 		
