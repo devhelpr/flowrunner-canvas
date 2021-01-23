@@ -637,6 +637,7 @@ const taskTypeConfig: any = {
         {
           fieldName: 'metaInfo',
           fieldType: 'objectList',
+          label: "Form controls",
           metaInfo : [
             {
               fieldName: "fieldName",
@@ -669,6 +670,10 @@ const taskTypeConfig: any = {
                 {
                   value: 'select',
                   label: 'Select'
+                },
+                {
+                  value: 'list',
+                  label: 'List'
                 }
               ]
             },
@@ -677,9 +682,10 @@ const taskTypeConfig: any = {
               fieldType: "text"
             },
             {
-              visibilityCondition: "(fieldType=='radiobutton')",
+              visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
               fieldName: "options",
               fieldType: "objectList",
+              label: "Options",
               metaInfo : [
                 {
                   fieldName: "value",

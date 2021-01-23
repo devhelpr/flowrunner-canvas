@@ -91,10 +91,13 @@ export const ObjectList = (props: IFormControlProps) => {
 		return false;
 	}
 	
-	const onEditNodeKeyValue = (value, fieldName) => {
-		const clonedValue = {...editValue};
+	const onEditNodeKeyValue = (index, value, fieldName) => {
+		const clonedValue = {...formControl.value[index]};
 		clonedValue[fieldName] = value;
-		setEditValue(clonedValue);
+		//setEditValue(clonedValue);
+		let newList = [...formControl.value];
+		newList[index] = clonedValue;
+		formControl.handleChangeByValue(newList);
 	}
 
 	const onAddNodeKeyValue = (value, fieldName) => {
@@ -106,29 +109,31 @@ export const ObjectList = (props: IFormControlProps) => {
 	const onCloseAppendValue = (event) => {
 		event.preventDefault();
 
-		setEditIndex(-1);
+		//setEditIndex(-1);
 		setAdding(false);
-		setEditValue({});
+		//setEditValue({});
 
 		return false;
 	}
-
-	return <div className="form-group">						
-			<label>{metaInfo.fieldName || node.name}</label>
-			{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
-				if (editIndex == index) {
-					return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
-						<FormNodeHtmlPlugin 
-							node={{...editValue, metaInfo:props.metaInfo.metaInfo}}
-							isObjectListNodeEditing={true}
-							onSetValue={onEditNodeKeyValue}
-						></FormNodeHtmlPlugin>
-						<div className="form-control__object-list-node-controls">
+/*
+<div className="form-control__object-list-node-controls">
 							<button onClick={onSaveEditValue} className="btn btn-primary">Save</button>
 						</div>
+*/
+	return <div className="form-group">						
+			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
+			{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
+				//if (editIndex == index) {
+					return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
+						<FormNodeHtmlPlugin 
+							node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo}}
+							isObjectListNodeEditing={true}
+							onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
+						></FormNodeHtmlPlugin>
+						
 					</div>
-				}
-				return <div className="form-control__object-list-node" key={metaInfo.fieldName + index}>
+				//}
+				/*return <div className="form-control__object-list-node" key={metaInfo.fieldName + index}>
 					<FormNodeHtmlPlugin 
 						node={{...listItem, metaInfo:props.metaInfo.metaInfo}}
 						isObjectListNodeEditing={true}
@@ -138,6 +143,7 @@ export const ObjectList = (props: IFormControlProps) => {
 						<a href="#" onClick={(event) => editClick(event, index)} className="fas fa-edit"></a>
 						<a href="#" onClick={(event) => deleteClick(event, index)} className="fas fa-trash-alt"></a></div>
 					</div>
+				*/
 			})}
 			{isAdding ? 
 				<div className="form-control__object-list-node">
