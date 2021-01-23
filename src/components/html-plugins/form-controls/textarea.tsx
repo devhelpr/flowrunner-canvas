@@ -13,7 +13,7 @@ export const Textarea = (props: IFormControlProps) => {
 	}, [props.value]);
 
 	return <div className="form-group">						
-			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
+			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 			<textarea 				
 				className="form-control"
 				name={metaInfo.fieldName} 			

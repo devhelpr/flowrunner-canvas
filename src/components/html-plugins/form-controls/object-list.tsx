@@ -22,8 +22,6 @@ import { FormNodeHtmlPlugin } from '../form-node';
 
 export const ObjectList = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
-	const [ editIndex , setEditIndex] = useState(-1);
-	const [ editValue, setEditValue ]= useState({});
 	const [ isAdding , setAdding] = useState(false);
 	const [ newValue, setNewValue ] = useState({});
 	let formControl = useFormControlFromCode(props.value || [], metaInfo, props.onChange);
@@ -32,10 +30,10 @@ export const ObjectList = (props: IFormControlProps) => {
 		formControl.setValue(props.value);
 	}, [props.value]);
 
+	// TODO : add delete option for form-controls
 	const deleteClick = (event, index) => {
 		event.preventDefault();
 		
-		setEditIndex(-1);
 		setAdding(false);
 
 		let newList = [...formControl.value];
@@ -44,20 +42,9 @@ export const ObjectList = (props: IFormControlProps) => {
 		return false;
 	}
 
-	const editClick = (event, index) => {
-		event.preventDefault();
-		
-		setEditValue(formControl.value[index]);
-		setEditIndex(index);
-		setAdding(false);
-
-		return false;
-	}
-
 	const addItem = (event) => {
 		event.preventDefault();
 		
-		setEditIndex(-1);
 		setAdding(true);
 
 		return false;
@@ -70,23 +57,8 @@ export const ObjectList = (props: IFormControlProps) => {
 		newList.push(newValue);
 		formControl.handleChangeByValue(newList);
 
-		setEditIndex(-1);
 		setAdding(false);
 		setNewValue({});
-
-		return false;
-	}
-
-	const onSaveEditValue = (event) => {
-		event.preventDefault();
-
-		let newList = [...formControl.value];
-		newList[editIndex] = editValue;
-		formControl.handleChangeByValue(newList);
-
-		setEditIndex(-1);
-		setAdding(false);
-		setEditValue({});
 
 		return false;
 	}
@@ -94,7 +66,6 @@ export const ObjectList = (props: IFormControlProps) => {
 	const onEditNodeKeyValue = (index, value, fieldName) => {
 		const clonedValue = {...formControl.value[index]};
 		clonedValue[fieldName] = value;
-		//setEditValue(clonedValue);
 		let newList = [...formControl.value];
 		newList[index] = clonedValue;
 		formControl.handleChangeByValue(newList);
@@ -109,46 +80,27 @@ export const ObjectList = (props: IFormControlProps) => {
 	const onCloseAppendValue = (event) => {
 		event.preventDefault();
 
-		//setEditIndex(-1);
 		setAdding(false);
-		//setEditValue({});
 
 		return false;
 	}
-/*
-<div className="form-control__object-list-node-controls">
-							<button onClick={onSaveEditValue} className="btn btn-primary">Save</button>
-						</div>
-*/
 	return <div className="form-group">						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
 			{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
-				//if (editIndex == index) {
-					return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
-						<FormNodeHtmlPlugin 
-							node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo}}
-							isObjectListNodeEditing={true}
-							onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
-						></FormNodeHtmlPlugin>
-						
-					</div>
-				//}
-				/*return <div className="form-control__object-list-node" key={metaInfo.fieldName + index}>
+				return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
+					<a href="#" onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
 					<FormNodeHtmlPlugin 
-						node={{...listItem, metaInfo:props.metaInfo.metaInfo}}
+						node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 						isObjectListNodeEditing={true}
-						isReadOnly={true}
+						onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
 					></FormNodeHtmlPlugin>
-					<div className="form-control__object-list-node-controls">
-						<a href="#" onClick={(event) => editClick(event, index)} className="fas fa-edit"></a>
-						<a href="#" onClick={(event) => deleteClick(event, index)} className="fas fa-trash-alt"></a></div>
-					</div>
-				*/
+					
+				</div>
 			})}
 			{isAdding ? 
 				<div className="form-control__object-list-node">
 					<FormNodeHtmlPlugin 
-						node={{...newValue, metaInfo:props.metaInfo.metaInfo}}
+						node={{...newValue, metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-add", id: props.node.name + "-add"}}
 						isObjectListNodeEditing={true}
 						onSetValue={onAddNodeKeyValue}
 					></FormNodeHtmlPlugin>

@@ -18,7 +18,7 @@ export const InputSlider = (props: IFormControlProps) => {
 	}
 
 	return <div className="form-group">						
-			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name} ({formControl.value || 0})</strong></label>
+			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name} ({formControl.value || 0})</strong>{!!metaInfo.required && " *"}</label>
 			<Slider 
 				name={metaInfo.fieldName} 
 				min={metaInfo.min || 0}

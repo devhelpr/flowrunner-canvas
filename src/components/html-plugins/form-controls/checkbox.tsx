@@ -25,13 +25,13 @@ export const CheckBox = (props: IFormControlProps) => {
 			<input 
 				type="checkbox" 
 				className="form-check-input"
-				id={metaInfo.fieldName+"-checkbox"}
+				id={node.name + "-" + metaInfo.fieldName+"-checkbox"}
 				name={metaInfo.fieldName} 
 				onChange={onClick} 
 				checked={formControl.value === true}></input>
 			<label 
 				className="form-check-label"
-				htmlFor={metaInfo.fieldName+"-checkbox"}>{metaInfo.label || metaInfo.fieldName || node.name}</label>
+				htmlFor={node.name + "-" + metaInfo.fieldName+"-checkbox"}>{metaInfo.label || metaInfo.fieldName || node.name}{!!metaInfo.required && " *"}</label>
 		</div>
 	</div>;
 }

@@ -932,8 +932,16 @@ textarea.form-control {
 	border: 1px solid #d0d0d0;
 	border-radius: 3px;
 	margin-bottom: 10px;
+	position: relative;
 }
 
 .form-control__object-list-node-controls {
 	padding: 20px;
+}
+
+.form-control__object-list-node-delete {
+	position: absolute;
+	right: 20px;
+	top: 20px;
+	z-index: 1;
 }

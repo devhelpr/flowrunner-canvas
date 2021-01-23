@@ -88,7 +88,7 @@ export const List = (props: IFormControlProps) => {
 	}
 
 	return <div className="form-group">						
-			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
+			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 			{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
 				if (editIndex == index) {
 					return <div key={"input" + metaInfo.fieldName + index}>
