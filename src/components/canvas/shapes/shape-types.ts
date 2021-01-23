@@ -26,6 +26,8 @@ export interface ShapeTypeProps {
   onMouseOver: any;
   onMouseOut: any;
 
+  onClickSetup : any;
+
   shapeRefs: any[];
 
   canvasHasSelectedNode: boolean;

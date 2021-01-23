@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Group, Text, RegularPolygon, Rect as KonvaRect } from 'react-konva';
+import { Group, Text, RegularPolygon, Image as KonvaImage } from 'react-konva';
 
 import { ShapeTypeProps } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
@@ -8,7 +8,12 @@ import { ShapeSettings } from '../../../helpers/shape-settings';
 import { replaceValuesExpressions } from '../../../helpers/replace-values';
 import { Lines } from './line-helper';
 
+import useImage from 'use-image';
+
+
 export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
+	const [image] = useImage("/svg/cog.svg");
+
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 
 	let labelText = props.node && props.node.label ? props.node.label : props.name;
@@ -79,6 +84,15 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				fill={settings.textColor}
 				perfectDrawEnabled={true}>
 			</Text>
+			<KonvaImage image={image}
+				pathColor={settings.textColor} 		
+				width={Math.round(ShapeMeasures.diamondSize / 8)}
+				height={Math.round(ShapeMeasures.diamondSize / 8)}			
+				keepRatio={true}
+				x={Math.round((ShapeMeasures.diamondSize / 2) - ShapeMeasures.diamondSize / 16)}
+				y={16}
+				onClick={props.onClickSetup} 
+			/>
 		</Group>
 		<Lines flow={props.flow}
 				node={props.node}

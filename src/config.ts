@@ -54,13 +54,56 @@ const taskTypeConfig: any = {
       compareProperty: '',
       withProperty: '',
       withValue: '',
-      usingCondition: 'equals, not-equals, smaller, bigger, smaller-or-equal, bigger-or-equal',
+      usingCondition: 'equals',
       dataType: 'string',
       dontTriggerOnEmptyValues: true
     },
     _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
       '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
+    hasConfigMenu: true,
+    configMenu: {
+      fields: [
+        { fieldName: 'compareProperty', required: true },
+        { fieldName: 'withProperty' },
+        { fieldName: 'withValue' },
+        { fieldName: 'usingCondition', 
+          fieldType: 'select',
+          options: [
+            {
+              label:"equals",value:"equals"
+            },
+            {
+              label:"not-equals",value:"not-equals"
+            },
+            {
+              label:"smaller",value:"smaller"
+            },
+            {
+              label:"bigger",value:"bigger"
+            },
+            {
+              label:"smaller-or-equal",value:"smaller-or-equal"
+            },
+            {
+              label:"bigger-or-equal",value:"bigger-or-equal"
+            }
+          ]
+        },
+        { 
+          fieldName: 'dataType', 
+          fieldType: 'select',
+          options: [
+            {
+              label:"string",value:"string"
+            },
+            {
+              label:"number",value:"number"
+            }
+          ]
+        }
+      ],
+    },
   },
   if: {
     shapeType: 'Diamond',

@@ -675,6 +675,19 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 	}
 
+	onClickSetup(node,settings,event) {
+		if (node.notSelectable) {
+			return false;
+		}
+		event.evt.preventDefault();
+		this.setState({
+			showNodeSettings : true,
+			editNode: node,
+			editNodeSettings: settings
+		});
+		return false;
+	}
+
 	onMouseOver(node, event) {
 		if (node.notSelectable) {
 			return false;
@@ -2509,6 +2522,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 
 									canvasComponentInstance={this}
 
+									onClickSetup={this.onClickSetup.bind(this, node, settings)}
 									onMouseOver={this.onMouseOver.bind(this, node)}
 									onMouseOut={this.onMouseOut.bind(this)}
 									onDragStart={this.onDragStart.bind(this, node)}
