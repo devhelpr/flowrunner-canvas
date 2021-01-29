@@ -5,7 +5,6 @@ import { Stage, Layer , Circle, Text, Rect } from 'react-konva';
 import { FlowLoader } from '../../../flowrunner-plugins/components/flow-loader';
 import { FlowTask, FlowEventRunner } from '@devhelpr/flowrunner';
 import { registerTasks } from '../../../flow-tasks';
-import { ExpressionTask } from '@devhelpr/flowrunner-expression';
 
 import {
 	registerExpressionFunction
@@ -64,18 +63,6 @@ export interface AnimatedGridCanvasProps {
 }
 
 
-export class AnimatedGridCanvasInfo {
-	getWidth(node) {
-		//return ((node.columns || 8) * 16);
-		return ((node.columns || 8) * 16) + 20 + 80;
-	}
-
-	getHeight(node) {
-		//return ((node.rows || 8) * 16);
-		return ((node.rows || 8) * 16) + (3 * 16) + 4;
-	}
-}
-
 export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 	const [payload , setPayload ] = useState({data: []} as any);
 	const [performanceTimer, setPerformanceTimer] = useState(0);
@@ -97,7 +84,6 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 						registerModel: (modelName: string, definition: any) => {},
 					};
 					registerTasks(flowRunner.current);
-					flowRunner.current.registerTask('ExpressionTask', ExpressionTask);
 
 					console.log("AnimatedGridCanvas, before flowrunner.start");
 

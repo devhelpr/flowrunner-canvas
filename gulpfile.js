@@ -10,6 +10,56 @@ var named = require('vinyl-named'),
 
 var tsProject = ts.createProject('tsconfig.json');
 
+/*
+            chunks: 'all',
+            maxInitialRequests: Infinity,
+            minSize: 0,
+
+            rxjs
+            react-konva
+            react-bootstrap
+            jss
+            react-reconciler
+
+
+             konva: {
+                test: /[\\/]node_modules[\\/](konva)[\\/]/,
+                name: 'konva',
+                chunks: 'all',
+              },
+            lodash: {
+                test: /[\\/]node_modules[\\/](lodash)[\\/]/,
+                name: 'lodash',
+                chunks: 'all',
+              },
+
+              ,
+              rxjscompat: {
+                test: /[\\/]node_modules[\\/](rxjs-compat)[\\/]/,
+                name: 'rxjscompat',
+                chunks: 'all',
+              }  
+
+              reactkonva: {
+                test: /[\\/]node_modules[\\/](react-konva)[\\/]/,
+                name: 'reactkonva',
+                chunks: 'all',
+              },
+
+              ,
+              reactreconciler: {
+                test: /[\\/]node_modules[\\/](react-reconciler)[\\/]/,
+                name: 'reactreconciler',
+                chunks: 'all',
+              }   
+
+              ,
+              jss: {
+                test: /[\\/]node_modules[\\/](jss)[\\/]/,
+                name: 'jss',
+                chunks: 'all',
+              }  
+*/
 function buildTypescript() {
 
   const gulpwebpack = require('webpack-stream');
@@ -29,13 +79,36 @@ function buildTypescript() {
           asyncWebAssembly: true
         },
         optimization: {
-          splitChunks: {
+          runtimeChunk: 'single',
+          splitChunks: {    
             cacheGroups: {
               react: {
                 test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
                 name: 'react',
                 chunks: 'all',
-              }
+              },
+             
+              devhelpr: {
+                test: /[\\/]node_modules[\\/](@devhelpr)[\\/]/,
+                name: 'devhelpr',
+                chunks: 'all',
+              },
+              
+              materialui: {
+                test: /[\\/]node_modules[\\/](@material-ui)[\\/]/,
+                name: 'materialui',
+                chunks: 'all',
+              },
+              rxjs: {
+                test: /[\\/]node_modules[\\/](rxjs)[\\/]/,
+                name: 'rxjs',
+                chunks: 'all',
+              },              
+              reactbootstrap: {
+                test: /[\\/]node_modules[\\/](react-bootstrap)[\\/]/,
+                name: 'reactbootstrap',
+                chunks: 'all',
+              }              
             }
           }
         },

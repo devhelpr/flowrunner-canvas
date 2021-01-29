@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { Suspense } from 'react';
+
 import { connect } from "react-redux";
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
@@ -594,6 +596,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 				backgroundColor: "white"
 			}}>
 			<div className={"w-100 h-auto"}>
+				<Suspense fallback={<div>Loading...</div>}>
 				{!!this.props.isObjectListNodeEditing ?
 				<div className="form">
 					{renderFields()}
@@ -603,6 +606,7 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 					{renderFields()}
 				</form>
 				}
+				</Suspense>
 			</div>
 		</div>;
 	}

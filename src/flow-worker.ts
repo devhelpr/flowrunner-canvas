@@ -1,6 +1,6 @@
 const ctx: Worker = self as any;
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
-import { BehaviorSubject, Subject } from '@reactivex/rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 import fetch from 'cross-fetch';
 import { replaceValues } from './helpers/replace-values';
@@ -592,7 +592,7 @@ const onWorkerMessage = event => {
             ctx.postMessage({
               command: 'ExecuteFlowNodeResult',
               result: result,
-              payload: { ...result },
+              payload: { ...(result as any) },
             });
           }
         })

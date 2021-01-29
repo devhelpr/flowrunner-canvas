@@ -29,7 +29,7 @@ import {
 
 import fetch from 'cross-fetch';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { Observable, Subject } from '@reactivex/rxjs';
+import { Observable, Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
 

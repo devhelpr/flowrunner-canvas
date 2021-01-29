@@ -1,14 +1,18 @@
 import * as React from 'react';
+import { Suspense } from 'react';
 
 import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
-import { DebugNodeHtmlPlugin, DebugNodeHtmlPluginInfo } from './components/html-plugins/debug-node';
+import { DebugNodeHtmlPluginInfo,GridEditNodeHtmlPluginInfo } from './components/html-plugins/visualizers/info';
 import { SliderNodeHtmlPlugin, ContainedSliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
 import { InputNodeHtmlPlugin , InputNodeHtmlPluginInfo } from './components/html-plugins/input-node';
 import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-plugins/form-node';
-import { GridEditNodeHtmlPlugin, GridEditNodeHtmlPluginInfo } from './components/html-plugins/grid-edit';
 
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
 import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
+
+const DebugNodeHtmlPlugin = React.lazy(() => import('./components/html-plugins/debug-node').then(({ DebugNodeHtmlPlugin }) => ({ default: DebugNodeHtmlPlugin })));
+const GridEditNodeHtmlPlugin = React.lazy(() => import('./components/html-plugins/grid-edit').then(({ GridEditNodeHtmlPlugin }) => ({ default: GridEditNodeHtmlPlugin })));
+
 
 let _pluginRegistry;
 export const setPluginRegistry = (pluginRegistry) => {
@@ -39,10 +43,12 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		></SliderNodeHtmlPlugin>;
 	} else
 	if (htmlPlugin == "gridEditNode") {
-		return <GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		></GridEditNodeHtmlPlugin>;
+		return <Suspense fallback={<div>Loading...</div>}>
+			<GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+				node={node}
+				flow={flow}
+			></GridEditNodeHtmlPlugin>
+		</Suspense>;
 	} else
 	if (htmlPlugin == "inputNode") {
 		return <InputNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
@@ -61,20 +67,24 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		></DataGridNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "debugNode") {
-		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		></DebugNodeHtmlPlugin>;
+		return <Suspense fallback={<div>Loading...</div>}>
+				<DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+				node={node}
+				flow={flow}
+			></DebugNodeHtmlPlugin>
+		</Suspense>;
 	} else
 	if (_pluginRegistry[htmlPlugin]) {
 		const Plugin = _pluginRegistry[node.htmlPlugin].VisualizationComponent;
 		
 		node.visualizer = "children";
 		
-		return <DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-			node={node}
-			flow={flow}
-		><Plugin></Plugin></DebugNodeHtmlPlugin>;
+		return <Suspense fallback={<div>Loading...</div>}>
+				<DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+					node={node}
+					flow={flow}
+				><Plugin></Plugin></DebugNodeHtmlPlugin>
+		</Suspense>;
 	}
 
 	return <div style={{

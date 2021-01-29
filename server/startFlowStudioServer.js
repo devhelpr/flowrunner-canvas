@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const fetch = require('cross-fetch');
 const uuid = require('uuid');
-const { flowRight } = require('lodash');
 const uuidV4 = uuid.v4;
 
 const replaceValues = (content, payload) => {

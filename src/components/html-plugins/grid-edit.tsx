@@ -11,16 +11,6 @@ import { PresetManager } from './components/preset-manager';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
-export class GridEditNodeHtmlPluginInfo {
-	getWidth(node) {
-		return (((node && node.columns) || 8) * 16) + 20 + 60;
-	}
-
-	getHeight(node) {
-		return (((node && node.rows) || 8) * 16) + (3 * 16) + 4 + 150;
-	}
-}
-
 
 export interface GridEditNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;

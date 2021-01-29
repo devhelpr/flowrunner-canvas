@@ -313,6 +313,10 @@ canvas,.konvajs-content,
 	pointer-events: none;
 }
 
+[data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node {
+	white-space: normal;	
+}
+
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
@@ -944,4 +948,17 @@ textarea.form-control {
 	right: 20px;
 	top: 20px;
 	z-index: 1;
+}
+
+.wrapper-class {
+	padding: 1rem;
+	border: 1px solid #ccc;
+}
+.editor-class {
+	background-color:white;
+	padding: 1rem;
+	border: 1px solid #ccc;
+}
+.toolbar-class {
+	border: 1px solid #ccc;
 }

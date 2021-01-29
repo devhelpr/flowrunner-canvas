@@ -14,7 +14,7 @@ import { setConnectiongNodeCanvasMode , setConnectiongNodeCanvasModeFunction, se
 import { getTaskConfigForTask } from '../../config';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
-import { Observable, Subject } from '@reactivex/rxjs';
+import { Observable, Subject } from 'rxjs';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { ShapeMeasures } from '../../helpers/shape-measures';
 import { Flow } from '../flow';
@@ -2337,6 +2337,12 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		if (event.target && (event.target.tagName || "").toLowerCase() == "input") {
 			return;
 		}
+		if (event.target && event.target.attributes && event.target.attributes["role"]
+				&& event.target.attributes["role"].value == "textbox") {
+			return;
+		}
+		
+		console.log("oninput", event);
 
 		if (event.keyCode == this.fKey || event.keyCode == this.fKeyCapt) {
 			if (this.props.selectedNode && this.props.selectedNode.node) {

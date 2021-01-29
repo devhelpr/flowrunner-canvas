@@ -1,56 +1,23 @@
 import * as React from 'react';
+import { Suspense } from 'react';
 import { connect } from "react-redux";
 
 import { Children, isValidElement, cloneElement } from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { XYCanvas, XYCanvasInfo } from './visualizers/xy-canvas';
 import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';
 import { List } from './visualizers/list';
 
-import { AnimatedGridCanvas, AnimatedGridCanvasInfo } from './visualizers/animated-grid-canvas';
-
-import { GridCanvas, GridCanvasInfo } from './visualizers/grid-canvas';
 import { createExpressionTree, executeExpressionTree, ExpressionNode } from '@devhelpr/expressionrunner';
+
+const XYCanvas = React.lazy(() => import('./visualizers/xy-canvas').then(({ XYCanvas }) => ({ default: XYCanvas })));
+const AnimatedGridCanvas = React.lazy(() => import('./visualizers/animated-grid-canvas').then(({ AnimatedGridCanvas }) => ({ default: AnimatedGridCanvas })));
+const GridCanvas = React.lazy(() => import('./visualizers/grid-canvas').then(({ GridCanvas}) => ({ default: GridCanvas })));
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
-export class DebugNodeHtmlPluginInfo {
-	getWidth = (node) => {
-
-		if (node && node.visualizer && node.visualizer == "xycanvas") {
-			const visualizerInfo = new XYCanvasInfo();
-			return visualizerInfo.getWidth(node);
-		} else
-		if (node && node.visualizer && node.visualizer == "gridcanvas") {
-			const visualizerInfo = new GridCanvasInfo();
-			return visualizerInfo.getWidth(node);
-		} else
-		if (node && node.visualizer && node.visualizer == "animatedgridcanvas") {
-			const visualizerInfo = new AnimatedGridCanvasInfo();
-			return visualizerInfo.getWidth(node);
-		}
-		return;
-	}
-
-	getHeight(node) {
-		if (node && node.visualizer && node.visualizer == "xycanvas") {
-			const visualizerInfo = new XYCanvasInfo();
-			return visualizerInfo.getHeight(node);
-		} else
-		if (node && node.visualizer && node.visualizer == "gridcanvas") {
-			const visualizerInfo = new GridCanvasInfo();
-			return visualizerInfo.getHeight(node);
-		} else
-		if (node && node.visualizer && node.visualizer == "animatedgridcanvas") {
-			const visualizerInfo = new AnimatedGridCanvasInfo();
-			return visualizerInfo.getHeight(node);
-		} 
-		return;
-	}
-}
 
 export interface DebugNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -114,20 +81,21 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 
 	getWidth = () => {
 
-		if (this.props.node.visualizer == "gridcanvas") {
+		/*if (this.props.node.visualizer == "gridcanvas") {
 			const visualizer = new GridCanvas({node: this.props.node,
 				payloads: this.state.receivedPayload});
 			return visualizer.getWidth();
 		}
+		*/
 		return;
 	}
 
 	getHeight() {
-		if (this.props.node.visualizer == "gridcanvas") {
+		/*if (this.props.node.visualizer == "gridcanvas") {
 			const visualizer = new GridCanvas({node: this.props.node,
 				payloads: this.state.receivedPayload});
 			return visualizer.getHeight();
-		}
+		}*/
 		return;
 	}
 
@@ -271,15 +239,21 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 		} else 
 		if (this.props.node.visualizer == "gridcanvas") {
 			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <GridCanvas node={this.props.node} payloads={this.state.receivedPayload}></GridCanvas>
+			visualizer = <Suspense fallback={<div>Loading...</div>}>
+							<GridCanvas node={this.props.node} payloads={this.state.receivedPayload}></GridCanvas>
+				</Suspense>;
 		} else
 		if (this.props.node.visualizer == "animatedgridcanvas") {
 			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <AnimatedGridCanvas node={this.props.node} payloads={this.state.receivedPayload}></AnimatedGridCanvas>
+			visualizer = <Suspense fallback={<div>Loading...</div>}>
+					<AnimatedGridCanvas node={this.props.node} payloads={this.state.receivedPayload}></AnimatedGridCanvas>
+				</Suspense>;
 		} else
 		if (this.props.node.visualizer == "xycanvas") {
 			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <XYCanvas flowrunnerConnector={this.props.flowrunnerConnector} selectedNode={this.props.selectedNode} node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
+			visualizer = <Suspense fallback={<div>Loading...</div>}>
+					<XYCanvas flowrunnerConnector={this.props.flowrunnerConnector} selectedNode={this.props.selectedNode} node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
+				</Suspense>;
 		} else {
 			const payload = this.state.receivedPayload[this.state.receivedPayload.length-1];
 			if (payload && (payload as any).debugId) {

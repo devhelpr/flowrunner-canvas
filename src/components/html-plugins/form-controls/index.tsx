@@ -9,6 +9,8 @@ import { List } from './list';
 import { ObjectList } from './object-list';
 import { IFormControlProps } from './form-control-interface';
 
+const RichTextEditor = React.lazy(() => import('./richtexteditor').then(({ RichTextEditor }) => ({ default: RichTextEditor })));
+
 const formControls = {
 	select: Select,
 	text: Input,
@@ -17,7 +19,8 @@ const formControls = {
 	textarea: Textarea,
 	slider: InputSlider,
 	list: List,
-	objectList: ObjectList
+	objectList: ObjectList,
+	richtexteditor: RichTextEditor
 }
 
 export const getFormControl = (formControl, props : IFormControlProps) => {

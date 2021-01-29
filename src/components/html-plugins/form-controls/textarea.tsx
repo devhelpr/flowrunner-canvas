@@ -17,6 +17,8 @@ export const Textarea = (props: IFormControlProps) => {
 			<textarea 				
 				className="form-control"
 				name={metaInfo.fieldName} 			
-				{...formControl}></textarea>
+				value={formControl.value} 
+				onChange={formControl.onChange}
+			></textarea>
 	</div>;
 }

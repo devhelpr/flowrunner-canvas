@@ -29,10 +29,16 @@ export const useFormControlFromCode = (initialValue, metaInfo: any, sendChange: 
     sendChange(value, metaInfo);
   };
 
+
+  const sendChangeDirect = value => {
+    sendChange(value, metaInfo);
+  };
+
   return {
     value: value,
     onChange: handleChange,
     handleChangeByValue: handleChangeByValue,
-    setValue
+    setValue,
+    sendChangeDirect
   };
 };

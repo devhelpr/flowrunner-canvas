@@ -730,6 +730,10 @@ const taskTypeConfig: any = {
                   label: 'Textarea'
                 },
                 {
+                  value: 'richtexteditor',
+                  label: 'Richtext Editor'
+                },
+                {
                   value: 'slider',
                   label: 'Slider'
                 },

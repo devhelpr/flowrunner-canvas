@@ -1,20 +1,9 @@
 import * as React from 'react';
 import { Stage, Layer , Circle, Line, Text, Label, Tag, Rect} from 'react-konva';
-import { min } from 'rxjs/operators';
 
 import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
 
 const heightCorrection = 42;
-
-export class XYCanvasInfo {
-	getWidth(node) {
-		return (node.width || 250) + 20 + 80;
-	}
-
-	getHeight(node) {
-		return (node.height || 250) + (3 * 16) + 4;
-	}
-}
 
 
 export interface XYCanvasProps {

@@ -10,18 +10,6 @@ export interface GridCanvasState {
 	
 }
 
-export class GridCanvasInfo {
-	getWidth(node) {
-		//return ((node.columns || 8) * 16);
-		return ((node.columns || 8) * 16) + 20 + 80;
-	}
-
-	getHeight(node) {
-		//return ((node.rows || 8) * 16);
-		return ((node.rows || 8) * 16) + (3 * 16) + 4;
-	}
-}
-
 export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState> {
 
 	state = {
