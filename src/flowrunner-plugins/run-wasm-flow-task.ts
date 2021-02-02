@@ -26,7 +26,7 @@ export class RunWasmFlowTask extends FlowTask {
                   console.log('wasm return payload', payload);
                   resolve(payload);
                 } catch (err) {
-                  conso.log('wasm error', err);
+                  console.log('wasm error', err);
                   reject();
                 }
               })
