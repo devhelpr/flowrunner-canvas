@@ -357,6 +357,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 	componentDidUpdate(prevProps : CanvasProps, prevState: CanvasState) {
 
 		if (prevProps.flow != this.props.flow) {
+			
 			this.nodeStateStore = {};
 			if (this.flowIsLoading) {
 				this.flowIsLoading = false;
@@ -396,6 +397,10 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 				this.recalculateStartEndpoints();
 				
 			} else {
+
+				if (this.props.flow.length == 1) {
+					this.fitStage();
+				}
 				//this.shapeRefs = [];
 
 				//this.shapeRefs[this.connectionForDraggingName] = React.createRef();
@@ -1898,7 +1903,18 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 						settings.events.map((event ,eventIndex) => {
 							this.shapeRefs["thumbstartevent_" + newNode.name + eventIndex] = React.createRef();
 						});
-					} 
+					}
+					
+					const lineRef = this.shapeRefs[this.connectionForDraggingName];
+					if (lineRef && lineRef.current) {
+						lineRef.current.opacity(0);
+						if (this.stage && this.stage.current) {
+							let stage = (this.stage.current as any).getStage();
+							if (stage !== undefined) {
+								stage.batchDraw();
+							}
+						}
+					}
 					this.props.addFlowNode(newNode, this.props.flow);
 				}				
 			}
@@ -2165,6 +2181,16 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
 					
+					const lineRef = this.shapeRefs[this.connectionForDraggingName];
+					if (lineRef && lineRef.current) {
+						lineRef.current.opacity(0);
+						if (this.stage && this.stage.current) {
+							let stage = (this.stage.current as any).getStage();
+							if (stage !== undefined) {
+								stage.batchDraw();
+							}
+						}
+					}
 					this.props.addFlowNode(newNode, this.props.flow);
 				}				
 			}
