@@ -12,7 +12,7 @@ export const useFormControl = (initialValue, metaInfo: any, sendChange: (value, 
   return {
     value: value,
     onChange: handleChange,
-    setValue
+    setValue,
   };
 };
 
@@ -29,7 +29,6 @@ export const useFormControlFromCode = (initialValue, metaInfo: any, sendChange: 
     sendChange(value, metaInfo);
   };
 
-
   const sendChangeDirect = value => {
     sendChange(value, metaInfo);
   };
@@ -39,6 +38,6 @@ export const useFormControlFromCode = (initialValue, metaInfo: any, sendChange: 
     onChange: handleChange,
     handleChangeByValue: handleChangeByValue,
     setValue,
-    sendChangeDirect
+    sendChangeDirect,
   };
 };

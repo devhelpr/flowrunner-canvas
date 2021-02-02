@@ -26,7 +26,7 @@ export interface ShapeTypeProps {
   onMouseOver: any;
   onMouseOut: any;
 
-  onClickSetup : any;
+  onClickSetup: any;
 
   shapeRefs: any[];
 
@@ -98,7 +98,7 @@ export interface LineTypeProps {
   endNodeName: string;
   opacity?: number;
   noMouseEvents: boolean;
-  touchedNodes? : any;
+  touchedNodes?: any;
   name?: string;
 }
 

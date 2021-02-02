@@ -18,7 +18,10 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   onMessage = (event: any) => {};
 
-  registerNodeStateObserver = (observableId: string, callback: (nodeName: string, nodeState: string, touchedNodes : any) => void) => {};
+  registerNodeStateObserver = (
+    observableId: string,
+    callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
+  ) => {};
 
   unregisterNodeStateObserver = (observableId: string) => {};
 
@@ -36,7 +39,14 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string, additionalValues?: any) => {};
+  modifyFlowNode = (
+    nodeName: string,
+    propertyName: string,
+    value: any,
+    executeNode?: string,
+    eventName?: string,
+    additionalValues?: any,
+  ) => {};
 
   isActiveFlowRunner = () => {
     return false;
@@ -129,10 +139,10 @@ export class FlowConnector implements IFlowrunnerConnector {
       } else if (event.data.command == 'SendNodeExecution') {
         if (event.data) {
           //if (this.nodeState[event.data.name] === undefined || this.nodeState[event.data.name] != event.data.result) {
-            this.nodeStateObservables.map((callbackInfo, index) => {
-              callbackInfo.callback(event.data.name, event.data.result, event.data.touchedNodes);
-            });
-         //}
+          this.nodeStateObservables.map((callbackInfo, index) => {
+            callbackInfo.callback(event.data.name, event.data.result, event.data.touchedNodes);
+          });
+          //}
           this.nodeState[event.data.name] = event.data.result;
         }
 
@@ -352,7 +362,14 @@ export class FlowConnector implements IFlowrunnerConnector {
     }
   };
 
-  modifyFlowNode = (nodeName: string, propertyName: string, value: any, executeNode?: string, eventName?: string, additionalValues?: any) => {
+  modifyFlowNode = (
+    nodeName: string,
+    propertyName: string,
+    value: any,
+    executeNode?: string,
+    eventName?: string,
+    additionalValues?: any,
+  ) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
         this.worker.postMessage({
@@ -362,7 +379,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           value: value,
           executeNode: executeNode || '',
           triggerEvent: eventName || '',
-          additionalValues: additionalValues
+          additionalValues: additionalValues,
         });
       }
     }
@@ -424,7 +441,7 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   registerNodeStateObserver = (
     observableId: string,
-    callback: (nodeName: string, nodeState: string, touchedNodes : any) => void,
+    callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
   ) => {
     this.nodeStateObservables.push({
       callback: callback,

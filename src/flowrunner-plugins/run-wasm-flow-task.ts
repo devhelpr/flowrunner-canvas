@@ -14,7 +14,7 @@ export class RunWasmFlowTask extends FlowTask {
               .getFlow(node.flowId)
               .then(flow => {
                 console.log('RunWasmFlowTask', node.name, flow);
-                try {                
+                try {
                   const webAssembly = services.getWebAssembly();
                   this.webassemblyFlowrunner = webAssembly.Flowrunner.new(
                     `[]`,
@@ -23,15 +23,15 @@ export class RunWasmFlowTask extends FlowTask {
                   );
 
                   let payload = Object.assign({}, node.payload, this.webassemblyFlowrunner.convert(JSON.stringify({})));
-                  console.log("wasm return payload",payload);
+                  console.log('wasm return payload', payload);
                   resolve(payload);
                 } catch (err) {
-                  conso.log("wasm error", err);
+                  conso.log('wasm error', err);
                   reject();
                 }
               })
               .catch(() => {
-                console.log("wasm rejected");
+                console.log('wasm rejected');
                 reject();
               });
           });

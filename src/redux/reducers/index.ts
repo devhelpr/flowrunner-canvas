@@ -11,5 +11,5 @@ export const reducers = {
   canvasMode: canvasModeReducer,
   layout: layoutReducer,
   nodeState: nodeStateReducer,
-  nodesTouched: nodesTouchedReducer
+  nodesTouched: nodesTouchedReducer,
 };

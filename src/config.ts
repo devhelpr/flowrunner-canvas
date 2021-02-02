@@ -56,7 +56,7 @@ const taskTypeConfig: any = {
       withValue: '',
       usingCondition: 'equals',
       dataType: 'string',
-      dontTriggerOnEmptyValues: true
+      dontTriggerOnEmptyValues: true,
     },
     _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
@@ -67,41 +67,50 @@ const taskTypeConfig: any = {
         { fieldName: 'compareProperty', required: true },
         { fieldName: 'withProperty' },
         { fieldName: 'withValue' },
-        { fieldName: 'usingCondition', 
+        {
+          fieldName: 'usingCondition',
           fieldType: 'select',
           options: [
             {
-              label:"equals",value:"equals"
+              label: 'equals',
+              value: 'equals',
             },
             {
-              label:"not-equals",value:"not-equals"
+              label: 'not-equals',
+              value: 'not-equals',
             },
             {
-              label:"smaller",value:"smaller"
+              label: 'smaller',
+              value: 'smaller',
             },
             {
-              label:"bigger",value:"bigger"
+              label: 'bigger',
+              value: 'bigger',
             },
             {
-              label:"smaller-or-equal",value:"smaller-or-equal"
+              label: 'smaller-or-equal',
+              value: 'smaller-or-equal',
             },
             {
-              label:"bigger-or-equal",value:"bigger-or-equal"
-            }
-          ]
+              label: 'bigger-or-equal',
+              value: 'bigger-or-equal',
+            },
+          ],
         },
-        { 
-          fieldName: 'dataType', 
+        {
+          fieldName: 'dataType',
           fieldType: 'select',
           options: [
             {
-              label:"string",value:"string"
+              label: 'string',
+              value: 'string',
             },
             {
-              label:"number",value:"number"
-            }
-          ]
-        }
+              label: 'number',
+              value: 'number',
+            },
+          ],
+        },
       ],
     },
   },
@@ -424,24 +433,24 @@ const taskTypeConfig: any = {
     hasConfigMenu: true,
     configMenu: {
       fields: [
-        { 
-          fieldName: 'interval', 
+        {
+          fieldName: 'interval',
           required: true,
           label: 'Interval(ms)',
-          dataType: 'number'
+          dataType: 'number',
         },
-        { 
-          fieldName: 'mode', 
+        {
+          fieldName: 'mode',
           fieldType: 'select',
           options: [
-            {label:"default", value: "default"},
-            {label:"executeNode", value: "executeNode"}
-          ]
+            { label: 'default', value: 'default' },
+            { label: 'executeNode', value: 'executeNode' },
+          ],
         },
         {
           fieldName: 'executeNode',
-          visibilityCondition: 'mode="executeNode"'
-        }            
+          visibilityCondition: 'mode="executeNode"',
+        },
       ],
     },
   },
@@ -703,84 +712,84 @@ const taskTypeConfig: any = {
         {
           fieldName: 'metaInfo',
           fieldType: 'objectList',
-          label: "Form controls",
-          metaInfo : [
+          label: 'Form controls',
+          metaInfo: [
             {
-              fieldName: "fieldName",
-              fieldType: "text"
+              fieldName: 'fieldName',
+              fieldType: 'text',
             },
             {
-              fieldName: "fieldType",
+              fieldName: 'fieldType',
               fieldType: 'select',
               options: [
                 {
                   value: 'text',
-                  label: 'Text Input'
+                  label: 'Text Input',
                 },
                 {
                   value: 'radiobutton',
-                  label: 'Radiobuttons'
+                  label: 'Radiobuttons',
                 },
                 {
                   value: 'checkbox',
-                  label: 'Checkbox'
+                  label: 'Checkbox',
                 },
                 {
                   value: 'textarea',
-                  label: 'Textarea'
+                  label: 'Textarea',
                 },
                 {
                   value: 'richtexteditor',
-                  label: 'Richtext Editor'
+                  label: 'Richtext Editor',
                 },
                 {
                   value: 'slider',
-                  label: 'Slider'
+                  label: 'Slider',
                 },
                 {
                   value: 'select',
-                  label: 'Select'
+                  label: 'Select',
                 },
                 {
                   value: 'list',
-                  label: 'List'
-                }
-              ]
+                  label: 'List',
+                },
+              ],
             },
             {
-              fieldName: "label",
-              fieldType: "text"
+              fieldName: 'label',
+              fieldType: 'text',
             },
             {
-              fieldName: "required",
-              fieldType: "checkbox",
-              label: "Required field"
+              fieldName: 'required',
+              fieldType: 'checkbox',
+              label: 'Required field',
             },
             {
               visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
-              fieldName: "options",
-              fieldType: "objectList",
-              label: "Options",
-              metaInfo : [
+              fieldName: 'options',
+              fieldType: 'objectList',
+              label: 'Options',
+              metaInfo: [
                 {
-                  fieldName: "value",
-                  fieldType: "text"
+                  fieldName: 'value',
+                  fieldType: 'text',
                 },
                 {
-                  fieldName: "label",
-                  fieldType: "text"
-                }
-              ]
+                  fieldName: 'label',
+                  fieldType: 'text',
+                },
+              ],
             },
             ,
             {
-              fieldName: "visibilityCondition",
-              fieldType: "textarea"
-            }
-          ]
-        }
+              fieldName: 'visibilityCondition',
+              fieldType: 'textarea',
+            },
+          ],
+        },
       ],
-    }
+    },
   },
   DebugTask: {
     shapeType: 'Html',
@@ -837,11 +846,11 @@ const taskTypeConfig: any = {
             {
               value: 'json',
               label: 'json',
-            },        
+            },
             {
               value: 'richtext',
-              label: 'Richtext'
-            }
+              label: 'Richtext',
+            },
           ],
         },
         { fieldName: 'propertyName' },

@@ -114,8 +114,6 @@ import ("../rust/pkg/index_bg.wasm").then(wasm => {
 });
 */
 
-
-
 let flow: FlowEventRunner;
 let observables = {};
 
@@ -538,12 +536,12 @@ const onWorkerMessage = event => {
       /*global __webpack_public_path__ */
       __webpack_public_path__ = data.publicPath;
 
-      console.log("__webpack_public_path__", __webpack_public_path__, data.publicPath);
+      console.log('__webpack_public_path__', __webpack_public_path__, data.publicPath);
 
       import('../rust/pkg').then(wasm => {
-        console.log("wasm", wasm, wasm.greet("hello wasm!"));
+        console.log('wasm', wasm, wasm.greet('hello wasm!'));
         wasm.init();
-      
+
         webAssembly = wasm;
         let flow = [
           {
@@ -579,10 +577,8 @@ const onWorkerMessage = event => {
         ];
         let flowrunner = webAssembly.Flowrunner.new(`[]`, `{"flow":${JSON.stringify(flow)}}`);
         console.log('wasm test', flowrunner.convert(JSON.stringify({})));
-              
       });
-    } else
-    if (command == 'executeFlowNode' && data.nodeName) {
+    } else if (command == 'executeFlowNode' && data.nodeName) {
       if (!flow) {
         return;
       }
@@ -695,16 +691,16 @@ let lastDate = new Date();
 
 const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
   //if (dateTime >= lastDate) {
-    lastDate = dateTime;
-    ctx.postMessage({
-      command: 'SendNodeExecution',
-      result: result,
-      dateTime: dateTime,
-      payload: { ...payload, nodeExecutionId: uuidV4() },
-      name: id,
-      nodeType: nodeType,
-      touchedNodes: flow.getTouchedNodes()
-    });
+  lastDate = dateTime;
+  ctx.postMessage({
+    command: 'SendNodeExecution',
+    result: result,
+    dateTime: dateTime,
+    payload: { ...payload, nodeExecutionId: uuidV4() },
+    name: id,
+    nodeType: nodeType,
+    touchedNodes: flow.getTouchedNodes(),
+  });
   //}
 };
 
