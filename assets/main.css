@@ -780,11 +780,11 @@ textarea.form-control {
 	min-height: 300px !important;	
 }
 
-.container__ui-view .canvas__html-shape[data-node-visualizer="list"],
-.container__ui-view .canvas__html-shape[data-node-visualizer="text"],
-.container__ui-view .canvas__html-shape[data-node-visualizer="number"],
-.ui-view-layout__container .canvas__html-shape[data-node-visualizer="text"],
-.ui-view-layout__container .canvas__html-shape[data-node-visualizer="number"] {
+.container__ui-view .canvas__html-shape[data-visualizer="list"],
+.container__ui-view .canvas__html-shape[data-visualizer="text"],
+.container__ui-view .canvas__html-shape[data-visualizer="number"],
+.ui-view-layout__container .canvas__html-shape[data-visualizer="text"],
+.ui-view-layout__container .canvas__html-shape[data-visualizer="number"] {
 	min-height: auto !important;
 }
 
@@ -911,17 +911,30 @@ textarea.form-control {
 	display: none;
 }
 
+.container__ui-view [data-task="DebugTask"][data-visualizer="color"].untouched,
+.container__ui-view [data-task="DebugTask"][data-visualizer="richtext"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="gridcanvas"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="xycanvas"].untouched {
-	display: block;
+	display: flex;
 }
 
+[data-task="DebugTask"][data-visualizer="color"].untouched .html-plugin-node ,
+[data-task="DebugTask"][data-visualizer="richtext"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="gridcanvas"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="xycanvas"].untouched .html-plugin-node  {
 	display: block;
 }
+
+[data-task="DebugTask"][data-visualizer="color"].untouched .html-plugin-node__h-100,
+[data-task="DebugTask"][data-visualizer="richtext"].untouched .html-plugin-node__h-100,
+[data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node__h-100 ,
+[data-task="DebugTask"][data-visualizer="gridcanvas"].untouched .html-plugin-node__h-100 ,
+[data-task="DebugTask"][data-visualizer="xycanvas"].untouched .html-plugin-node__h-100  {
+	display: flex;
+}
+
 
 .container__background {
 	background: #f2f2f2;
@@ -961,4 +974,8 @@ textarea.form-control {
 }
 .toolbar-class {
 	border: 1px solid #ccc;
+}
+
+.richtext-visualizer p:only-child {
+	margin-bottom: 0;
 }

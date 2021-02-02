@@ -104,62 +104,17 @@ registerExpressionFunction('vlookup', (a: number, ...args: number[]) => {
 
 let webAssembly;
 
-import('../assets/wasm/crate_wasm.js').then(wasm => {
-  wasm.init();
+//import('./wasm').then((wasmWasm) => {
+//
+//});
 
-  webAssembly = wasm;
-  let flow = [
-    {
-      name: 'start',
-      taskName: 'assign',
-      valueInt: 1,
-      mode: 'int',
-      next: 'add',
-    },
-    {
-      name: 'add',
-      taskName: 'operation',
-      operator: 'add',
-      valueInt: 1,
-      mode: 'int',
-      next: 'condition',
-    },
-    {
-      name: 'condition',
-      taskName: 'if',
-      condition: 'lower',
-      valueInt: 10000,
-      mode: 'int',
-      next: 'add',
-      elseStep: 'else',
-    },
-    {
-      name: 'else',
-      taskName: 'assign',
-      value: 'ready',
-      mode: '',
-    },
-  ];
-  let flowrunner = webAssembly.Flowrunner.new(`[]`, `{"flow":${JSON.stringify(flow)}}`);
-  console.log('wasm test', flowrunner.convert(JSON.stringify({})));
-
-  /*console.log(wasm.greet("worker"));
-
-  const universe = wasm.Universe.new(6,6,"010000001000011100000000000000000000000000");
-  //let myuniverse = universe.new();
-  console.log (universe.render());
-  universe.tick();
-  console.log (universe.render());
-  universe.tick();
-  console.log (universe.render());
-  universe.tick();
-  console.log (universe.render());
-  universe.tick();
-  console.log (universe.render());
-  universe.tick();
-  console.log (universe.render());
-  */
+/*
+import ("../rust/pkg/index_bg.wasm").then(wasm => {
+  console.log("WASM", wasm);
 });
+*/
+
+
 
 let flow: FlowEventRunner;
 let observables = {};
@@ -579,6 +534,54 @@ const onWorkerMessage = event => {
   if (event && event.data) {
     let data: any = event.data;
     let command = data.command;
+    if (command == 'init') {
+      /*global __webpack_public_path__ */
+      __webpack_public_path__ = data.publicPath;
+
+      console.log("__webpack_public_path__", __webpack_public_path__, data.publicPath);
+
+      import('../rust/pkg').then(wasm => {
+        console.log("wasm", wasm, wasm.greet("hello wasm!"));
+        wasm.init();
+      
+        webAssembly = wasm;
+        let flow = [
+          {
+            name: 'start',
+            taskName: 'assign',
+            valueInt: 1,
+            mode: 'int',
+            next: 'add',
+          },
+          {
+            name: 'add',
+            taskName: 'operation',
+            operator: 'add',
+            valueInt: 1,
+            mode: 'int',
+            next: 'condition',
+          },
+          {
+            name: 'condition',
+            taskName: 'if',
+            condition: 'lower',
+            valueInt: 10000,
+            mode: 'int',
+            next: 'add',
+            elseStep: 'else',
+          },
+          {
+            name: 'else',
+            taskName: 'assign',
+            value: 'ready',
+            mode: '',
+          },
+        ];
+        let flowrunner = webAssembly.Flowrunner.new(`[]`, `{"flow":${JSON.stringify(flow)}}`);
+        console.log('wasm test', flowrunner.convert(JSON.stringify({})));
+              
+      });
+    } else
     if (command == 'executeFlowNode' && data.nodeName) {
       if (!flow) {
         return;

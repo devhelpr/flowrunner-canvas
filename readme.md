@@ -11,7 +11,10 @@ The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but y
 
 # The simplest way to start playing with flowrunner-canvas
 
-- clone the github repo
+- install rust https://www.rust-lang.org/tools/install
+- install wasm-pack https://rustwasm.github.io/wasm-pack/installer/
+
+- clone this github repo
 - yarn install
 - npx gulp
 

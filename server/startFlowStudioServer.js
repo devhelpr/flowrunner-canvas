@@ -197,6 +197,7 @@ function start(flowFileName, taskPlugins, options) {
 		app.set('view engine', 'ejs');
 		app.use(express.static(path.join(__dirname, '../lib')));
 		app.use(express.static(path.join(__dirname, '../assets')));
+		app.use(express.static(path.join(__dirname, '../rust')));
 		app.use(bodyParser.json());
 
 		let hasLogin = false;

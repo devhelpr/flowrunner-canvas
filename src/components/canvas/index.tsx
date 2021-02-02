@@ -236,7 +236,7 @@ class ContainedCanvas extends React.Component<CanvasProps, CanvasState> {
 		}
 		this.nodeStateStore[nodeName] = nodeState;
 		if (touchedNodes) {
-			console.log("touchedNodes", touchedNodes);
+			//console.log("touchedNodes", touchedNodes);
 			Object.keys(touchedNodes).map((touchNodeId: string) => {
 				const lineRef = this.shapeRefs[touchNodeId];
 				if (lineRef && lineRef.current && lineRef.current.getClassName() == "Arrow") {

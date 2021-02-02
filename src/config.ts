@@ -837,7 +837,11 @@ const taskTypeConfig: any = {
             {
               value: 'json',
               label: 'json',
-            },
+            },        
+            {
+              value: 'richtext',
+              label: 'Richtext'
+            }
           ],
         },
         { fieldName: 'propertyName' },

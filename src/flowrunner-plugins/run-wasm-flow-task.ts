@@ -14,18 +14,24 @@ export class RunWasmFlowTask extends FlowTask {
               .getFlow(node.flowId)
               .then(flow => {
                 console.log('RunWasmFlowTask', node.name, flow);
+                try {                
+                  const webAssembly = services.getWebAssembly();
+                  this.webassemblyFlowrunner = webAssembly.Flowrunner.new(
+                    `[]`,
+                    `{"flow":${JSON.stringify(flow)}}
+                    `,
+                  );
 
-                const webAssembly = services.getWebAssembly();
-                this.webassemblyFlowrunner = webAssembly.Flowrunner.new(
-                  `[]`,
-                  `{"flow":${JSON.stringify(flow)}}
-							`,
-                );
-
-                let payload = Object.assign({}, node.payload, this.webassemblyFlowrunner.convert(JSON.stringify({})));
-                resolve(payload);
+                  let payload = Object.assign({}, node.payload, this.webassemblyFlowrunner.convert(JSON.stringify({})));
+                  console.log("wasm return payload",payload);
+                  resolve(payload);
+                } catch (err) {
+                  conso.log("wasm error", err);
+                  reject();
+                }
               })
               .catch(() => {
+                console.log("wasm rejected");
                 reject();
               });
           });

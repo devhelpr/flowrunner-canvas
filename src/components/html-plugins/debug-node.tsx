@@ -15,6 +15,8 @@ const XYCanvas = React.lazy(() => import('./visualizers/xy-canvas').then(({ XYCa
 const AnimatedGridCanvas = React.lazy(() => import('./visualizers/animated-grid-canvas').then(({ AnimatedGridCanvas }) => ({ default: AnimatedGridCanvas })));
 const GridCanvas = React.lazy(() => import('./visualizers/grid-canvas').then(({ GridCanvas}) => ({ default: GridCanvas })));
 
+const RichText = React.lazy(() => import('./visualizers/richtext').then(({ RichText}) => ({ default: RichText })));
+
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
@@ -237,6 +239,12 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 			additionalCssClass = "html-plugin-node__h-100";
 			visualizer = <Color node={this.props.node} payloads={this.state.receivedPayload}></Color>
 		} else 
+		if (this.props.node.visualizer == "richtext") {
+			additionalCssClass = "html-plugin-node__h-100";
+			visualizer = <Suspense fallback={<div>Loading...</div>}>
+							<RichText node={this.props.node} payloads={this.state.receivedPayload}></RichText>
+				</Suspense>;
+		} else
 		if (this.props.node.visualizer == "gridcanvas") {
 			additionalCssClass = "html-plugin-node__h-100";
 			visualizer = <Suspense fallback={<div>Loading...</div>}>

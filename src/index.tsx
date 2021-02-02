@@ -1,6 +1,4 @@
-//import Worker from "worker-loader!./flow-worker";
-
-
+import './public-path';
 import { startFlow } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
 import { useState } from 'react';
@@ -23,11 +21,9 @@ import { UIControlsBar} from './components/ui-controls-bar';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
-//import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
-//import { setPluginRegistry , renderHtmlNode , getNodeInstance } from './render-html-node';
 
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
 
@@ -75,9 +71,14 @@ export const startEditor = () => {
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
 
+		/*global __webpack_public_path__ */
+ 
 		let worker : Worker;
 		worker = new Worker(new URL("./flow-worker", import.meta.url));
-
+		worker.postMessage({
+			command: 'init',
+			publicPath: __webpack_public_path__
+		});
 		//worker = new Worker("/worker.js");
 
 		let pluginRegistry = {};
@@ -96,6 +97,10 @@ export const startEditor = () => {
 				//worker = new Worker();
 				worker = new Worker(new URL("./flow-worker", import.meta.url));
 				//worker = new Worker("/worker.js");
+				worker.postMessage({
+					command: 'init',
+					publicPath: __webpack_public_path__
+				});
 				flowrunnerConnector.registerWorker(worker);
 			}
 		}
@@ -192,6 +197,12 @@ export const startEditor = () => {
 				
 				startFlow(flowPackage, reducers , options).then((services : any) => {
 					
+					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
+						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+							registerFunction();
+							return true;
+						});
+					}
 					flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 					// isLoggedIn is set below and it forced to true when running using a storageProvider
@@ -256,6 +267,12 @@ export const startEditor = () => {
 
 				startFlow(flowPackage, reducers, options).then((services : any) => {
 					
+					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
+						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+							registerFunction();
+							return true;
+						});
+					}
 					flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 					console.log("pluginRegistry", pluginRegistry);

@@ -4,9 +4,13 @@ const webpack = require('webpack');
 var startFlowStudioServer = require('./server/startFlowStudioServer');
 var named = require('vinyl-named'),   
     path = require("path"),
+    definePlugin = require('webpack').DefinePlugin,
     webpackIgnorePlugin = require('webpack').IgnorePlugin,
-    cleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin,
-    moduleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+    cleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
+
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
+
+const ASSET_PATH = process.env.ASSET_PATH || '/';
 
 var tsProject = ts.createProject('tsconfig.json');
 
@@ -59,6 +63,8 @@ var tsProject = ts.createProject('tsconfig.json');
                 name: 'jss',
                 chunks: 'all',
               }  
+                        runtimeChunk: 'single',
+
 */
 function buildTypescript() {
 
@@ -76,10 +82,9 @@ function buildTypescript() {
           chunkLoadingGlobal: 'flowcanvaswebpackJsonpPlugin'
         },
         experiments: {
-          asyncWebAssembly: true
+          syncWebAssembly: true
         },
         optimization: {
-          runtimeChunk: 'single',
           splitChunks: {    
             cacheGroups: {
               react: {
@@ -125,7 +130,21 @@ function buildTypescript() {
                 },
               ],
             },
-            
+            /*{
+              test: /\.wasm$/,
+              type:
+                "javascript/auto",
+              use: [
+                {
+                  loader: "file-loader",
+                  options: {
+                    name: "wasm/[name].[hash].[ext]",
+                    publicPath: "/lib/"
+                  }
+                }
+              ]
+            },
+            */
             {
               test: /\.tsx?$/,
               loader: "ts-loader",
@@ -147,7 +166,16 @@ function buildTypescript() {
           
         },
         plugins:[
+          new webpack.DefinePlugin({
+            'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
+          }),
           new cleanPlugin(),
+          new WasmPackPlugin({
+            crateDirectory: __dirname + "/rust", 
+            //outDir: "../lib",
+
+            // ??? https://pspdfkit.com/blog/2020/webassembly-in-a-web-worker/
+          }),
           new webpackIgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/

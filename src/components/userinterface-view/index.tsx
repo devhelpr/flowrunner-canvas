@@ -286,9 +286,7 @@ export class ContainedUserInterfaceView extends React.Component<UserInterfaceVie
 						element.classList.remove("untouched");
 					} else {
 						element.classList.add("untouched");
-					}
-
-					
+					}					
 				}
 			})
 		}
