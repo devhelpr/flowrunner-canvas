@@ -34,10 +34,13 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 	const selectedNode = useSelectedNodeStore();
 
 	useEffect(() => {
+		if (!props.node) {
+			return;
+		}
 		const node = {...props.node};
-		let requiredNodeValues;
+		let newRequiredNodeValues;
 		if (node.shapeType !== "Line") {
-			requiredNodeValues = {
+			newRequiredNodeValues = {
 				_id : node._id,
 				id: node.id,
 				x: node.x,
@@ -48,7 +51,7 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 			delete node.x;
 			delete node.y;
 		} else {
-			requiredNodeValues = {
+			newRequiredNodeValues = {
 				_id : node._id,
 				id: node.id,
 				startshapeid: node.startshapeid,
@@ -78,7 +81,7 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 		setValue(node);
 		setOrgNodeName(props.node.name);
 		setOrgNodeValues({...props.node});
-		setRequiredNodeValues(requiredNodeValues);
+		setRequiredNodeValues(newRequiredNodeValues);
 	}, []);
 
 	const saveNode = (e) => {
@@ -119,8 +122,8 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 		return false;
 	}
 
-	const onSetValue = (value, fieldName) => {
-		setValue({...value, [fieldName]: value});
+	const onSetValue = (newValue, fieldName) => {
+		setValue({...value, [fieldName]: newValue});
 	}
 	
 	return <div className="edit-node-settings" ref={ref => ((containerRef as any).current = ref)}>

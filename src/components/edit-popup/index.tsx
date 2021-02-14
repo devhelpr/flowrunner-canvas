@@ -24,11 +24,11 @@ export const EditPopup = (props: EditPopupProps) => {
 	const flow = useFlowStore();
 	const selectedNode = useSelectedNodeStore();
 
-	useEffect(() => {
-		const node = {...selectedNode.node};
-		let requiredNodeValues;
+	useEffect(() => {		
+		const node = {...selectedNode.node.node};
+		let newRequiredNodeValues;
 		if (node.shapeType !== "Line") {
-			requiredNodeValues = {
+			newRequiredNodeValues = {
 				_id : node._id,
 				id: node.id,
 				x: node.x,
@@ -39,7 +39,7 @@ export const EditPopup = (props: EditPopupProps) => {
 			delete node.x;
 			delete node.y;
 		} else {
-			requiredNodeValues = {
+			newRequiredNodeValues = {
 				_id : node._id,
 				id: node.id,
 				startshapeid: node.startshapeid,
@@ -67,8 +67,8 @@ export const EditPopup = (props: EditPopupProps) => {
 		
 		setValue(JSON.stringify(node, null, 2));
 		setOrgNodeName(selectedNode.node.name);
-		setOrgNodeValues({...selectedNode.node.name});
-		setRequiredNodeValues(requiredNodeValues);
+		setOrgNodeValues({...selectedNode.node});
+		setRequiredNodeValues(newRequiredNodeValues);
 	}, []);
 
 	const saveNode = (e) => {

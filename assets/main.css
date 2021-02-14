@@ -317,7 +317,7 @@ canvas,.konvajs-content,
 }
 
 [data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node {
-	white-space: normal;	
+	/*white-space: normal;*/
 }
 
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
@@ -923,6 +923,11 @@ textarea.form-control {
 [data-task="FormTask"].untouched .html-plugin-node .form {
 	opacity: 1;
 	pointer-events: none;
+	
+}
+
+[data-task="FormTask"].untouched .html-plugin-node {
+	filter: brightness(.91);
 }
 
 [data-task="DebugTask"].untouched .html-plugin-node {
@@ -946,7 +951,11 @@ textarea.form-control {
 	display: flex;
 }
 
-[data-task="DebugTask"][data-visualizer="number"].untouched .html-plugin-node ,
+
+[data-task="DebugTask"][data-visualizer="number"].untouched .html-plugin-node {
+	display: flex;
+}
+
 [data-task="DebugTask"][data-visualizer="color"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="richtext"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node ,

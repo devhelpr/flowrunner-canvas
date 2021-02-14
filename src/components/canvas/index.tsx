@@ -388,6 +388,10 @@ export const Canvas = (props: CanvasProps) => {
 					if (!_touchedNodes[touchNodeId] &&
 						nodesStateLocal.current[touchNodeId] != "") {
 						nodesStateLocal.current[touchNodeId] = "";
+						const shapeRef = shapeRefs.current[touchNodeId];
+						shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+							state: ShapeStateEnum.Default
+						});
 					}
 				}
 			})
@@ -404,11 +408,6 @@ export const Canvas = (props: CanvasProps) => {
 		document.addEventListener('paste', onPaste);
 		updateDimensions();
 		
-		/*setTimeout(() => {			
-			loadEditorState();
-		}, 100);
-		*/
-
 		if (props.canvasToolbarsubject) {
 			
 			props.canvasToolbarsubject.subscribe({
@@ -472,40 +471,28 @@ export const Canvas = (props: CanvasProps) => {
 	
 	const recalculateStartEndpoints = () => {
 
-		// TODO : fix dit... want het werkt nog niet
-		//  ... probleem is dat het kan gebeuren dat het eindpunt later wordt berekend 
-		//    zonder dat het opnieuw berekend wordt
-		//      .. bij 'Demo'-flow wordt de AssignTask gerenderd nadat Datagrid is berekend
-		//      .. dus dat geeft verkeerde waardes
-		//
-		//      .. moet ook aangepast worden voor endlines
-
-		//setTimeout(() => {
-			//console.log("recalculateStartEndpoints");
-			flow.flow.map((node, index) => {
-				if (node.shapeType !== "Line") {
-					let shapeRef = shapeRefs.current[node.name];
-					if (shapeRef && (shapeRef as any)) {						
-						let element = document.getElementById(node.name);
-						if (element) {
-							setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,node.x,node.y,node);
-							setNewPositionForNode(node, (shapeRef as any), {x:node.x,y:node.y}, false, true);
-						}
+		flow.flow.map((node, index) => {
+			if (node.shapeType !== "Line") {
+				let shapeRef = shapeRefs.current[node.name];
+				if (shapeRef && (shapeRef as any)) {						
+					let element = document.getElementById(node.name);
+					if (element) {
+						setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,node.x,node.y,node);
+						setNewPositionForNode(node, (shapeRef as any), {x:node.x,y:node.y}, false, true);
 					}
 				}
-			});
-
-			if (stage && stage.current) {
-				let stageInstance = (stage.current as any).getStage();
-				if (stageInstance) {
-					stageInstance.batchDraw();
-				}
 			}
-		//}, 1);
-		
+		});
+
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				stageInstance.batchDraw();
+			}
+		}		
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		
 		if (flow && flow.flow.length > 0) {
 			
@@ -567,7 +554,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [flow]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		updateDimensions();			
 
 		if (canvasWrapper && canvasWrapper.current) {
@@ -583,15 +570,14 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [canvasKey]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		updateTouchedNodes();
-	}, [flow,
+	}, [
 		canvasMode,
 		props.canvasToolbarsubject,
 		stageWidth,
 		stageHeight,
 		canvasOpacity,
-		canvasKey,
 		showNodeSettings,
 		editNode,
 		editNodeSettings,
