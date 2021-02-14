@@ -276,11 +276,14 @@ canvas,.konvajs-content,
 	margin-right: 10px;
 }
 
-.canvas__html-shape-bar-icon {
-	margin-left: auto;
+.canvas__html-shape-bar-icon {	
 	margin-right: 10px;
 	color: #000000;
 	pointer-events: auto;
+}
+
+.canvas__html-shape-bar-icon:first-of-type {
+	margin-left: auto;
 }
 
 .connecting-nodes .canvas__html-shape-bar-icon {
@@ -363,6 +366,9 @@ canvas,.konvajs-content,
     height: calc(100% + 40px);
     border: 2px #cccccc solid;
     border-radius: 8px;
+}
+.canvas-controller__scroll-container .form .html-plugin-node::before {
+	display: none;
 }
 
 .has-error .html-plugin-node::before {
@@ -634,6 +640,25 @@ textarea.form-control {
 	overflow:-y visible;
 }
 
+#basic-navbar-nav {
+	overflow-x: scroll;
+	scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#basic-navbar-nav::-webkit-scrollbar {
+    width: 0;
+	height: 0;
+	display: none;
+}
+
+.toolbar__form {
+	flex: 1 1 auto;
+    display: flex;
+    justify-items: flex-start;
+    white-space: nowrap;
+    overflow-x: scroll;
+}
 @media only screen and (max-width: 1023px) {
 	.toolbar__container .form-inline {
 		flex-direction: column;
@@ -894,8 +919,9 @@ textarea.form-control {
 	min-height: 500px;
 }
 
+/* 0.5 */
 [data-task="FormTask"].untouched .html-plugin-node .form {
-	opacity: 0.5;
+	opacity: 1;
 	pointer-events: none;
 }
 
@@ -911,6 +937,7 @@ textarea.form-control {
 	display: none;
 }
 
+.container__ui-view [data-task="DebugTask"][data-visualizer="number"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="color"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="richtext"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched,
@@ -919,6 +946,7 @@ textarea.form-control {
 	display: flex;
 }
 
+[data-task="DebugTask"][data-visualizer="number"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="color"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="richtext"].untouched .html-plugin-node ,
 [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node ,
@@ -927,6 +955,7 @@ textarea.form-control {
 	display: block;
 }
 
+[data-task="DebugTask"][data-visualizer="number"].untouched .html-plugin-node__h-100,
 [data-task="DebugTask"][data-visualizer="color"].untouched .html-plugin-node__h-100,
 [data-task="DebugTask"][data-visualizer="richtext"].untouched .html-plugin-node__h-100,
 [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node__h-100 ,

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { useImperativeHandle , useRef} from 'react';
 
 import * as Konva from 'react-konva';
 const KonvaRect = Konva.Rect;
-const KonvaRegularPolygon = Konva.RegularPolygon;
 const KonvaCircle = Konva.Circle;
 
 import { Group, Text } from 'react-konva';
-import { ThumbTypeProps } from './shape-types';
+import { ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
@@ -15,7 +15,59 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 
 	const [width, setWidth] = useState(0);
 	const [height, setHeight] = useState(0);
-	
+	const groupRef = useRef(null as any);
+
+	useImperativeHandle(ref, () => ({
+		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
+			switch (+action) {
+				case ModifyShapeEnum.GetShapeType : {
+					return "thumbsstart";
+					break;
+				}
+				case ModifyShapeEnum.GetXY : {
+					if (groupRef && groupRef.current) {
+						return {
+							x: (groupRef.current as any).x(),
+							y: (groupRef.current as any).y(),
+						}
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetXY : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.x(parameters.x);
+						groupRef.current.y(parameters.y);
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetOpacity : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.opacity(parameters.opacity);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetPoints : {
+					break;
+				}
+				case ModifyShapeEnum.SetState : {
+					/*
+					if (groupRef && groupRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Touched) {
+							groupRef.current.opacity(1);
+						} else
+						if (parameters.state == ShapeStateEnum.Default) {
+							groupRef.current.opacity(0.5);
+						}						
+					}
+					*/
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}));
+
 	useLayoutEffect(() => {
 		if (props.getNodeInstance) {
 			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
@@ -27,20 +79,10 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 	}, [props.isSelected, props.isConnectedToSelectedNode, props.node]);
 
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
-	let skewX = 0;
-	let skewXOffset = 0;
-
-	if (settings.isSkewed) {
-		skewX = -0.5;
-		skewXOffset = (ShapeMeasures.rectWidht/8) - 4;
-	}
-/*
-	sides={3}
-	rotation={270}
-*/
+	
 	return <><Group
-		ref={ref}
-		x={props.position.x + skewXOffset}
+		ref={groupRef}
+		x={props.position.x }
 		y={props.position.y}
 		onMouseOver={props.onMouseConnectionStartOver}
 		onMouseOut={props.onMouseConnectionStartOut}
@@ -57,14 +99,14 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				y={12}				
 				radius={8}
 				fill="#000000"				
-				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
 			<KonvaCircle
 				x={ShapeMeasures.rectWidht}
 				y={12}				
 				radius={6}
 				fill="#ffffff"				
-				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
 			<KonvaCircle
 				x={ShapeMeasures.rectWidht}

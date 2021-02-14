@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect, RefObject } from 'react';
+import { useState, useEffect, RefObject, useImperativeHandle , useRef} from 'react';
 
 import useImage from 'use-image';
 import { Group, Text, Rect as KonvaRect, Image as KonvaImage, Line as KonvaLine } from 'react-konva';
-import { ShapeTypeProps } from './shape-types';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { Lines } from './line-helper';
@@ -17,6 +17,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	let includeSvgIcon = false;
 	const [image] = useImage("/svg/layout.svg");
 	const [cogImage] = useImage("/svg/cog.svg");
+	const groupRef = useRef(null as any);
 
 	if (settings.isSkewed) {
 		skewX = -0.5;
@@ -58,9 +59,63 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 		textRef = ref;		
 	}	
 
+	
+	useImperativeHandle(ref, () => ({
+		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
+			switch (+action) {
+				case ModifyShapeEnum.GetShapeType : {
+					return "rect";
+					break;
+				}
+				case ModifyShapeEnum.GetXY : {
+					if (groupRef && groupRef.current) {
+						return {
+							x: (groupRef.current as any).x(),
+							y: (groupRef.current as any).y(),
+						}
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetXY : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.x(parameters.x);
+						groupRef.current.y(parameters.y);
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetOpacity : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.opacity(parameters.opacity);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetPoints : {
+					break;
+				}
+				case ModifyShapeEnum.SetState : {
+					/*
+					if (groupRef && groupRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Touched) {
+							groupRef.current.opacity(1);
+						} else
+						if (parameters.state == ShapeStateEnum.Default) {
+							groupRef.current.opacity(0.5);
+						}						
+					}
+					*/
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}));
+
+	
+	//ref={ref} (group)
 	return <>
 		<Group
-			ref={ref}
+			ref={groupRef}
 			x={props.x}
 			y={props.y}
 			
@@ -80,7 +135,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			onMouseLeave={props.onMouseLeave}
 			onClick={props.onClickShape}
 			listening={true}		
-			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			>
 			<KonvaRect
 				ref={ref => (setRef(ref))}
@@ -144,7 +199,6 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				onLineMouseOver={props.onLineMouseOver}
 				onLineMouseOut={props.onLineMouseOut}
 				onClickLine={props.onClickLine}
-				canvasComponentInstance={props.canvasComponentInstance}
 				touchedNodes={props.touchedNodes}
 		></Lines>	
 	</>

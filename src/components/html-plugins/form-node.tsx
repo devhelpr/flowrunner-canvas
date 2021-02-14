@@ -1,45 +1,23 @@
 import * as React from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Suspense } from 'react';
 
-import { connect } from "react-redux";
-
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 import { getFormControl } from './form-controls';
 
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 
+import { useFlowStore} from '../../state/flow-state';
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
-
 /*
-
 	Limitations
 
 		- can currently have only 1 datasource per form
-
-
-	Example redux and hooks
-
-		import { useSelector } from 'react-redux'
-		import { useDispatch } from 'react-redux'
-
-
-		export const CounterComponent = () => {
-			const counter = useSelector(state => state.counter);
-			const dispatch = useDispatch();
-			return <><div>{counter}</div>
-				<button onClick={() => dispatch({ type: 'increment-counter' })}>
-					Increment counter
-				</button>
-			</>
-		}
 */
 export class FormNodeHtmlPluginInfo {
 
@@ -77,11 +55,7 @@ export class FormNodeHtmlPluginInfo {
 export interface FormNodeHtmlPluginProps {
 	flowrunnerConnector? : IFlowrunnerConnector;
 	node : any;
-	flow? : any;
 	taskSettings? : any;
-
-	selectedNode?: any;
-	canvasMode?: ICanvasMode;
 
 	isObjectListNodeEditing? : boolean;
 	isReadOnly? : boolean;
@@ -89,7 +63,6 @@ export interface FormNodeHtmlPluginProps {
 	isNodeSettingsUI? : boolean;
 
 	onSetValue? : (value, fieldName) => void;
-	storeFlowNode: (node, orgNodeName) => void;
 }
 
 export interface FormNodeHtmlPluginState {
@@ -101,121 +74,107 @@ export interface FormNodeHtmlPluginState {
 	receivedPayload : any;
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode,
-		flow: state.flow,
-		canvasMode: state.canvasMode
-	}
-}
+export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
+	
+	const [value, setValue] = useState("");
+	const [values, setValues] = useState([] as any[]);
+	const [node, setNode] = useState({} as any);
+	const [errors, setErrors] = useState({} as any);
+	const [datasource, setDatasource] = useState({} as any);
+	const [receivedPayload, setReceivedPayload] = useState({} as any);		
 
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-	}
-}
+	const flow = useFlowStore();
+	const canvasMode = useCanvasModeStateStore();
+	
+	const observableId = useRef(uuidV4());
 
-class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProps, FormNodeHtmlPluginState> {
+	const unmounted = useRef(false);
+	const timer : any = useRef(null);
+	const lastTime : any = useRef(null);
+	const throttleTimer : any = useRef(null);
 
-	state = {
-		value : "",
-		values : [],
-		node : {},
-		errors : {},
-		datasource : {},
-		receivedPayload : {}
-	};
+	useEffect(() => {
+		if (props.node) {
 
-	observableId = uuidV4();
-
-	componentDidMount() {
-		if (this.props.node) {
-
-			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
-				if (this.props.node.mode && this.props.node.mode === "list") {
-					this.setState({node: this.props.node, values : this.props.node.values || this.props.node.defaultValues || []});
+			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
+				if (props.node.mode && props.node.mode === "list") {
+					setNode(props.node);
+					setValues(props.node.values || props.node.defaultValues || []);
 				} else {
-					this.setState({node: this.props.node, value : this.props.node.value || this.props.node.defaultValue || ""});
+					setNode(props.node);
+					setValue(props.node.value || props.node.defaultValue || "");
 				}
 			} else {
-				if (this.props.node.taskType == "FormTask") {
-					this.props.flowrunnerConnector?.modifyFlowNode(
-						this.props.node.name, 
-						this.props.node.propertyName, 
-						this.props.node.defaultValue || "",
+				if (props.node.taskType == "FormTask") {
+					props.flowrunnerConnector?.modifyFlowNode(
+						props.node.name, 
+						props.node.propertyName, 
+						props.node.defaultValue || "",
 						""
 					);
 				}
-				this.setState({node: this.props.node, values: [], value : this.props.node.defaultValue || ""});
+				setNode(props.node);
+				setValues([]);
+				setValue(props.node.defaultValue || "");
 			}
 		}
 
-		this.props.flowrunnerConnector?.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
-
-	}
-
-	componentDidUpdate(prevProps : FormNodeHtmlPluginProps) {
-		if (prevProps.node !== this.props.node) {
-			this.setState({
-				node: this.props.node,				
-			});
+		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		return () => {
+			unmounted.current = true;
+			if (throttleTimer.current) {
+				clearTimeout(throttleTimer.current);
+				throttleTimer.current = undefined;
+			}
+			props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 		}
+	}, []);
 
-		if (prevProps.flow != this.props.flow) {
-			this.props.flowrunnerConnector?.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
-			this.props.flowrunnerConnector?.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+	useEffect(() => {
 
-			this.setState({values: []});
+		setNode(props.node);
+		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+
+		return () => {
+			props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
+
 		}
+	}, [props.node]);
 
-		if (!prevProps || !prevProps.node || 
-			(prevProps.node.name != this.props.node.name)) {
-			this.props.flowrunnerConnector?.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
-			this.props.flowrunnerConnector?.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
+	useEffect(() => {
+		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		setValues([]);
+
+		return () => {
+			props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
+
 		}
+	}, [flow]);
 
-	}
-
-	unmounted = false;
-	componentWillUnmount() {
-		this.unmounted = true;
-		if (this.throttleTimer) {
-			clearTimeout(this.throttleTimer);
-			this.throttleTimer = undefined;
-		}
-
-		this.props.flowrunnerConnector?.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
-	}
-
-	timer : any;
-	lastTime : any;
-	receivePayloadFromNode = (payload : any) => {
+	
+	const receivePayloadFromNode = (payload : any) => {
 		const maxPayloads = 1;
-		if (this.unmounted) {
+		if (unmounted.current) {
 			return;
 		}		
 		
 
 		let metaInfo : any[] = [];
 
-		if (!!this.props.isNodeSettingsUI) {
-			metaInfo = this.props.taskSettings.configMenu.fields
+		if (!!props.isNodeSettingsUI) {
+			metaInfo = props.taskSettings.configMenu.fields
 		} else {
-			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
-				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
+			if (props.taskSettings && props.taskSettings.metaInfo) {
+				metaInfo = props.taskSettings && props.taskSettings.metaInfo;
 			}
-			if (!!this.props.taskSettings.hasMetaInfoInNode) {
-				metaInfo = this.props.node.metaInfo || [];
+			if (!!props.taskSettings.hasMetaInfoInNode) {
+				metaInfo = props.node.metaInfo || [];
 			}
 		}
 
 		if (!!payload.isDebugCommand) {
 			if (payload.debugCommand  === "resetPayloads") {
-				this.setState((state, props) => {
-					return {
-						receivedPayload: {}						
-					}
-				})
+				setReceivedPayload({});
 			}
 			return;
 		}
@@ -229,56 +188,45 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		});
 
 		if (datasourcePropertyName) {
-			if (!this.lastTime || performance.now() > this.lastTime + 30) {
-				this.lastTime = performance.now();
-				if (this.timer) {
-					clearTimeout(this.timer);
-					this.timer = undefined;
+			if (!lastTime || performance.now() > lastTime + 30) {
+				lastTime.current = performance.now();
+				if (timer.current) {
+					clearTimeout(timer.current);
+					timer.current = undefined;
 				}
-				this.setState((state, props) => {
+									
+				let _datasource = {...datasource};
+				if (datasourcePropertyName) {
+					_datasource[datasourcePropertyName] = payload[datasourcePropertyName];
+				}
+				setDatasource(_datasource);
+				setReceivedPayload(payload);
 					
-					let datasource = {...state.datasource};
-					if (datasourcePropertyName) {
-						datasource[datasourcePropertyName] = payload[datasourcePropertyName];
-					}
-					return {
-						receivedPayload: payload,
-						datasource : datasource
-					}
-				});
 			} else {
-				if (this.timer) {
-					clearTimeout(this.timer);
-					this.timer = undefined;
+				if (timer.current) {
+					clearTimeout(timer.current);
+					timer.current = undefined;
 				}
 	
-				this.timer = setTimeout(() => {
-					this.timer = undefined;
-					this.setState((state, props) => {
+				timer.current = setTimeout(() => {
+					timer.current = undefined;
 				
-						let datasource = {...state.datasource};
-						if (datasourcePropertyName) {
-							datasource[datasourcePropertyName] = payload[datasourcePropertyName];
-						}
-						return {
-							receivedPayload: payload,
-							datasource : datasource
-						}
-					});
+					let _datasource = {...datasource};
+					if (datasourcePropertyName) {
+						_datasource[datasourcePropertyName] = payload[datasourcePropertyName];
+					}
+					setDatasource(_datasource);
+					setReceivedPayload(payload);
 				}, 30);
 			}
 		} else {
-			this.setState((state, props) => {
-				return {
-					receivedPayload: payload
-				}
-			});
+			setReceivedPayload(payload);
 		}
 		return;
 	}
 
 	
-	onSubmit = (event: any) => {
+	const onSubmit = (event: any) => {
 		event.preventDefault();
 		//		
 		//	 debugNode doesn't get triggered after pushFlow...
@@ -293,99 +241,97 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		//	.. NO : simply store the flow again after pushing to flow to the flowrunner
 
 		let doSubmit = true;
-		let errors = {};
+		let updatedErrors = {};
 
 		let metaInfo : any[] = [];
-		if (!!this.props.isObjectListNodeEditing) {
-			metaInfo = this.props.node.metaInfo || [];
+		if (!!props.isObjectListNodeEditing) {
+			metaInfo = props.node.metaInfo || [];
 		} else
-		if (!!this.props.isNodeSettingsUI) {
-			metaInfo = this.props.taskSettings.configMenu.fields
+		if (!!props.isNodeSettingsUI) {
+			metaInfo = props.taskSettings.configMenu.fields
 		} else {
-			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
-				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
+			if (props.taskSettings && props.taskSettings.metaInfo) {
+				metaInfo = props.taskSettings && props.taskSettings.metaInfo;
 			}
-			if (!!this.props.taskSettings.hasMetaInfoInNode) {
-				metaInfo = this.props.node.metaInfo || [];
+			if (!!props.taskSettings.hasMetaInfoInNode) {
+				metaInfo = props.node.metaInfo || [];
 			}
-		}
-		
+		}		
 
 		(metaInfo || []).map((metaInfo) => {
 			if (metaInfo && !!metaInfo.required) {
-				const value = this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || "";
+				const value = values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || "";
 				if (value === "") {
 					doSubmit = false;
-					errors[metaInfo.fieldName] = `${metaInfo.fieldName} is a required field`;					
+					updatedErrors[metaInfo.fieldName] = `${metaInfo.fieldName} is a required field`;					
 				}
 			}
 		});
 		if (doSubmit) {
-			this.setState({errors: []});
+			setErrors([]);
 		} else {
-			this.setState({errors: errors});
+			setErrors(updatedErrors);
 		}
 		return false;
 	}
 
-	setValue = (fieldName, value, metaInfo) => {
-		if (this.props.node && fieldName) {	
-			let errors = {...this.state.errors};
-			if (errors[fieldName]) {
-				delete errors[fieldName];
+	const setValueHelper = (fieldName, value, metaInfo) => {
+		if (props.node && fieldName) {	
+			let updatedErrors = {...errors};
+			if (updatedErrors[fieldName]) {
+				delete updatedErrors[fieldName];
 			}
 
 			if (metaInfo.fieldType == "date") {
-				console.log("setValue date", value);
+				console.log("setValueHelper date", value);
 			}
 			let clearValues = {};
-			if (this.state.values[fieldName] === undefined || value != this.state.values[fieldName]) {
+			if (values[fieldName] === undefined || value != values[fieldName]) {
 				if (metaInfo.clearFields) {
 					metaInfo.clearFields.map((fieldName) => {
 						clearValues[fieldName] = "";
 					})
 				}
 			}
-			console.log("setValueViaOnReceive", metaInfo.fieldName, clearValues);
-			this.setState({values : {
-					...this.state.values,
-					...clearValues,			
-					[fieldName]: value
-				},
-				errors: errors, 	
-				node : {
-					...this.state.node, 
-					[fieldName]: value
+			//console.log("setValueViaOnReceive", metaInfo.fieldName, clearValues);
+			const updatedValues = {
+				...values,
+				...clearValues,			
+				[fieldName]: value
+			};
+			setValues(updatedValues);
+			setErrors(updatedErrors);
+			const updatedNode = {
+				...node, 
+				[fieldName]: value
+			};
+			setNode(updatedNode);
+			
+			//console.log("props.node.name",value,props.node.name);
+			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
+				if (props.node.taskType == "FormTask") {
+					props.flowrunnerConnector?.modifyFlowNode(
+						props.node.name, 
+						fieldName, 
+						value,
+						props.node.name,
+						'',
+						updatedValues
+					);
+				} else {
+					console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
+					flow.storeFlowNode(updatedNode, props.node.name);
 				}
-			}, () => {
-				console.log("this.props.node.name",value,this.props.node.name, this.state);
-				if (!this.props.isNodeSettingsUI && !this.props.isObjectListNodeEditing) {
-					if (this.props.node.taskType == "FormTask") {
-						console.log("here1");
-						this.props.flowrunnerConnector?.modifyFlowNode(
-							this.props.node.name, 
-							fieldName, 
-							value,
-							this.props.node.name,
-							'',
-							this.state.values
-						);
-					} else {
-						console.log("here2");
-						this.props.storeFlowNode(this.state.node, this.props.node.name);
-					}
-					
-				} else if (this.props.onSetValue) {
-					console.log("here3");
-
-					this.props.onSetValue(value, fieldName);
-				}
-			});
+				
+			} else if (props.onSetValue) {
+				props.onSetValue(value, fieldName);
+			}
+			
 		}
 	}
 
-	throttleTimer : any = undefined;
-	onChange = (fieldName, fieldType, metaInfo, event: any) => {
+	
+	const onChange = (fieldName, fieldType, metaInfo, event: any) => {
 		event.preventDefault();
 		let valueForNode : any;
 		if (metaInfo && metaInfo.dataType === "number") {
@@ -395,91 +341,94 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		}
 
 		if (fieldType == "color" ) {
-			if (this.throttleTimer) {
-				clearTimeout(this.throttleTimer)
+			if (throttleTimer.current) {
+				clearTimeout(throttleTimer.current)
 			}
 						
-			this.throttleTimer = setTimeout(() => {
+			throttleTimer.current = setTimeout(() => {
 				
-				this.setValue(fieldName, valueForNode, metaInfo);
+				setValueHelper(fieldName, valueForNode, metaInfo);
 
 			}, fieldType == "color" ? 50 : 5);
 		} else {					
-			this.setValue(fieldName, valueForNode, metaInfo);
+			setValueHelper(fieldName, valueForNode, metaInfo);
 		}
 		
 		return false;
 	}
 
-	setValueViaOnReceive = (value, metaInfo) => {
-		if (this.props.node && metaInfo.fieldName) {	
-			let errors = {...this.state.errors};
-			if (errors[metaInfo.fieldName]) {
-				delete errors[metaInfo.fieldName];
+	const setValueViaOnReceive = (newValue, metaInfo) => {
+		if (props.node && metaInfo.fieldName) {	
+			let _errors = {...errors};
+			if (_errors[metaInfo.fieldName]) {
+				delete _errors[metaInfo.fieldName];
 			}			
 
 			let clearValues = {};
-			if (this.state.values[metaInfo.fieldName] === undefined || value != this.state.values[metaInfo.fieldName]) {
+			if (values[metaInfo.fieldName] === undefined || newValue != values[metaInfo.fieldName]) {
 				if (metaInfo.clearFields) {
 					metaInfo.clearFields.map((fieldName) => {
 						clearValues[fieldName] = "";
 					})
 				}
 			}
-			console.log("setValueViaOnReceive", metaInfo.fieldName, clearValues);
+			
+			let newValues = {
+				...values,
+				...clearValues,				
+				[metaInfo.fieldName]: newValue
+			};
+			//console.log("setValueViaOnReceive", metaInfo.fieldName, newValue, newValues);
+			setValues(newValues);
+			setErrors(_errors);
+			let updatedNode = {
+				...node, 
+				[metaInfo.fieldName]: newValue
+			};
+			setNode(updatedNode);
+			
+			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
+				if (props.node.taskType == "FormTask") {
 
-			this.setState({values : {
-					...this.state.values,
-					...clearValues,				
-					[metaInfo.fieldName]: value
-				},
-				errors: errors, 	
-				node : {
-					...this.state.node, 
-					[metaInfo.fieldName]: value
+					// TODO : this should also push through all fields from this formnode
+					// 		kan dat de hele state.values zijn ?
+
+					props.flowrunnerConnector?.modifyFlowNode(
+						props.node.name, 
+						metaInfo.fieldName, 
+						newValue,
+						props.node.name,
+						'',
+						newValues
+					);
+				} else { 					
+					console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
+					flow.storeFlowNode(updatedNode, props.node.name);
 				}
-			}, () => {
-				if (!this.props.isNodeSettingsUI && !this.props.isObjectListNodeEditing) {
-					if (this.props.node.taskType == "FormTask") {
-
-						// TODO : this should also push through all fields from this formnode
-						// 		kan dat de hele state.values zijn ?
-
-						this.props.flowrunnerConnector?.modifyFlowNode(
-							this.props.node.name, 
-							metaInfo.fieldName, 
-							value,
-							this.props.node.name,
-							'',
-							this.state.values
-						);
-					} else { 					
-						this.props.storeFlowNode(this.state.node, this.props.node.name);
-					}
-				} else  if (this.props.onSetValue) {
-					this.props.onSetValue(value, metaInfo.fieldName);
-				}
-			});
+			} else  if (props.onSetValue) {
+				props.onSetValue(newValue, metaInfo.fieldName);
+			}
+			
 		}
 	}
 
-	onReceiveValue = (value, metaInfo) => {
+	const onReceiveValue = (value, metaInfo) => {
 
 		if (metaInfo.fieldType == "color") {
-			if (this.throttleTimer) {
-				clearTimeout(this.throttleTimer)
+			if (throttleTimer.current) {
+				clearTimeout(throttleTimer.current)
 			}
 			
-			this.throttleTimer = setTimeout(() => {
-				this.setValueViaOnReceive(value, metaInfo);		
+			throttleTimer.current = setTimeout(() => {
+				setValueViaOnReceive(value, metaInfo);		
 			}, metaInfo.fieldType == "color" ? 50 : 5);
 		} else {
-			this.setValueViaOnReceive(value, metaInfo);
+			setValueViaOnReceive(value, metaInfo);
 		}
 		
 	}
 
-	getFieldType = (metaInfo) => {
+	const getFieldType = (metaInfo) => {
 		if (metaInfo.fieldType === "color") {
 			return "color";
 		}
@@ -488,128 +437,125 @@ class ContainedFormNodeHtmlPlugin extends React.Component<FormNodeHtmlPluginProp
 		}
 		return metaInfo.fieldType;
 	}
-
-	render() {
-		let metaInfo : any[] = [];
-		if (!!this.props.isNodeSettingsUI) {
-			metaInfo = this.props.taskSettings.configMenu.fields
-		} else {
-			if (this.props.taskSettings && this.props.taskSettings.metaInfo) {
-				metaInfo = this.props.taskSettings && this.props.taskSettings.metaInfo;
-			}
-			if (!!this.props.isObjectListNodeEditing || 
-				!!this.props.taskSettings.hasMetaInfoInNode) {
-				metaInfo = this.props.node.metaInfo || [];
-			}
+	
+	let metaInfo : any[] = [];
+	if (!!props.isNodeSettingsUI) {
+		metaInfo = props.taskSettings.configMenu.fields
+	} else {
+		if (props.taskSettings && props.taskSettings.metaInfo) {
+			metaInfo = props.taskSettings && props.taskSettings.metaInfo;
 		}
+		if (!!props.isObjectListNodeEditing || 
+			!!props.taskSettings.hasMetaInfoInNode) {
+			metaInfo = props.node.metaInfo || [];
+		}
+	}
 
-		const renderFields = () => {
-			return <>
-				{metaInfo.map((metaInfo, index) => {
-					const fieldType = this.getFieldType(metaInfo);
-					if (metaInfo.visibilityCondition) {				
-						const expression = createExpressionTree(metaInfo.visibilityCondition);
-						let data = {};
-						if (!!this.props.isObjectListNodeEditing) {
-							data = {...this.props.node, ...this.state.receivedPayload, ...this.state.values};
-						} else {
-							data = {...this.state.receivedPayload, ...this.state.values};
-						}
-						const result = executeExpressionTree(expression, data);
-						if (!result) {
-							return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
-						}								
+	const renderFields = () => {
+		return <>
+			{metaInfo.map((metaInfo, index) => {
+				const fieldType = getFieldType(metaInfo);
+				if (metaInfo.visibilityCondition) {				
+					const expression = createExpressionTree(metaInfo.visibilityCondition);
+					let data = {};
+					if (!!props.isObjectListNodeEditing) {
+						data = {...props.node, ...receivedPayload, ...values};
+					} else {
+						data = {...receivedPayload, ...values};
 					}
-					if (!fieldType || fieldType == "text" || fieldType == "color" || fieldType == "date") {
-						if (!!this.props.isReadOnly) {
-							return <React.Fragment key={"index-f-r-" + index}>
-								<div className="form-group">						
-									<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong></label>
-									<div className="">{this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || ""}</div>
-								</div>
-							</React.Fragment>
-						}						
-						return <React.Fragment key={"index-f-" + index}>
-								<div className="form-group">						
-									<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong>{!!metaInfo.required && " *"}</label>
-									<div className="input-group mb-1">
-										<input
-											onChange={this.onChange.bind(this, metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo)}
-											key={"index" + index}
-											type={fieldType}
-											className="form-control"
-											value={this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || ""}
-											id={"input-" + this.props.node.name + "-" +metaInfo.fieldName}
-											data-index={index}
-											disabled={!!this.props.canvasMode?.isFlowrunnerPaused}													 
-										/>			
-									</div>
-									{this.state.errors[metaInfo.fieldName] && <div className="text-danger">{this.state.errors[metaInfo.fieldName]}</div>}
-								</div>
+					const result = executeExpressionTree(expression, data);
+					if (!result) {
+						return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
+					}								
+				}
+				if (!fieldType || fieldType == "text" || fieldType == "color" || fieldType == "date") {
+					if (!!props.isReadOnly) {
+						return <React.Fragment key={"index-f-r-" + index}>
+							<div className="form-group">						
+								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || props.node.name}</strong></label>
+								<div className="">{values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || ""}</div>
+							</div>
 						</React.Fragment>
 					}
-					if (fieldType) {
-						let datasource : any;
-
-						if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
-							datasource = this.props.canvasMode?.flowsPlayground;
-						} else
-						if (metaInfo.datasource == "[WASMFLOW]") {
-							datasource = this.props.canvasMode?.flowsWasm;
-						} else
-						if (metaInfo.datasource && this.state.datasource[metaInfo.datasource]) {
-							datasource = this.state.datasource[metaInfo.datasource];
-						}
-
-						if (!!this.props.isReadOnly) {
-							let data = "";
-							if (metaInfo.fieldType == "objectList") {
-								data = "[Object]";
-							} else {
-								data = this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || "";
-							}
-							return <React.Fragment key={"index-f-r-" + index}>
-								<div className="form-group">						
-									<label htmlFor={"input-" + this.props.node.name}><strong>{metaInfo.fieldName || this.props.node.name}</strong></label>
-									<div className="">{data}</div>
+					return <React.Fragment key={"index-f-" + index}>
+							<div className="form-group">						
+								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
+								<div className="input-group mb-1">
+									<input
+										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}
+										key={"index" + index}
+										type={fieldType}
+										className="form-control"
+										value={values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || ""}
+										id={"input-" + props.node.name + "-" +metaInfo.fieldName}
+										data-index={index}
+										disabled={!!canvasMode?.isFlowrunnerPaused}													 
+									/>			
 								</div>
-							</React.Fragment>
-						}	
-
-						return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{
-							value: this.state.values[metaInfo.fieldName] || this.props.node[metaInfo.fieldName] || "",
-							onChange: this.onReceiveValue,
-							node: this.props.node,
-							fieldName: metaInfo.fieldName,
-							fieldType: metaInfo.fieldType,
-							metaInfo: metaInfo,
-							datasource : datasource
-						})}</React.Fragment>
-					}
-					return null;
-				})}
-				{!this.props.isReadOnly && !this.props.isObjectListNodeEditing &&
-					<button className="d-none">OK</button>}
-			</>; 
-		}
-		return <div className="html-plugin-node" style={{			
-				backgroundColor: "white"
-			}}>
-			<div className={"w-100 h-auto"}>
-				<Suspense fallback={<div>Loading...</div>}>
-				{!!this.props.isObjectListNodeEditing ?
-				<div className="form">
-					{renderFields()}
-				</div>
-				:
-				<form className="form" onSubmit={this.onSubmit}>				
-					{renderFields()}
-				</form>
+								{errors[metaInfo.fieldName] && <div className="text-danger">{errors[metaInfo.fieldName]}</div>}
+							</div>
+					</React.Fragment>
 				}
-				</Suspense>
-			</div>
-		</div>;
-	}
-}
+				if (fieldType) {
+					let datasourceToUse : any;
 
-export const FormNodeHtmlPlugin = connect(mapStateToProps, mapDispatchToProps)(ContainedFormNodeHtmlPlugin);
+					if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
+						datasourceToUse = canvasMode?.flowsPlayground;
+					} else
+					if (metaInfo.datasource == "[WASMFLOW]") {
+						datasourceToUse = canvasMode?.flowsWasm;
+					} else
+					if (metaInfo.datasource && datasource[metaInfo.datasource]) {
+						datasourceToUse = datasource[metaInfo.datasource];
+					}
+
+					if (!!props.isReadOnly) {
+						let data = "";
+						if (metaInfo.fieldType == "objectList") {
+							data = "[Object]";
+						} else {
+							data = values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || "";
+						}
+						return <React.Fragment key={"index-f-r-" + index}>
+							<div className="form-group">						
+								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || props.node.name}</strong></label>
+								<div className="">{data}</div>
+							</div>
+						</React.Fragment>
+					}	
+
+					return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{
+						value: values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || "",
+						onChange: onReceiveValue,
+						node: props.node,
+						fieldName: metaInfo.fieldName,
+						fieldType: metaInfo.fieldType,
+						metaInfo: metaInfo,
+						datasource : datasourceToUse
+					})}</React.Fragment>
+				}
+				return null;
+			})}
+			{!props.isReadOnly && !props.isObjectListNodeEditing &&
+				<button className="d-none">OK</button>}
+		</>; 
+	};
+
+	return <div className="html-plugin-node" style={{			
+			backgroundColor: "white"
+		}}>
+		<div className={"w-100 h-auto"}>
+			<Suspense fallback={<div>Loading...</div>}>
+			{!!props.isObjectListNodeEditing ?
+			<div className="form">
+				{renderFields()}
+			</div>
+			:
+			<form className="form" onSubmit={onSubmit}>				
+				{renderFields()}
+			</form>
+			}
+			</Suspense>
+		</div>
+	</div>;
+}

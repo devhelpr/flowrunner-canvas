@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { useImperativeHandle , useRef} from 'react';
 
 import { Group, Rect as KonvaRect } from 'react-konva';
-import { ShapeTypeProps, shapeBackgroundColor, shapeSelectedBackgroundColor } from './shape-types';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { Lines } from './line-helper';
@@ -14,6 +15,59 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	
+	const groupRef = useRef(null as any);
+
+	useImperativeHandle(ref, () => ({
+		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
+			switch (+action) {
+				case ModifyShapeEnum.GetShapeType : {
+					return "html";
+					break;
+				}
+				case ModifyShapeEnum.GetXY : {
+					if (groupRef && groupRef.current) {
+						return {
+							x: (groupRef.current as any).x(),
+							y: (groupRef.current as any).y(),
+						}
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetXY : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.x(parameters.x);
+						groupRef.current.y(parameters.y);
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetOpacity : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.opacity(parameters.opacity);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetPoints : {
+					break;
+				}
+				case ModifyShapeEnum.SetState : {
+					/*
+					if (groupRef && groupRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Touched) {
+							groupRef.current.opacity(1);
+						} else
+						if (parameters.state == ShapeStateEnum.Default) {
+							groupRef.current.opacity(0.5);
+						}						
+					}
+					*/
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}));
+
 	useLayoutEffect(() => {
 		if (props.getNodeInstance) {
 			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
@@ -29,7 +83,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 		<Group
 			x={props.x}
 			y={props.y}
-			ref={ref}
+			ref={groupRef}
 			onDragMove={props.onDragMove}
 			onDragEnd={props.onDragEnd}
 			draggable={false}
@@ -64,7 +118,6 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				onLineMouseOver={props.onLineMouseOver}
 				onLineMouseOut={props.onLineMouseOut}
 				onClickLine={props.onClickLine}
-				canvasComponentInstance={props.canvasComponentInstance}
 				touchedNodes={props.touchedNodes}
 		></Lines>	
 	</>;

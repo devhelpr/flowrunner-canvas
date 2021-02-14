@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { connect } from "react-redux";
+import { useEffect, useState, useRef } from 'react';
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
-
+import { useFlowStore} from '../../state/flow-state';
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 export class InputNodeHtmlPluginInfo {
 	getWidth = (node) => {
@@ -28,12 +28,6 @@ export class InputNodeHtmlPluginInfo {
 export interface InputNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
-	flow: any;
-
-	selectedNode: any;
-	canvasMode: ICanvasMode;
-
-	storeFlowNode: (node, orgNodeName) => void;
 }
 
 export interface InputNodeHtmlPluginState {
@@ -42,257 +36,227 @@ export interface InputNodeHtmlPluginState {
 	node : any;
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode,
-		flow: state.flow,
-		canvasMode: state.canvasMode
-	}
-}
+export const InputNodeHtmlPlugin = (props : InputNodeHtmlPluginProps) => {
 
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-	}
-}
+	const [value, setValue] = useState("");
+	const [values, setValues] = useState([] as any[]);
+	const [node, setNode] = useState({} as any);
+	
+	const flow = useFlowStore();
+	const canvasMode = useCanvasModeStateStore();
 
-class ContainedInputNodeHtmlPlugin extends React.Component<InputNodeHtmlPluginProps, InputNodeHtmlPluginState> {
+	useEffect(() => {
+		if (props.node) {
 
-	state = {
-		value : "",
-		values : [],
-		node : {}
-	};
-
-	componentDidMount() {
-		if (this.props.node) {
-
-			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
-				if (this.props.node.mode && this.props.node.mode === "list") {
-					this.setState({node: this.props.node, values : this.props.node.values || this.props.node.defaultValues || []});
+			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
+				if (props.node.mode && props.node.mode === "list") {
+					setNode(props.node);
+					setValues(props.node.values || props.node.defaultValues || []);
 				} else {
-					this.setState({node: this.props.node, value : this.props.node.value || this.props.node.defaultValue || ""});
+					setNode(props.node);
+					setValue(props.node.value || props.node.defaultValue || "");
 				}
 			} else {
-				this.props.flowrunnerConnector.modifyFlowNode(
-					this.props.node.name, 
-					this.props.node.propertyName, 
-					this.props.node.defaultValue || "",
+				props.flowrunnerConnector.modifyFlowNode(
+					props.node.name, 
+					props.node.propertyName, 
+					props.node.defaultValue || "",
 					""
 				);
-				this.setState({node: this.props.node, value : this.props.node.defaultValue || ""});
+				setNode(props.node);
+				setValue(props.node.defaultValue || "");
 			}
 		}
-	}
+	}, []);
 	
-	onSubmit = (event: any) => {
+	const onSubmit = (event: any) => {
 		event.preventDefault();
-		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+		if (!!canvasMode.isFlowrunnerPaused) {
 			return;
 		}
 		
-		if (this.props.node.formMode !== false) {
-			this.props.flowrunnerConnector.executeFlowNode(this.props.node.executeNode || this.props.node.name, {});
+		if (props.node.formMode !== false) {
+			props.flowrunnerConnector.executeFlowNode(props.node.executeNode || props.node.name, {});
 		}
 		return false;
 	}
 
-	storeNode = () => {
-		this.props.storeFlowNode(this.state.node, this.props.node.name);
+	const storeNode = (newNode) => {
+		flow.storeFlowNode(newNode, props.node.name);
 	}
 	
-	onChange = (event: any) => {
-		console.log("input", event.target.value, this.props.node);
-		if (this.props.node) {
-			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
-
-				this.setState({
-					node : {...this.props.node, value: this.props.node.value }, 
-					value: this.props.node.value}, 
-					() => {
-					this.storeNode();
-				});
+	const onChange = (event: any) => {
+		console.log("input", event.target.value, props.node);
+		if (props.node) {
+			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
+				const newNode = {...props.node, value: props.node.value }; 				
+				setNode(newNode);
+				setValue(props.node.value);
+				storeNode(newNode);
 				
 			} else {
-				this.props.flowrunnerConnector.modifyFlowNode(
-					this.props.node.name, 
-					this.props.node.propertyName, 
+				props.flowrunnerConnector.modifyFlowNode(
+					props.node.name, 
+					props.node.propertyName, 
 					event.target.value,
-					this.props.node.onChange || ""
+					props.node.onChange || ""
 				);
-
-				this.setState({value : event.target.value});
-			}
-
-			
+				setValue(event.target.value);
+			}	
 		}
 	}
 
-	onChangeList = (index, event: any) => {
-		//console.log("input", event.target.value, this.props.node);
-		if (this.props.node) {
+	const onChangeList = (index, event: any) => {
+		//console.log("input", event.target.value, props.node);
+		if (props.node) {
 
-			if (this.props.node.mode && this.props.node.mode === "list") {
-				let newState : string[] = [...this.state.values];
-				console.log("newState", newState);
-				newState[parseInt(index)] = event.target.value;
+			if (props.node.mode && props.node.mode === "list") {
+				let newValues : string[] = [...values];
+				//console.log("newValues", newValues);
+				newValues[parseInt(index)] = event.target.value;
 			
-				if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
-					this.setState({
-						node : {...this.props.node, values: newState }, 
-						values: newState}, 
-						() => {
-						this.storeNode();
-					});
+				if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
+					const newNode = {...props.node, values: newValues };
+					setNode(newNode);
+					setValues(newValues);
+					storeNode(newNode);
 	
 				} else {
 				
-					console.log("newState", newState);
+					//console.log("newValues", newValues);
 
-					this.props.flowrunnerConnector.modifyFlowNode(
-						this.props.node.name, 
-						this.props.node.propertyName, 
-						newState,
-						this.props.node.onChange || ""
+					props.flowrunnerConnector.modifyFlowNode(
+						props.node.name, 
+						props.node.propertyName, 
+						newValues,
+						props.node.onChange || ""
 					);
-					this.setState({values : newState});
-				
+					setValues(newValues);
 				}
 				
 			}
 		}
 	}
 
-	deleteListItem = (index, event: any) => {
+	const deleteListItem = (index, event: any) => {
 		event.preventDefault();
 
-		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+		if (!!canvasMode.isFlowrunnerPaused) {
 			return;
 		}
 
-		if (this.props.node) {
+		if (props.node) {
 
-			if (this.props.node.mode && this.props.node.mode === "list") {
-				let newState : string[] = [...this.state.values];
+			if (props.node.mode && props.node.mode === "list") {
+				let newValues : string[] = [...values];
 				if (index > -1) {
-					newState.splice(index, 1);
-					console.log("newState delete", newState);
+					newValues.splice(index, 1);
+					//console.log("newValues delete", newValues);
 
-					if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
-						this.setState({
-							node : {...this.props.node, values: newState }, 
-							values: newState} , 
-							() => {
-							this.storeNode();
-						});
-	
+					if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
+						const newNode = {...props.node, values: newValues };
+						setNode(newNode);
+						setValues(newValues);
+						storeNode(newNode);
 					} else {						
-						this.props.flowrunnerConnector.modifyFlowNode(
-							this.props.node.name, 
-							this.props.node.propertyName, 
-							newState,
-							this.props.node.onChange || ""
+						props.flowrunnerConnector.modifyFlowNode(
+							props.node.name, 
+							props.node.propertyName, 
+							newValues,
+							props.node.onChange || ""
 						);
-						this.setState({values : newState});
+						setValues(newValues);
 					}
-	
-					
 				}
 			}
 		}
 		return false;
 	}
 
-	onAddValue = (event) => {
+	const onAddValue = (event) => {
 		event.preventDefault();
 
-		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+		if (!!canvasMode.isFlowrunnerPaused) {
 			return;
 		}
 
-		if (this.props.node) {
-			let newState : string[] = [...this.state.values];
-			newState.push("");
+		if (props.node) {
+			let newValues : string[] = [...values];
+			newValues.push("");
 
-			if (this.props.node.nodeDatasource && this.props.node.nodeDatasource === "flow") {
+			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
 
-				this.setState({
-					node : {...this.props.node, values: newState}, 
-					values: newState } , 
-					() => {
-					this.storeNode();
-				});
+				const newNode = {...props.node, values: newValues };
+				setNode(newNode);
+				setValues(newValues);
+				storeNode(newNode);
 
 			} else {
-				this.props.flowrunnerConnector.modifyFlowNode(
-					this.props.node.name, 
-					this.props.node.propertyName, 
-					newState,
-					this.props.node.onChange || ""
+				props.flowrunnerConnector.modifyFlowNode(
+					props.node.name, 
+					props.node.propertyName, 
+					newValues,
+					props.node.onChange || ""
 				);
-				this.setState({values : newState});
+				setValues(newValues);
 			}
 			
 		}
 		return false;
 	}
 
-	render() {
-		return <div className="html-plugin-node" style={{			
-			backgroundColor: "white"
-		}}>
-			<div className={this.props.node.mode && this.props.node.mode === "list"? "w-100 overflow-y-scroll no-wheel" : "w-100 h-auto"}>
-				<form className="form" onSubmit={this.onSubmit}>
-					<div className="form-group">						
-						<div>
-							<label htmlFor={"input-" + this.props.node.name}><strong>{this.props.node.title || this.props.node.name}</strong></label>
-						</div>
-						{this.props.node.mode && this.props.node.mode === "list" ? <>
-							{(this.state.values || []).map((value, index) => {
-								return <React.Fragment key={"index-f-" + index}>
-										<div className="input-group mb-1">
-											<input 
-												key={"index" + index}
-												className="form-control"
-												id={"input-" + this.props.node.name + "-" + index}
-												value={value}
-												data-index={index}
-												disabled={!!this.props.canvasMode.isFlowrunnerPaused}
-												onChange={this.onChangeList.bind(this, index)} 
-										/>
-										<div className="input-group-append">
-											<a href="#" title="delete item" 
-												onClick={this.deleteListItem.bind(this, index)} 											
-												role="button" className="btn btn-outline-secondary"><i className="fas fa-trash-alt"></i></a>
-										</div>
-									</div>
-								</React.Fragment>
-							})}
-							<div className="d-flex">
-								<button onClick={this.onAddValue} className="ml-auto mt-2 btn btn-primary pl-4 pr-4">ADD</button>
-							</div>
-							{!!this.props.node.formMode && <>
-								<br /><hr /><br />
-							</>}
-						</> :
-						<input 
-							className="form-control"
-							id={"input-" + this.props.node.name}
-							value={this.state.value}
-							onChange={this.onChange} 
-							disabled={!!this.props.canvasMode.isFlowrunnerPaused}
-						/>
-						}
-						{!!this.props.node.formMode && 
-							<div className="d-flex">
-								<button className="ml-auto mt-2 btn btn-primary pl-4 pr-4">OK</button>
-							</div>
-						}
+	return <div className="html-plugin-node" style={{			
+		backgroundColor: "white"
+	}}>
+		<div className={props.node.mode && props.node.mode === "list"? "w-100 overflow-y-scroll no-wheel" : "w-100 h-auto"}>
+			<form className="form" onSubmit={onSubmit}>
+				<div className="form-group">						
+					<div>
+						<label htmlFor={"input-" + props.node.name}><strong>{props.node.title || props.node.name}</strong></label>
 					</div>
-				</form>
-			</div>
-		</div>;
-	}
+					{props.node.mode && props.node.mode === "list" ? <>
+						{(values || []).map((value, index) => {
+							return <React.Fragment key={"index-f-" + index}>
+									<div className="input-group mb-1">
+										<input 
+											key={"index" + index}
+											className="form-control"
+											id={"input-" + props.node.name + "-" + index}
+											value={value}
+											data-index={index}
+											disabled={!!canvasMode.isFlowrunnerPaused}
+											onChange={(event) => onChangeList(index, event)} 
+									/>
+									<div className="input-group-append">
+										<a href="#" title="delete item" 
+											onClick={(event) => deleteListItem(index, event)} 											
+											role="button" className="btn btn-outline-secondary"><i className="fas fa-trash-alt"></i></a>
+									</div>
+								</div>
+							</React.Fragment>
+						})}
+						<div className="d-flex">
+							<button onClick={onAddValue} className="ml-auto mt-2 btn btn-primary pl-4 pr-4">ADD</button>
+						</div>
+						{!!props.node.formMode && <>
+							<br /><hr /><br />
+						</>}
+					</> :
+					<input 
+						className="form-control"
+						id={"input-" + props.node.name}
+						value={value}
+						onChange={onChange} 
+						disabled={!!canvasMode.isFlowrunnerPaused}
+					/>
+					}
+					{!!props.node.formMode && 
+						<div className="d-flex">
+							<button className="ml-auto mt-2 btn btn-primary pl-4 pr-4">OK</button>
+						</div>
+					}
+				</div>
+			</form>
+		</div>
+	</div>;	
 }
-
-export const InputNodeHtmlPlugin = connect(mapStateToProps, mapDispatchToProps)(ContainedInputNodeHtmlPlugin);

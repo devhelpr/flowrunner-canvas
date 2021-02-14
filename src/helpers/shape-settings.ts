@@ -13,6 +13,7 @@ export interface IShapeSettings {
   hasUI: boolean;
   hasConfigMenu?: boolean;
   icon?: string;
+  uiComponent? : string;
 }
 
 export class ShapeSettings {

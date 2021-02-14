@@ -1,7 +1,5 @@
-import * as React from 'react';
-import { connect } from "react-redux";
+/*import * as React from 'react';
 import { IFlowrunnerConnector, IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
-import { selectNode , setPayload} from '../../redux/actions/node-actions';
 
 import Slider from '@material-ui/core/Slider';
 
@@ -90,24 +88,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 			return <></>;
 		}
 		return <></>;
-		/*if (this.props.selectedNode && this.props.selectedNode.name) {
-			let list = this.props.flowrunnerConnector.getNodeExecutionsByNodeName(this.props.selectedNode.name);
-			
-
-			if (list && list.length > 0) {
-				const debugInfo = JSON.stringify(list[list.length - 1], null, 2);
-				return <div className="ui-controls-bar">
-					<div className="ui-controls-bar__debug-info">
-						<div className="ui-controls-bar__debug-info-content">
-							{debugInfo}
-						</div>
-					</div>
-				</div>
-			}
-			
-			return <div className="ui-controls-bar"></div>;
-		}
-		*/
+		
 		let list = this.props.flowrunnerConnector.getNodeExecutions();
 		let listLength = list.length;
 		(list as any) = null;
@@ -122,44 +103,10 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 					onChange={this.onChange} 
 				/>
 		</div>;
-	/*
-		return <div className="ui-controls-bar">
-			{this.props.flow.map((node, index) => {
-					let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-					const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-					const Shape = Shapes[shapeType];
-					if (shapeType === "Html" && Shape) {
-						const nodeClone = {...node};
-						
-						nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
-
-						//console.log("ui control bar node.htmlPlugin", nodeClone.htmlPlugin);
-						// height: (node.height || 250)+"px",
-
-						if (node.htmlPlugin === "debugNode") {
-							return <div key={"html" + index}					
-								data-x={node.x} 
-								data-y={node.y} 
-								ref={this.htmlElement} 
-								className="canvas__html-shape--in-bar"
-								style={{											
-									minHeight: (node.height || 250)+"px"									 
-								}} 
-								>
-								<div className="canvas__html-shape-bar">{node.label ? node.label : node.name}</div>
-									<div className="canvas__html-shape-body">
-										{this.props.renderHtmlNode && this.props.renderHtmlNode(nodeClone, this.props.flowrunnerConnector, this.props.nodes, this.props.flow, settings)}
-									</div>
-								</div>;
-						}
-					}
-					return null;
-				})
-			}
-			
-		</div>;
-		*/
+	
 	}
 }
 
 export const UIControlsBar = connect(mapStateToProps, mapDispatchToProps)(ContainedUIControlsBar);
+
+*/

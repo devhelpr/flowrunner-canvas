@@ -116,14 +116,19 @@ export class FlowConnector implements IFlowrunnerConnector {
   registerWorker(worker: IWorker) {
     this.worker = worker;
     worker.postMessage({ a: 1 });
-
+console.log("registerWorker");
     worker.addEventListener('message', this.onMessage);
+    worker.addEventListener('error', this.onError);
   }
 
   onReceiveFlowNodeExecuteResult: any;
   registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult: any) => {
     this.onReceiveFlowNodeExecuteResult = onReceiveFlowNodeExecuteResult;
   };
+
+  onError = (error: any) => {
+    console.log("WORKER ERROR!!!" , error);
+  }
 
   onMessage = (event: any) => {
     //console.log("event from worker", event);
@@ -320,6 +325,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       if (this.onDestroyAndRecreateWorker) {
         this.onDestroyAndRecreateWorker();
       }
+      console.log("AFTER onDestroyAndRecreateWorker");
       //previously this.observables was cleared here,
       // that causes side effects and is actually not needed because
       // unregistrating and registration is done from within lifecycle events
@@ -443,6 +449,9 @@ export class FlowConnector implements IFlowrunnerConnector {
     observableId: string,
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
   ) => {
+
+    console.log("registerNodeStateObserver", observableId);
+
     this.nodeStateObservables.push({
       callback: callback,
       id: observableId,
@@ -450,6 +459,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   unregisterNodeStateObserver = (observableId: string) => {
+    console.log("unregisterNodeStateObserver", observableId);
     let indexes: number[] = [];
 
     // TODO : refactor this to a better way !!

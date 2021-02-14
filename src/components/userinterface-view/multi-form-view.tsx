@@ -7,15 +7,15 @@ import { Flow } from '../flow';
 
 import fetch from 'cross-fetch';
 
-import { useFlowStore} from '../../state/flow-state';
-import { useLayoutStore} from '../../state/layout-state';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useFlowForMultiFormStore} from '../../state/flow-state';
+import { useLayoutForMultiFormStore} from '../../state/layout-state';
+import { useCanvasModeStateForMultiFormStore} from '../../state/canvas-mode-state';
 
 const uuidV4 = uuid.v4;
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
-export interface UserInterfaceViewProps {	
+export interface MultiFormViewProps {	
 
 	flowrunnerConnector : IFlowrunnerConnector;
 
@@ -26,7 +26,7 @@ export interface UserInterfaceViewProps {
 	
 }
 
-export const UserInterfaceView = (props : UserInterfaceViewProps) => {
+export const MultiFormView = (props : MultiFormViewProps) => {
 	const [flowName, setFlowName ] = useState("");
 	const [flowHash, setFlowHash] = useState({} as any);
 
@@ -42,9 +42,10 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 	const unmounted = useRef(false);
 	const layoutTreeAsString = useRef("");
 
-	const flow = useFlowStore();
-	const canvasMode = useCanvasModeStateStore();
-	const layout = useLayoutStore();
+	const flow = useFlowForMultiFormStore();
+	const canvasMode = useCanvasModeStateForMultiFormStore();
+	const layout = useLayoutForMultiFormStore();
+
 	let nodesStateLocal : any = useRef({} as any);
 	let touchedNodesLocal : any = useRef({} as any);
 
@@ -241,9 +242,9 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 	}
 
 	let style : any = {};
-	let navContainerClassName = "bg-dark mb-4";
-	let navbarClassName = "navbar navbar-expand-lg navbar-light bg-dark";
-	let h1ClassName = "text-white";
+	let navContainerClassName = "mb-4";
+	let navbarClassName = "navbar navbar-expand-lg navbar-light";
+	let h1ClassName = "text-black";
 
 	if (titleBarBackgroundcolor) {
 		style.backgroundColor = titleBarBackgroundcolor;

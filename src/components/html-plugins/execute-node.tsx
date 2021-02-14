@@ -1,19 +1,13 @@
 import * as React from 'react';
-import { connect } from "react-redux";
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+
 
 export interface ExecuteNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
-	canvasMode: ICanvasMode;
-}
-
-const mapStateToProps = (state : any) => {
-	return {
-		canvasMode: state.canvasMode,		
-	}
 }
 
 export class ExecuteNodeHtmlPluginInfo {
@@ -26,28 +20,26 @@ export class ExecuteNodeHtmlPluginInfo {
 	}
 }
 
-export class ContainedExecuteNodeHtmlPlugin extends React.Component<ExecuteNodeHtmlPluginProps> {
-	
-	click = (event) => {
+export const ExecuteNodeHtmlPlugin = (props : ExecuteNodeHtmlPluginProps) => {
+
+	const canvasMode = useCanvasModeStateStore();
+
+	const click = (event) => {
 		event.preventDefault();
 
-		if (!!this.props.canvasMode.isFlowrunnerPaused) {
+		if (!!canvasMode.isFlowrunnerPaused) {
 			return;
 		}
 
-		if (this.props.node) {
-			this.props.flowrunnerConnector.executeFlowNode(this.props.node.name, {});
+		if (props.node) {
+			props.flowrunnerConnector.executeFlowNode(props.node.name, {});
 		}
 		return false;
 	}
 	
-	render() {
-		return <div className="html-plugin-node" style={{			
+	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"
 		}}>
-			<a href="#" className={(!!this.props.canvasMode.isFlowrunnerPaused ? "disabled " : "") + "btn btn-primary"} onClick={this.click}>Click to Execute</a>
-		</div>;
-	}
+		<a href="#" className={(!!canvasMode.isFlowrunnerPaused ? "disabled " : "") + "btn btn-primary"} onClick={click}>Click to Execute</a>
+	</div>;	
 }
-
-export const ExecuteNodeHtmlPlugin = connect(mapStateToProps)(ContainedExecuteNodeHtmlPlugin);

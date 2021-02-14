@@ -88,9 +88,9 @@ function start(flowFileName, taskPlugins, options) {
 
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
 		if (defaultPlugins) {
-			var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
-			flowRunner.start({ flow: [] }).then(function (services) {
-				let tasks = flowRunner.getTaskMetaData();
+			//var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
+			//flowRunner.start({ flow: [] }).then(function (services) {
+				let tasks = [];//flowRunner.getTaskMetaData();
 
 				tasks = tasks.map((task) => {
 					task.flowType = "playground";
@@ -142,12 +142,14 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"FilterTask", fullName: "FilterTask", flowType: "playground"});									
 					tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
 					tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
+					tasks.push({className:"SelectValueFromListTask", fullName: "SelectValueFromListTask", flowType: "playground"});									
 						
 					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
 					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
 					tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
 					
+					tasks.push({className:"MultiFormTask", fullName: "MultiFormTask", flowType:"playground"});
 
 					tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
 					tasks.push({className:"ActivationTask", fullName: "ActivationTask", flowType:"playground"});
@@ -170,10 +172,10 @@ function start(flowFileName, taskPlugins, options) {
 					tasks = [...tasks, ...taskPlugins];
 				}
 				resolve(tasks);
-			}).catch((err) => {
-				console.log("Flowrunner-canvas couldn't be started because of problem with flowRunner getting default task-plugins");
-				reject();
-			})
+			//}).catch((err) => {
+			//		console.log("Flowrunner-canvas couldn't be started because of problem with flowRunner getting default task-plugins");
+			//	reject();
+			//})
 		} else {
 			resolve(taskPlugins);
 		}
@@ -207,7 +209,7 @@ function start(flowFileName, taskPlugins, options) {
 		app.locals.hasLogin = hasLogin;
 
 		app.get('/', (req, res) => res.render('./pages/index'));
-		app.get('/ui/:flowId', (req, res) => res.render('./pages/index'));
+		app.get('/ui/:flowId', (req, res) => res.render('./pages/ui'));
 		app.post('/save-flow', (req, res) => {
 			const bodyAsJsonString = JSON.stringify(req.body.flow);
 			const layoutAsJsonString = JSON.stringify(req.body.layout);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { Line } from './line';
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ErrorBoundary } from '../../../helpers/error';
@@ -17,7 +17,6 @@ export interface ILineHelperProps {
 	onLineMouseOver,
 	onLineMouseOut,
 	onClickLine,
-	canvasComponentInstance,
 	touchedNodes,
 	newStartPosition
 }
@@ -36,11 +35,13 @@ export const LineHelper = (props : ILineHelperProps) => {
 		y: endNode.y
 	}, endNode, props.getNodeInstance);
 
+	// 
+	// 
 	return <Line
-		ref={props.shapeRefs[props.lineNode.name]}									
-		onMouseOver={props.onLineMouseOver.bind(props.canvasComponentInstance, props.lineNode)}
-		onMouseOut={props.onLineMouseOut.bind(props.canvasComponentInstance, props.lineNode)}
-		onClickLine={props.onClickLine.bind(props.canvasComponentInstance, props.lineNode)}
+		ref={ref => (props.shapeRefs.current[props.lineNode.name] = ref)}									
+		onMouseOver={(event) => props.onLineMouseOver(props.lineNode, event)}
+		onMouseOut={(event) => props.onLineMouseOut(props.lineNode, event)}
+		onClickLine={(event) => props.onClickLine(props.lineNode, event)}
 		canvasHasSelectedNode={props.canvasHasSelectedNode}
 		isSelected={props.selectedNode && props.selectedNode.node && 
 			props.selectedNode.node.name === props.lineNode.name}
@@ -73,7 +74,6 @@ export interface ILinesProp {
 	onLineMouseOver,
 	onLineMouseOut,
 	onClickLine,
-	canvasComponentInstance,
 	touchedNodes
 }
 export const Lines = (
@@ -111,7 +111,6 @@ export const Lines = (
 					onLineMouseOver={props.onLineMouseOver}
 					onLineMouseOut={props.onLineMouseOut}
 					onClickLine={props.onClickLine}
-					canvasComponentInstance={props.canvasComponentInstance}
 					touchedNodes={props.touchedNodes}
 					newStartPosition={newStartPosition}></LineHelper>		
 			</ErrorBoundary></React.Fragment>;

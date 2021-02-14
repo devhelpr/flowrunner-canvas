@@ -50,7 +50,9 @@ export class FormTask extends ObservableTask {
       let payload = { ...node.payload, ...values };
       payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
       super.execute({ ...node, sendNodeName: true, payload: payload }, services);
-      if (isValid) {
+      
+      let hasValues = Object.keys(values).length > 0;      
+      if (isValid && hasValues) {
         return payload;
       }
       return false;

@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { IFlowrunnerConnector,IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
+import { useEffect, useState, useRef } from 'react';
+
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import Slider from '@material-ui/core/Slider';
-import { connect } from "react-redux";
-import { selectNode } from '../../redux/actions/node-actions';
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -18,16 +19,10 @@ export class SliderNodeHtmlPluginInfo {
 	}
 }
 
-
 export interface SliderNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
 	flow: any;
-	canvasMode: ICanvasMode;
-
-	selectedNode : any;
-	selectNode : (name, node) => void;
-
 }
 
 export interface SliderNodeHtmlPluginState {
@@ -35,113 +30,92 @@ export interface SliderNodeHtmlPluginState {
 	receivedPayload : any[];
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode,
-		canvasMode: state.canvasMode,		
-	}
-}
 
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		selectNode: (name, node) => dispatch(selectNode(name, node))
-	}
-}
+export const SliderNodeHtmlPlugin = (props : SliderNodeHtmlPluginProps) => {
 
-export class ContainedSliderNodeHtmlPlugin extends React.Component<SliderNodeHtmlPluginProps,SliderNodeHtmlPluginState> {
+	const [value, setValue] = useState(props.node.defaultValue || 0);
+	const [receivedPayload, setReceivedPayload] = useState([] as any[]);
 
-	state = {
-		value : this.props.node.defaultValue || 0,
-		receivedPayload : []
-	};
+	const canvasMode = useCanvasModeStateStore();
+	const selectedNode = useSelectedNodeStore();
 
-	observableId = uuidV4();
+	const observableId = useRef(uuidV4());
 
 
-	componentDidMount() {
+	useEffect(() => {
 		console.log("componentDidMount slider");
-		if (this.props.node) {
-			this.props.flowrunnerConnector.modifyFlowNode(
-				this.props.node.name, 
-				this.props.node.propertyName, 
-				this.props.node.defaultValue || 0,
+		if (props.node) {
+			props.flowrunnerConnector.modifyFlowNode(
+				props.node.name, 
+				props.node.propertyName, 
+				props.node.defaultValue || 0,
 				""
 			);
-			this.setState({value : this.props.node.defaultValue || 0});
+			setValue(props.node.defaultValue || 0);
 		}
-	}
+	}, []);
 
-	componentDidUpdate(prevProps : any) {
-		if (prevProps.flow != this.props.flow) {
-			if (this.props.node) {
-				this.props.flowrunnerConnector.modifyFlowNode(
-					this.props.node.name, 
-					this.props.node.propertyName, 
-					this.state.value,
-					this.props.node.onChange || this.props.node.name
-				);
-			}
+	useEffect(() => {
+		if (props.node) {
+			props.flowrunnerConnector.modifyFlowNode(
+				props.node.name, 
+				props.node.propertyName, 
+				value,
+				props.node.onChange || props.node.name
+			);
 		}
 		
-	}
-
-	unmounted = false;
-	componentWillUnmount() {
-		this.unmounted = true;
-	}
+	}, [props.flow]);
 	
-	onChange = (event: object, value: number | number[]) => {
+	const onChange = (event: object, value: number | number[]) => {
 		console.log("slider", value);
-		if (this.props.node) {
-			this.props.flowrunnerConnector.modifyFlowNode(
-				this.props.node.name, 
-				this.props.node.propertyName, 
+		if (props.node) {
+			props.flowrunnerConnector.modifyFlowNode(
+				props.node.name, 
+				props.node.propertyName, 
 				value,
-				this.props.node.onChange || this.props.node.name,
+				props.node.onChange || props.node.name,
 				"onChangeSlider"
 			);
 			let preventLoop = false;
-			if (!this.props.selectedNode || !this.props.selectedNode.payload) {
-				//this.props.selectNode(this.props.node.name, this.props.node);
+			if (!selectedNode || !selectedNode.payload) {
+				//props.selectNode(props.node.name, props.node);
 			}
-			this.setState({value : value}, () => {
-				// TODO : calling selectNode here causes an infinite loop !???
-			});
+			setValue(value);
 		}
 	}
 
-	render() {
-		return <div className="html-plugin-node" style={{			
-			backgroundColor: "white"
-		}}>
-			<div className="w-100 h-auto text-center">
-				{this.props.node.title && <div className="text-center"><strong>{this.props.node.title}</strong></div>}
-				<div style={{
-					fontSize: "24px",
-					marginBottom: "20px"
-				}}>
-					{this.props.node.preLabel && <span>{this.props.node.preLabel}</span>}
-					<span>{(this.props.selectedNode && 
-							this.props.selectedNode.payload &&
-							this.props.node.propertyName &&
-							this.props.selectedNode.payload[this.props.node.propertyName]
-							) || this.state.value}</span>
-					{this.props.node.afterLabel && <span>{this.props.node.afterLabel}</span>}
-				</div>				
-				<Slider 
-					min={this.props.node.minValue || 0}
-					max={this.props.node.maxValue || 100} 
-					disabled={!!this.props.canvasMode.isFlowrunnerPaused}
-					value={(this.props.selectedNode && 
-						this.props.selectedNode.payload &&
-						this.props.node.propertyName &&
-						this.props.selectedNode.payload[this.props.node.propertyName]) ||
-						this.state.value || 0} 
-					onChange={this.onChange} 
-				/>
-			</div>
-		</div>;
-	}
+	
+	return <div className="html-plugin-node" style={{			
+		backgroundColor: "white"
+	}}>
+		<div className="w-100 h-auto text-center">
+			{props.node.title && <div className="text-center"><strong>{props.node.title}</strong></div>}
+			<div style={{
+				fontSize: "24px",
+				marginBottom: "20px"
+			}}>
+				{props.node.preLabel && <span>{props.node.preLabel}</span>}
+				<span>{(selectedNode && 
+						selectedNode.node &&
+						selectedNode.node.payload &&
+						props.node.propertyName &&
+						selectedNode.node.payload[props.node.propertyName]
+						) || value}</span>
+				{props.node.afterLabel && <span>{props.node.afterLabel}</span>}
+			</div>				
+			<Slider 
+				min={props.node.minValue || 0}
+				max={props.node.maxValue || 100} 
+				disabled={!!canvasMode.isFlowrunnerPaused}
+				value={(selectedNode && 
+					selectedNode.node &&
+					selectedNode.node.payload &&
+					props.node.propertyName &&
+					selectedNode.node.payload[props.node.propertyName]) ||
+					value || 0} 
+				onChange={onChange} 
+			/>
+		</div>
+	</div>;
 }
-
-export const SliderNodeHtmlPlugin = connect(mapStateToProps, mapDispatchToProps)(ContainedSliderNodeHtmlPlugin);

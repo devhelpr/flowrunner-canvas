@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect} from 'react';
+import { useState, useEffect , useRef, useImperativeHandle} from 'react';
 
 import * as Konva from 'react-konva';
 import { calculateLineControlPoints } from '../../../helpers/line-points'
@@ -8,7 +8,7 @@ const KonvaLine = Konva.Arrow;
 
 import { Group, Text } from 'react-konva';
 
-import { LineTypeProps } from './shape-types';
+import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 	
@@ -16,6 +16,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	const [strokeWidth, setStrokeWidth] = useState(2);
 	const [opacity, setOpacity] = useState(1);
 	const [dash, setDash] = useState(props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5,10] : [1,1]);
+	const lineRef = useRef(null as any);
 
 	useEffect(() => {
 		let _fillColor = props.isSelected ? "#606060" : "#000000";	
@@ -83,6 +84,69 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		props.endNodeName,
 		props.touchedNodes
 	]);
+
+	
+	useImperativeHandle(ref, () => ({
+		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
+			switch (+action) {
+				case ModifyShapeEnum.GetShapeType : {
+					return "line";
+					break;
+				}
+				case ModifyShapeEnum.GetXY : {
+					if (lineRef && lineRef.current) {
+						return {
+							x: (lineRef.current as any).x(),
+							y: (lineRef.current as any).y(),
+						}
+						/*
+						const x = group ? group.attrs["x"] : 0;
+						const y = group ? group.attrs["y"] : 0;
+						*/
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetXY : {
+					if (lineRef && lineRef.current && parameters) {
+						lineRef.current.x(parameters.x);
+						lineRef.current.y(parameters.y);
+						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetOpacity : {
+					if (lineRef && lineRef.current && parameters) {
+						lineRef.current.opacity(parameters.opacity);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetPoints : {
+					if (lineRef && lineRef.current && parameters) {
+						lineRef.current.points(parameters.points);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetState : {
+					if (lineRef && lineRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Touched) {
+							lineRef.current.dash([5,10]);
+							lineRef.current.strokeWidth(8);
+							lineRef.current.opacity(1);
+						} else
+						if (parameters.state == ShapeStateEnum.Default) {
+							lineRef.current.dash([]);
+							lineRef.current.strokeWidth(4);
+							lineRef.current.opacity(0.5);
+						}						
+					}
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}));
+	
 	
 
 	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend);
@@ -123,7 +187,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 */
 	return <Group listening={!props.noMouseEvents}>
 		<KonvaLine
-		 	ref={ref} 
+		 	ref={lineRef} 
 			points={[props.xstart, props.ystart,
 				controlPoints.controlPointx1, controlPoints.controlPointy1,
 				controlPoints.controlPointx2, controlPoints.controlPointy2,

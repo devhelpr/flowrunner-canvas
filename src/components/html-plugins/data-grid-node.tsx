@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { connect } from "react-redux";
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+import { useFlowStore} from '../../state/flow-state';
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 export class DataGridNodeHtmlPluginInfo {
 	getWidth = (node) => {
@@ -19,12 +20,6 @@ export class DataGridNodeHtmlPluginInfo {
 export interface DataGridNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
-	flow: any;
-
-	selectedNode: any;
-	canvasMode: ICanvasMode;
-
-	storeFlowNode: (node, orgNodeName) => void;
 }
 
 export interface DataGridNodeHtmlPluginState {
@@ -34,149 +29,119 @@ export interface DataGridNodeHtmlPluginState {
 	currentValue: string;
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode,
-		flow: state.flow,
-		canvasMode: state.canvasMode
-	}
-}
+export const DataGridNodeHtmlPlugin = (props : DataGridNodeHtmlPluginProps) => {
+	const [value, setValue] = useState("");
+	const [values, setValues] = useState([] as any[]);
+	const [node, setNode] = useState({} as any);
+	const [currentValue, setCurrentValue] = useState("");
 
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-	}
-}
+	const flow = useFlowStore();
+	const canvasMode = useCanvasModeStateStore();
+	const selectedNode = useSelectedNodeStore();
 
-class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPluginProps, DataGridNodeHtmlPluginState> {
+	const info = new DataGridNodeHtmlPluginInfo();
 
-	state = {
-		value : "",
-		values : [],
-		node : {},
-		currentValue: ""
-	};
-
-	info = new DataGridNodeHtmlPluginInfo();
-
-	componentDidMount() {
-		this.setState({
-			values : this.props.node.values,
-			node : this.props.node
-		});
-	}	
+	useEffect(() => {
+		setValues(props.node.values);
+		setNode(props.node);
+	}, []);
 	
-	onSubmit = (event: any) => {
+	const onSubmit = (event: any) => {
 		event.preventDefault();
 		return false;
 	}
 
-	storeNode = () => {
-		this.props.storeFlowNode(this.state.node, this.props.node.name);		
+	const storeNode = (newNode) => {
+		flow.storeFlowNode(newNode, props.node.name);		
 	}
 
-	onCurrentValueChange = (event: any) => {
+	const onCurrentValueChange = (event: any) => {
 		event.preventDefault();
-		this.setState({currentValue: event.target.value});
+		setCurrentValue(event.target.value);
 		return false;
 	}
 
-	onFocus =  (rowIndex, cellIndex, event: any) => { 
+	const onFocus =  (rowIndex, cellIndex, event: any) => { 
 		event.preventDefault();
 		if (rowIndex >= 0) {
-			let row = this.state.values[rowIndex];
-			this.setState({currentValue : row[cellIndex]});
+			let row = values[rowIndex];
+			setCurrentValue(row[cellIndex]);
 		}
 
 		return false;
 	}
 
-	onBlur = (event : any) => {
+	const onBlur = (event : any) => {
 		event.preventDefault();
-		//this.setState({currentValue : ""});
+		//setState({currentValue : ""});
 		return false;
 	}
 
-	onChange = (rowIndex, cellIndex, event: any) => {
+	const onChange = (rowIndex, cellIndex, event: any) => {
 		
-		console.log("input", rowIndex, cellIndex, event.target.value, this.props.node);
+		console.log("input", rowIndex, cellIndex, event.target.value, props.node);
 		if (rowIndex >= 0) {
-			let data : any[] = [...this.state.values];
+			let data : any[] = [...values];
 			let row = [...data[rowIndex]];
 			row[cellIndex] = event.target.value;
 			data[rowIndex] = row;
-			this.setState({
-				values: data, 
-				node : {...this.props.node, values: data}
-			}, () => {
-				this.storeNode();
-			});
+			const newNode = {...props.node, values: data};
+			setValues(data);
+			setNode(newNode);
+			storeNode(newNode);			
 		} else {
-			let data : any[] = [...this.state.values];
+			let data : any[] = [...values];
 			data[cellIndex] = event.target.value;
-			this.setState({
-				values: data,
-				node : {...this.props.node, values: data}
-			}, () => {
-				this.storeNode();
-			});
+			setValues(data);
+			const newNode = {...props.node, values: data};
+			storeNode(newNode);						
 		}
 	}
 
-	getWidth = (node) => {
-		return this.info.getWidth(node);
+	const getWidth = (node) => {
+		return info.getWidth(node);
 	}
 
-	getHeight(node) {
-		return this.info.getHeight(node);
+	const getHeight = (node) => {
+		return info.getHeight(node);
 	}
 
-	addColumn = (event) => {
+	const addColumn = (event) => {
 		event.preventDefault();
 
-		let data : any[] = [...this.state.values];
+		let data : any[] = [...values];
 		data = data.map((row) => {
 			let newRow = [...row];
 			newRow.push("0");
 			return newRow;
 		});
 		
-		this.setState({
-			values: data, 
-			node: {...this.props.node, values: data,
-				columns: (this.state.node as any).columns + 1
-			}
-		}, () => {
-			this.props.storeFlowNode({...this.state.node}, 
-				this.props.node.name
-			);
-		});
+		setValues(data);
+		const newNode = {...props.node, values: data, columns: (node as any).columns + 1};		
+		flow.storeFlowNode({...newNode}, 
+			props.node.name
+		);
 		return false;
 	}
 
-	addRow = (event) => {
+	const addRow = (event) => {
 		event.preventDefault();
 
-		let data : any[] = [...this.state.values];
-		data.push(new Array(this.props.node.columns || 8).fill("0"));
-		this.setState({
-			values: data, 
-			node: {...this.props.node, values: data,
-				rows: (this.state.node as any).rows + 1
-			}
-		}, () => {
-			this.props.storeFlowNode({...this.state.node}, 
-				this.props.node.name
-			);
-		});
+		let data : any[] = [...values];
+		data.push(new Array(props.node.columns || 8).fill("0"));
+		setValues(data);
+		const newNode = {...props.node, values: data, rows: (node as any).rows + 1};
+		flow.storeFlowNode({...newNode}, 
+			props.node.name
+		);
 
 		return false;
 	}
 
-	getColumnTitles = () => {
+	const getColumnTitles = () => {
 		let columnTitlesItems : any[] = [];
 		let loop = 0;
-		while (loop < this.props.node.columns) {
+		while (loop < props.node.columns) {
 			let letter = String.fromCharCode((loop % 26) + 65)
 			columnTitlesItems.push(<>{letter}</>)
 			loop++;
@@ -186,66 +151,63 @@ class ContainedDataGridNodeHtmlPlugin extends React.Component<DataGridNodeHtmlPl
 			{columnTitlesItems.map((title, index) => {
 				return <div key={"cell-title-" + index} className="d-table-cell text-center data-grid__cell-title">{title}</div>;
 			})}
-			<a href="#" onClick={this.addColumn} className="d-table-cell text-center data-grid__cell-title data-grid__cell-add-column">+</a>
+			<a href="#" onClick={addColumn} className="d-table-cell text-center data-grid__cell-title data-grid__cell-add-column">+</a>
 		</div>;
 	}
 
-	render() {
-		return <div className="html-plugin-node" style={{			
-			backgroundColor: "white"
-		}}>
-			<div className= "w-100 h-auto">
-				<form className="form" onSubmit={this.onSubmit}>
-					<div className="form-group">
-						<input className={"form-control"} value={this.state.currentValue} onChange={this.onCurrentValueChange} />
-					</div>
-					<div className="form-group d-table">
-						{(this.state.values || []).map((row, index) => {
-							if (Array.isArray(row)) {
-								//let letter = String.fromCharCode((index % 26) + 65);
-								let rowTitle = (index + 1).toString();
-								let columnTitles = <></>;
-								if (index === 0) {
-									columnTitles = this.getColumnTitles();
-								}
-
-								return <React.Fragment key={"row-" + index}>
-										{columnTitles}
-										<div className="d-table-row">										
-											{(row as []).map((column, cellIndex) => {
-												let columnTitle = <></>;
-												if (cellIndex === 0) {
-													columnTitle = <div key={"data-grid__row-title-" + cellIndex} className="d-table-cell data-grid__row-title">{rowTitle}</div>;
-												}
-												return <React.Fragment key={"data-grid__" + index + "-" + cellIndex}>
-													{columnTitle}
-													<div key={"cell-" + index + "-" + cellIndex} className="d-table-cell">
-														<input className={"form-control " +(isNaN(column) ? "" : "text-right")} 
-															value={column} 
-															onChange={this.onChange.bind(this, index, cellIndex )} 
-															onFocus={this.onFocus.bind(this, index, cellIndex )}
-															onBlur={this.onBlur}
-														/>
-													</div>
-												</React.Fragment>
-											})}
-										</div>
-									</React.Fragment>;
-							} else {
-								return <div key={"row-" + index} className="d-table-cell">
-									<input className={"form-control " + (isNaN(row) ? "" : "text-right")} value={row} onChange={this.onChange.bind(this, -1, index)} />
-								</div>;
+	return <div className="html-plugin-node" style={{			
+		backgroundColor: "white"
+	}}>
+		<div className= "w-100 h-auto">
+			<form className="form" onSubmit={onSubmit}>
+				<div className="form-group">
+					<input className={"form-control"} value={currentValue} onChange={onCurrentValueChange} />
+				</div>
+				<div className="form-group d-table">
+					{(values || []).map((row, index) => {
+						if (Array.isArray(row)) {
+							//let letter = String.fromCharCode((index % 26) + 65);
+							let rowTitle = (index + 1).toString();
+							let columnTitles = <></>;
+							if (index === 0) {
+								columnTitles = getColumnTitles();
 							}
-						})}
-						<div className="d-table-row">
-							<a href="#" onClick={this.addRow} className="d-table-cell text-center data-grid__cell-title data-grid__cell-add-row">+</a>
-						</div>
-					</div>						
-					<button className="d-none">OK</button>
-				</form>
-			</div>
-		</div>;
-	}
+
+							return <React.Fragment key={"row-" + index}>
+									{columnTitles}
+									<div className="d-table-row">										
+										{(row as []).map((column, cellIndex) => {
+											let columnTitle = <></>;
+											if (cellIndex === 0) {
+												columnTitle = <div key={"data-grid__row-title-" + cellIndex} className="d-table-cell data-grid__row-title">{rowTitle}</div>;
+											}
+											return <React.Fragment key={"data-grid__" + index + "-" + cellIndex}>
+												{columnTitle}
+												<div key={"cell-" + index + "-" + cellIndex} className="d-table-cell">
+													<input className={"form-control " +(isNaN(column) ? "" : "text-right")} 
+														value={column} 
+														onChange={(event) => onChange(index, cellIndex, event )} 
+														onFocus={(event) => onFocus(index, cellIndex, event )}
+														onBlur={onBlur}
+													/>
+												</div>
+											</React.Fragment>
+										})}
+									</div>
+								</React.Fragment>;
+						} else {
+							return <div key={"row-" + index} className="d-table-cell">
+								<input className={"form-control " + (isNaN(row) ? "" : "text-right")} value={row} onChange={(event) => onChange(-1, index, event)} />
+							</div>;
+						}
+					})}
+					<div className="d-table-row">
+						<a href="#" onClick={addRow} className="d-table-cell text-center data-grid__cell-title data-grid__cell-add-row">+</a>
+					</div>
+				</div>						
+				<button className="d-none">OK</button>
+			</form>
+		</div>
+	</div>;
 }
 
-export const DataGridNodeHtmlPlugin = connect(mapStateToProps, mapDispatchToProps)(ContainedDataGridNodeHtmlPlugin);

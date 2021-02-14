@@ -1,7 +1,5 @@
-import * as React from 'react';
-import { getFlowEventRunner } from '@devhelpr/flowrunner-redux';
+/*import * as React from 'react';
 import fetch from 'cross-fetch';
-import { connect } from "react-redux";
 import { setCustomConfig } from "../../config";
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
@@ -104,16 +102,6 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 	}
 
 	render() {
-		/*const metaDataInfo = getFlowEventRunner().getTaskMetaData().sort((a, b) => {
-			if (a.fullName < b.fullName) {
-				return -1;
-			}
-			if (a.fullName > b.fullName) {
-				return 1;
-			}
-			return 0;
-		});
-		*/
 
 		return <div className="task-selector">
 			<select className="form-control" value={this.props.canvasMode.selectedTask}
@@ -129,3 +117,5 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 }
 
 export const TaskSelector = connect(mapStateToProps)(ContainedTaskSelector);
+
+*/

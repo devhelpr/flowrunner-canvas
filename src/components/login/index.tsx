@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
 
 import { Modal, Button } from 'react-bootstrap';
 
@@ -19,15 +18,8 @@ export interface LoginPopupState {
   isRegistratingNewUser: boolean;
 }
 
-const mapStateToProps = (state: any) => {
-  return {};
-};
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-class ContainedLoginPopup extends React.Component<LoginPopupProps, LoginPopupState> {
+export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
   state = {
     username: '',
     password: '',
@@ -237,5 +229,3 @@ class ContainedLoginPopup extends React.Component<LoginPopupProps, LoginPopupSta
     );
   }
 }
-
-export const Login = connect(mapStateToProps, mapDispatchToProps)(ContainedLoginPopup);

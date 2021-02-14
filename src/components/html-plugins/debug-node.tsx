@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Suspense } from 'react';
-import { connect } from "react-redux";
+import { useEffect, useState, useRef } from 'react';
 
 import { Children, isValidElement, cloneElement } from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
@@ -8,6 +8,7 @@ import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';
 import { List } from './visualizers/list';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 import { createExpressionTree, executeExpressionTree, ExpressionNode } from '@devhelpr/expressionrunner';
 
@@ -25,14 +26,7 @@ export interface DebugNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
 	flow: any;
-	selectedNode : any;
 	children? : any;
-}
-
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode
-	}
 }
 
 export interface DebugNodeHtmlPluginState {
@@ -40,121 +34,117 @@ export interface DebugNodeHtmlPluginState {
 	expressionTree : any;
 }
 
-export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProps, DebugNodeHtmlPluginState> {
-	state = {
-		receivedPayload : [],
-		expressionTree: undefined
-	}
+//export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlPluginProps, DebugNodeHtmlPluginState> {
+export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
+	const [receivedPayload, setReceivedPayload] = useState([] as any[]);
+	const [expressionTree, setExpressionTree] = useState(undefined as any);
 
-	observableId = uuidV4();
+	const selectedNode = useSelectedNodeStore();
+	const observableId = useRef(uuidV4());
+	const unmounted = useRef(false);
 
-	componentDidMount() {
-		//console.log("registerFlowNodeObserver", this.props.node.name, this.observableId);
-		this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
-		if (this.props.node.visibilityCondition && 
-			this.props.node.visibilityCondition !== "") {				
-			this.setState({expressionTree: createExpressionTree(this.props.node.visibilityCondition)})
+	const timer = useRef(undefined as any);
+	const lastTime = useRef(undefined as any);
+	const receivedPayloads = useRef([] as any[]);
+
+	useEffect(() => {
+		//console.log("registerFlowNodeObserver", props.node.name, observableId);
+		props.flowrunnerConnector.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		if (props.node.visibilityCondition && 
+			props.node.visibilityCondition !== "") {				
+			setExpressionTree(createExpressionTree(props.node.visibilityCondition));
+		}
+		return () => {
+			props.flowrunnerConnector.unregisterFlowNodeObserver(props.node.name, observableId.current);
+			unmounted.current = true;
+
+			if (timer.current) {
+				clearTimeout(timer.current);
+				timer.current = undefined;
+			}
+		}
+	}, []);
+
+	useEffect(() => {
+		if (props.node.visibilityCondition && 
+			props.node.visibilityCondition && 
+			props.node.visibilityCondition !== "") {				
+			setExpressionTree(createExpressionTree(props.node.visibilityCondition));
 		}
 
-	}
+		props.flowrunnerConnector.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 
-	componentDidUpdate(prevProps : any) {
-		if (prevProps.node.visibilityCondition != this.props.node.visibilityCondition && 
-			this.props.node.visibilityCondition && 
-			this.props.node.visibilityCondition !== "") {				
-			this.setState({expressionTree: createExpressionTree(this.props.node.visibilityCondition)})
+		return () => {
+			props.flowrunnerConnector.unregisterFlowNodeObserver(props.node.name, observableId.current);
+		}
+	}, [props.node]);
+
+	useEffect(() => {
+		props.flowrunnerConnector.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		return () => {
+			props.flowrunnerConnector.unregisterFlowNodeObserver(props.node.name, observableId.current);
 		}
 
-		if (prevProps.flow != this.props.flow) {
-			//console.log("componentDidUpdate 1",this.observableId,  this.props.node);
-			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
-			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
-		}
-
-		if (!prevProps || !prevProps.node || 
-			(prevProps.node.name != this.props.node.name)) {
-			//console.log("componentDidUpdate 2", this.observableId, this.props.node);
-			this.props.flowrunnerConnector.unregisterFlowNodeObserver(prevProps.node.name, this.observableId);
-			this.props.flowrunnerConnector.registerFlowNodeObserver(this.props.node.name, this.observableId, this.receivePayloadFromNode);
-		}
-
-	}
+	}, [props.flow]);
 
 
-	getWidth = () => {
+	const getWidth = () => {
 
-		/*if (this.props.node.visualizer == "gridcanvas") {
-			const visualizer = new GridCanvas({node: this.props.node,
-				payloads: this.state.receivedPayload});
+		/*if (props.node.visualizer == "gridcanvas") {
+			const visualizer = new GridCanvas({node: props.node,
+				payloads: state.receivedPayload});
 			return visualizer.getWidth();
 		}
 		*/
 		return;
 	}
 
-	getHeight() {
-		/*if (this.props.node.visualizer == "gridcanvas") {
-			const visualizer = new GridCanvas({node: this.props.node,
-				payloads: this.state.receivedPayload});
+	const getHeight = () => {
+		/*if (props.node.visualizer == "gridcanvas") {
+			const visualizer = new GridCanvas({node: props.node,
+				payloads: state.receivedPayload});
 			return visualizer.getHeight();
 		}*/
 		return;
 	}
 
-	unmounted = false;
-	componentWillUnmount() {
-		this.unmounted = true;
-		if (this.timer) {
-			clearTimeout(this.timer);
-			this.timer = undefined;
-		}
-		console.log("componentWillUnmount",this.observableId, this.props.node);
-		this.props.flowrunnerConnector.unregisterFlowNodeObserver(this.props.node.name, this.observableId);
-	}
-
-	timer : any; 
-	lastTime : any;
-	receivedPayloads : any[] = [];
-	receivePayloadFromNode = (payload : any) => {
-		//console.log("receivePayloadFromNode", payload, this.props.node);
-		if (this.unmounted) {
+	
+	const receivePayloadFromNode = (payload : any) => {
+		//console.log("receivePayloadFromNode", payload, props.node);
+		if (unmounted.current) {
 			return;
 		}		
 		
 		if (!!payload.isDebugCommand) {
 			if (payload.debugCommand  === "resetPayloads") {
-				if (this.receivedPayloads.length > 0) {
-					this.receivedPayloads = [];
-					this.setState((state, props) => {
-						return {
-							receivedPayload: []
-						}
-					});
+				if (receivedPayloads.current.length > 0) {
+					receivedPayloads.current = [];
+					setReceivedPayload([]);
 				}
 			}
 			return;
 		}
 
-		let receivedPayloads : any[] = [...this.receivedPayloads];
-		receivedPayloads.push({...payload});
-		if (receivedPayloads.length > 1) {
-			receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (this.props.node.maxPayloads || 1), 0));
+		let newReceivedPayloads : any[] = [...receivedPayloads.current];
+		newReceivedPayloads.push({...payload});
+		if (newReceivedPayloads.length > 1) {
+			newReceivedPayloads = newReceivedPayloads.slice(Math.max(newReceivedPayloads.length - (props.node.maxPayloads || 1), 0));
 		}
-		this.receivedPayloads = receivedPayloads;
+		receivedPayloads.current = newReceivedPayloads;
 
-		if (!this.lastTime || performance.now() > this.lastTime + 30) {
-			this.lastTime = performance.now();
-			if (this.timer) {
-				clearTimeout(this.timer);
-				this.timer = undefined;
+		if (!lastTime.current || performance.now() > lastTime.current + 30) {
+			lastTime.current = performance.now();
+			if (timer.current) {
+				clearTimeout(timer.current);
+				timer.current = undefined;
 			}
-			this.setState({receivedPayload : this.receivedPayloads});
+			setReceivedPayload(newReceivedPayloads);
 			/*
-			this.setState((state, props) => {
+			setState((state, props) => {
 				let receivedPayloads : any[] = [...state.receivedPayload];
 				receivedPayloads.push({...payload});
 				if (receivedPayloads.length > 1) {
-					receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (this.props.node.maxPayloads || 1), 0));
+					receivedPayloads = receivedPayloads.slice(Math.max(receivedPayloads.length - (props.node.maxPayloads || 1), 0));
 				}
 				return {
 					receivedPayload: receivedPayloads
@@ -162,125 +152,121 @@ export class ContainedDebugNodeHtmlPlugin extends React.Component<DebugNodeHtmlP
 			});
 			*/
 		} else {
-			if (this.timer) {
-				clearTimeout(this.timer);
-				this.timer = undefined;
+			if (timer.current) {
+				clearTimeout(timer.current);
+				timer.current = undefined;
 			}
 
-			this.timer = setTimeout(() => {
-				this.timer = undefined;		
-				this.setState({receivedPayload : this.receivedPayloads});
+			timer.current = setTimeout(() => {
+				timer.current = undefined;		
+				setReceivedPayload(receivedPayloads.current);
 			}, 30);
 		}
 
 		return;
 	}
 
-	render() {
-
-		let visualizer = <></>;
-		let additionalCssClass = "";
-
-		/*
-			const AppViewTemplate = getComponent(this.props.flowrunnerConnector.flowView)
-
-			if this.props.flowrunnerConnector.flowView == "uiview" 
-				check visbilityCondition
-				if !visible then <></>
-
-			<AppViewTemplate>{children}</AppViewTemplate>
-
-		*/
-		let visible = true;
-		if (this.props.node.visibilityCondition && this.state.expressionTree) {
-			let payload = this.state.receivedPayload.length > 0 ? this.state.receivedPayload[this.state.receivedPayload.length - 1] : {};
-			const result = executeExpressionTree(this.state.expressionTree as unknown as ExpressionNode, payload);
-			console.log("executeExpressionTree", result, result == 1, !(result == 1) && this.state.expressionTree && 
-				this.props.flowrunnerConnector.flowView != "uiview", payload);
-			visible = result == 1;
-		}
-
-		if (this.props.flowrunnerConnector.flowView == "uiview" && this.state.expressionTree) {
-			if (!visible) {
-				return <></>;
-			} 
-		}
-		
-		if (this.state.receivedPayload.length == 0) {
-			visualizer = <div style={{		
-				backgroundColor: "#f2f2f2"
-			}}></div>;
-		}
-		
-		if (this.props.node.visualizer == "children") {
-			const childrenWithProps = Children.map(this.props.children, child => {
-				if (isValidElement(child)) {
-				  return cloneElement(child, { 
-					nodeName: this.props.node.name,
-					payload: this.state.receivedPayload.length > 0 ? this.state.receivedPayload[this.state.receivedPayload.length - 1] : {}
-				   } as any);
-				}
-		  
-				return child;
-			  });
-			//visualizer = <>{childrenWithProps}</>;
-			return <>{childrenWithProps}</>;
-		} else
-		if (this.props.node.visualizer == "number") {
-			visualizer = <Number node={this.props.node} payloads={this.state.receivedPayload}></Number>
-		} else
-		if (this.props.node.visualizer == "text") {
-			visualizer = <Text node={this.props.node} payloads={this.state.receivedPayload}></Text>
-		} else
-		if (this.props.node.visualizer == "list") {
-			visualizer = <List node={this.props.node} payloads={this.state.receivedPayload}></List>
-		} else
-		if (this.props.node.visualizer == "color") {
-			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <Color node={this.props.node} payloads={this.state.receivedPayload}></Color>
-		} else 
-		if (this.props.node.visualizer == "richtext") {
-			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <Suspense fallback={<div>Loading...</div>}>
-							<RichText node={this.props.node} payloads={this.state.receivedPayload}></RichText>
-				</Suspense>;
-		} else
-		if (this.props.node.visualizer == "gridcanvas") {
-			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <Suspense fallback={<div>Loading...</div>}>
-							<GridCanvas node={this.props.node} payloads={this.state.receivedPayload}></GridCanvas>
-				</Suspense>;
-		} else
-		if (this.props.node.visualizer == "animatedgridcanvas") {
-			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <Suspense fallback={<div>Loading...</div>}>
-					<AnimatedGridCanvas node={this.props.node} payloads={this.state.receivedPayload}></AnimatedGridCanvas>
-				</Suspense>;
-		} else
-		if (this.props.node.visualizer == "xycanvas") {
-			additionalCssClass = "html-plugin-node__h-100";
-			visualizer = <Suspense fallback={<div>Loading...</div>}>
-					<XYCanvas flowrunnerConnector={this.props.flowrunnerConnector} selectedNode={this.props.selectedNode} node={this.props.node} payloads={this.state.receivedPayload}></XYCanvas>
-				</Suspense>;
-		} else {
-			const payload = this.state.receivedPayload[this.state.receivedPayload.length-1];
-			if (payload && (payload as any).debugId) {
-				delete (payload as any).debugId;
-			}
-			//console.log("debugtask" , this.props.node, payload, this.state);
-			visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
-		}
-		return <>
-			{!visible && this.state.expressionTree && 
-				this.props.flowrunnerConnector.flowView != "uiview" && <div className="html-plugin-node__visibility fas fa-eye-slash"></div>}
-			<div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + this.props.node.visualizer + " " + additionalCssClass} style={{		
-				backgroundColor: "white"
-			}}>{visualizer}			
-			</div>
-		</>;
-		
 	
+
+	let visualizer = <></>;
+	let additionalCssClass = "";
+
+	/*
+		const AppViewTemplate = getComponent(props.flowrunnerConnector.flowView)
+
+		if props.flowrunnerConnector.flowView == "uiview" 
+			check visbilityCondition
+			if !visible then <></>
+
+		<AppViewTemplate>{children}</AppViewTemplate>
+
+	*/
+	let visible = true;
+	if (props.node.visibilityCondition && expressionTree) {
+		let payload = receivedPayload.length > 0 ? receivedPayload[receivedPayload.length - 1] : {};
+		const result = executeExpressionTree(expressionTree as unknown as ExpressionNode, payload);
+		console.log("executeExpressionTree", result, result == 1, !(result == 1) && expressionTree && 
+			props.flowrunnerConnector.flowView != "uiview", payload);
+		visible = result == 1;
 	}
+
+	if (props.flowrunnerConnector.flowView == "uiview" && expressionTree) {
+		if (!visible) {
+			return <></>;
+		} 
+	}
+	
+	if (receivedPayload.length == 0) {
+		visualizer = <div style={{		
+			backgroundColor: "#f2f2f2"
+		}}></div>;
+	}
+	
+	if (props.node.visualizer == "children") {
+		const childrenWithProps = Children.map(props.children, child => {
+			if (isValidElement(child)) {
+				return cloneElement(child, { 
+				nodeName: props.node.name,
+				payload: receivedPayload.length > 0 ? receivedPayload[receivedPayload.length - 1] : {}
+				} as any);
+			}
+		
+			return child;
+			});
+		//visualizer = <>{childrenWithProps}</>;
+		return <>{childrenWithProps}</>;
+	} else
+	if (props.node.visualizer == "number") {
+		visualizer = <Number node={props.node} payloads={receivedPayload}></Number>
+	} else
+	if (props.node.visualizer == "text") {
+		visualizer = <Text node={props.node} payloads={receivedPayload}></Text>
+	} else
+	if (props.node.visualizer == "list") {
+		visualizer = <List node={props.node} payloads={receivedPayload}></List>
+	} else
+	if (props.node.visualizer == "color") {
+		additionalCssClass = "html-plugin-node__h-100";
+		visualizer = <Color node={props.node} payloads={receivedPayload}></Color>
+	} else 
+	if (props.node.visualizer == "richtext") {
+		additionalCssClass = "html-plugin-node__h-100";
+		visualizer = <Suspense fallback={<div>Loading...</div>}>
+						<RichText node={props.node} payloads={receivedPayload}></RichText>
+			</Suspense>;
+	} else
+	if (props.node.visualizer == "gridcanvas") {
+		additionalCssClass = "html-plugin-node__h-100";
+		visualizer = <Suspense fallback={<div>Loading...</div>}>
+						<GridCanvas node={props.node} payloads={receivedPayload}></GridCanvas>
+			</Suspense>;
+	} else
+	if (props.node.visualizer == "animatedgridcanvas") {
+		additionalCssClass = "html-plugin-node__h-100";
+		visualizer = <Suspense fallback={<div>Loading...</div>}>
+				<AnimatedGridCanvas node={props.node} payloads={receivedPayload}></AnimatedGridCanvas>
+			</Suspense>;
+	} else
+	if (props.node.visualizer == "xycanvas") {
+		additionalCssClass = "html-plugin-node__h-100";
+		visualizer = <Suspense fallback={<div>Loading...</div>}>
+				<XYCanvas flowrunnerConnector={props.flowrunnerConnector} selectedNode={selectedNode} node={props.node} payloads={receivedPayload}></XYCanvas>
+			</Suspense>;
+	} else {
+		const payload = receivedPayload[receivedPayload.length-1];
+		if (payload && (payload as any).debugId) {
+			delete (payload as any).debugId;
+		}
+		//console.log("debugtask" , props.node, payload, state);
+		visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
+	}
+	return <>
+		{!visible && expressionTree && 
+			props.flowrunnerConnector.flowView != "uiview" && <div className="html-plugin-node__visibility fas fa-eye-slash"></div>}
+		<div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + props.node.visualizer + " " + additionalCssClass} style={{		
+			backgroundColor: "white"
+		}}>{visualizer}			
+		</div>
+	</>;
 }
 
-export const DebugNodeHtmlPlugin = connect(mapStateToProps)(ContainedDebugNodeHtmlPlugin);

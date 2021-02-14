@@ -1,9 +1,8 @@
+/*
 import * as React from 'react';
 import { connect } from "react-redux";
 
 import { Modal, Button } from 'react-bootstrap';
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { selectNode } from '../../redux/actions/node-actions';
 
 export interface ISchemaNode {
 	objectSchema: string;
@@ -212,3 +211,4 @@ class ContainedShowSchemaPopup extends React.Component<ShowSchemaPopupProps, Sho
 }
 
 export const ShowSchemaPopup = connect(mapStateToProps, mapDispatchToProps)(ContainedShowSchemaPopup);
+*/

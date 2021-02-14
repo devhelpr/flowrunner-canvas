@@ -1,30 +1,25 @@
 import * as React from 'react';
-import { connect } from "react-redux";
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
 
 export interface FooterProps {
-	canvasMode: ICanvasMode;
-	selectedNode: any;
+	
 }
 
 export interface FooterState {
 
 }
 
-const mapStateToProps = (state: any) => {
-	return {
-		selectedNode: state.selectedNode,
-		canvasMode: state.canvasMode	
-	}
-}
-
-class ContainedFooter extends React.Component<FooterProps, FooterState> {
+export class FooterToolbar extends React.Component<FooterProps, FooterState> {
 
 	componentDidMount() {
 
 	}
 
 	render() {
+
+		return <nav className="navbar fixed-bottom navbar-light bg-light">
+				<span className="navbar-brand">(c) Devhelpr 2020</span>
+			</nav>;
+		/*	
 		if (!this.props.selectedNode || !this.props.selectedNode.name) {
 			return <nav className="navbar fixed-bottom navbar-light bg-light">
 				<span className="navbar-brand">(c) Devhelpr 2020</span>
@@ -71,7 +66,6 @@ class ContainedFooter extends React.Component<FooterProps, FooterState> {
 		return <nav className="navbar fixed-bottom navbar-light bg-light">
 			<a className="navbar-brand" href="#">{this.props.selectedNode.node && this.props.selectedNode.node.taskType ? this.props.selectedNode.node.taskType + " - " : ""}{this.props.selectedNode.name}{additionalInfo}</a>
 		</nav>;
+		*/
 	}
 }
-
-export const FooterToolbar = connect(mapStateToProps)(ContainedFooter);

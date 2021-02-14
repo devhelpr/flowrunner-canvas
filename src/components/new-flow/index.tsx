@@ -1,73 +1,45 @@
 import * as React from 'react';
-import { connect } from "react-redux";
-import fetch from 'cross-fetch';
+import { useState, useRef, useEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { selectNode } from '../../redux/actions/node-actions';
+
+import fetch from 'cross-fetch';
+
+import { useFlowStore} from '../../state/flow-state';
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 
 export interface NewFlowProps {
-	selectedNode : any;
 	onClose : () => void;
 	onSave: (id : number | string, flowType : string) => void;
-	storeFlowNode: (node : any, orgNodeName : string) => void;
-	selectNode: (name: string, node : any) => void;
 }
 
-export interface NewFlowState {
-	value: string;
-	orgNodeName: string;
-	orgNodeValues: any;
-	requiredNodeValues: any;
-	flowType: string;
-	addJSONFlow: boolean;
-	json: string;
-}
+export const NewFlow = (props: NewFlowProps) => {
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode
-	}
-}
+	const [value, setValue] = useState("");
+	const [orgNodeName, setOrgNodeName] = useState("");
+	const [orgNodeValues, setOrgNodeValues] = useState({});
+	const [requiredNodeValues , setRequiredNodeValues] = useState({});
+	const [flowType , setFlowType] = useState("playground");
+	const [addJSONFlow, setAdJSONFlow] = useState(false);
+	const [json, setJSON] = useState("");
 
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		selectNode: (name, node) => dispatch(selectNode(name, node))
-	}
-}
+	const containerRef = useRef(null);
+	const flow = useFlowStore();
+	const canvasMode = useCanvasModeStateStore();
 
-class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 
-	constructor(props: any) {
-		super(props);
-		this.ref = React.createRef();
-	}
-	
-	state = {
-		value: "",
-		orgNodeName : "",
-		orgNodeValues: {},
-		requiredNodeValues: {},
-		flowType: "playground",
-		addJSONFlow : false,
-		json: ""
-	}
-
-	ref;
-
-	componentDidMount() {
+	useEffect(() => {
 		
 		// this is needed to prevent unnessary rerender because of the container ref reference
 		// when this is not here, the component rerenders after first input in input controls
 
-		this.setState({value: ""});
-	}
+		setValue("");
+	}, []);
 
-	saveNode(e) {
-		if (this.state.addJSONFlow) {
+	const saveNode= (e) => {
+		if (addJSONFlow) {
 			try {
-				let flow = JSON.parse(this.state.json);
+				let flow = JSON.parse(json);
 				if (!Array.isArray(flow)) {
 					alert("The JSON should be an array of nodes and connections");
 					return;
@@ -78,12 +50,12 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 			}
 		}
 		try {
-			fetch('/flow?flow=' + this.state.value + 
-				"&flowType=" + this.state.flowType +
-				"&addJSONFlow=" + this.state.addJSONFlow, {
+			fetch('/flow?flow=' + value + 
+				"&flowType=" + flowType +
+				"&addJSONFlow=" + addJSONFlow, {
 				method : "post",
 				body: JSON.stringify({
-					nodes : JSON.parse(this.state.json || "[]")
+					nodes : JSON.parse(json || "[]")
 				}),
 				headers: {
 					"Content-Type": "application/json"
@@ -94,7 +66,7 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 				}
 				return response.json();
 			}).then((result) => {
-				this.props.onSave(result.id, this.state.flowType);
+				props.onSave(result.id, flowType);
 			});
 			
 		} catch (err) {
@@ -106,82 +78,79 @@ class ContainedNewFlow extends React.Component<NewFlowProps, NewFlowState> {
 		return false;
 	}
 
-	onAddJSONFlow = (event) => {
+	const onAddJSONFlow = (event) => {
 		event.preventDefault();
-		this.setState({addJSONFlow: !this.state.addJSONFlow});
+		setAdJSONFlow(!addJSONFlow);
 		return false;
 	}
 
-	onChangeJson = (event) => {
+	const onChangeJson = (event) => {
 		event.preventDefault();
-		this.setState({json: event.target.value})
+		setJSON(event.target.value);
 		return false;
 	}
 
-	onChangeFlowName = (event) => {
+	const onChangeFlowName = (event) => {
 		event.preventDefault();
-		this.setState({value: event.target.value});
+		setValue(event.target.value);
 		return false;
 
 	}
 
-	onChangeFlowType = (event) => {
+	const onChangeFlowType = (event) => {
 		event.preventDefaul();
-		this.setState({flowType: event.target.value});
+		setFlowType(event.target.value);
 		return false;
 	}
 
-	render() {
-		return <div ref={this.ref}>
-			<Modal 
-				show={true} 
-				centered 
-				size={this.state.addJSONFlow ? "xl" : "sm"} 
-				container={this.ref.current}>
-				<Modal.Header>
-					<Modal.Title>Add new Flow</Modal.Title>
-				</Modal.Header>
-			
-				<Modal.Body>
-					<div className="form-group">
-						<label>Flow name</label>
-						<input className="form-control"
-							value={this.state.value} 
-							required
-							onChange={this.onChangeFlowName}
-						></input>
-					</div>
-					<div className="form-group">
-						<label>Flow type</label>
-						<select className="form-control" value={this.state.flowType}
-							onChange={this.onChangeFlowType}
-						>
-							<option value="playground">Playground</option>
-							<option value="rustflowrunner">Rust flowrunner</option>
-							<option value="mobile-app">Mobile app</option>
-							<option value="backend">Backend</option>
-						</select>				
-					</div>
-					<div className="form-group">
-						<input id="addJSONFlow" type="checkbox" checked={this.state.addJSONFlow} 
-							onChange={this.onAddJSONFlow} />
-						<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
-					</div>
-					{this.state.addJSONFlow && <div className="form-group">
-						<textarea className="form-control" 
-							value={this.state.json} 
-							onChange={this.onChangeJson}></textarea>
-					</div>
-					}
-				</Modal.Body>
-			
-				<Modal.Footer>
-					<Button variant="secondary" onClick={this.props.onClose}>Close</Button>
-					<Button variant="primary" onClick={this.saveNode.bind(this)}>Add</Button>
-				</Modal.Footer>
-			</Modal>
-	  </div>;
-	}
+	
+	return <div ref={ref => ((containerRef as any).current = ref)}>
+		<Modal 
+			show={true} 
+			centered 
+			size={addJSONFlow ? "xl" : "sm"} 
+			container={containerRef.current}>
+			<Modal.Header>
+				<Modal.Title>Add new Flow</Modal.Title>
+			</Modal.Header>
+		
+			<Modal.Body>
+				<div className="form-group">
+					<label>Flow name</label>
+					<input className="form-control"
+						value={value} 
+						required
+						onChange={onChangeFlowName}
+					></input>
+				</div>
+				<div className="form-group">
+					<label>Flow type</label>
+					<select className="form-control" value={flowType}
+						onChange={onChangeFlowType}
+					>
+						<option value="playground">Playground</option>
+						<option value="rustflowrunner">Rust flowrunner</option>
+						<option value="mobile-app">Mobile app</option>
+						<option value="backend">Backend</option>
+					</select>				
+				</div>
+				<div className="form-group">
+					<input id="addJSONFlow" type="checkbox" checked={addJSONFlow} 
+						onChange={onAddJSONFlow} />
+					<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
+				</div>
+				{addJSONFlow && <div className="form-group">
+					<textarea className="form-control" 
+						value={json} 
+						onChange={onChangeJson}></textarea>
+				</div>
+				}
+			</Modal.Body>
+		
+			<Modal.Footer>
+				<Button variant="secondary" onClick={props.onClose}>Close</Button>
+				<Button variant="primary" onClick={saveNode}>Add</Button>
+			</Modal.Footer>
+		</Modal>
+	</div>;
 }
-
-export const NewFlow = connect(mapStateToProps, mapDispatchToProps)(ContainedNewFlow);

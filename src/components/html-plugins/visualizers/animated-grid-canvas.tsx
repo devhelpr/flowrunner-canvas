@@ -69,6 +69,10 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 	const active = useRef(true);
 	const flowIsRunning = useRef(false);
 	const flowRunner = useRef(new FlowEventRunner());
+	let circleRefs = useRef([] as any);
+	let stage = useRef(null);
+	let textRef = useRef(null);
+
 	useEffect(() => {
 		active.current = true;
 		console.log("AnimatedGridCanvas, start useEffect");
@@ -89,6 +93,7 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 
 					flowRunner.current.start({flow: flow}, services, true, false).then(() => {
 						flowIsRunning.current = true;
+						let isInitNeeded = true;
 						const renderLoop = function() {
 							if (!active.current) return
 							
@@ -96,11 +101,55 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 							flowRunner.current.executeNode("start", {}).then((data) => {
 								
 								if (!active.current) return
-
-								requestAnimationFrame(renderLoop);
 								const perfEnd = performance.now() - perfStart;
-								setPerformanceTimer(perfEnd);
-								setPayload(data);
+								
+								requestAnimationFrame(renderLoop);
+								
+								//setPerformanceTimer(perfEnd);
+
+								if (textRef && textRef.current) {
+									(textRef.current as any).text(perfEnd.toFixed(2) + "ms");
+								}
+								if (isInitNeeded) {
+									isInitNeeded = false;
+									setPayload(data);
+								}
+
+								let list = (data as any).data;
+								list.map((payload, index) => {
+									let radius = 0;
+									let stroke = "";
+									let fill = "";
+									let width = 13;
+									let height = 13;
+
+									if (payload >= 1 || payload <= -1) {
+										radius = 13;			
+										stroke = payload <= -1 ? "#ff0000" : "#000000";
+										fill = payload <= -1 ? "#ff0000" : "#000000";
+									} else if (payload != 0) {
+										radius = 13 * Math.abs(payload);			
+										stroke = payload < 0 ? "#ff0000" : "#000000";
+										fill = payload < 0 ? "#ff0000" : "#000000";
+										width = 13 * Math.abs(payload);
+										height = 13 * Math.abs(payload);
+									}
+									let circle = circleRefs.current["circle" + index];
+									if (circle) {
+										circle.radius(radius);
+										circle.stroke(stroke);
+										circle.width(width);
+										circle.height(height);
+										circle.fill(fill);										
+									}
+
+								});
+
+								if (stage && stage.current) {
+									let stageInstance = (stage.current as any).getStage();
+									stageInstance.batchDraw();
+								}
+
 							}).catch((err) => {
 								console.log("error after executeNode in renderLoop AnimatedGridCanvas", err);
 							});
@@ -136,42 +185,43 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 
 	let currentPayload = payload;
 	circles = list.map((payload, index) => {
-		let circle : any = null;
+		//let circle : any = null;
 			
 		let x = index % (currentPayload.columns);
 		let y = Math.floor(index / currentPayload.rows);
 
+		let radius = 0;
+		let stroke = "";
+		let fill = "";
+		let width = 13;
+		let height = 13;
+
 		if (payload >= 1 || payload <= -1) {
-			circle = <Circle 
-					key={"xycanvasgrid-" + index}
-					x={(x * 16)+8}
-					y={(y * 16)+8}
-					radius={13}
-					stroke={payload <= -1 ? "#ff0000" : "#000000"}
-					strokeWidth={2}
-					width={13}
-					height={13}
-					opacity={1}
-					fill={payload <= -1 ? "#ff0000" : "#000000"} 
-					perfectDrawEnabled={false}>
-				</Circle>
+			radius = 13;			
+			stroke = payload <= -1 ? "#ff0000" : "#000000";
+			fill = payload <= -1 ? "#ff0000" : "#000000";
 		} else if (payload != 0) {
-			circle = <Circle 
+			radius = 13 * Math.abs(payload);			
+			stroke = payload < 0 ? "#ff0000" : "#000000";
+			fill = payload < 0 ? "#ff0000" : "#000000";
+			width = 13 * Math.abs(payload);
+			height = 13 * Math.abs(payload);			
+		}
+		
+		return <Circle 
 			key={"xycanvasgrid-" + index}
 			x={(x * 16)+8}
 			y={(y * 16)+8}
-			radius={13 * Math.abs(payload)}
-			stroke={payload < 0 ? "#ff0000" : "#000000"}
+			ref={ref => (circleRefs.current["circle" + index] = ref)}
+			radius={radius}
+			stroke={stroke}
 			strokeWidth={2}
-			width={13 * Math.abs(payload)}
-			height={13 * Math.abs(payload)}
+			width={width}
+			height={height}
 			opacity={1}
-			fill={payload < 0 ? "#ff0000" : "#000000"} 
+			fill={fill} 
 			perfectDrawEnabled={false}>
-		</Circle>
-		}
-		
-		return circle;
+		</Circle>;
 	});
 	list = null;
 	currentPayload = null;
@@ -179,22 +229,23 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 	
 	return <Stage
 			pixelRatio={1} 
+			ref={ref => ((stage as any).current = ref)}
 			width={getWidth() || props.node.width || 250}
 			height={getHeight() || props.node.height || 250}>		
 		<Layer>
 		{circles}
-		{performanceTimer > 0 && <>
-			<Rect x={4} y={4} height={32} width={100} opacity={0.5} fill="#000000" ></Rect>
-			<Text align="left"
-				fontSize={18}
-				y={4}
-				x={4}
-				height={32}
-				verticalAlign="middle"
-				fill="#ffffff"
-				text={performanceTimer.toFixed(2) + "ms"}></Text>
-			</>
-		}
+		
+		<Rect x={4} y={4} height={32} width={100} opacity={0.5} fill="#000000" ></Rect>
+		<Text align="left"
+			ref={ref => ((textRef as any).current = ref)}
+			fontSize={18}
+			y={4}
+			x={4}
+			height={32}
+			verticalAlign="middle"
+			fill="#ffffff"
+			text={performanceTimer.toFixed(2) + "ms"}></Text>
+			
 		</Layer>
 	</Stage>;
 }

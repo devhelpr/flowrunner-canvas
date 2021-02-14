@@ -40,7 +40,6 @@ export interface ShapeTypeProps {
   onClickLine: any;
   selectedNode: any;
 
-  canvasComponentInstance: any;
   touchedNodes: any;
 }
 
@@ -104,3 +103,20 @@ export interface LineTypeProps {
 
 export const shapeBackgroundColor: string = '#f2f2f2';
 export const shapeSelectedBackgroundColor: string = '#a2a2a2';
+
+export enum ModifyShapeEnum {
+  SetXY = 1,
+	SetPoints,
+	GetXY,
+	GetShapeType,
+  SetState,
+	SetOpacity
+}
+
+export enum ShapeStateEnum {
+  Default = 1,
+  Touched,
+  Selected,
+  Error,
+  Ok
+}

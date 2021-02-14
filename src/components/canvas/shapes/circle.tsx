@@ -1,19 +1,73 @@
 import * as React from 'react';
+import { useImperativeHandle , useRef} from 'react';
 
 import { Group, Text, Circle as KonvaCircle } from 'react-konva';
 
-import { ShapeTypeProps } from './shape-types';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { Lines } from './line-helper';
 
 export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
+	const groupRef = useRef(null as any);
+
+	useImperativeHandle(ref, () => ({
+		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
+			switch (+action) {
+				case ModifyShapeEnum.GetShapeType : {
+					return "rect";
+					break;
+				}
+				case ModifyShapeEnum.GetXY : {
+					if (groupRef && groupRef.current) {
+						return {
+							x: (groupRef.current as any).x(),
+							y: (groupRef.current as any).y(),
+						}
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetXY : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.x(parameters.x);
+						groupRef.current.y(parameters.y);
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetOpacity : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.opacity(parameters.opacity);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetPoints : {
+					break;
+				}
+				case ModifyShapeEnum.SetState : {
+					/*
+					if (groupRef && groupRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Touched) {
+							groupRef.current.opacity(1);
+						} else
+						if (parameters.state == ShapeStateEnum.Default) {
+							groupRef.current.opacity(0.5);
+						}						
+					}
+					*/
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}));
+
 	return <>
 		<Group
 			x={props.x}
 			y={props.y}
-			ref={ref}
+			ref={groupRef}
 			data-id={props.name}
 			draggable={false}
 			onDragStart={props.onDragStart}
@@ -29,7 +83,7 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 			onMouseOver={props.onMouseOver}
 			onMouseOut={props.onMouseOut}
 			onMouseLeave={props.onMouseLeave}
-			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			>
 			<KonvaCircle 
 				x={ShapeMeasures.circleSize/2}
@@ -68,7 +122,6 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 				onLineMouseOver={props.onLineMouseOver}
 				onLineMouseOut={props.onLineMouseOut}
 				onClickLine={props.onClickLine}
-				canvasComponentInstance={props.canvasComponentInstance}
 				touchedNodes={props.touchedNodes}
 		></Lines>		
 	</>

@@ -1,11 +1,7 @@
 import * as React from 'react';
 import { Stage, Layer , Circle, Line } from 'react-konva';
 
-import { IFlowrunnerConnector,IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
-import Slider from '@material-ui/core/Slider';
-import { connect } from "react-redux";
-import { selectNode } from '../../redux/actions/node-actions';
-import { ICanvasMode } from '../../redux/reducers/canvas-mode-reducers';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { PresetManager } from './components/preset-manager';
 
 import * as uuid from 'uuid';
@@ -16,11 +12,6 @@ export interface GridEditNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	node : any;
 	flow: any;
-	canvasMode: ICanvasMode;
-
-	selectedNode : any;
-	selectNode : (name, node) => void;
-
 }
 
 export interface GridEditNodeHtmlPluginState {
@@ -29,18 +20,6 @@ export interface GridEditNodeHtmlPluginState {
 	data : IMatrixValue[];
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode,
-		canvasMode: state.canvasMode,		
-	}
-}
-
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		selectNode: (name, node) => dispatch(selectNode(name, node))
-	}
-}
 
 export interface IMatrixValue {
 	x : number;
@@ -48,7 +27,7 @@ export interface IMatrixValue {
 	value : number;
 }
 
-export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPluginProps,GridEditNodeHtmlPluginState> {
+export class GridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPluginProps,GridEditNodeHtmlPluginState> {
 
 	state = {
 		value : this.props.node.defaultValue || 0,
@@ -282,5 +261,3 @@ export class ContainedGridEditNodeHtmlPlugin extends React.Component<GridEditNod
 		
 	}
 }
-
-export const GridEditNodeHtmlPlugin = connect(mapStateToProps, mapDispatchToProps)(ContainedGridEditNodeHtmlPlugin);

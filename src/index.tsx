@@ -1,23 +1,20 @@
 import './public-path';
-import { startFlow } from '@devhelpr/flowrunner-redux';
 import * as React from 'react';
 import { useState } from 'react';
 import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
 import { Observable, Subject } from 'rxjs';
 
 import fetch from 'cross-fetch';
 
 import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 
-import { reducers } from './redux/reducers';
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { Taskbar } from './components/Taskbar';
-import { UIControlsBar} from './components/ui-controls-bar';
+//import { UIControlsBar} from './components/ui-controls-bar';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
@@ -51,10 +48,13 @@ export const startEditor = () => {
 		}
 
 		const options : any = {
-			reduxMiddleware: undefined
+			//reduxMiddleware: undefined
 		}
 
 		if (hasStorageProvider) {
+			/*
+			TODO : fix using zustand middleware ??
+
 			options.reduxMiddleware = function(middlewareAPI: any) {
 				return function(next: any) {
 				return function(action: any) {	
@@ -68,12 +68,13 @@ export const startEditor = () => {
 				};
 				};
 			};
+			*/
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
 
 		/*global __webpack_public_path__ */
  
-		let worker : Worker;
+		let worker : Worker | null;
 		worker = new Worker(new URL("./flow-worker", import.meta.url));
 		worker.postMessage({
 			command: 'init',
@@ -92,17 +93,20 @@ export const startEditor = () => {
 		let flowrunnerConnector : any = undefined;
 
 		const onDestroyAndRecreateWorker = () => {
+			console.log("onDestroyAndRecreateWorker handling");
 			if (worker) {
 				worker.terminate();
-				//worker = new Worker();
-				worker = new Worker(new URL("./flow-worker", import.meta.url));
-				//worker = new Worker("/worker.js");
-				worker.postMessage({
-					command: 'init',
-					publicPath: __webpack_public_path__
-				});
-				flowrunnerConnector.registerWorker(worker);
+				worker = null;
 			}
+			//worker = new Worker();
+			worker = new Worker(new URL("./flow-worker", import.meta.url));
+			//worker = new Worker("/worker.js");
+			worker.postMessage({
+				command: 'init',
+				publicPath: __webpack_public_path__
+			});
+			flowrunnerConnector.registerWorker(worker);
+		
 		}
 
 		if (!!hasRunningFlowRunner) {
@@ -164,12 +168,15 @@ export const startEditor = () => {
 						flowrunnerConnector.flowView = editorMode;
 						setEditorMode(editorMode);
 					}
+					/*
+					{false && !!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
+									flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
+					*/
 					return <>
 						{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 							<>
 								{editorMode == "canvas" && <Taskbar flowrunnerConnector={flowrunnerConnector}></Taskbar>}
-								{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
-									flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
+								
 								{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
 									flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
@@ -195,7 +202,7 @@ export const startEditor = () => {
 					</>;
 				}
 				
-				startFlow(flowPackage, reducers , options).then((services : any) => {
+				//startFlow(flowPackage, reducers , options).then((services : any) => {
 					
 					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
 						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
@@ -210,10 +217,7 @@ export const startEditor = () => {
 					const start = (isLoggednIn) => {
 						console.log("pluginRegistry", pluginRegistry);
 						// (ReactDOM as any).createRoot(
-						(ReactDOM as any).render(<Provider store={services.getStore()}>
-								<App isLoggedIn={isLoggednIn}></App>
-							</Provider>, root
-						);
+						(ReactDOM as any).render(<App isLoggedIn={isLoggednIn}></App>, root);
 					}
 
 
@@ -246,9 +250,9 @@ export const startEditor = () => {
 					});
 								
 						
-				}).catch((err) => {
-					console.log("error during start flowunner (check internal startFlow error)", err);
-				})
+				//}).catch((err) => {
+				//	console.log("error during start flowunner (check internal startFlow error)", err);
+				//})
 			});
 		} else
 		if (applicationMode === ApplicationMode.UI) {
@@ -265,7 +269,7 @@ export const startEditor = () => {
 					></UserInterfaceView>;
 				};
 
-				startFlow(flowPackage, reducers, options).then((services : any) => {
+				//startFlow(flowPackage, reducers, options).then((services : any) => {
 					
 					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
 						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
@@ -277,14 +281,11 @@ export const startEditor = () => {
 
 					console.log("pluginRegistry", pluginRegistry);
 					//(ReactDOM as any).createRoot(
-					(ReactDOM as any).render(<Provider store={services.getStore()}>
-							<App></App>
-						</Provider>, root
-					);							
+					(ReactDOM as any).render(<App></App>, root);							
 						
-				}).catch((err) => {
-					console.log("error during start flowunner (check internal startFlow error)", err);
-				})
+				//}).catch((err) => {
+				//	console.log("error during start flowunner (check internal startFlow error)", err);
+				//})
 			});
 		}
 

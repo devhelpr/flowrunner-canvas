@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { connect } from "react-redux";
-
+import { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { selectNode } from '../../redux/actions/node-actions';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { FormNodeHtmlPlugin } from '../html-plugins/form-node';
+import { useFlowStore} from '../../state/flow-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 export interface EditNodeSettingsProps {
 	node : any;
@@ -13,8 +12,6 @@ export interface EditNodeSettingsProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	
 	onClose: (pushFlow? : boolean) => void;
-	storeFlowNode: (node : any, orgNodeName : string) => void;
-	selectNode: (name: string, node : any) => void;
 }
 
 export interface EditNodeSettingsState {
@@ -24,38 +21,20 @@ export interface EditNodeSettingsState {
 	requiredNodeValues: any;
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-
-	}
-}
-
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		selectNode: (name, node) => dispatch(selectNode(name, node)),
-	}
-}
-
-// 
-
-class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, EditNodeSettingsState> {
+export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 	
-	constructor(props : any) {
-		super(props);
-		this.ref = React.createRef();
-	}
-	ref;
+	const [value, setValue] = useState({});
+	const [orgNodeName, setOrgNodeName] = useState("");
+	const [orgNodeValues, setOrgNodeValues] = useState({});
+	const [requiredNodeValues , setRequiredNodeValues] = useState({});
+	
+	const containerRef = useRef(null);
 
-	state = {
-		value: {},
-		orgNodeName : "",
-		orgNodeValues: {},
-		requiredNodeValues: {}
-	}
+	const flow = useFlowStore();
+	const selectedNode = useSelectedNodeStore();
 
-	componentDidMount() {
-		const node = {...this.props.node};
+	useEffect(() => {
+		const node = {...props.node};
 		let requiredNodeValues;
 		if (node.shapeType !== "Line") {
 			requiredNodeValues = {
@@ -95,17 +74,16 @@ class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, E
 		delete node.id;
 		delete node.shapeType;
 
-		this.setState({
-			value : node,
-			orgNodeName : this.props.node.name,
-			orgNodeValues : {...this.props.node},
-			requiredNodeValues : requiredNodeValues
-		});
-	}
+		
+		setValue(node);
+		setOrgNodeName(props.node.name);
+		setOrgNodeValues({...props.node});
+		setRequiredNodeValues(requiredNodeValues);
+	}, []);
 
-	saveNode(e) {
+	const saveNode = (e) => {
 		try {
-			const changedProperties : any = this.state.value;
+			const changedProperties : any = value;
 			
 			//delete changedProperties.name;
 			if (changedProperties.id !== undefined) {
@@ -122,11 +100,11 @@ class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, E
 			}
 			*/
 
-			const node = {...this.state.requiredNodeValues, ...changedProperties};
-			this.props.storeFlowNode(node, this.state.orgNodeName);
+			const node = {...requiredNodeValues, ...changedProperties};
+			flow.storeFlowNode(node, orgNodeName);
 			
-			this.props.selectNode(node.name, node);
-			this.props.onClose(true);
+			selectedNode.selectNode(node.name, node);
+			props.onClose(true);
 		} catch (err) {
 			alert("The json in the 'Node JSON' field is invalid");
 		}
@@ -135,42 +113,38 @@ class ContainedEditNodeSettings extends React.Component<EditNodeSettingsProps, E
 		return false;
 	}
 
-	onCloseClick = (event) => {
+	const onCloseClick = (event) => {
 		event.preventDefault();
-		this.props.onClose();
+		props.onClose();
 		return false;
 	}
 
-	onSetValue = (value, fieldName) => {
-		this.setState({value : {...this.state.value, [fieldName]: value}});
+	const onSetValue = (value, fieldName) => {
+		setValue({...value, [fieldName]: value});
 	}
-
-	render() {
-		return <div className="edit-node-settings" ref={this.ref}>
-			<Modal show={true} centered size="lg" container={this.ref.current}>
-				<Modal.Header>
-					<Modal.Title>Edit {this.props.node.name}</Modal.Title>
-				</Modal.Header>
-			
-				<Modal.Body>
-					<div className="form-group">
-						<FormNodeHtmlPlugin 
-							isNodeSettingsUI={true} 
-							node={this.props.node} 
-							taskSettings={this.props.settings}
-							onSetValue={this.onSetValue}
-							flowrunnerConnector={this.props.flowrunnerConnector}
-							></FormNodeHtmlPlugin>
-					</div>
-				</Modal.Body>
-			
-				<Modal.Footer>
-					<Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
-					<Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
-				</Modal.Footer>
-			</Modal>
-	  	</div>;
-	}
+	
+	return <div className="edit-node-settings" ref={ref => ((containerRef as any).current = ref)}>
+		<Modal show={true} centered size="lg" container={containerRef.current}>
+			<Modal.Header>
+				<Modal.Title>Edit {props.node.name}</Modal.Title>
+			</Modal.Header>
+		
+			<Modal.Body>
+				<div className="form-group">
+					<FormNodeHtmlPlugin 
+						isNodeSettingsUI={true} 
+						node={props.node} 
+						taskSettings={props.settings}
+						onSetValue={onSetValue}
+						flowrunnerConnector={props.flowrunnerConnector}
+						></FormNodeHtmlPlugin>
+				</div>
+			</Modal.Body>
+		
+			<Modal.Footer>
+				<Button variant="secondary" onClick={onCloseClick}>Close</Button>
+				<Button variant="primary" onClick={saveNode}>Save</Button>
+			</Modal.Footer>
+		</Modal>
+	</div>;
 }
-
-export const EditNodeSettings = connect(mapStateToProps, mapDispatchToProps)(ContainedEditNodeSettings);

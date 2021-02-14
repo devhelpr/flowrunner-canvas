@@ -1,15 +1,11 @@
 import * as React from 'react';
-import { connect } from "react-redux";
-import { ShapeSettings } from '../../helpers/shape-settings';
-import { FlowToCanvas } from '../../helpers/flow-to-canvas';
+import { useState, useRef, useEffect } from 'react';
 import { IFlowrunnerConnector, IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
+import { useFlowStore} from '../../state/flow-state';
+import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 export interface DebugInfoProps {
-	//nodes : any[];
-	flow: any[];
-
-	selectedNode : any;
-	canvasMode : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 }
 
@@ -18,112 +14,87 @@ export interface DebugInfoState {
 	fullscreen: boolean;
 }
 
-const mapStateToProps = (state : any) => {
-	return {
-		flow: state.flow,
-		//nodes: state.rawFlow,
-		selectedNode : state.selectedNode,
-		canvasMode : state.canvasMode		
-	}
-}
 
 
-class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState> {
-	constructor(props) {
-		super(props);
+//class ContainedDebugInfo extends React.Component<DebugInfoProps, DebugInfoState> {
+export const DebugInfo = (props : DebugInfoProps) => {
+	const htmlElement = useRef(null);
+	const timer = useRef(null as any);
+	const [payload, setPayload] = useState(undefined);
+	const [fullscreen, setFullscreen] = useState(false);
+	const flow = useFlowStore();
+	const canvasMode = useCanvasModeStateStore();
+	const selectedNode = useSelectedNodeStore();
 
-		this.htmlElement = React.createRef();
-	}
+	useEffect(() => {
+		props.flowrunnerConnector.registerFlowExecutionObserver("ContainedDebugInfo" , (executionEvent : IExecutionEvent) => {
 
-	state = {
-		payload : undefined,
-		fullscreen: false
-	}
-
-	htmlElement : any;
-	timer : any;
-	componentDidMount() {
-		this.props.flowrunnerConnector.registerFlowExecutionObserver("ContainedDebugInfo" , (executionEvent : IExecutionEvent) => {
-
-			if (this.timer) {
-				clearTimeout(this.timer);
+			if (timer.current) {
+				clearTimeout(timer.current);
 			}
 
-			this.timer = setTimeout(() => {
-				if (!this.unmounted) {
-					// TODO : fix this nasty workaround
-					//this.forceUpdate();
-				}
-
+			timer.current = setTimeout(() => {
 				if (executionEvent) {
-					this.setState({payload: executionEvent.payload});
+					setPayload(executionEvent.payload);
 				}
 
 			}, 50);
 		});
-	}
-
-	unmounted : boolean = false;
-	componentWillUnmount() {
-		this.unmounted = true;
-		if (this.timer) {
-			clearTimeout(this.timer);
-		}
-		
-		this.props.flowrunnerConnector.unregisterFlowExecuteObserver("ContainedDebugInfo");
-
-	}
-
-	onToggleFullscreen = () => {
-		this.setState({fullscreen: !this.state.fullscreen})
-	}
-
-	render() {
-
-		if (this.props.canvasMode.flowType !== "playground") {
-			return <></>;
-		}
-		
-		let fullscreenCss = "";
-		let iconCss = "debug-info__window-maximize far fa-window-maximize";
-		if (this.state.fullscreen) {
-			fullscreenCss = " debug-info--fullscreen";
-			iconCss = "debug-info__window-maximize far fa-window-minimize";
-		}
-		if (this.props.selectedNode && this.props.selectedNode.name) {
+		return () => {
+			if (timer.current) {
+				clearTimeout(timer.current);
+			}
 			
-			if (this.props.selectedNode.payload) {
-				const debugInfo = JSON.stringify(this.props.selectedNode.payload, null, 2);
+			props.flowrunnerConnector.unregisterFlowExecuteObserver("ContainedDebugInfo");
+		}
+	}, []);
+
+	const onToggleFullscreen = () => {
+		setFullscreen(!fullscreen);
+	}
+
+	if (canvasMode.flowType !== "playground") {
+		return <></>;
+	}
+	
+	let fullscreenCss = "";
+	let iconCss = "debug-info__window-maximize far fa-window-maximize";
+	if (fullscreen) {
+		fullscreenCss = " debug-info--fullscreen";
+		iconCss = "debug-info__window-maximize far fa-window-minimize";
+	}
+
+	if (selectedNode && selectedNode.node && selectedNode.node.name) {
+		
+		if (selectedNode.payload) {
+			const debugInfo = JSON.stringify(selectedNode.payload, null, 2);
+			return <div className={"debug-info" + fullscreenCss}>
+				<div className="debug-info__debug-info">
+					<a href="#" onClick={onToggleFullscreen} className={iconCss}></a> 
+					<div className="debug-info__debug-info-content">
+						<strong>{selectedNode.node.name}</strong><br />
+						{debugInfo}
+					</div>
+				</div>
+			</div>
+		} else {
+			let list = props.flowrunnerConnector.getNodeExecutionsByNodeName(selectedNode.node.name);
+
+			if (list && list.length > 0) {
+				const debugInfo = JSON.stringify(list[list.length - 1], null, 2);
 				return <div className={"debug-info" + fullscreenCss}>
 					<div className="debug-info__debug-info">
-						<a href="#" onClick={this.onToggleFullscreen} className={iconCss}></a> 
+						<a href="#" onClick={onToggleFullscreen} className={iconCss}></a> 
 						<div className="debug-info__debug-info-content">
-							<strong>{this.props.selectedNode.name}</strong><br />
+							<strong>{selectedNode.node.name}</strong><br />
 							{debugInfo}
 						</div>
 					</div>
 				</div>
-			} else {
-				let list = this.props.flowrunnerConnector.getNodeExecutionsByNodeName(this.props.selectedNode.name);
-
-				if (list && list.length > 0) {
-					const debugInfo = JSON.stringify(list[list.length - 1], null, 2);
-					return <div className={"debug-info" + fullscreenCss}>
-						<div className="debug-info__debug-info">
-							<a href="#" onClick={this.onToggleFullscreen} className={iconCss}></a> 
-							<div className="debug-info__debug-info-content">
-								<strong>{this.props.selectedNode.name}</strong><br />
-								{debugInfo}
-							</div>
-						</div>
-					</div>
-				}
 			}
 		}
-
-		return null;
-		
 	}
-}
 
-export const DebugInfo = connect(mapStateToProps, )(ContainedDebugInfo);
+	return null;
+
+}

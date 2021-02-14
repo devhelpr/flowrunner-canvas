@@ -24,6 +24,7 @@ export const ObjectList = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
 	const [ isAdding , setAdding] = useState(false);
 	const [ newValue, setNewValue ] = useState({});
+	const [ editIndex , setEditIndex] = useState(-1);
 	let formControl = useFormControlFromCode(props.value || [], metaInfo, props.onChange);
 	
 	useEffect(() => {
@@ -83,19 +84,58 @@ export const ObjectList = (props: IFormControlProps) => {
 
 		return false;
 	}
+
+	const onEditItem = (index, event) => {
+		event.preventDefault();
+		setEditIndex(index);
+		return false;
+	}
+
 	return <div className="form-group">						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
-			{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
-				return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
-					<a href="#" onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
-					<FormNodeHtmlPlugin 
-						node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
-						isObjectListNodeEditing={true}
-						onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
-					></FormNodeHtmlPlugin>
-					
-				</div>
-			})}
+			
+			{metaInfo.viewMode && metaInfo.viewMode == "table" && metaInfo.metaInfo ?
+				<table>
+					<tbody>
+						{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
+								if (index != editIndex) {
+									return <tr key={"table-row" + index}>
+										<td>
+											<a href="#" onClick={(event) => onEditItem(index, event)} className="fas fa-edit"></a>
+										</td>						
+										{metaInfo.metaInfo.map((item , index) => {
+											return <td key={"cell" + index} className="p-2">{listItem[item.fieldName]}</td>
+										})}
+									</tr>	
+								} else {
+									return <tr key={"table-row" + index}>
+										<td colSpan={metaInfo.metaInfo.length + 1}>
+											<div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
+												<a href="#" onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
+												<FormNodeHtmlPlugin 
+													node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
+													isObjectListNodeEditing={true}
+													onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
+												></FormNodeHtmlPlugin>
+											</div>
+										</td>
+									</tr>
+								}
+							})
+						}
+					</tbody>
+				</table>
+			: Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
+					return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
+						<a href="#" onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
+						<FormNodeHtmlPlugin 
+							node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
+							isObjectListNodeEditing={true}
+							onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
+						></FormNodeHtmlPlugin>
+					</div>
+				})
+			}
 			{isAdding ? 
 				<div className="form-control__object-list-node">
 					<FormNodeHtmlPlugin 

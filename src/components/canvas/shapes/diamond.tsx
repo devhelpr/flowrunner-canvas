@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { useImperativeHandle , useRef} from 'react';
 
 import { Group, Text, RegularPolygon, Image as KonvaImage } from 'react-konva';
 
-import { ShapeTypeProps } from './shape-types';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { replaceValuesExpressions } from '../../../helpers/replace-values';
@@ -10,11 +11,68 @@ import { Lines } from './line-helper';
 
 import useImage from 'use-image';
 
-
 export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 	const [image] = useImage("/svg/cog.svg");
+	const groupRef = useRef(null as any);
+	const regularPolygonRef = useRef(null as any);
 
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
+
+	useImperativeHandle(ref, () => ({
+		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
+			switch (+action) {
+				case ModifyShapeEnum.GetShapeType : {
+					return "diamond";
+					break;
+				}
+				case ModifyShapeEnum.GetXY : {
+					if (groupRef && groupRef.current) {
+						return {
+							x: (groupRef.current as any).x(),
+							y: (groupRef.current as any).y(),
+						}
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetXY : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.x(parameters.x);
+						groupRef.current.y(parameters.y);
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetOpacity : {
+					if (groupRef && groupRef.current && parameters) {
+						groupRef.current.opacity(parameters.opacity);						
+					}
+					break;
+				}
+				case ModifyShapeEnum.SetPoints : {
+					break;
+				}
+				case ModifyShapeEnum.SetState : {
+					if (regularPolygonRef && regularPolygonRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Default) {
+							regularPolygonRef.current.stroke(settings.strokeColor);
+							regularPolygonRef.current.fill(settings.fillColor);
+						} else
+						if (parameters.state == ShapeStateEnum.Error) {
+							regularPolygonRef.current.stroke("#f00000");
+							regularPolygonRef.current.fill("#ff9d9d");
+						} else
+						if (parameters.state == ShapeStateEnum.Ok) {
+							regularPolygonRef.current.stroke("#00e000");
+							regularPolygonRef.current.fill("#9dff9d");							
+						}						
+					}
+					
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}));
 
 	let labelText = props.node && props.node.label ? props.node.label : props.name;
 	if ((settings as any).label) {
@@ -28,7 +86,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 	if (props.nodeState === "error") {
 		strokeColor = props.isSelected ? "#f00000" : "#e00000";
 		fillColor = props.isSelected ? "#ff5454" : "#ff9d9d";
-		textDecoration = "line-through"
+		//textDecoration = "line-through"
 	} else 
 	if (props.nodeState === "ok") {
 		strokeColor = props.isSelected ? "#00f000" : "#00e000";
@@ -39,7 +97,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 		<Group
 			x={props.x}
 			y={props.y}
-			ref={ref}
+			ref={groupRef}
 			onDragMove={props.onDragMove}
 			onDragEnd={props.onDragEnd}
 			draggable={false}
@@ -53,7 +111,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 			onMouseMove={props.onMouseMove}
 			onMouseUp={props.onMouseEnd}
 			onMouseLeave={props.onMouseLeave}
-			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 0.15 : 1}
+			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			>
 			<RegularPolygon 
 				x={ShapeMeasures.diamondSize/2}
@@ -62,6 +120,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				strokeWidth={4}
 				cornerRadius={4}
 				sides={4}
+				ref={regularPolygonRef}
 				radius={ShapeMeasures.diamondSize}
 				width={ShapeMeasures.diamondSize}
 				height={ShapeMeasures.diamondSize}
@@ -104,7 +163,6 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				onLineMouseOver={props.onLineMouseOver}
 				onLineMouseOut={props.onLineMouseOut}
 				onClickLine={props.onClickLine}
-				canvasComponentInstance={props.canvasComponentInstance}
 				touchedNodes={props.touchedNodes}
 		></Lines>	
 	</>

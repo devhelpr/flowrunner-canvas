@@ -394,7 +394,7 @@ export class TimerTask extends FlowTask {
   public execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
-    console.log('timer execute', node);
+    //console.log('timer execute', node);
     if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
@@ -427,7 +427,7 @@ export class TimerTask extends FlowTask {
 
   isBeingKilled = false;
   public kill() {
-    console.log('kill TimerTask');
+    //console.log('kill TimerTask');
 
     this.isBeingKilled = true;
     if (this.clearTimeout) {
@@ -606,7 +606,11 @@ const onWorkerMessage = event => {
           }
         });
       payload = null;
-    } else if (command == 'modifyFlowNode' && data.nodeName) {
+    } else if (command == 'modifyFlowNode') {
+      if (!data.nodeName) {
+        return;
+      }
+
       if (!flow) {
         return;
       }

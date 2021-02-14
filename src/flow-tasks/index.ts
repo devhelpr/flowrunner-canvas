@@ -24,6 +24,8 @@ import { DebugTask } from '../flowrunner-plugins/debug-task';
 import { GroupAndSumTask } from '../flowrunner-plugins/group-and-sum-task';
 
 import { ExpressionTask } from '../flowrunner-plugins/expression-task';
+import { MultiFormTask } from '../flowrunner-plugins/multi-form-task';
+import { SelectValueFromListTask } from '../flowrunner-plugins/select-value-from-list-task';
 
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
@@ -50,4 +52,6 @@ export const registerTasks = flow => {
   flow.registerTask('DebugTask', DebugTask);
   flow.registerTask('GroupAndSumTask', GroupAndSumTask);
   flow.registerTask('ExpressionTask', ExpressionTask);
+  flow.registerTask('MultiFormTask', MultiFormTask);
+  flow.registerTask('SelectValueFromListTask', SelectValueFromListTask);
 };

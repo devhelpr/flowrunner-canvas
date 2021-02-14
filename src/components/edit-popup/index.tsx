@@ -1,60 +1,31 @@
 import * as React from 'react';
-import { connect } from "react-redux";
+import { useState, useRef, useEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
-import { storeFlowNode } from '../../redux/actions/flow-actions';
-import { selectNode } from '../../redux/actions/node-actions';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { useFlowStore} from '../../state/flow-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 export interface EditPopupProps {
-	selectedNode : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 	
 	onClose: (pushFlow? : boolean) => void;
-	storeFlowNode: (node : any, orgNodeName : string) => void;
-	selectNode: (name: string, node : any) => void;
 }
 
-export interface EditPopupState {
-	value: string;
-	orgNodeName: string;
-	orgNodeValues: any;
-	requiredNodeValues: any;
-}
+export const EditPopup = (props: EditPopupProps) => {
 
-const mapStateToProps = (state : any) => {
-	return {
-		selectedNode : state.selectedNode
-	}
-}
+	const [value, setValue] = useState("");
+	const [orgNodeName, setOrgNodeName] = useState("");
+	const [orgNodeValues, setOrgNodeValues] = useState({});
+	const [requiredNodeValues , setRequiredNodeValues] = useState({});
+	
+	const containerRef = useRef(null);
 
-const mapDispatchToProps = (dispatch : any) => {
-	return {
-		storeFlowNode: (node, orgNodeName) => dispatch(storeFlowNode(node, orgNodeName)),
-		selectNode: (name, node) => dispatch(selectNode(name, node)),
-	}
-}
+	const flow = useFlowStore();
+	const selectedNode = useSelectedNodeStore();
 
-// 
-
-class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState> {
-
-	constructor(props : any) {
-		super(props);
-		this.ref = React.createRef();
-	}
-
-	state = {
-		value: "",
-		orgNodeName : "",
-		orgNodeValues: {},
-		requiredNodeValues: {}
-	}
-
-	ref;
-
-	componentDidMount() {
-		const node = {...this.props.selectedNode.node};
+	useEffect(() => {
+		const node = {...selectedNode.node};
 		let requiredNodeValues;
 		if (node.shapeType !== "Line") {
 			requiredNodeValues = {
@@ -93,39 +64,26 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 		delete node._id;
 		delete node.id;
 		delete node.shapeType;
+		
+		setValue(JSON.stringify(node, null, 2));
+		setOrgNodeName(selectedNode.node.name);
+		setOrgNodeValues({...selectedNode.node.name});
+		setRequiredNodeValues(requiredNodeValues);
+	}, []);
 
-		this.setState({
-			value : JSON.stringify(node, null, 2),
-			orgNodeName : this.props.selectedNode.node.name,
-			orgNodeValues : {...this.props.selectedNode.node},
-			requiredNodeValues : requiredNodeValues
-		});
-	}
-
-	saveNode(e) {
+	const saveNode = (e) => {
 		try {
-			const changedProperties = JSON.parse(this.state.value);
+			const changedProperties = JSON.parse(value);
 			
-			//delete changedProperties.name;
 			if (changedProperties.id !== undefined) {
 				delete changedProperties.id;
 			}
-			/*
-			const orgNode = {...this.state.orgNodeValues};
-			for (var property in orgNode) {
-				if (orgNode.hasOwnProperty(property)) {
-					if (!changedProperties[property]) {
-						delete orgNode[property];
-					}
-				}
-			}
-			*/
 
-			const node = {...this.state.requiredNodeValues, ...changedProperties};
-			this.props.storeFlowNode(node, this.state.orgNodeName);
+			const node = {...requiredNodeValues, ...changedProperties};
+			flow.storeFlowNode(node, orgNodeName);
 			
-			this.props.selectNode(node.name, node);
-			this.props.onClose(true);
+			selectedNode.selectNode(node.name, node);
+			props.onClose(true);
 		} catch (err) {
 			alert("The json in the 'Node JSON' field is invalid");
 		}
@@ -134,19 +92,18 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 		return false;
 	}
 
-	onCloseClick = (event) => {
+	const onCloseClick = (event) => {
 		event.preventDefault();
-		this.props.onClose();
+		props.onClose();
 		return false;
 	}
 
-	render() {
-		return <div ref={this.ref}>
+	return <div ref={ref => ((containerRef as any).current = ref)}>
 			<Modal 
 				show={true} 
 				centered 
 				size="xl" 
-				container={this.ref.current}>
+				container={containerRef.current}>
 				<Modal.Header>
 					<Modal.Title>Edit Node JSON</Modal.Title>
 				</Modal.Header>
@@ -155,19 +112,16 @@ class ContainedEditPopup extends React.Component<EditPopupProps, EditPopupState>
 					<div className="form-group">
 						<label>Node JSON</label>
 						<textarea className="form-control edit-popup__json" rows={8} 
-							value={this.state.value} 
-							onChange={(e) => {this.setState({value: e.target.value})}}
+							value={value} 
+							onChange={(e) => {setValue(e.target.value)}}
 						></textarea>
 					</div>
 				</Modal.Body>
 		
 			<Modal.Footer>
-				<Button variant="secondary" onClick={this.onCloseClick}>Close</Button>
-				<Button variant="primary" onClick={this.saveNode.bind(this)}>Save</Button>
+				<Button variant="secondary" onClick={onCloseClick}>Close</Button>
+				<Button variant="primary" onClick={saveNode}>Save</Button>
 			</Modal.Footer>
 		</Modal>
-	  </div>;
-	}
+	</div>;
 }
-
-export const EditPopup = connect(mapStateToProps, mapDispatchToProps)(ContainedEditPopup);

@@ -8,6 +8,7 @@ import {
 } from '@devhelpr/layoutrunner';
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ShapeSettings } from '../../../helpers/shape-settings';
+import { MultiForm } from './multi-form';
 
 export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : boolean = false) => {
 	if (!!node.hideFromUI) {
@@ -43,6 +44,15 @@ export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : bool
 		}
 		//console.log("settings ui", node.name, isInEditMode, settings);
 
+		if (settings.uiComponent && settings.uiComponent == "MultiForm") {
+			return <MultiForm 
+				node={nodeClone} 
+				settings={settings}
+				renderHtmlNode={rootLayout.context.renderHtmlNode}
+				getNodeInstance={rootLayout.context.getNodeInstance}
+				flowrunnerConnector={rootLayout.context.flowrunnerConnector}
+			></MultiForm>
+		}
 		return <div
 			style={{																						
 					width: (width || node.width || 250)+"px",
