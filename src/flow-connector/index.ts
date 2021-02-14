@@ -116,7 +116,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   registerWorker(worker: IWorker) {
     this.worker = worker;
     worker.postMessage({ a: 1 });
-console.log("registerWorker");
+    console.log('registerWorker');
     worker.addEventListener('message', this.onMessage);
     worker.addEventListener('error', this.onError);
   }
@@ -127,8 +127,8 @@ console.log("registerWorker");
   };
 
   onError = (error: any) => {
-    console.log("WORKER ERROR!!!" , error);
-  }
+    console.log('WORKER ERROR!!!', error);
+  };
 
   onMessage = (event: any) => {
     //console.log("event from worker", event);
@@ -325,7 +325,7 @@ console.log("registerWorker");
       if (this.onDestroyAndRecreateWorker) {
         this.onDestroyAndRecreateWorker();
       }
-      console.log("AFTER onDestroyAndRecreateWorker");
+      console.log('AFTER onDestroyAndRecreateWorker');
       //previously this.observables was cleared here,
       // that causes side effects and is actually not needed because
       // unregistrating and registration is done from within lifecycle events
@@ -449,8 +449,7 @@ console.log("registerWorker");
     observableId: string,
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
   ) => {
-
-    console.log("registerNodeStateObserver", observableId);
+    console.log('registerNodeStateObserver', observableId);
 
     this.nodeStateObservables.push({
       callback: callback,
@@ -459,7 +458,7 @@ console.log("registerWorker");
   };
 
   unregisterNodeStateObserver = (observableId: string) => {
-    console.log("unregisterNodeStateObserver", observableId);
+    console.log('unregisterNodeStateObserver', observableId);
     let indexes: number[] = [];
 
     // TODO : refactor this to a better way !!

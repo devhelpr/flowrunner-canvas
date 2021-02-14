@@ -106,11 +106,11 @@ export const shapeSelectedBackgroundColor: string = '#a2a2a2';
 
 export enum ModifyShapeEnum {
   SetXY = 1,
-	SetPoints,
-	GetXY,
-	GetShapeType,
+  SetPoints,
+  GetXY,
+  GetShapeType,
   SetState,
-	SetOpacity
+  SetOpacity,
 }
 
 export enum ShapeStateEnum {
@@ -118,5 +118,5 @@ export enum ShapeStateEnum {
   Touched,
   Selected,
   Error,
-  Ok
+  Ok,
 }

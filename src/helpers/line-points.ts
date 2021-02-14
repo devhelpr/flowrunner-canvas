@@ -7,8 +7,8 @@ export const calculateLineControlPoints = (xstart, ystart, xend, yend) => {
   let controlPointy2;
 
   // TODO : make a way to tweak these on a line-basis together with bezier/tension
-  let factor = 0.35;//0.25;//0.75; // 0.75 is for the bezier-curves .. 0.5 is for straigt lines with tension 0.05
-  
+  let factor = 0.35; //0.25;//0.75; // 0.75 is for the bezier-curves .. 0.5 is for straigt lines with tension 0.05
+
   var vec1 = new Victor(xstart, ystart);
   var vec2 = new Victor(xend, yend);
 

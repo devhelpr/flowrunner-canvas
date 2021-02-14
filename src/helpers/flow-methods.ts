@@ -5,19 +5,18 @@ import { BooleanLiteral } from '@babel/types';
 const uuidV4 = uuid.v4;
 
 export const getNewNode = (node: any, flow: any[]) => {
-
   let indexFromName = -1;
-  let indexCharsFromName = "";
-  let nonNumberFound : boolean = false;
+  let indexCharsFromName = '';
+  let nonNumberFound: boolean = false;
   for (var index = 0; index < node.name.length; index++) {
-    let c = node.name.charAt(node.name.length-1-index);
+    let c = node.name.charAt(node.name.length - 1 - index);
     if (!nonNumberFound && c >= '0' && c <= '9') {
       indexCharsFromName += c;
     } else {
       nonNumberFound = true;
     }
   }
-  if (indexCharsFromName != "") {
+  if (indexCharsFromName != '') {
     indexFromName = parseInt(indexCharsFromName) + 1;
     let orgName = node.name.substring(0, node.name.length - indexCharsFromName.length);
 

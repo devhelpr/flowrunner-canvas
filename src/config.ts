@@ -698,12 +698,12 @@ const taskTypeConfig: any = {
       },
     ],
   },
-  MultiFormTask : {
+  MultiFormTask: {
     hasUI: true,
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     uiComponent: 'MultiForm',
-    metaInfo : [
+    metaInfo: [
       {
         fieldName: 'formFlows',
         fieldType: 'objectList',
@@ -715,23 +715,23 @@ const taskTypeConfig: any = {
           {
             fieldName: 'flowId',
             fieldType: 'select',
-            datasource: '[PLAYGROUNDFLOW]'
-          }
-        ]
-      }
-    ]
+            datasource: '[PLAYGROUNDFLOW]',
+          },
+        ],
+      },
+    ],
   },
-  SelectValueFromListTask : {
+  SelectValueFromListTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     metaInfo: [
       {
         fieldName: 'inputProperty',
-        fieldType: 'text'
+        fieldType: 'text',
       },
       {
         fieldName: 'outputProperty',
-        fieldType: 'text'
+        fieldType: 'text',
       },
       {
         fieldName: 'selectvalue',
@@ -744,8 +744,8 @@ const taskTypeConfig: any = {
           {
             value: 'lastwins',
             label: 'Last wins',
-          }
-        ]
+          },
+        ],
       },
       {
         fieldName: 'list',
@@ -755,12 +755,12 @@ const taskTypeConfig: any = {
           {
             fieldName: 'selectionValue',
             fieldType: 'text',
-            dataType: 'decimal'
+            dataType: 'decimal',
           },
           {
             fieldName: 'outputValue',
             fieldType: 'text',
-            dataType: 'decimal'
+            dataType: 'decimal',
           },
           {
             fieldName: 'comparison',
@@ -777,20 +777,20 @@ const taskTypeConfig: any = {
               {
                 value: 'eq',
                 label: 'Equal',
-              },            
+              },
               {
                 value: 'greater',
                 label: 'Greater',
-              },            
+              },
               {
                 value: 'greateroreq',
                 label: 'Greater or Equal',
-              }
-            ]
-          }
-        ]
-      }
-    ]
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   FormTask: {
     hasUI: true,
