@@ -17,6 +17,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	const [opacity, setOpacity] = useState(1);
 	const [dash, setDash] = useState(props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5,10] : [1,1]);
 	const lineRef = useRef(null as any);
+	const bgLineRef = useRef(null as any);
 
 	useEffect(() => {
 		let _fillColor = props.isSelected ? "#606060" : "#000000";	
@@ -27,7 +28,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 
 		if (props.isSuccessColor) {
-			_fillColor = props.isSelected ? "#008000" : "#00d300";  
+			_fillColor = props.isSelected ? "#004000" : "#008300";  
 		}
 
 		if (props.isAltColor) {
@@ -65,7 +66,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 		setFillColor(_fillColor);
 		setStrokeWidth(_strokeWidth);
-		setOpacity(_opacity);
+		//setOpacity(_opacity);
 
 		if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
 			setDash([5,10]);
@@ -116,13 +117,16 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 				}
 				case ModifyShapeEnum.SetOpacity : {
 					if (lineRef && lineRef.current && parameters) {
-						lineRef.current.opacity(parameters.opacity);						
+						//lineRef.current.opacity(parameters.opacity);						
 					}
 					break;
 				}
 				case ModifyShapeEnum.SetPoints : {
 					if (lineRef && lineRef.current && parameters) {
 						lineRef.current.points(parameters.points);						
+					}
+					if (bgLineRef && bgLineRef.current && parameters) {
+						bgLineRef.current.points(parameters.points);
 					}
 					break;
 				}
@@ -186,7 +190,30 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}
 */
+
+// props.opacity !== undefined ? props.opacity : opacity
 	return <Group listening={!props.noMouseEvents}>
+		<KonvaLine
+		 	ref={bgLineRef} 
+			points={[props.xstart, props.ystart,
+				controlPoints.controlPointx1, controlPoints.controlPointy1,
+				controlPoints.controlPointx2, controlPoints.controlPointy2,
+				props.xend, props.yend]}
+			stroke={"#ffffff"} 
+			strokeWidth={strokeWidth+4}
+			pointerLength={10}
+			pointerWidth={10}
+			lineCap="round"
+			lineJoin="round"
+			dash={dash}
+			fill={"#ffffff"} 
+			opacity={props.opacity !== undefined ? props.opacity : opacity}
+			tension={0}
+			bezier={true}
+			perfectDrawEnabled={false}
+			onClick={props.onClickLine}
+		>
+		</KonvaLine>
 		<KonvaLine
 		 	ref={lineRef} 
 			points={[props.xstart, props.ystart,
@@ -199,9 +226,10 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			pointerWidth={10}
 			lineCap="round"
 			lineJoin="round"
+			hitStrokeWidth={8}
 			dash={dash}
 			fill={fillColor} 
-			opacity={props.opacity !== undefined ? props.opacity : opacity}
+			opacity={1}
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}
