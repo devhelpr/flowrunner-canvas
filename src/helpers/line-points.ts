@@ -1,6 +1,7 @@
 import Victor from 'victor';
+import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-types';
 
-export const calculateLineControlPoints = (xstart, ystart, xend, yend) => {
+export const calculateLineControlPoints = (xstart, ystart, xend, yend, startPositionRelativeToNode? : ThumbPositionRelativeToNode) => {
   let controlPointx1;
   let controlPointy1;
   let controlPointx2;
@@ -19,10 +20,15 @@ export const calculateLineControlPoints = (xstart, ystart, xend, yend) => {
     yadjust = Math.abs(xstart - xend) * 0.5;
     xadjust = 200;
   }
-  /*if (this.props.shape.outputSnap == "bottom") {
-		controlPointx1 = xStart;
-		controlPointy1 = yStart+(distance); 
-	} else*/ {
+
+  if (startPositionRelativeToNode == ThumbPositionRelativeToNode.top) {
+		controlPointx1 = xstart;
+		controlPointy1 = ystart - (distance); 
+	} else
+  if (startPositionRelativeToNode == ThumbPositionRelativeToNode.bottom) {
+		controlPointx1 = xstart;
+		controlPointy1 = ystart + (distance); 
+	} else {
     controlPointx1 = xstart + distance + xadjust;
     controlPointy1 = ystart + yadjust;
   }

@@ -1,6 +1,6 @@
 import { ShapeMeasures } from './shape-measures';
 import { getTaskConfigForTask } from '../config';
-
+import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-types';
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow) {
     if (flow === undefined) {
@@ -12,7 +12,8 @@ export class FlowToCanvas {
         const endShapes = flow.filter(endnode => endnode.name === node.endshapeid);
 
         if (shartShapes.length >= 1 && endShapes.length >= 1) {
-          const startPosition = FlowToCanvas.getStartPointForLine(shartShapes[0], shartShapes[0], node);
+          const startPosition = FlowToCanvas.getStartPointForLine(shartShapes[0], shartShapes[0], node, undefined, 
+            node.thumbPosition as ThumbPositionRelativeToNode);
           const endPosition = FlowToCanvas.getEndPointForLine(endShapes[0], endShapes[0]);
           return Object.assign({}, node, {
             shapeType: 'Line',
@@ -28,7 +29,8 @@ export class FlowToCanvas {
     });
   }
 
-  static getStartPointForLine(startShape, newPosition, lineNodeToCheckIfIsEvent?: any, getNodeInstance?: any) {
+  static getStartPointForLine(startShape, newPosition, lineNodeToCheckIfIsEvent?: any, getNodeInstance?: any,
+    thumbPositionRelativeToNode?: ThumbPositionRelativeToNode) {
     const taskSettings = FlowToCanvas.getTaskSettings(startShape.taskType);
     const shapeType = FlowToCanvas.getShapeTypeUsingSettings(
       startShape.shapeType,
@@ -68,6 +70,18 @@ export class FlowToCanvas {
         y: newPosition.y + ShapeMeasures.circleSize / 2,
       };
     } else if (shapeType == 'Diamond') {
+      if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.top) {
+        return {
+          x: newPosition.x + ShapeMeasures.diamondSize / 2,
+          y: newPosition.y,
+        };
+      } else
+      if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.bottom) {
+        return {
+          x: newPosition.x + ShapeMeasures.diamondSize / 2,
+          y: newPosition.y + ShapeMeasures.diamondSize,
+        };
+      }
       return {
         x: newPosition.x + ShapeMeasures.diamondSize,
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
@@ -205,8 +219,24 @@ export class FlowToCanvas {
     };
   }
 
-  static getThumbStartPosition(shapeType: string, position: any, offset) {
+  static getThumbStartPosition(shapeType: string, 
+      position: any, 
+      offset, 
+      positionRelativeToNode? : ThumbPositionRelativeToNode) {
     if (shapeType == 'Diamond') {
+      if (positionRelativeToNode === ThumbPositionRelativeToNode.top) {
+        return {
+          x: position.x - ShapeMeasures.diamondSize / 2,
+          y: position.y + offset * 24 - 12,
+        };
+      } else
+      if (positionRelativeToNode === ThumbPositionRelativeToNode.bottom) {
+        return {
+          x: position.x - ShapeMeasures.diamondSize / 2,
+          y: position.y + ShapeMeasures.diamondSize + offset * 24 - 12,
+        };
+      }
+
       return {
         x: position.x,
         y: position.y + ShapeMeasures.diamondSize / 2 + offset * 24 - 12,

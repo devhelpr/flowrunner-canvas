@@ -8,7 +8,7 @@ const KonvaLine = Konva.Arrow;
 
 import { Group, Text } from 'react-konva';
 
-import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
+import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbPositionRelativeToNode } from './shape-types';
 export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 	
@@ -149,7 +149,8 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	
 	
 
-	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend);
+	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend,
+		props.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 /*
 	let fillColor = props.isSelected ? "#606060" : "#000000";	
 	let strokeWidth = 4;

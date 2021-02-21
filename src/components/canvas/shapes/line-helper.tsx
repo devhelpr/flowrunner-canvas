@@ -3,6 +3,7 @@ import { useMemo, useRef } from 'react';
 import { Line } from './line';
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ErrorBoundary } from '../../../helpers/error';
+import { ThumbPositionRelativeToNode } from './shape-types';
 
 export interface ILineHelperProps {
 	flow: any[],
@@ -60,7 +61,8 @@ export const LineHelper = (props : ILineHelperProps) => {
 		endNodeName={props.lineNode.endshapeid}
 		noMouseEvents={false}	
 		touchedNodes={props.touchedNodes}
-		name={props.lineNode.name}											
+		name={props.lineNode.name}
+		thumbPosition={props.lineNode.thumbPosition || ThumbPositionRelativeToNode.default}											
 	></Line>;
 }
 
@@ -101,7 +103,8 @@ export const Lines = (
 			let newPosition ={x:props.node.x, y:props.node.y};
 			newPosition = props.positions[props.node.name] || newPosition;
 
-			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, lineNode, props.getNodeInstance);
+			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, lineNode, props.getNodeInstance,
+				lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 			
 			return <React.Fragment key={index}><ErrorBoundary><LineHelper
 					flow={props.flow}
@@ -117,7 +120,7 @@ export const Lines = (
 					onLineMouseOver={props.onLineMouseOver}
 					onLineMouseOut={props.onLineMouseOut}
 					onClickLine={props.onClickLine}
-					touchedNodes={props.touchedNodes}
+					touchedNodes={props.touchedNodes}	
 					newStartPosition={newStartPosition}></LineHelper>		
 			</ErrorBoundary></React.Fragment>;
 		})

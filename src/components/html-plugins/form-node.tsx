@@ -146,6 +146,35 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.node]);
 
 	/*
+
+		// TODO : implement initializeFlowNode 
+		//         .. this should only intialize the values of the node in the flowrunner lib
+		// 			AND NOT START THE NODE like modifyFlowNode does
+		//
+		// QUESTION : Will this be to late? it needs to be in sync with pushflowrunner
+		//		and starting of the flow so that when a flow is restarted that
+		//      it has the correct values of nodes
+		//      
+		//		can this lead to problems with "inferred visibilityConditions"
+
+
+		useEffect(() => {
+			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
+				if (props.node.taskType == "FormTask") {
+					props.flowrunnerConnector?.initializeFlowNode(
+						props.node.name, 
+						fieldName, 
+						value,
+						props.node.name,
+						'',
+						{...values}	
+					);
+				}
+			}
+		}, [flow.flow]);
+	*/
+
+	/*
 	useEffect(() => {
 		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		setValues([]);

@@ -7,7 +7,7 @@ const KonvaRect = Konva.Rect;
 const KonvaCircle = Konva.Circle;
 
 import { Group, Text } from 'react-konva';
-import { ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
+import { ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum, ThumbFollowFlow } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
@@ -98,7 +98,8 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				x={ShapeMeasures.rectWidht}
 				y={12}				
 				radius={8}
-				fill="#000000"				
+				fill={props.followFlow == ThumbFollowFlow.happyFlow ? "#00d300" : 
+					(props.followFlow == ThumbFollowFlow.unhappyFlow ? "#e00000" : "#000000")}
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
 			<KonvaCircle
