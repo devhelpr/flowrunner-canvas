@@ -657,7 +657,7 @@ textarea.form-control {
     display: flex;
     justify-items: flex-start;
     white-space: nowrap;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 @media only screen and (max-width: 1023px) {
 	.toolbar__container .form-inline {

@@ -29,6 +29,7 @@ export interface ShapeTypeProps {
   onClickSetup: any;
 
   shapeRefs: any[];
+  positions? : any;
 
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
@@ -46,6 +47,20 @@ export interface ShapeTypeProps {
 export interface ThumbPosition {
   x: number;
   y: number;
+}
+
+export enum ThumbPositionRelativeToNode {
+  default = 0,
+  top,
+  bottom,
+  left
+}
+
+export enum ThumbFollowFlow {
+  default = 0,
+  happyFlow,
+  unhappyFlow,
+  event
 }
 
 export interface ThumbTypeProps {
@@ -73,6 +88,9 @@ export interface ThumbTypeProps {
 
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
+
+  followFlow? : ThumbFollowFlow;
+  thumbPositionRelativeToNode? : ThumbPositionRelativeToNode;
 
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
 }

@@ -63,6 +63,12 @@ var tsProject = ts.createProject('tsconfig.json');
                 name: 'jss',
                 chunks: 'all',
               }  
+
+              materialui: {
+                test: /[\\/]node_modules[\\/](@material-ui)[\\/]/,
+                name: 'materialui',
+                chunks: 'all',
+              },
                         runtimeChunk: 'single',
 
 */
@@ -97,13 +103,7 @@ function buildTypescript() {
                 test: /[\\/]node_modules[\\/](@devhelpr)[\\/]/,
                 name: 'devhelpr',
                 chunks: 'all',
-              },
-              
-              materialui: {
-                test: /[\\/]node_modules[\\/](@material-ui)[\\/]/,
-                name: 'materialui',
-                chunks: 'all',
-              },
+              },              
               rxjs: {
                 test: /[\\/]node_modules[\\/](rxjs)[\\/]/,
                 name: 'rxjs',

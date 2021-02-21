@@ -94,6 +94,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const throttleTimer : any = useRef(null);
 
 	useEffect(() => {
+
 		if (props.node) {
 
 			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
@@ -102,6 +103,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					setValues(props.node.values || props.node.defaultValues || []);
 				} else {
 					setNode(props.node);
+					setValues([]);
 					setValue(props.node.value || props.node.defaultValue || "");
 				}
 			} else {
@@ -117,6 +119,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				setValues([]);
 				setValue(props.node.defaultValue || "");
 			}
+		} else {
+			setValues([]);
 		}
 
 		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
@@ -141,6 +145,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 	}, [props.node]);
 
+	/*
 	useEffect(() => {
 		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		setValues([]);
@@ -150,7 +155,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 		}
 	}, [flow]);
-
+	*/
 	
 	const receivePayloadFromNode = (payload : any) => {
 		const maxPayloads = 1;

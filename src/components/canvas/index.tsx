@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRef , useState, useEffect , useLayoutEffect} from 'react';
+import { useRef , useState, useEffect , useMemo, useLayoutEffect} from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
 import { Shapes } from './shapes';
 import { Thumbs }  from './shapes/thumbs';
@@ -15,6 +15,8 @@ import { ModifyShapeEnum, ShapeStateEnum } from './shapes/shape-types';
 import { Flow } from '../flow';
 import { calculateLineControlPoints } from '../../helpers/line-points'
 import { EditNodeSettings } from '../edit-node-settings';
+
+import { clearPositions, getPosition, setPosition, getPositions } from '../../services/position-service';
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
@@ -69,11 +71,14 @@ export const Canvas = (props: CanvasProps) => {
 	const selectedNode = useSelectedNodeStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 	
+	//let positions = useRef({} as any);
+
 	let stage = useRef(null);
 	let canvasWrapper = useRef(null);
 	let htmlWrapper = useRef(null);
 
 	let flowIsLoading = useRef(false);
+	let flowIsFittedStageForSingleNode = useRef(false);
 
 	let shapeRefs = useRef([] as any);
 	const connectionForDraggingName = "_connection-dragging";
@@ -139,16 +144,19 @@ export const Canvas = (props: CanvasProps) => {
 			// workaround to get at least faster zooming with big flows
 			// its not buttery smooth but it will have to do for now
 			let scaleBy = 1.23;
+			scaleBy = 1.13;
+			
 			if (oldwheeltime.current == 0) {
-				scaleBy = 1.03;
+				scaleBy = 1.13;
 			} else {
 				const timeDiff = performance.now() - oldwheeltime.current;
 				if (timeDiff > 50) {
-					scaleBy = 1.23;
+					scaleBy = 1.13;
 				} else {
-					scaleBy = 1.03 + (0.2 * timeDiff/50);
+					scaleBy = 1.03 + (0.1 * timeDiff/50);
 				} 
 			}
+			
 
 			//let stage = (refs.stage as any).getStage();
 			if (stageInstance !== undefined && stageInstance.getPointerPosition() !== undefined) {
@@ -327,7 +335,12 @@ export const Canvas = (props: CanvasProps) => {
 
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
-					 
+					
+					setPosition(newNode.name, {
+						x: newNode.x,
+						y: newNode.y
+					});
+
 					flow.addFlowNode(newNode);
 				}				
 			}
@@ -349,14 +362,18 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		//
 		touchedNodesLocal.current = _touchedNodes;
+		if (nodesStateLocal.current[nodeName] != nodeState) 
+		{
+			console.log("nodeStateObserver", nodeName, nodeState, _touchedNodes);
 
-		if (nodesStateLocal.current[nodeName] != nodeState) {
-			/*
-				TODO IfCondition mag hier niet Rood worden als deze nog niet is
-					afgegaan.. Hoe dit generiek krijgen??
-
-					Moet dit niet opgelost worden vanuit form-node??
-			*/
+			let nodeStateClass = nodeState == "error" ? "has-error" : "";
+			const element = document.getElementById(nodeName);
+			if (element) {
+				element.classList.remove("has-error");
+				if (nodeStateClass != "") {
+					element.classList.add(nodeStateClass);
+				}
+			} 
 
 			const shapeRef = shapeRefs.current[nodeName];
 			let newShapeState = ShapeStateEnum.Default;
@@ -470,15 +487,15 @@ export const Canvas = (props: CanvasProps) => {
 	}
 	
 	const recalculateStartEndpoints = () => {
-
 		flow.flow.map((node, index) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
 				if (shapeRef && (shapeRef as any)) {						
 					let element = document.getElementById(node.name);
 					if (element) {
-						setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,node.x,node.y,node);
-						setNewPositionForNode(node, (shapeRef as any), {x:node.x,y:node.y}, false, true);
+						const position = getPosition(node.name) || {x:node.x,y:node.y};
+						setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,position.x,position.y,node);
+						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true);
 					}
 				}
 			}
@@ -492,13 +509,35 @@ export const Canvas = (props: CanvasProps) => {
 		}		
 	}
 
-	useLayoutEffect(() => {
-		
+	useEffect(() => {
+		const startPerf = performance.now();
 		if (flow && flow.flow.length > 0) {
 			
-			nodesStateLocal.current = {};
 			if (flowIsLoading && flowIsLoading.current) {
 				(flowIsLoading as any).current = false;
+				flowIsFittedStageForSingleNode.current = true;
+
+				clearPositions();
+
+				flow.flow.map((node) => {
+					if (node.x && node.y) {						
+						setPosition(node.name , {
+							x:node.x,
+							y:node.y
+						});
+					}
+					if (node.xstart && node.ystart) {						
+						setPosition(node.name , {
+							xstart: node.xstart,
+							ystart: node.ystart,
+							xend: node.xend,
+							yend: node.yend
+						});
+					}
+				});
+
+				nodesStateLocal.current = {};
+				touchedNodesLocal.current = {};
 
 				fitStage();
 
@@ -517,7 +556,10 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 
 				if (flow.flow.length == 1) {
-					fitStage();
+					if (!flowIsFittedStageForSingleNode.current) {
+						fitStage();
+						flowIsFittedStageForSingleNode.current = true;
+					}
 				}				
 
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
@@ -540,9 +582,13 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 				setUpdateNodeTouchedState(true);
 			}			
+		} else if (flow && flow.length == 0) {
+			flowIsFittedStageForSingleNode.current = false;
 		}	
 				
 		updateTouchedNodes();	
+
+		console.log("uselayouteffect flow", performance.now() - startPerf);
 		return () => {
 			//props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 
@@ -554,7 +600,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [flow]);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		updateDimensions();			
 
 		if (canvasWrapper && canvasWrapper.current) {
@@ -570,7 +616,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [canvasKey]);
 
-	useLayoutEffect(() => {
+	useEffect(() => {	
 		updateTouchedNodes();
 	}, [
 		canvasMode,
@@ -583,9 +629,7 @@ export const Canvas = (props: CanvasProps) => {
 		editNodeSettings,
 		isConnectingNodesByDragging,
 		connectionX,
-		connectionY,
-		nodesStateLocal, 
-		touchedNodesStore
+		connectionY
 	]);
 	
 	const setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean) => {
@@ -667,10 +711,9 @@ export const Canvas = (props: CanvasProps) => {
 				}				
 			} 
 		}
+		
+		setPosition(node.name, {...newPosition});
 
-		if (!!isCommitingToStore) {
-			flow.storeFlowNode(Object.assign({}, node, newPosition ), node.name);
-		}
 		setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current, 
 			newPosition.x, newPosition.y, node);						
 
@@ -683,33 +726,36 @@ export const Canvas = (props: CanvasProps) => {
 					return node.name == lineNode.endshapeid;
 				})
 				let endNode = endNodes[0];
-				const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-					x: endNode.x,
-					y: endNode.y
-				}, node, props.getNodeInstance);
+				if (endNode) {
+					const positionNode = getPosition(endNode.name) || endNode;
+					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
+						x: positionNode.x,
+						y: positionNode.y
+					}, node, props.getNodeInstance);
 
-				const lineRef = shapeRefs.current[lineNode.name];
-				if (lineRef && (lineRef as any)) {
+					const lineRef = shapeRefs.current[lineNode.name];
+					if (lineRef && (lineRef as any)) {
 
-					let controlPoints = calculateLineControlPoints(
-						newStartPosition.x, newStartPosition.y, 
-						newEndPosition.x, newEndPosition.y);				
+						let controlPoints = calculateLineControlPoints(
+							newStartPosition.x, newStartPosition.y, 
+							newEndPosition.x, newEndPosition.y);				
 
-					lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
-						controlPoints.controlPointx1, controlPoints.controlPointy1,
-						controlPoints.controlPointx2, controlPoints.controlPointy2,
-						newEndPosition.x, newEndPosition.y]});					
-					lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
-				}
-				const endNodeRef = shapeRefs.current[lineNode.endshapeid] as any;
-				if (endNodeRef && endNodeRef) {					
-					endNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
-				}
-				if (!!isCommitingToStore) {
-					flow.storeFlowNode(Object.assign({}, lineNode, {
+						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
+							controlPoints.controlPointx1, controlPoints.controlPointy1,
+							controlPoints.controlPointx2, controlPoints.controlPointy2,
+							newEndPosition.x, newEndPosition.y]});					
+						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
+					}
+					const endNodeRef = shapeRefs.current[lineNode.endshapeid] as any;
+					if (endNodeRef && endNodeRef) {					
+						endNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
+					}
+
+					setPosition(lineNode.name, {
 						xstart: newStartPosition.x, ystart: newStartPosition.y,
 						xend: newEndPosition.x, yend: newEndPosition.y
-					} ), lineNode.name);
+					});
+
 				}
 				lines[lineNode.name] = {x: newStartPosition.x, y: newStartPosition.y};
 			})
@@ -720,48 +766,51 @@ export const Canvas = (props: CanvasProps) => {
 			
 			endLines.map((lineNode) => {
 				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, props.getNodeInstance);
+
+				const positionLine = getPosition(lineNode.name) || lineNode;
 				let startPos = {
-					x : lineNode.xstart,
-					y : lineNode.ystart
+					x : positionLine.xstart,
+					y : positionLine.ystart
 				};
 
 				let startNodes = flow.flow.filter((node) => {
 					return node.name == lineNode.startshapeid;
 				})
-				let startNode = startNodes[0];
-				let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
-					x: startNode.x,
-					y: startNode.y
-				}, lineNode, props.getNodeInstance);
+				let startNode = startNodes[0];				
+				if (startNode) {
+					const positionNode = getPosition(startNode.name) || startNode;
+					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
+						x: positionNode.x,
+						y: positionNode.y
+					}, lineNode, props.getNodeInstance);
 
-				if (lines[lineNode.name]) {
-					newStartPosition = lines[lineNode.name];					
-				}
+					if (lines[lineNode.name]) {
+						newStartPosition = lines[lineNode.name];					
+					}
 
-				const lineRef = shapeRefs.current[lineNode.name] as any;
-				if (lineRef && lineRef) {
+					const lineRef = shapeRefs.current[lineNode.name] as any;
+					if (lineRef && lineRef) {
 
-					let controlPoints = calculateLineControlPoints(
-						newStartPosition.x, newStartPosition.y, 
-						newEndPosition.x, newEndPosition.y);
+						let controlPoints = calculateLineControlPoints(
+							newStartPosition.x, newStartPosition.y, 
+							newEndPosition.x, newEndPosition.y);
 
-					lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
-						controlPoints.controlPointx1, controlPoints.controlPointy1,
-						controlPoints.controlPointx2, controlPoints.controlPointy2,
-						newEndPosition.x, newEndPosition.y]});					
-					lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
-				}
-
-				const startNodeRef = shapeRefs.current[lineNode.startshapeid] as any;
-				if (startNodeRef && startNodeRef) {
-					startNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
-				}
-
-				if (!!isCommitingToStore) {
-					flow.storeFlowNode(Object.assign({}, lineNode, startPos, {
+						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
+							controlPoints.controlPointx1, controlPoints.controlPointy1,
+							controlPoints.controlPointx2, controlPoints.controlPointy2,
+							newEndPosition.x, newEndPosition.y]});					
+						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
+					}
+					
+					setPosition(lineNode.name, {
 						xstart: newStartPosition.x, ystart: newStartPosition.y,
 						xend: newEndPosition.x, yend: newEndPosition.y
-					} ), lineNode.name);
+					});
+
+					const startNodeRef = shapeRefs.current[lineNode.startshapeid] as any;
+					if (startNodeRef && startNodeRef) {
+						startNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
+					}					
 				}
 			})
 		}
@@ -771,16 +820,24 @@ export const Canvas = (props: CanvasProps) => {
 		updateTouchedNodes();
 
 		if (!!isCommitingToStore) {
+			// possible "performance"-dropper
 			selectedNode.selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
 	}
+
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
 		let newNode = getNewNode({...node}, flow.flow);
 		console.log("newnode", newNode.name, flow.flow);
 		newNode.x = newNode.x + 100;
 		newNode.y = newNode.y + 100;
+		
+		setPosition(newNode.name, {
+			x: newNode.x,
+			y: newNode.y
+		});
+
 		flow.addFlowNode(newNode);
 		return false;
 	}
@@ -953,6 +1010,13 @@ export const Canvas = (props: CanvasProps) => {
 
 		document.body.classList.remove("connecting-nodes");
 		mouseDragging.current = false;
+		
+		setPosition(connection.name, {
+			xstart: connection.xstart,
+			ystart: connection.ystart,
+			xend: connection.xend,
+			yend: connection.yend
+		});
 
 		flow.addConnection(connection);
 		canvasMode.setConnectiongNodeCanvasMode(false);
@@ -1921,6 +1985,11 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							}
 						}
 					}
+					
+					setPosition(newNode.name, {
+						x: newNode.x,
+						y: newNode.y
+					});
 					flow.addFlowNode(newNode);
 				}				
 			}
@@ -2189,6 +2258,11 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							}
 						}
 					}
+					
+					setPosition(newNode.name, {
+						x: newNode.x,
+						y: newNode.y
+					});
 					flow.addFlowNode(newNode);
 				}				
 			}
@@ -2261,11 +2335,20 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 	}
 
+	const onStoreFlowNode = (node : any , orgNodeName : string) => {
+		flow.storeFlowNode(node, orgNodeName);
+	}
+
 	const canvasHasSelectedNode : boolean = !!selectedNode && !!selectedNode.node;	
 
 	const connections = canvasMode.showDependencies ? getDependentConnections() : [];
 	let nodesConnectedToSelectedNode : any = {};
-	
+	const flowMemo = useMemo(() => {
+		return flow.flow
+	}, [flow.flow]);
+
+
+
 	return <>
 		<div 
 			key={"stage-layer-wrapper-" + canvasKey} 
@@ -2328,11 +2411,31 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					}
 
 
-					{flow.flow.map((node, index) => {
+					{flowMemo.map((node, index) => {
 						let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
 						const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 
 						const Shape = Shapes[shapeType];
+						let position = getPosition(node.name);
+						if (!position) {
+							if (node.shapeType !== "Line") {
+								
+								setPosition(node.name, {
+									x: node.x,
+									y: node.y
+								});
+							} else {
+								
+								setPosition(node.name, {
+									xstart: node.xstart,
+									ystart: node.ystart,
+									xend: node.xend,
+									yend: node.yend
+								});
+							}  
+							position = getPosition(node.name);
+						}
+
 						if (node.shapeType !== "Line" && Shape) {
 
 							let nodeState = "";
@@ -2354,14 +2457,15 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							}
 							
 							return <React.Fragment key={"node-fragment-" + index} ><Shape key={"node-"+index} 
-								x={node.x} 
-								y={node.y} 
+								x={position.x} 
+								y={position.y} 
 								name={node.name}
-								flow={flow.flow}
+								flow={flowMemo}
 								taskType={node.taskType}
 								node={node}																	
 								ref={ref => (shapeRefs.current[node.name] = ref)}
 								shapeRefs={shapeRefs}
+								positions={getPositions()}
 								canvasHasSelectedNode={canvasHasSelectedNode}
 								
 								nodeState={nodeState}
@@ -2369,7 +2473,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								onLineMouseOver={onMouseOver}
 								onLineMouseOut={onMouseOut}
 								onClickLine={onClickLine}
-		
+							
 
 								onClickSetup={(event) => onClickSetup( node, settings,event)}
 								onMouseOver={(event) => onMouseOver(node, event)}
@@ -2392,7 +2496,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							></Shape>
 							{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <Thumbs
 								key={"node-thumb-" + index} 
-								position={FlowToCanvas.getThumbEndPosition(shapeType, node)}
+								position={FlowToCanvas.getThumbEndPosition(shapeType, position)}
 								name={node.name}
 								taskType={node.taskType}
 								shapeType={shapeType}
@@ -2412,7 +2516,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							></Thumbs>}
 							{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <ThumbsStart
 								key={"node-thumbstart-" + index} 
-								position={FlowToCanvas.getThumbStartPosition(shapeType, node, 0)}
+								position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0)}
 								name={node.name}
 								taskType={node.taskType}
 								shapeType={shapeType}
@@ -2433,7 +2537,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && settings.events && settings.events.map((event ,eventIndex) => {
 								return <ThumbsStart
 									key={"node-thumbstart-" + index + "-" + eventIndex} 
-									position={FlowToCanvas.getThumbStartPosition(shapeType, node, eventIndex + 1)}
+									position={FlowToCanvas.getThumbStartPosition(shapeType, position, eventIndex + 1)}
 									name={node.name}
 									taskType={node.taskType}
 									shapeType={shapeType}
@@ -2480,13 +2584,14 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			<div ref={ref => ((htmlWrapper as any).current = ref)} 
 				className="canvas__html-elements">
 				
-				{flow.flow.map((node, index) => {
+				{flowMemo.map((node, index) => {
 						let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
 						const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 						const Shape = Shapes[shapeType];
+						
 						if (shapeType === "Html" && Shape) {
 							const nodeClone = {...node};
-
+							const position = getPosition(node.name) || node;
 							let nodeState = (nodesStateLocal.current[node.name] || "") == "error" ? " has-error" : "";
 
 							const isSelected = selectedNode && selectedNode.node.name === node.name;
@@ -2507,8 +2612,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 							let top = (-(height || node.height || 250)/2);
 							return <div key={"html" + index}
-								style={{transform: "translate(" + (stageX.current  + node.x * stageScale.current) + "px," + 
-										(stageY.current +  (node.y) * stageScale.current) + "px) " +
+								style={{transform: "translate(" + (stageX.current  + position.x * stageScale.current) + "px," + 
+										(stageY.current +  (position.y) * stageScale.current) + "px) " +
 										"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ",
 										width: (width || node.width || 250)+"px",
 										minHeight: (height || node.height || 250)+"px",
@@ -2522,8 +2627,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								data-task={node.taskType}
 								data-html-plugin={nodeClone.htmlPlugin}
 								data-visualizer={node.visualizer || "default"}
-								data-x={node.x} 
-								data-y={node.y}
+								data-x={position.x} 
+								data-y={position.y}
 								data-top={top}
 								data-height={(height || node.height || 250)}									 
 								className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState}>
@@ -2535,7 +2640,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 											onClick={(event) => onShowNodeSettings(node, settings, event)} 
 											className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
 									<div className="canvas__html-shape-body">
-									{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, flow.flow, settings)}</div>
+									{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, flowMemo, settings)}</div>
 									<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
 									<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}></div>
 									{settings.events && settings.events.map((event ,eventIndex) => {

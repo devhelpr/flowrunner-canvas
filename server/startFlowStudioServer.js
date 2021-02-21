@@ -117,6 +117,20 @@ function start(flowFileName, taskPlugins, options) {
 
 				// if something is added here .. also check out index.ejs for the storageprovider
 				if (isStandalone) {
+
+					tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "playground"});
+					tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "playground"});
+					tasks.push({className:"ForwardTask", fullName: "ForwardTask", flowType: "playground"});
+					tasks.push({className:"InjectIntoPayloadTask", fullName: "InjectIntoPayloadTask", flowType: "playground"});
+					tasks.push({className:"ObserverTask", fullName: "ObserverTask", flowType: "playground"});
+					tasks.push({className:"ObservableTask", fullName: "ObservableTask", flowType: "playground"});
+					tasks.push({className:"TraceConsoleTask", fullName: "TraceConsoleTask", flowType: "playground"});
+					tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "playground"});
+					tasks.push({className:"FunctionCallTask", fullName: "FunctionCallTask", flowType: "playground"});
+					tasks.push({className:"FunctionInputTask", fullName: "FunctionInputTask", flowType: "playground"});
+					tasks.push({className:"FunctionOutputTask", fullName: "FunctionOutputTask", flowType: "playground"});
+					tasks.push({className:"ParallelTask", fullName: "ParallelTask", flowType: "playground"});
+					tasks.push({className:"ParallelResolveTask", fullName: "ParallelResolveTask", flowType: "playground"});
 					
 					tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
 					tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});

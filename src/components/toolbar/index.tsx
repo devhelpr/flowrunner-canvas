@@ -19,6 +19,8 @@ import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
 
+import { getPosition } from '../../services/position-service';
+
 /*
 	TODO:
 		- show flowType in toolbar
@@ -188,7 +190,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		event.preventDefault();
 		flow.storeFlowNode(
 			{
-				...selectedNode.node,
+				...selectedNode.node.node,
 				"followflow": "onfailure"
 			},
 			selectedNode.node.name);
@@ -199,7 +201,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		event.preventDefault();
 		flow.storeFlowNode(
 			{
-				...selectedNode.node,
+				...selectedNode.node.node,
 				"followflow": "onsuccess"
 			},
 			selectedNode.node.name);		
@@ -208,10 +210,26 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const saveFlow = (event) => {
 		event.preventDefault();
+		const flowAndUpdatedPositions = flow.flow.map((node) => {
+			let updatedNode = {...node};
+			if (node.x && node.y && node.shapeType !== "Line") {
+				const position = getPosition(node.name);
+				updatedNode.x = position.x;
+				updatedNode.y = position.y;
+			} else if (node.xstart && node.ystart  && node.shapeType === "Line") {
+				const position = getPosition(node.name);
+				
+				updatedNode.xstart = position.xstart;
+				updatedNode.ystart = position.ystart;
+				updatedNode.xend = position.xend;
+				updatedNode.yend = position.yend;
+			}
+			return updatedNode;
+		});
 		fetch('/save-flow?id=' + selectedFlow, {
 			method: "POST",
 			body: JSON.stringify({
-				flow: flow.flow,
+				flow: flowAndUpdatedPositions,
 				layout: JSON.parse(layout.layout) 
 			}),
 			headers: {

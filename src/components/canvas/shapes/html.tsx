@@ -119,6 +119,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				onLineMouseOut={props.onLineMouseOut}
 				onClickLine={props.onClickLine}
 				touchedNodes={props.touchedNodes}
+				positions={props.positions}
 		></Lines>	
 	</>;
 });

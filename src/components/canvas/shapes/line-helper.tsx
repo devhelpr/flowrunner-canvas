@@ -18,7 +18,8 @@ export interface ILineHelperProps {
 	onLineMouseOut,
 	onClickLine,
 	touchedNodes,
-	newStartPosition
+	newStartPosition,
+	positions: any;
 }
 
 export const LineHelper = (props : ILineHelperProps) => {
@@ -29,10 +30,10 @@ export const LineHelper = (props : ILineHelperProps) => {
 	}, [props.flow, props.node.name, props.endshapeid]);
 
 	let endNode = endNodes[0];
-
+	let positionNode = props.positions[endNode.name] || endNode;
 	const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-		x: endNode.x,
-		y: endNode.y
+		x: positionNode.x,
+		y: positionNode.y
 	}, endNode, props.getNodeInstance);
 
 	// 
@@ -74,8 +75,10 @@ export interface ILinesProp {
 	onLineMouseOver,
 	onLineMouseOut,
 	onClickLine,
-	touchedNodes
+	touchedNodes,
+	positions?: any;
 }
+
 export const Lines = (
 		props : ILinesProp
 	) => {
@@ -96,10 +99,13 @@ export const Lines = (
 				- lijnen vanuit de huidige node naar een andere node
 			*/
 			let newPosition ={x:props.node.x, y:props.node.y};
+			newPosition = props.positions[props.node.name] || newPosition;
+
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, lineNode, props.getNodeInstance);
 			
 			return <React.Fragment key={index}><ErrorBoundary><LineHelper
 					flow={props.flow}
+					positions={props.positions}
 					endshapeid={lineNode.endshapeid}
 					node={props.node}
 					lineNode={lineNode}

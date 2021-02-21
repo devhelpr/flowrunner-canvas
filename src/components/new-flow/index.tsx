@@ -14,7 +14,7 @@ export interface NewFlowProps {
 }
 
 export const NewFlow = (props: NewFlowProps) => {
-
+	const [show, setShow] = useState(false);
 	const [value, setValue] = useState("");
 	const [orgNodeName, setOrgNodeName] = useState("");
 	const [orgNodeValues, setOrgNodeValues] = useState({});
@@ -24,16 +24,15 @@ export const NewFlow = (props: NewFlowProps) => {
 	const [json, setJSON] = useState("");
 
 	const containerRef = useRef(null);
+
 	const flow = useFlowStore();
 	const canvasMode = useCanvasModeStateStore();
-
 
 	useEffect(() => {
 		
 		// this is needed to prevent unnessary rerender because of the container ref reference
 		// when this is not here, the component rerenders after first input in input controls
-
-		setValue("");
+		setShow(true);
 	}, []);
 
 	const saveNode= (e) => {
@@ -102,11 +101,11 @@ export const NewFlow = (props: NewFlowProps) => {
 		setFlowType(event.target.value);
 		return false;
 	}
-
 	
-	return <div ref={ref => ((containerRef as any).current = ref)}>
+	return <>
+		<div ref={containerRef}></div>
 		<Modal 
-			show={true} 
+			show={show} 
 			centered 
 			size={addJSONFlow ? "xl" : "sm"} 
 			container={containerRef.current}>
@@ -152,5 +151,5 @@ export const NewFlow = (props: NewFlowProps) => {
 				<Button variant="primary" onClick={saveNode}>Add</Button>
 			</Modal.Footer>
 		</Modal>
-	</div>;
+	</>;
 }
