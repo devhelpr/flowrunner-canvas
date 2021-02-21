@@ -1,17 +1,17 @@
 let positions = {} as any;
 
 export const clearPositions = () => {
-	positions = {};
-}
+  positions = {};
+};
 
 export const getPositions = () => {
-	return positions;
-}
+  return positions;
+};
 
-export const setPosition = (nodeName : string, position: any) => {
-	positions[nodeName] = position;
-}
+export const setPosition = (nodeName: string, position: any) => {
+  positions[nodeName] = position;
+};
 
-export const getPosition = (nodeName : string) => {
-	return positions[nodeName];
-}
+export const getPosition = (nodeName: string) => {
+  return positions[nodeName];
+};
