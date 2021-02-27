@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} from 'react';
 import { Stage, Layer , Rect } from 'react-konva';
 import { Shapes } from './shapes';
+import { LinesForShape } from './shapes/lines-for-shape';
 import { Thumbs }  from './shapes/thumbs';
 import { ThumbsStart }  from './shapes/thumbsstart';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
@@ -77,7 +78,7 @@ export const Canvas = (props: CanvasProps) => {
 	let stage = useRef(null);
 	let canvasWrapper = useRef(null);
 	let htmlWrapper = useRef(null);
-
+	let layer = useRef(null);
 	let flowIsLoading = useRef(false);
 	let flowIsFittedStageForSingleNode = useRef(false);
 
@@ -126,8 +127,20 @@ export const Canvas = (props: CanvasProps) => {
 	const fKeyCapt = 70;
 	const fKey = 102;
 
-	const wheelEvent = (e) => {
+	let wheelTimeout = useRef(null);
 
+	const wheelEnableLayoutOnTimeout = useCallback(() => {
+		if (layer && layer.current) {
+			(layer.current as any).listening(true);
+			(layer.current as any).batchDraw();
+		}
+	}, [flow.flow]);
+
+	const wheelEvent = (e) => {
+		if (wheelTimeout.current) {
+			clearTimeout(wheelTimeout.current as any);
+			(wheelTimeout.current as any) = undefined;
+		}
 		if (e.toElement && e.toElement.closest) {
 			// TODO : make this work on IE11 (do we need to support IE11??)
 			let element = e.toElement.closest(".no-wheel");
@@ -135,6 +148,12 @@ export const Canvas = (props: CanvasProps) => {
 				return true;
 			}
 		}
+
+		if (layer && layer.current) {
+			(layer.current as any).listening(false);
+		}
+
+		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 25);
 		
 		if (e.preventDefault) {
 			e.preventDefault();
@@ -149,7 +168,7 @@ export const Canvas = (props: CanvasProps) => {
 			let scaleBy = 1.23;
 			scaleBy = 1.13;
 			
-			if (oldwheeltime.current == 0) {
+			/*if (oldwheeltime.current == 0) {
 				scaleBy = 1.13;
 			} else {
 				const timeDiff = performance.now() - oldwheeltime.current;
@@ -159,7 +178,7 @@ export const Canvas = (props: CanvasProps) => {
 					scaleBy = 1.03 + (0.1 * timeDiff/50);
 				} 
 			}
-			
+			*/
 
 			//let stage = (refs.stage as any).getStage();
 			if (stageInstance !== undefined && stageInstance.getPointerPosition() !== undefined) {
@@ -420,7 +439,7 @@ export const Canvas = (props: CanvasProps) => {
 		updateTouchedNodes();
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (canvasWrapper && canvasWrapper.current) {
 			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
 		}
@@ -440,7 +459,7 @@ export const Canvas = (props: CanvasProps) => {
 	}, []);
 
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		let subscription;
 		if (props.canvasToolbarsubject) {
 			
@@ -523,7 +542,7 @@ export const Canvas = (props: CanvasProps) => {
 		}		
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const startPerf = performance.now();
 		if (flow && flow.flow.length > 0) {
 			
@@ -612,9 +631,9 @@ export const Canvas = (props: CanvasProps) => {
 			//(refs.canvasWrapper as any).removeEventListener('wheel', wheelEvent);
 			
 		}
-	}, [flow]);
+	}, [flow.flow]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		updateDimensions();			
 
 		if (canvasWrapper && canvasWrapper.current) {
@@ -630,7 +649,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [canvasKey]);
 
-	useEffect(() => {	
+	useLayoutEffect(() => {	
 		updateTouchedNodes();
 	}, [
 		canvasMode,
@@ -2455,7 +2474,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				onMouseLeave={onStageMouseLeave}
 				onMouseUp={onStageMouseEnd}
 				className="stage-container">
-				<Layer key={"stage-layer-" + canvasKey} >
+				<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
 					<Rect x={0} y={0} width={1024} height={750}></Rect>
 					{connections.length > 0 && connections.map((node, index) => {
 
@@ -2486,7 +2505,69 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								noMouseEvents={true}	
 								></Shapes.Line>})
 					}
+					{flowMemo.map((node, index) => {
+						if (node.shapeType !== "Line") {
 
+							let position = getPosition(node.name);
+							if (!position) {
+								if (node.shapeType !== "Line") {
+									
+									setPosition(node.name, {
+										x: node.x,
+										y: node.y
+									});
+								} else {
+									
+									setPosition(node.name, {
+										xstart: node.xstart,
+										ystart: node.ystart,
+										xend: node.xend,
+										yend: node.yend
+									});
+								}  
+								position = getPosition(node.name);
+							}
+							return <LinesForShape key={"node-linshahe-"+index} 
+								x={position.x} 
+								y={position.y} 
+								name={node.name}
+								flow={flowMemo}
+								taskType={node.taskType}
+								node={node}			
+								
+								shapeRefs={shapeRefs as any}
+								
+								positions={getPositions()}
+								canvasHasSelectedNode={canvasHasSelectedNode}
+								
+								nodeState={""}
+								selectedNode={selectedNode}
+								onLineMouseOver={onMouseOver}
+								onLineMouseOut={onMouseOut}
+								onClickLine={onClickLine}
+							
+								onClickSetup={undefined}
+								onMouseOver={(event) => onMouseOver(node, event)}
+								onMouseOut={onMouseOut}
+								onDragStart={(event) => onDragStart(node, event)}
+								onDragEnd={(event) => onDragEnd(node, event)}
+								onDragMove={(event) => onDragMove( node, event)}
+								onTouchStart={(event) => onTouchStart(node, event)}
+								onTouchEnd={(event) => onTouchEnd( node, event)}
+								onTouchMove={(event) => onTouchMove(node, event)}
+								onClickShape={(event) => onClickShape(node, event)}
+								onMouseStart={(event) => onMouseStart(node, event)}
+								onMouseMove={(event) => onMouseMove(node, event)}
+								onMouseEnd={(event) => onMouseEnd(node, event)}
+								onMouseLeave={(event) => onMouseLeave(node, event)}
+								isSelected={selectedNode && selectedNode.node.name === node.name}
+								isConnectedToSelectedNode={false}
+								getNodeInstance={props.getNodeInstance}
+								touchedNodes={touchedNodesStore.nodesTouched}
+							></LinesForShape>
+						}
+						return null;
+					})}
 
 					{flowMemo.map((node, index) => {
 						let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							

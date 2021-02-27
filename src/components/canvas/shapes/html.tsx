@@ -87,6 +87,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 			onDragMove={props.onDragMove}
 			onDragEnd={props.onDragEnd}
 			draggable={false}
+			transformsEnabled={"position"}
 			onClick={props.onClickShape}
 			onTouchStart={props.onTouchStart}
 			onTouchMove={props.onTouchMove}
@@ -108,19 +109,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				opacity={0}  
 				perfectDrawEnabled={false}></KonvaRect>		
 		</Group>
-		<Lines flow={props.flow}
-				node={props.node}
-				getNodeInstance={props.getNodeInstance}
-				canvasHasSelectedNode={props.canvasHasSelectedNode}
-				selectedNode={props.selectedNode}
-				isSelected={props.isSelected}
-				shapeRefs={props.shapeRefs}
-				onLineMouseOver={props.onLineMouseOver}
-				onLineMouseOut={props.onLineMouseOut}
-				onClickLine={props.onClickLine}
-				touchedNodes={props.touchedNodes}
-				positions={props.positions}
-		></Lines>	
+		
 	</>;
 });
 

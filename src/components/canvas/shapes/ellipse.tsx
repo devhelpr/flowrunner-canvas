@@ -111,19 +111,6 @@ export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				fill={settings.textColor}
 				perfectDrawEnabled={true}>
 			</Text>
-		</Group>
-		<Lines flow={props.flow}
-				node={props.node}
-				getNodeInstance={props.getNodeInstance}
-				canvasHasSelectedNode={props.canvasHasSelectedNode}
-				selectedNode={props.selectedNode}
-				isSelected={props.isSelected}
-				shapeRefs={props.shapeRefs}
-				onLineMouseOver={props.onLineMouseOver}
-				onLineMouseOut={props.onLineMouseOut}
-				onClickLine={props.onClickLine}
-				touchedNodes={props.touchedNodes}
-				positions={props.positions}
-		></Lines>	
+		</Group>		
 	</>;
 });

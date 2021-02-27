@@ -118,7 +118,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			ref={groupRef}
 			x={props.x}
 			y={props.y}
-			
+			transformsEnabled={"position"}
 			draggable={false}
 			order={0}
 			onTouchStart={props.onTouchStart}
@@ -145,6 +145,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				hitStrokeWidth={0}			
 				strokeWidth={4}
 				cornerRadius={settings.cornerRadius}
+				transformsEnabled={"position"}
 				width={ShapeMeasures.rectWidht}
 				height={ShapeMeasures.rectHeight}
 				fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
@@ -153,6 +154,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			{settings.subShapeType && settings.subShapeType == "Model" && <KonvaLine
 				points={[skewXOffset,10,(skewXOffset+ShapeMeasures.rectWidht),10]}
 				stroke={settings.strokeColor} 
+				transformsEnabled={"position"}
 				strokeWidth={4}
 			></KonvaLine>}
 			{includeSvgIcon && <KonvaImage image={image}
@@ -170,6 +172,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				text={props.node && props.node.label ? props.node.label : props.name}
 				align='center'
 				fontSize={18}
+				transformsEnabled={"position"}
 				width={ShapeMeasures.rectWidht}
 				height={ShapeMeasures.rectHeight}
 				verticalAlign="middle"
@@ -180,7 +183,8 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				perfectDrawEnabled={false}>
 			</Text>
 			{!!settings.hasConfigMenu && <KonvaImage image={cogImage}
-				pathColor={settings.textColor} 		
+				pathColor={settings.textColor} 
+				transformsEnabled={"position"}		
 				width={Math.round(ShapeMeasures.rectWidht / 8)}
 				height={Math.round(ShapeMeasures.rectWidht / 8)}
 				keepRatio={true}
@@ -188,24 +192,12 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				y={4}
 				onClick={props.onClickSetup} 
 			/>}
-		</Group>		
-		<Lines flow={props.flow}
-				node={props.node}
-				getNodeInstance={props.getNodeInstance}
-				canvasHasSelectedNode={props.canvasHasSelectedNode}
-				selectedNode={props.selectedNode}
-				isSelected={props.isSelected}
-				shapeRefs={props.shapeRefs}
-				onLineMouseOver={props.onLineMouseOver}
-				onLineMouseOut={props.onLineMouseOut}
-				onClickLine={props.onClickLine}
-				touchedNodes={props.touchedNodes}
-				positions={props.positions}
-		></Lines>	
+		</Group>			
 	</>
 });
 
 /*
+
 {settings.events && settings.events.map((event ,index) => {
 				return <React.Fragment key={index}>
 					<KonvaRect

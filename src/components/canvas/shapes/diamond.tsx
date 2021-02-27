@@ -101,6 +101,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 			onDragMove={props.onDragMove}
 			onDragEnd={props.onDragEnd}
 			draggable={false}
+			transformsEnabled={"position"}
 			onClick={props.onClickShape}
 			onMouseOver={props.onMouseOver}
 			onMouseOut={props.onMouseOut}
@@ -120,6 +121,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				strokeWidth={4}
 				cornerRadius={4}
 				sides={4}
+				transformsEnabled={"position"}
 				ref={regularPolygonRef}
 				radius={ShapeMeasures.diamondSize}
 				width={ShapeMeasures.diamondSize}
@@ -137,6 +139,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				verticalAlign="middle"
 				listening={false}
 				wrap="word"
+				transformsEnabled={"position"}
 				textDecoration={textDecoration}
 				fontSize={18}
 				ellipsis={true}
@@ -153,18 +156,6 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				onClick={props.onClickSetup} 
 			/>}
 		</Group>
-		<Lines flow={props.flow}
-				node={props.node}
-				getNodeInstance={props.getNodeInstance}
-				canvasHasSelectedNode={props.canvasHasSelectedNode}
-				selectedNode={props.selectedNode}
-				isSelected={props.isSelected}
-				shapeRefs={props.shapeRefs}
-				onLineMouseOver={props.onLineMouseOver}
-				onLineMouseOut={props.onLineMouseOut}
-				onClickLine={props.onClickLine}
-				touchedNodes={props.touchedNodes}
-				positions={props.positions}
-		></Lines>	
+		
 	</>
 });

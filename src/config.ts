@@ -728,10 +728,55 @@ const taskTypeConfig: any = {
       {
         fieldName: 'inputProperty',
         fieldType: 'text',
-      },
+      },      
       {
-        fieldName: 'outputProperty',
-        fieldType: 'text',
+        fieldName: 'list',
+        fieldType: 'objectList',
+        viewMode: 'table',
+        metaInfo: [
+          {
+            fieldName: 'comparison',
+            fieldType: 'select',
+            options: [
+              {
+                value: 'smaller',
+                label: 'Smaller',
+                shortLabel: '<'
+              },
+              {
+                value: 'smalleroreq',
+                label: 'Smaller or Equal',
+                shortLabel: '<='
+              },
+              {
+                value: 'eq',
+                label: 'Equal',
+                shortLabel: '=='
+              },
+              {
+                value: 'greater',
+                label: 'Greater',
+                shortLabel: '>'
+              },
+              {
+                value: 'greateroreq',
+                label: 'Greater or Equal',
+                shortLabel: '>='
+              },
+            ],
+          },
+          {
+            fieldName: 'selectionValue',
+            label: 'compare value',
+            fieldType: 'text',
+            dataType: 'decimal',
+          },
+          {
+            fieldName: 'outputValue',
+            fieldType: 'text',
+            dataType: 'decimal',
+          }
+        ],
       },
       {
         fieldName: 'selectvalue',
@@ -748,49 +793,10 @@ const taskTypeConfig: any = {
         ],
       },
       {
-        fieldName: 'list',
-        fieldType: 'objectList',
-        viewMode: 'table',
-        metaInfo: [
-          {
-            fieldName: 'selectionValue',
-            fieldType: 'text',
-            dataType: 'decimal',
-          },
-          {
-            fieldName: 'outputValue',
-            fieldType: 'text',
-            dataType: 'decimal',
-          },
-          {
-            fieldName: 'comparison',
-            fieldType: 'select',
-            options: [
-              {
-                value: 'smaller',
-                label: 'Smaller',
-              },
-              {
-                value: 'smalleroreq',
-                label: 'Smaller or Equal',
-              },
-              {
-                value: 'eq',
-                label: 'Equal',
-              },
-              {
-                value: 'greater',
-                label: 'Greater',
-              },
-              {
-                value: 'greateroreq',
-                label: 'Greater or Equal',
-              },
-            ],
-          },
-        ],
-      },
-    ],
+        fieldName: 'outputProperty',
+        fieldType: 'text',
+      }
+    ]
   },
   FormTask: {
     hasUI: true,

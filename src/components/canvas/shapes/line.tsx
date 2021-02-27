@@ -199,19 +199,21 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 				controlPoints.controlPointx1, controlPoints.controlPointy1,
 				controlPoints.controlPointx2, controlPoints.controlPointy2,
 				props.xend, props.yend]}
-			stroke={"#ffffff"} 
-			strokeWidth={strokeWidth+4}
+			stroke={"#e2e2e2"} 
+			strokeWidth={strokeWidth + 12}
 			pointerLength={10}
 			pointerWidth={10}
 			lineCap="round"
 			lineJoin="round"
 			dash={dash}
-			fill={"#ffffff"} 
+			transformsEnabled={"position"}
+			fill={"#e2e2e2"} 
 			opacity={props.opacity !== undefined ? props.opacity : opacity}
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}
-			onClick={props.onClickLine}
+			strokeHitEnabled={false}
+			noMouseEvents={true}
 		>
 		</KonvaLine>
 		<KonvaLine
@@ -221,12 +223,13 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 				controlPoints.controlPointx2, controlPoints.controlPointy2,
 				props.xend, props.yend]}
 			stroke={fillColor} 
-			strokeWidth={strokeWidth}
+			strokeWidth={strokeWidth + 2}
 			pointerLength={10}
 			pointerWidth={10}
+			transformsEnabled={"position"}
 			lineCap="round"
 			lineJoin="round"
-			hitStrokeWidth={8}
+			hitStrokeWidth={16}
 			dash={dash}
 			fill={fillColor} 
 			opacity={1}
