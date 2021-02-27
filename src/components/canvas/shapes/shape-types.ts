@@ -117,7 +117,7 @@ export interface LineTypeProps {
   noMouseEvents: boolean;
   touchedNodes?: any;
   name?: string;
-  thumbPosition? : ThumbPositionRelativeToNode
+  thumbPosition?: ThumbPositionRelativeToNode;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';

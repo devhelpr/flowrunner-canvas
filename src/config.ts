@@ -728,7 +728,7 @@ const taskTypeConfig: any = {
       {
         fieldName: 'inputProperty',
         fieldType: 'text',
-      },      
+      },
       {
         fieldName: 'list',
         fieldType: 'objectList',
@@ -741,27 +741,27 @@ const taskTypeConfig: any = {
               {
                 value: 'smaller',
                 label: 'Smaller',
-                shortLabel: '<'
+                shortLabel: '<',
               },
               {
                 value: 'smalleroreq',
                 label: 'Smaller or Equal',
-                shortLabel: '<='
+                shortLabel: '<=',
               },
               {
                 value: 'eq',
                 label: 'Equal',
-                shortLabel: '=='
+                shortLabel: '==',
               },
               {
                 value: 'greater',
                 label: 'Greater',
-                shortLabel: '>'
+                shortLabel: '>',
               },
               {
                 value: 'greateroreq',
                 label: 'Greater or Equal',
-                shortLabel: '>='
+                shortLabel: '>=',
               },
             ],
           },
@@ -775,7 +775,7 @@ const taskTypeConfig: any = {
             fieldName: 'outputValue',
             fieldType: 'text',
             dataType: 'decimal',
-          }
+          },
         ],
       },
       {
@@ -795,8 +795,8 @@ const taskTypeConfig: any = {
       {
         fieldName: 'outputProperty',
         fieldType: 'text',
-      }
-    ]
+      },
+    ],
   },
   FormTask: {
     hasUI: true,

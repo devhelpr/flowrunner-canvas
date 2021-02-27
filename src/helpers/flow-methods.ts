@@ -67,8 +67,13 @@ export const getNewNode = (node: any, flow: any[]) => {
   return newNode;
 };
 
-export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?, isEvent?: any, 
-    thumbPositionRelativeToNode? : ThumbPositionRelativeToNode) => {
+export const getNewConnection = (
+  nodeFrom,
+  nodeTo,
+  getNodeInstance?,
+  isEvent?: any,
+  thumbPositionRelativeToNode?: ThumbPositionRelativeToNode,
+) => {
   const nodeFromPosition = FlowToCanvas.getStartPointForLine(
     nodeFrom,
     {
@@ -77,7 +82,7 @@ export const getNewConnection = (nodeFrom, nodeTo, getNodeInstance?, isEvent?: a
     },
     isEvent || {},
     getNodeInstance,
-    thumbPositionRelativeToNode
+    thumbPositionRelativeToNode,
   );
   const nodeToPosition = FlowToCanvas.getEndPointForLine(
     nodeTo,
