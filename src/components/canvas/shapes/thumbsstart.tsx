@@ -91,6 +91,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 		onMouseUp={props.onMouseConnectionStartEnd}
 		width={12}
 		height={12}
+		transformsEnabled={"position"}
 	>			
 		{(props.shapeType === "Rect" || props.shapeType === "Diamond") && <>
 				
@@ -98,6 +99,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				x={ShapeMeasures.rectWidht}
 				y={12}				
 				radius={8}
+				transformsEnabled={"position"}
 				fill={props.followFlow == ThumbFollowFlow.happyFlow ? "#00d300" : 
 					(props.followFlow == ThumbFollowFlow.unhappyFlow ? "#e00000" : "#000000")}
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
@@ -106,12 +108,14 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				x={ShapeMeasures.rectWidht}
 				y={12}				
 				radius={6}
+				transformsEnabled={"position"}
 				fill="#ffffff"				
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
 			<KonvaCircle
 				x={ShapeMeasures.rectWidht}
 				y={12}
+				transformsEnabled={"position"}
 				radius={12}
 				opacity={0}
 			></KonvaCircle>			
@@ -122,6 +126,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 36}
 				strokeWidth={0}
 				stroke="#808080"
+				transformsEnabled={"position"}
 				cornerRadius={settings.cornerRadius}
 				width={24}
 				height={24}
@@ -133,6 +138,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				name={"connectiontionstart"}			
 				></KonvaRect>
 			<KonvaCircle
+				transformsEnabled={"position"}
 				x={((width || props.node.width || ShapeMeasures.htmlWidth)/2) + 2}
 				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 52}
 				radius={12}
@@ -143,30 +149,3 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 
 	</>
 })
-/*
-<KonvaRect
-				x={ShapeMeasures.rectWidht + 10 - 14}
-				y={8}
-				strokeWidth={2}
-				stroke="#808080"
-				cornerRadius={settings.cornerRadius}
-				width={8}
-				height={8}
-				fill="#808080"
-				opacity={1}
-				order={1}  
-				perfectDrawEnabled={false}
-				listening={true}
-				name={"connectiontionstart"}			
-				></KonvaRect>	
-			<KonvaRect
-				x={ShapeMeasures.rectWidht + 10 - 2 - 14}
-				y={- 2 + 8}
-				strokeWidth={2}
-				stroke="#e2e2e2"
-				cornerRadius={settings.cornerRadius}
-				width={12}
-				height={12}					
-				opacity={1}  
-				perfectDrawEnabled={false}></KonvaRect>
-*/

@@ -92,12 +92,14 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 		onMouseLeave={props.onMouseConnectionEndLeave}
 		width={12}
 		height={12}
+		transformsEnabled={"position"}
 	>
 		{(props.shapeType === "Rect" || props.shapeType === "Diamond") && <>			
 			<KonvaCircle
 				x={0}
 				y={12}				
 				radius={8}
+				transformsEnabled={"position"}
 				fill="#000000"				
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
@@ -105,6 +107,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				x={0}
 				y={12}				
 				radius={6}
+				transformsEnabled={"position"}
 				fill="#ffffff"				
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
@@ -112,6 +115,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				x={0}
 				y={12}
 				radius={12}
+				transformsEnabled={"position"}
 				opacity={0}
 			></KonvaCircle>
 		</>}
@@ -123,6 +127,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				stroke="#808080"
 				cornerRadius={settings.cornerRadius}
 				width={24}
+				transformsEnabled={"position"}
 				height={24}
 				fill="#ff0000"
 				opacity={0}  
@@ -135,6 +140,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
 				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 52}
 				radius={12}
+				transformsEnabled={"position"}
 				opacity={0}
 			></KonvaCircle>					
 		</>}			
