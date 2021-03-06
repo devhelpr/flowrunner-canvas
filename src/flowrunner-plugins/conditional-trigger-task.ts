@@ -18,8 +18,8 @@ export class ConditionalTriggerTask extends FlowTask {
     } catch (err) {
       console.log('ConditionalTriggerTask error', err);
     }
-    
-    let errors : any[] = [];
+
+    let errors: any[] = [];
     errors.push({
       error: node.name + ' failed',
       name: node.name,

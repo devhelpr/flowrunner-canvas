@@ -659,7 +659,7 @@ const onWorkerMessage = event => {
         let nodeName = data.nodeName;
         let subscribtion = observable.subscribe({
           complete: () => {
-            console.log("COMPLETE SendObservableNodePayload", nodeName);
+            console.log('COMPLETE SendObservableNodePayload', nodeName);
           },
           next: (payload: any) => {
             //console.log("command SendObservableNodePayload", payload);
@@ -714,11 +714,11 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
   //}
 };
 
-let currentFlowId : string = "";
-const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true, flowId : string) => {
-  let isSameFlow : boolean = false;
+let currentFlowId: string = '';
+const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true, flowId: string) => {
+  let isSameFlow: boolean = false;
 
-  console.log("startFlow", flowId, currentFlowId)
+  console.log('startFlow', flowId, currentFlowId);
   if (flowId == currentFlowId) {
     isSameFlow = true;
   }
@@ -817,10 +817,10 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
       for (var key of Object.keys(observables)) {
         const observable = flow.getObservableNode(key);
         if (observable) {
-          console.log("subscribe observable after start", key);
+          console.log('subscribe observable after start', key);
           let subscribtion = observable.subscribe({
             next: (payload: any) => {
-              console.log("SendObservableNodePayload in worker", payload, key);
+              console.log('SendObservableNodePayload in worker', payload, key);
               ctx.postMessage({
                 command: 'SendObservableNodePayload',
                 payload: { ...(payload || {}) },
@@ -832,7 +832,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
         }
       }
 
-      console.log("RegisterFlowNodeObservers after start");
+      console.log('RegisterFlowNodeObservers after start');
 
       ctx.postMessage({
         command: 'RegisterFlowNodeObservers',

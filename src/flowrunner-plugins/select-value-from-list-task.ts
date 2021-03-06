@@ -10,7 +10,7 @@ export class SelectValueFromListTask extends ObservableTask {
       if (payload[node.inputProperty]) {
         const inputValue = parseFloat(payload[node.inputProperty]);
         const helperList = node.list.map((listItem, index) => {
-          return {...listItem, _index: index};
+          return { ...listItem, _index: index };
         });
         const results = helperList.filter(listItem => {
           if (listItem.selectionValue && listItem.outputValue && listItem.comparison) {
@@ -33,10 +33,10 @@ export class SelectValueFromListTask extends ObservableTask {
 
         if (results.length > 0) {
           if (node.selectvalue == 'firstwins') {
-            payload["_" + node.name + "-node"] = results[0]._index;
+            payload['_' + node.name + '-node'] = results[0]._index;
             payload[node.outputProperty] = results[0].outputValue;
           } else {
-            payload["_" + node.name + "-node"] = results[results.length - 1]._index;
+            payload['_' + node.name + '-node'] = results[results.length - 1]._index;
             payload[node.outputProperty] = results[results.length - 1].outputValue;
           }
 
@@ -50,7 +50,7 @@ export class SelectValueFromListTask extends ObservableTask {
         return false;
       }
     }
-    
+
     let payload = { ...node.payload };
     payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
     super.execute({ ...node, sendNodeName: true, payload: payload }, services);
