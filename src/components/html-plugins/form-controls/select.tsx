@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { IFormControlProps } from './form-control-interface';
 import { useFormControl } from './use-form-control';
+import { onFocus } from './helpers/focus';
 
 export interface ISelectOption {
 	value : string;
@@ -71,6 +72,7 @@ export const Select = (props: IFormControlProps) => {
 		<div className="input-group mb-1">
 			<select className="form-control" required={props.metaInfo && !!props.metaInfo.required} 
 				value={formControl.value} 
+				onFocus={onFocus}
 				onChange={formControl.onChange} >
 				{showDefaultOption === true && <option value="" disabled>Select value</option>}
 				{metaInfo && (props.datasource || metaInfo.options || []).map((option : ISelectOption, index) => {

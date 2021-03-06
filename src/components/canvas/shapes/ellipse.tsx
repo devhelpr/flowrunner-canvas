@@ -80,7 +80,7 @@ export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 			onMouseMove={props.onMouseMove}
 			onMouseUp={props.onMouseEnd}
 			onMouseLeave={props.onMouseLeave}
-
+			transformsEnabled={"position"}
 			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			>
 			<KonvaEllipse 
@@ -90,6 +90,7 @@ export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				radiusY={50}
 				stroke={settings.strokeColor}
 				strokeWidth={4}
+				transformsEnabled={"position"}
 				cornerRadius={settings.cornerRadius}
 				width={ShapeMeasures.rectWidht}
 				height={ShapeMeasures.rectHeight}
@@ -104,6 +105,7 @@ export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				width={ShapeMeasures.rectWidht}
 				height={ShapeMeasures.rectHeight}
 				verticalAlign="middle"
+				transformsEnabled={"position"}
 				listening={false}
 				wrap="none"
 				fontSize={18}

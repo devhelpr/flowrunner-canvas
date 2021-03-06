@@ -156,13 +156,13 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 
 	}, []);
 
-	const setupFlow = (flowPackage: any) => {
+	const setupFlow = (flowPackage: any, flowId) => {
 		setTimeout(() => {
 			if (flowPackage.flowType === "playground") {
 				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 				canvasMode.setFlowrunnerPaused(false);
 				canvasMode.setFlowType(flowPackage.flowType || "playground");
-				flow.storeFlow(flowPackage.flow);
+				flow.storeFlow(flowPackage.flow, flowId);
 				layout.storeLayout(JSON.stringify(flowPackage.layout));
 				
 				let flowHash = {};
@@ -183,7 +183,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			const flowPackage : any = props.flowrunnerConnector.storageProvider?.getFlow(flowId) as any;
-			setupFlow(flowPackage);
+			setupFlow(flowPackage, flowId);
 			return;
 		}
 
@@ -196,7 +196,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 		})
 		.then(flowPackage => {
 
-			setupFlow(flowPackage);
+			setupFlow(flowPackage, flowId);
 			
 		})
 		.catch(err => {
@@ -284,7 +284,10 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 						}
 					}} />
 		</div>
-		<Flow flow={flow.flow} flowrunnerConnector={props.flowrunnerConnector}></Flow>
+		<Flow 
+			flow={flow.flow} 
+			flowId={flow.flowId}
+			flowrunnerConnector={props.flowrunnerConnector}></Flow>
 	</div>
 	
 }

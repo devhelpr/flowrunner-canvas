@@ -6,4 +6,5 @@ export interface IFormControlProps {
   fieldType: string;
   metaInfo: any;
   datasource?: any;
+  payload? : any;
 }

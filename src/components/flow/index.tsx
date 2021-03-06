@@ -5,6 +5,7 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface IFlowProps {
 	flow : any[];
+	flowId: string;
 	flowrunnerConnector: IFlowrunnerConnector;
 }
 
@@ -78,10 +79,10 @@ export const Flow = (props : IFlowProps) => {
 			}
 		}
 			
-	}, [props.flow]);
+	}, [props.flow, props.flowId]);
 
 	useEffect(() => {
-		props.flowrunnerConnector.pushFlowToFlowrunner(internalFlow, true);
+		props.flowrunnerConnector.pushFlowToFlowrunner(internalFlow, true, props.flowId);
 	}, [internalFlow]);
 	return <></>;
 }

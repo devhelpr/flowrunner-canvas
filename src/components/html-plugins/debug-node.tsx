@@ -87,7 +87,6 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 
 	}, [props.flow]);
 
-
 	const getWidth = () => {
 
 		/*if (props.node.visualizer == "gridcanvas") {

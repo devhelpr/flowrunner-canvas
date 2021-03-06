@@ -35,7 +35,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
 
-  pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true) => {};
+  pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId : string) => {};
 
   executeFlowNode = (nodeName: string, payload: any) => {};
 
@@ -252,13 +252,20 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   registerFlowNodeObserver = (nodeName: string, observableId: string, callback: (payload: any) => void) => {
-    this.observables.push({
-      nodeName: nodeName,
-      callback: callback,
-      id: observableId,
-    });
 
-    //console.log("registerFlowNodeObserver pre", nodeName, [...this.observables]);
+    let results = this.observables.filter((ob) => {
+      return ob.nodeName == ob.nodeName && ob.id == observableId;
+    })
+
+    if (results.length == 0) {
+      this.observables.push({
+        nodeName: nodeName,
+        callback: callback,
+        id: observableId,
+      });
+    }
+
+    console.log("registerFlowNodeObserver pre", nodeName, [...this.observables]);
 
     if (this.worker) {
       this.worker.postMessage({
@@ -292,10 +299,17 @@ export class FlowConnector implements IFlowrunnerConnector {
   executionObservables: any[] = [];
 
   registerFlowExecutionObserver = (observableId: string, callback: (executionEvent: IExecutionEvent) => void) => {
-    this.executionObservables.push({
-      callback: callback,
-      id: observableId,
+    
+    let results = this.executionObservables.filter((ob) => {
+      return ob.id == observableId;
     });
+
+    if (results.length == 0) {
+      this.executionObservables.push({
+        callback: callback,
+        id: observableId,
+      });
+    }
   };
 
   unregisterFlowExecuteObserver = observableId => {
@@ -317,14 +331,19 @@ export class FlowConnector implements IFlowrunnerConnector {
     });
   };
 
+  currentFlowId : string = "";
+
   updateFlowNode = () => {};
-  pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true) => {
+  pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId : string) => {
     this.nodeState = {};
 
     if (this.worker) {
-      if (this.onDestroyAndRecreateWorker) {
+      if (this.onDestroyAndRecreateWorker && this.currentFlowId != flowId) {
         this.onDestroyAndRecreateWorker();
       }
+      
+      this.currentFlowId = flowId;
+
       console.log('AFTER onDestroyAndRecreateWorker');
       //previously this.observables was cleared here,
       // that causes side effects and is actually not needed because
@@ -342,6 +361,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         this.worker.postMessage({
           command: 'pushFlowToFlowrunner',
           flow: flow,
+          flowId: flowId,
           pluginRegistry: pluginRegistryTaskNames,
           autoStartNodes: autoStartNodes,
         });
@@ -450,11 +470,15 @@ export class FlowConnector implements IFlowrunnerConnector {
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
   ) => {
     console.log('registerNodeStateObserver', observableId);
-
-    this.nodeStateObservables.push({
-      callback: callback,
-      id: observableId,
+    let results = this.nodeStateObservables.filter((ob) => {
+      return ob.id == observableId;
     });
+    if (results.length == 0) {
+      this.nodeStateObservables.push({
+        callback: callback,
+        id: observableId,
+      });
+    }
   };
 
   unregisterNodeStateObserver = (observableId: string) => {

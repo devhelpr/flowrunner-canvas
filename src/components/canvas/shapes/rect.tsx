@@ -118,7 +118,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			ref={groupRef}
 			x={props.x}
 			y={props.y}
-			transformsEnabled={"position"}
+			transformsEnabled={settings.isSkewed ? "all" : "position"}
 			draggable={false}
 			order={0}
 			onTouchStart={props.onTouchStart}
@@ -144,8 +144,9 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				stroke={settings.strokeColor}
 				hitStrokeWidth={0}			
 				strokeWidth={4}
+				listening={true}
 				cornerRadius={settings.cornerRadius}
-				transformsEnabled={"position"}
+				transformsEnabled={settings.isSkewed ? "all" : "position"}
 				width={ShapeMeasures.rectWidht}
 				height={ShapeMeasures.rectHeight}
 				fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
@@ -155,6 +156,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				points={[skewXOffset,10,(skewXOffset+ShapeMeasures.rectWidht),10]}
 				stroke={settings.strokeColor} 
 				transformsEnabled={"position"}
+				listening={false}
 				strokeWidth={4}
 			></KonvaLine>}
 			{includeSvgIcon && <KonvaImage image={image}
@@ -162,6 +164,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				width={Math.round(ShapeMeasures.rectWidht / 4)}
 				height={Math.round(ShapeMeasures.rectWidht / 4)}			
 				keepRatio={true}
+				listening={false}
 				x={Math.round((ShapeMeasures.rectWidht / 2) - (ShapeMeasures.rectWidht / 8))}
 				y={8} 
 			/>}
@@ -184,7 +187,8 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			</Text>
 			{!!settings.hasConfigMenu && <KonvaImage image={cogImage}
 				pathColor={settings.textColor} 
-				transformsEnabled={"position"}		
+				transformsEnabled={"position"}
+				listening={true}		
 				width={Math.round(ShapeMeasures.rectWidht / 8)}
 				height={Math.round(ShapeMeasures.rectWidht / 8)}
 				keepRatio={true}

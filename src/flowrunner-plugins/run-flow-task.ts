@@ -59,7 +59,7 @@ export class RunFlowTask extends FlowTask {
                   }
                 });
                 this.flowrunnerConnector?.setFlowType('playground');
-                this.flowrunnerConnector?.pushFlowToFlowrunner(flow, false);
+                this.flowrunnerConnector?.pushFlowToFlowrunner(flow, false, node.flowId);
                 this.flowrunnerConnector?.executeFlowNode(node.nodeName, payload);
               })
               .catch(() => {

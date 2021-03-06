@@ -9,6 +9,7 @@ import { convertToHTML } from 'draft-convert';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
 import DOMPurify from 'dompurify';
+import { onFocus } from './helpers/focus';
 
 export const RichTextEditor = (props: IFormControlProps) => {
 	const {metaInfo, node} = props;
@@ -82,6 +83,7 @@ export const RichTextEditor = (props: IFormControlProps) => {
 				wrapperClassName="wrapper-class"
 				editorClassName="editor-class"
 				toolbarClassName="toolbar-class"
+				onFocus={onFocus}
 			/>
 			<div className="preview" dangerouslySetInnerHTML={createMarkup(draftToHtml(convertToRaw(editorState.getCurrentContent())))}></div>
 	</div>;

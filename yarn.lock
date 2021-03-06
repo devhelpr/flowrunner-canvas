@@ -956,10 +956,10 @@
   resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.2.9.tgz#32d80a07febe1f3e5f46e5fb8b4f28432e738664"
   integrity sha512-z0xZlaxH+2fsDyWb5NmiG//NDB/qCXgc0JaYLPva+EkqTxDa7NKdeCcZGftL1/ACoTZg0jPcQPxTWVyWMMlyLA==
 
-"@devhelpr/flowrunner@^0.12.2":
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.12.2.tgz#0278a44c0f6a39494b2850a0d8bbcc41a682a807"
-  integrity sha512-bkU1LeoKCe/m8ZISfU0cyAxqVCgixXx0dvA1/a3B+fBlv6N/iE1kjy91+m0asfPPFQvHJOrhuLe7N1zak9jDdA==
+"@devhelpr/flowrunner@^0.12.5":
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.12.5.tgz#dc8b1c0537f11a0e9f5e92d42177507a95ad00db"
+  integrity sha512-9MS6yFZ4kjZ2gl3eUp9r37/SjgNsQ6DaaOoukUQNjCvUGzJIM/cRvO5he5mT5INVpfuqJ4mOl/JsW0Kqd1TpVw==
   dependencies:
     "@types/uuid" "^3.4.4"
     moment "^2.24.0"

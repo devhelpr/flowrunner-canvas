@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import { onFocus } from './helpers/focus';
 
 import { IFormControlProps } from './form-control-interface';
 import { useFormControl } from './use-form-control';
@@ -19,6 +20,7 @@ export const Textarea = (props: IFormControlProps) => {
 				name={metaInfo.fieldName} 			
 				value={formControl.value} 
 				onChange={formControl.onChange}
+				onFocus={onFocus}
 			></textarea>
 	</div>;
 }

@@ -7,6 +7,11 @@ body, html {
 	min-height: 100%;
 }
 
+.text-white a,
+.text-white a:hover {
+	color: #ffffff;
+}
+
 .modal {
 	z-index: 10050;
 }
@@ -28,7 +33,9 @@ body, html {
 }
 
 .stage-container {
-	overflow:auto;
+	overflow: hidden;
+	height: 100%;
+	height: 100vh;
 }
 
 .konvajs-content {
@@ -37,6 +44,7 @@ body, html {
 	box-shadow:none;
 	margin-bottom: 20px;
 	background: #e2e2e2;
+	min-height: 100vh !important;
 }
 
 canvas,.konvajs-content,
@@ -82,10 +90,10 @@ canvas,.konvajs-content,
 	left: 0;
 	top: 0;
 	width:100%;
-	height:calc(100% - 112px);
+	height:calc(100vh);
 	z-index: 2;
 	pointer-events: none;
-
+	overflow:hidden;
 	-webkit-transform: translateZ(0);
 	-moz-transform: translateZ(0);
 	-ms-transform: translateZ(0);

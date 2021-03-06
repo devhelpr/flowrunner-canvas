@@ -99,6 +99,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				x={ShapeMeasures.rectWidht}
 				y={12}				
 				radius={8}
+				listening={false}
 				transformsEnabled={"position"}
 				fill={props.followFlow == ThumbFollowFlow.happyFlow ? "#00d300" : 
 					(props.followFlow == ThumbFollowFlow.unhappyFlow ? "#e00000" : "#000000")}
@@ -108,6 +109,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				x={ShapeMeasures.rectWidht}
 				y={12}				
 				radius={6}
+				listening={false}
 				transformsEnabled={"position"}
 				fill="#ffffff"				
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
@@ -115,6 +117,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 			<KonvaCircle
 				x={ShapeMeasures.rectWidht}
 				y={12}
+				listening={true}
 				transformsEnabled={"position"}
 				radius={12}
 				opacity={0}
@@ -143,6 +146,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 52}
 				radius={12}
 				opacity={0}
+				listening={false}
 			></KonvaCircle>						
 		</>}
 	</Group>

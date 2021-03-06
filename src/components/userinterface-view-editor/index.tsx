@@ -186,6 +186,10 @@ export const UserInterfaceViewEditor = (props : UserInterfaceViewEditorProps) =>
 				</div>
 			</div>
 		</div>
-		<Flow flow={flow.flow} flowrunnerConnector={props.flowrunnerConnector}></Flow>
+		<Flow 
+			flow={flow.flow} 
+			flowrunnerConnector={props.flowrunnerConnector}
+			flowId={flow.flowId}
+		></Flow>
 	</>;
 }

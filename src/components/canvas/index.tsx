@@ -25,6 +25,8 @@ import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useNodesTouchedStateStore} from '../../state/nodes-touched';
 
 import { ThumbFollowFlow, ThumbPositionRelativeToNode } from './shapes/shape-types';
+import { onFocus } from '../html-plugins/form-controls/helpers/focus';
+
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
@@ -217,12 +219,12 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const updateDimensions = () => {
-				
+		console.log("updateDimensions");		
 		const stageContainerElement = document.querySelector(".stage-container");
 		const bodyElement = document.querySelector("body");
 		if (stageContainerElement !== null && bodyElement !== null) {
 			let widthCanvas = stageContainerElement.clientWidth;
-			let heightCanvas = bodyElement.clientHeight - 112;
+			let heightCanvas = bodyElement.clientHeight;// - 112;
 			if (heightCanvas < 500) {
 				heightCanvas = 500;
 			}
@@ -378,13 +380,113 @@ export const Canvas = (props: CanvasProps) => {
 		return false;
 	}
 
+
+	const nodeStateList = useRef([] as any[]);
+	const nodeStateCount = useRef(0);
+	const nodeStateTimeout = useRef(undefined);
+
+	const nodeStateTimeoutCallback = useCallback(() => {
+		nodeStateList.current.map((nodeState) => {
+			let nodeStateClass = nodeState.nodeState == "error" ? "has-error" : "";
+			const element = document.getElementById(nodeState.nodeName);
+			if (element) {
+				element.classList.remove("has-error");
+				if (nodeStateClass != "") {
+					element.classList.add(nodeStateClass);
+				}
+			} 
+
+			const shapeRef = shapeRefs.current[nodeState.nodeName];
+			let newShapeState = ShapeStateEnum.Default;
+			if (nodeState.nodeState == "ok") {
+				newShapeState = ShapeStateEnum.Ok;
+			} else if (nodeState.nodeState == "error") {
+				newShapeState = ShapeStateEnum.Error;
+			}
+			shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+				state: newShapeState
+			});
+		});
+
+		Object.keys(touchedNodesLocal.current).map((touchNodeId: string) => {
+			const lineRef = shapeRefs.current[touchNodeId];
+			if (lineRef && lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
+				return;
+			}
+			const element = document.getElementById(touchNodeId);
+			if (element) {
+				if (touchedNodesLocal.current[touchNodeId] === true) {
+					element.classList.remove("untouched");
+				} else {
+					element.classList.add("untouched");
+				}
+			} else {
+				if (!touchedNodesLocal.current[touchNodeId] &&
+					nodesStateLocal.current[touchNodeId] != "") {
+					nodesStateLocal.current[touchNodeId] = "";
+					const shapeRef = shapeRefs.current[touchNodeId];
+					shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+						state: ShapeStateEnum.Default
+					});
+				}
+			}
+		});
+
+		updateTouchedNodes();
+
+		nodeStateList.current = [];
+		nodeStateCount.current = 0;
+	}, [flow.flow]);
+
 	const nodeStateObserver = (nodeName: string, nodeState : string, _touchedNodes : any) => {
 		if (!updateNodeTouchedState) {
 			return;
 		}
-		//
+
+		
+		if (nodeStateTimeout.current) {
+			clearTimeout(nodeStateTimeout.current);
+			nodeStateTimeout.current = undefined;
+		}
+
+		nodeStateCount.current += 1;
+		nodeStateList.current.push({
+			nodeState: nodeState,
+			nodeName: nodeName
+		});
+
+		/*
+		if (nodeStateCount.current >= 10) {
+			nodeStateTimeoutCallback();
+		} else {
+			(nodeStateTimeout.current as any) = setTimeout(nodeStateTimeoutCallback, 70);
+		}
+		*/
+		(nodeStateTimeout.current as any) = setTimeout(nodeStateTimeoutCallback, 30);
+		
+
+		/*
+			TODO
+				- igv parallel doet het raar (zie bmi test-flow)
+				- geen array maar object gebruiken tbv state list?
+
+
+
+			TODO 
+				- push changes to current state list
+				- if existing timer .. clear timer
+				- increase statecounter 
+
+				- if statecounter > 5 
+					.. commit state to shapes and nodes , statecounter = 0 : clear current state list
+				- else create new timer
+				
+				- on timeout :
+					- commit state to shapes and nodes , statecounter = 0 : clear current state list
+
+		*/
 		touchedNodesLocal.current = _touchedNodes;
-		if (nodesStateLocal.current[nodeName] != nodeState) 
+		/*if (nodesStateLocal.current[nodeName] != nodeState) 
 		{
 			console.log("nodeStateObserver", nodeName, nodeState, _touchedNodes);
 
@@ -408,7 +510,10 @@ export const Canvas = (props: CanvasProps) => {
 				state: newShapeState
 			});
 		}
+		*/
+		
 		nodesStateLocal.current[nodeName] = nodeState;		
+		/*
 		if (_touchedNodes) {
 
 			Object.keys(_touchedNodes).map((touchNodeId: string) => {
@@ -437,6 +542,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		
 		updateTouchedNodes();
+		*/
 	}
 
 	useLayoutEffect(() => {
@@ -445,9 +551,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		window.addEventListener("resize", updateDimensions);
 		document.addEventListener('paste', onPaste);
-		updateDimensions();
-		
-		
+		updateDimensions();	        
 
 		touchedNodesStore.clearNodesTouched();
 		props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
@@ -470,10 +574,11 @@ export const Canvas = (props: CanvasProps) => {
 					}
 					if (message == "loadFlow") {
 						(flowIsLoading as any).current = true;
+						console.log("loadflow setCanvasOpacity 0");
 						setCanvasOpacity(0);
 					} else
 					if (message == "fitStage") {
-						fitStage();
+						fitStage(undefined, true);
 						setCanvasOpacity(1);	
 					} else 
 					if (message == "reload") {
@@ -519,7 +624,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}
 	
-	const recalculateStartEndpoints = () => {
+	const recalculateStartEndpoints = (doBatchdraw : boolean) => {
 		flow.flow.map((node, index) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
@@ -534,7 +639,7 @@ export const Canvas = (props: CanvasProps) => {
 			}
 		});
 
-		if (stage && stage.current) {
+		if (!!doBatchdraw && stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
 				stageInstance.batchDraw();
@@ -572,7 +677,7 @@ export const Canvas = (props: CanvasProps) => {
 				nodesStateLocal.current = {};
 				touchedNodesLocal.current = {};
 
-				fitStage();
+				fitStage(undefined, false);
 
 				if (stage && stage.current) {
 					let stageDiv = (stage.current as any);
@@ -584,19 +689,19 @@ export const Canvas = (props: CanvasProps) => {
 				}
 
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
-				recalculateStartEndpoints();
+				recalculateStartEndpoints(false);
 				
 			} else {
 
 				if (flow.flow.length == 1) {
 					if (!flowIsFittedStageForSingleNode.current) {
-						fitStage();
+						fitStage(undefined, false);
 						flowIsFittedStageForSingleNode.current = true;
 					}
 				}				
 
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
-				recalculateStartEndpoints();
+				recalculateStartEndpoints(false);
 
 			}
 			touchedNodesStore.setNodesTouched(touchedNodesLocal.current);
@@ -1810,7 +1915,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		}
 	}
 
-	const fitStage = useCallback((node? : any) => {
+	const fitStage = useCallback((node? : any, doBatchdraw? : boolean) => {
 		let xMin;
 		let yMin;
 		let xMax;
@@ -1917,8 +2022,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
 					if (stageContainerElement !== null) {
 
-						let realStageWidth = stageContainerElement.clientWidth;
-						let realStageHeight = stageContainerElement.clientHeight;
+						let realStageWidth = stageContainerElement.clientWidth - 128;
+						let realStageHeight = stageContainerElement.clientHeight - 128;
 						if (realStageHeight < 500) {
 							realStageHeight = 600;
 						}
@@ -1953,17 +2058,20 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						};											
 						
 						newPos.x = (-(xMin)*scale) + stageInstance.getWidth()/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-(yMin)*scale) + stageInstance.getHeight()/2 - ((flowHeight*scale))/2 ;	
+						newPos.y = (-(yMin)*scale) + (stageInstance.getHeight() - 64)/2 - ((flowHeight*scale))/2 ;	
 						 
 						stageInstance.position(newPos);
-						stageInstance.batchDraw();
-
+						if (!!doBatchdraw) {
+							stageInstance.batchDraw();
+						}
 						stageX.current = newPos.x;
 						stageY.current = newPos.y;
 						stageScale.current = scale;
 						
 						setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
 						setCanvasOpacity(1);
+
+						console.log("loadflow setCanvasOpacity 1");
 					}
 				} else {
 					const newPos = {
@@ -1972,7 +2080,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					};
 					let scale = 1;
 					stageInstance.position(newPos);
-					stageInstance.batchDraw();
+					if (!!doBatchdraw) {
+						stageInstance.batchDraw();
+					}
 
 					stageX.current = newPos.x;
 					stageY.current = newPos.y;
@@ -2390,7 +2500,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
 			if (selectedNode && selectedNode.node) {
 				event.preventDefault();
-				fitStage(selectedNode.node);
+				fitStage(selectedNode.node, true);
 				return false;
 			}
 			return true;
@@ -2839,8 +2949,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 									<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
 										<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>
 										<a href="#" onClick={(event) => onCloneNode(node, event)}
+											onFocus={onFocus}
 											className="canvas__html-shape-bar-icon far fa-clone"></a>									
-										{!!settings.hasConfigMenu && <a href="#" 
+										{!!settings.hasConfigMenu && <a href="#"
+											onFocus={onFocus} 
 											onClick={(event) => onShowNodeSettings(node, settings, event)} 
 											className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
 									<div className="canvas__html-shape-body">
@@ -2858,7 +2970,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			</div>
 		</div>
 		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
-		<Flow flow={flow.flow} 
+		<Flow 
+			flow={flow.flow}
+			flowId={flow.flowId}
 			flowrunnerConnector={props.flowrunnerConnector} />							
 	</>;
 }

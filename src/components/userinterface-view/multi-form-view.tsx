@@ -157,13 +157,13 @@ export const MultiFormView = (props : MultiFormViewProps) => {
 
 	}, []);
 
-	const setupFlow = (flowPackage: any) => {
+	const setupFlow = (flowPackage: any, flowId : unknown) => {
 		setTimeout(() => {
 			if (flowPackage.flowType === "playground") {
 				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 				canvasMode.setFlowrunnerPaused(false);
 				canvasMode.setFlowType(flowPackage.flowType || "playground");
-				flow.storeFlow(flowPackage.flow);
+				flow.storeFlow(flowPackage.flow, flowId as string);
 				layout.storeLayout(JSON.stringify(flowPackage.layout));
 				
 				let flowHash = {};
@@ -184,7 +184,7 @@ export const MultiFormView = (props : MultiFormViewProps) => {
 
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			const flowPackage : any = props.flowrunnerConnector.storageProvider?.getFlow(flowId) as any;
-			setupFlow(flowPackage);
+			setupFlow(flowPackage, flowId);
 			return;
 		}
 
@@ -197,7 +197,7 @@ export const MultiFormView = (props : MultiFormViewProps) => {
 		})
 		.then(flowPackage => {
 
-			setupFlow(flowPackage);
+			setupFlow(flowPackage, flowId);
 			
 		})
 		.catch(err => {
@@ -285,7 +285,10 @@ export const MultiFormView = (props : MultiFormViewProps) => {
 						}
 					}} />
 		</div>
-		<Flow flow={flow.flow} flowrunnerConnector={props.flowrunnerConnector}></Flow>
+		<Flow 
+			flow={flow.flow}
+			flowId={flow.flowId} 
+			flowrunnerConnector={props.flowrunnerConnector}></Flow>
 	</div>
 	
 }

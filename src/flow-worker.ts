@@ -642,7 +642,7 @@ const onWorkerMessage = event => {
           });
       }
     } else if (command == 'pushFlowToFlowrunner') {
-      startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes);
+      startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes, data.flowId);
     } else if (command == 'registerFlowNodeObserver') {
       if (observables[data.nodeName]) {
         (observables[data.nodeName] as any).unsubscribe();
@@ -654,9 +654,15 @@ const onWorkerMessage = event => {
       }
 
       const observable = flow.getObservableNode(data.nodeName);
+      //console.log("registerFlowNodeObserver", data.nodeName, observable);
       if (observable) {
+        let nodeName = data.nodeName;
         let subscribtion = observable.subscribe({
+          complete: () => {
+            console.log("COMPLETE SendObservableNodePayload", nodeName);
+          },
           next: (payload: any) => {
+            //console.log("command SendObservableNodePayload", payload);
             ctx.postMessage({
               command: 'SendObservableNodePayload',
               payload: payload.payload,
@@ -708,7 +714,17 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
   //}
 };
 
-const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true) => {
+let currentFlowId : string = "";
+const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true, flowId : string) => {
+  let isSameFlow : boolean = false;
+
+  console.log("startFlow", flowId, currentFlowId)
+  if (flowId == currentFlowId) {
+    isSameFlow = true;
+  }
+
+  currentFlowId = flowId;
+
   if (flow !== undefined) {
     for (var key of Object.keys(observables)) {
       observables[key].unsubscribe();
@@ -721,26 +737,31 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
     timers = {};
 
     flow.destroyFlow();
-    (flow as any) = undefined;
+
+    if (!isSameFlow) {
+      (flow as any) = undefined;
+    }
   }
 
-  flow = new FlowEventRunner();
-  flow.registerTask('PreviewTask', PreviewTask);
-  flow.registerTask('InputTask', InputTask);
-  flow.registerTask('TimerTask', TimerTask);
-  flow.registerTask('RandomTask', RandomTask);
-  flow.registerTask('OutputValueTask', OutputValueTask);
-  flow.registerTask('ApiProxyTask', ApiProxyTask);
-  flow.registerTask('MapPayloadTask', MapPayloadTask);
-  flow.registerTask('ListTask', ListTask);
+  if (!isSameFlow || !flow) {
+    flow = new FlowEventRunner();
+    flow.registerTask('PreviewTask', PreviewTask);
+    flow.registerTask('InputTask', InputTask);
+    flow.registerTask('TimerTask', TimerTask);
+    flow.registerTask('RandomTask', RandomTask);
+    flow.registerTask('OutputValueTask', OutputValueTask);
+    flow.registerTask('ApiProxyTask', ApiProxyTask);
+    flow.registerTask('MapPayloadTask', MapPayloadTask);
+    flow.registerTask('ListTask', ListTask);
 
-  registerTasks(flow);
+    registerTasks(flow);
 
-  if (pluginRegistry) {
-    pluginRegistry.map(pluginName => {
-      console.log('pluginName', pluginName);
-      flow.registerTask(pluginName, FlowPluginWrapperTask(pluginName));
-    });
+    if (pluginRegistry) {
+      pluginRegistry.map(pluginName => {
+        console.log('pluginName', pluginName);
+        flow.registerTask(pluginName, FlowPluginWrapperTask(pluginName));
+      });
+    }
   }
   /*
   
@@ -764,7 +785,9 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
     }
   }
   */
-  flow.registerMiddleware(onExecuteNode);
+  if (!isSameFlow) {
+    flow.registerMiddleware(onExecuteNode);
+  }
   let services = {
     flowEventRunner: flow,
     pluginClasses: {},
@@ -779,7 +802,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
   };
   let value: boolean = false;
   flow
-    .start(flowPackage, services, true, !!autoStartNodes)
+    .start(flowPackage, services, true, !!autoStartNodes, isSameFlow)
     .then((services: any) => {
       /*
       // see above.. not needed here
@@ -794,8 +817,10 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
       for (var key of Object.keys(observables)) {
         const observable = flow.getObservableNode(key);
         if (observable) {
+          console.log("subscribe observable after start", key);
           let subscribtion = observable.subscribe({
             next: (payload: any) => {
+              console.log("SendObservableNodePayload in worker", payload, key);
               ctx.postMessage({
                 command: 'SendObservableNodePayload',
                 payload: { ...(payload || {}) },
@@ -806,6 +831,8 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
           observables[key] = subscribtion;
         }
       }
+
+      console.log("RegisterFlowNodeObservers after start");
 
       ctx.postMessage({
         command: 'RegisterFlowNodeObservers',

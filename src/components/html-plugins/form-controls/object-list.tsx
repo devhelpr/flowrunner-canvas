@@ -5,6 +5,8 @@ import { IFormControlProps } from './form-control-interface';
 import { useFormControlFromCode } from './use-form-control';
 
 import { FormNodeHtmlPlugin } from '../form-node';
+import { onFocus } from './helpers/focus';
+
 /*
 	Purpose:
 		show list of form-nodes
@@ -98,20 +100,29 @@ export const ObjectList = (props: IFormControlProps) => {
 				<table>
 					<tbody>
 						{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
+
+								let isSelected = false;									
+								if (props.payload && props.node && props.payload["_" + props.node.name + "-node"] !== undefined) {
+									if (index == props.payload["_" + props.node.name + "-node"]) {
+										isSelected = true;
+									}
+								}
+
 								if (index != editIndex) {
-									return <tr key={"table-row" + index}>
+									
+									return <tr key={"table-row" + index} className={isSelected ? "bg-primary text-white" : ""}>
 										<td>
-											<a href="#" onClick={(event) => onEditItem(index, event)} className="fas fa-edit"></a>
+											<a href="#" onFocus={onFocus} onClick={(event) => onEditItem(index, event)} className={"fas fa-edit"}></a>
 										</td>						
 										{metaInfo.metaInfo.map((item , index) => {
-											return <td key={"cell" + index} className="p-2">{listItem[item.fieldName]}</td>
+											return <td key={"cell" + index} className={"p-2"}>{listItem[item.fieldName]}</td>
 										})}
 									</tr>	
 								} else {
 									return <tr key={"table-row" + index}>
 										<td colSpan={metaInfo.metaInfo.length + 1}>
 											<div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
-												<a href="#" onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
+												<a href="#" onFocus={onFocus} onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
 												<FormNodeHtmlPlugin 
 													node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 													isObjectListNodeEditing={true}
@@ -127,7 +138,7 @@ export const ObjectList = (props: IFormControlProps) => {
 				</table>
 			: Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
 					return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
-						<a href="#" onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
+						<a href="#" onFocus={onFocus} onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
 						<FormNodeHtmlPlugin 
 							node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 							isObjectListNodeEditing={true}
@@ -144,12 +155,12 @@ export const ObjectList = (props: IFormControlProps) => {
 						onSetValue={onAddNodeKeyValue}
 					></FormNodeHtmlPlugin>
 					<div className="form-control__object-list-node-controls">
-						<button onClick={onAppendValue} className="btn btn-primary mr-2">Add</button>
-						<button onClick={onCloseAppendValue} className="btn btn-outline-primary">Close</button>
+						<button onFocus={onFocus} onClick={onAppendValue} className="btn btn-primary mr-2">Add</button>
+						<button onFocus={onFocus} onClick={onCloseAppendValue} className="btn btn-outline-primary">Close</button>
 					</div>
 				</div> :
 				<div>
-					<a href="#" onClick={addItem} className="fas fa-plus-circle"></a>
+					<a href="#" onFocus={onFocus} onClick={addItem} className="fas fa-plus-circle"></a>
 				</div>
 			}
 	</div>;

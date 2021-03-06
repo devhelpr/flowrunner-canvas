@@ -10,6 +10,7 @@ import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressio
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { onFocus } from './form-controls/helpers/focus';
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -517,6 +518,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 								<div className="input-group mb-1">
 									<input
 										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}
+										onFocus={onFocus}
 										key={"index" + index}
 										type={fieldType}
 										className="form-control"
@@ -565,13 +567,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						fieldName: metaInfo.fieldName,
 						fieldType: metaInfo.fieldType,
 						metaInfo: metaInfo,
-						datasource : datasourceToUse
+						datasource : datasourceToUse,
+						payload: receivedPayload
 					})}</React.Fragment>
 				}
 				return null;
 			})}
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
-				<button className="d-none">OK</button>}
+				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
 	};
 

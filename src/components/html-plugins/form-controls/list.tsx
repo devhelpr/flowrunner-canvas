@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 
 import { IFormControlProps } from './form-control-interface';
 import { useFormControlFromCode } from './use-form-control';
+import { onFocus } from './helpers/focus';
 
 export const List = (props: IFormControlProps) => {
 	const {metaInfo, node} = props;
@@ -92,21 +93,21 @@ export const List = (props: IFormControlProps) => {
 			{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
 				if (editIndex == index) {
 					return <div key={"input" + metaInfo.fieldName + index}>
-						<input className="form-control" value={editValue} onChange={onEditValue}></input>
-						<button onClick={onSaveEditValue} className="btn btn-primary">Save</button>
+						<input onFocus={onFocus} className="form-control" value={editValue} onChange={onEditValue}></input>
+						<button onClick={onSaveEditValue} onFocus={onFocus} className="btn btn-primary">Save</button>
 					</div>
 				}
 				return <div key={metaInfo.fieldName + index}>
-					<a href="#" onClick={(event) => editClick(event, index)} className="fas fa-edit"></a>
-					<a href="#" onClick={(event) => deleteClick(event, index)} className="fas fa-trash-alt"></a>{listItem}</div>
+					<a href="#" onFocus={onFocus} onClick={(event) => editClick(event, index)} className="fas fa-edit"></a>
+					<a href="#" onFocus={onFocus} onClick={(event) => deleteClick(event, index)} className="fas fa-trash-alt"></a>{listItem}</div>
 			})}
 			{isAdding ? 
 				<div>
-					<input className="form-control" value={newValue} onChange={onChangeAddValue}></input>
-					<button onClick={onAppendValue} className="btn btn-primary">Add</button>
+					<input onFocus={onFocus} className="form-control" value={newValue} onChange={onChangeAddValue}></input>
+					<button onClick={onAppendValue} onFocus={onFocus} className="btn btn-primary">Add</button>
 				</div> :
 				<div>
-					<a href="#" onClick={addItem} className="fas fa-plus-circle"></a>
+					<a href="#" onClick={addItem} onFocus={onFocus} className="fas fa-plus-circle"></a>
 				</div>
 			}
 	</div>;

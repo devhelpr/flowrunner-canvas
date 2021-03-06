@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { IFormControlProps } from './form-control-interface';
 import { useFormControlFromCode } from './use-form-control';
 import Slider from '@material-ui/core/Slider';
+import { onFocus } from './helpers/focus';
 
 export const InputSlider = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
@@ -24,7 +25,8 @@ export const InputSlider = (props: IFormControlProps) => {
 				min={metaInfo.min || 0}
 				max={metaInfo.max || 100} 					
 				value={formControl.value || 0} 
-				onChange={onChange} 
+				onChange={onChange}
+				onFocus={onFocus} 
 			/>			
 	</div>;
 }

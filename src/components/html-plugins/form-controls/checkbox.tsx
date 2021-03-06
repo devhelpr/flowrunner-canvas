@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 
 import { IFormControlProps } from './form-control-interface';
 import { useFormControlFromCode } from './use-form-control';
+import { onFocus } from './helpers/focus';
 
 export interface IRadioButtonOption {
 	value : string;
@@ -28,6 +29,7 @@ export const CheckBox = (props: IFormControlProps) => {
 				id={node.name + "-" + metaInfo.fieldName+"-checkbox"}
 				name={metaInfo.fieldName} 
 				onChange={onClick} 
+				onFocus={onFocus}
 				checked={formControl.value === true}></input>
 			<label 
 				className="form-check-label"

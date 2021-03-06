@@ -5,7 +5,9 @@ import produce from 'immer';
 
 interface IFlowState extends State {
   flow: any[];
-  storeFlow: (flow: any[]) => void;
+  flowId : string;
+
+  storeFlow: (flow: any[], flowId : string) => void;
   storeFlowNode: (node: any, orgNodeName: string) => void;
   addFlowNode: (node: any) => void;
   addConnection: (connection: any) => void;
@@ -16,9 +18,11 @@ interface IFlowState extends State {
 let storeHandler = (set: SetState<IFlowState>): IFlowState => {
   return {
     flow: [],
-    storeFlow: (flow: any[]) =>
+    flowId: "",
+    storeFlow: (flow: any[], flowId : string) =>
       set(
         produce(draftState => {
+          draftState.flowId = flowId;
           draftState.flow = FlowToCanvas.convertFlowPackageToCanvasFlow(flow);
         }),
       ),

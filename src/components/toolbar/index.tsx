@@ -259,7 +259,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		setShowNewFlow(false);
 		if (!!pushFlow) {
 			canvasMode.setFlowrunnerPaused(false);
-			props.flowrunnerConnector.pushFlowToFlowrunner(flow.flow, true);
+			props.flowrunnerConnector.pushFlowToFlowrunner(flow.flow, true, flow.flowId);
 		}
 	}
 
@@ -309,7 +309,7 @@ export const Toolbar = (props: ToolbarProps) => {
 				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 				canvasMode.setFlowrunnerPaused(false);
 				canvasMode.setFlowType(flowPackage.flowType || "playground");
-				flow.storeFlow(flowPackage.flow);
+				flow.storeFlow(flowPackage.flow, flowId);
 				layout.storeLayout(JSON.stringify(flowPackage.layout));
 			}, 500);
 			return;
@@ -327,7 +327,7 @@ export const Toolbar = (props: ToolbarProps) => {
 			props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 			canvasMode.setFlowrunnerPaused(false);
 			canvasMode.setFlowType(flowPackage.flowType || "playground");
-			flow.storeFlow(flowPackage.flow);
+			flow.storeFlow(flowPackage.flow, flowId);
 			layout.storeLayout(JSON.stringify(flowPackage.layout));
 			
 		})

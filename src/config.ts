@@ -733,6 +733,8 @@ const taskTypeConfig: any = {
         fieldName: 'list',
         fieldType: 'objectList',
         viewMode: 'table',
+        useValueToSelectFromPayloadProperty: 'inputProperty',
+        useLocalFieldToSelect: 'selectionValue',
         metaInfo: [
           {
             fieldName: 'comparison',
