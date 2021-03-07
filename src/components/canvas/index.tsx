@@ -107,6 +107,7 @@ export const Canvas = (props: CanvasProps) => {
 	let mouseDragging = useRef(false);
 
 	let isPinching = useRef(false);
+	let pinchStartPosition = useRef({x:0,y:0});
 	let startDistance = useRef(0);
 
 	let unmounted = useRef(false);
@@ -138,7 +139,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [flow.flow]);
 
-	const wheelEvent = (e) => {
+	const wheelEvent = (e , touchPosition? : any) => {
 		if (wheelTimeout.current) {
 			clearTimeout(wheelTimeout.current as any);
 			(wheelTimeout.current as any) = undefined;
@@ -182,25 +183,32 @@ export const Canvas = (props: CanvasProps) => {
 			}
 			*/
 
-			//let stage = (refs.stage as any).getStage();
 			if (stageInstance !== undefined && stageInstance.getPointerPosition() !== undefined) {
 				const oldScale = stageInstance.scaleX();
 
+				let xPos = stageInstance.getPointerPosition().x;
+				let yPos = stageInstance.getPointerPosition().y;
+				
+				if (isPinching.current && touchPosition) {
+					xPos = touchPosition.x;
+					yPos = touchPosition.y;
+				}
+
 				const mousePointTo = {
-					x: stageInstance.getPointerPosition().x / oldScale - stageInstance.x() / oldScale,
-					y: stageInstance.getPointerPosition().y / oldScale - stageInstance.y() / oldScale,
+					x: xPos / oldScale - stageInstance.x() / oldScale,
+					y: yPos / oldScale - stageInstance.y() / oldScale,
 				};
 
 				const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 				stageInstance.scale({ x: newScale, y: newScale });
 				const newPos = {
-					x: -(mousePointTo.x - stageInstance.getPointerPosition().x / newScale) * newScale,
-					y: -(mousePointTo.y - stageInstance.getPointerPosition().y / newScale) * newScale
+					x: -(mousePointTo.x - xPos / newScale) * newScale,
+					y: -(mousePointTo.y - yPos / newScale) * newScale
 				};
 
 				const newPosHtml = {
-					x: -(mousePointTo.x - stageInstance.getPointerPosition().x / newScale),
-					y: -(mousePointTo.y - stageInstance.getPointerPosition().y / newScale)
+					x: -(mousePointTo.x - xPos / newScale),
+					y: -(mousePointTo.y - yPos / newScale)
 				};
 				
 				stageInstance.position(newPos);
@@ -545,11 +553,18 @@ export const Canvas = (props: CanvasProps) => {
 		*/
 	}
 
+
+	const cancelScroll = () => {
+		(window as any).scrollTop = 0;
+		(window as any).scrollLeft = 0;
+	}
+
 	useLayoutEffect(() => {
 		if (canvasWrapper && canvasWrapper.current) {
 			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
 		}
 		window.addEventListener("resize", updateDimensions);
+		window.addEventListener("scroll", cancelScroll);
 		document.addEventListener('paste', onPaste);
 		updateDimensions();	        
 
@@ -559,6 +574,8 @@ export const Canvas = (props: CanvasProps) => {
 
 		return () => {
 			props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+			window.removeEventListener("resize", updateDimensions);
+			window.removeEventListener("scroll", cancelScroll);
 		}
 	}, []);
 
@@ -648,6 +665,8 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	useLayoutEffect(() => {
+
+		window.addEventListener("resize", updateDimensions);
 		const startPerf = performance.now();
 		if (flow && flow.flow.length > 0) {
 			
@@ -794,6 +813,7 @@ export const Canvas = (props: CanvasProps) => {
 		const x = resultXY ? resultXY.x : 0;
 		const y = resultXY ? resultXY.y : 0;
 		let newPosition = position || {x:x, y:y};
+				
 
 		if (newPosition && !linesOnly) {
 			if (stage && stage.current) {
@@ -806,6 +826,7 @@ export const Canvas = (props: CanvasProps) => {
 					newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
 				}
 			}
+
 			if (shapeRefs.current[node.name]) {
 				if ((shapeRefs.current[node.name] as any)) {
 					let currentGroup = (shapeRefs.current[node.name] as any);
@@ -1030,7 +1051,7 @@ export const Canvas = (props: CanvasProps) => {
 	const exportCanvas = () => {	
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
-			var dataURL = stageInstance.toDataURL({ pixelRatio: 3 });
+			var dataURL = stageInstance.toDataURL({ pixelRatio: 6 });
 			downloadURI(dataURL, 'flow.png');
 		}
 	}
@@ -1089,6 +1110,11 @@ export const Canvas = (props: CanvasProps) => {
 			return false;
 		}
 
+		if (isPinching.current) {
+			cancelDragStage();
+			return;			
+		}
+
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;		
 
@@ -1111,6 +1137,10 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (isConnectingNodesByDraggingLocal.current) {
 			return;
+		}
+
+		if (isPinching.current) {
+			return;			
 		}
 
 		event.evt.preventDefault();
@@ -1199,6 +1229,11 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onMouseEnd = (node, event) => {
+
+		if (isPinching.current) {
+			return;			
+		}
+
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {			
 			connectConnectionToNode(node);
 			return false;
@@ -1228,6 +1263,10 @@ export const Canvas = (props: CanvasProps) => {
 	};
 
 	const onStageMouseEnd = (event) => {
+
+		if (isPinching.current) {
+			return;			
+		}
 
 		if (touching.current || isConnectingNodesByDraggingLocal.current) {
 			cancelDragStage();
@@ -1293,7 +1332,8 @@ export const Canvas = (props: CanvasProps) => {
 		dragTime.current = undefined;
 		(touchNode.current as any) = undefined;
 		touchNodeGroup.current = undefined;
-	
+		isPinching.current = false;
+		
 		return false;
 	}
 
@@ -1331,12 +1371,19 @@ export const Canvas = (props: CanvasProps) => {
 		} else {
 			if (event.evt.touches.length > 1) {
 				isPinching.current = true;
+				cancelDragStage();
 
 				if (event.evt.touches.length == 2) {
+					pinchStartPosition.current = {
+						x: (event.evt.touches[0].screenX + event.evt.touches[1].screenX)/2,
+						y: (event.evt.touches[0].screenY + event.evt.touches[1].screenY)/2
+					};
+					
+					console.log("touch pinching", pinchStartPosition.current);
 
 					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
 					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
-
+					 
 					startDistance.current = Math.sqrt( x*x + y*y );
 				}
 			}
@@ -1386,15 +1433,17 @@ export const Canvas = (props: CanvasProps) => {
 			cancelDragStage();
 			return false;
 		}
-
-		if (touchNode.current && touchNodeGroup.current) {			
+		
+		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
 			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], false, false);
 			cancelDragStage();
 			return false;
 		} else {
-			if (event.evt.touches && event.evt.touches.length > 1) {
+			
+			if (isPinching.current && event.evt.touches && event.evt.touches.length > 1) {
+				cancelDragStage();
 				event.evt.preventDefault();
 				event.evt.cancelBubble = true;
 
@@ -1408,11 +1457,14 @@ export const Canvas = (props: CanvasProps) => {
 					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
 
 					let newDistance = Math.sqrt( x*x + y*y );
+					
+					
 					wheelEvent(
 						{
 							deltaY: newDistance - startDistance.current,
 							toElement: undefined
-						}
+						},
+						pinchStartPosition.current
 					)
 				}
 
@@ -2107,7 +2159,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			connectionNodeFollowFlow.current = ThumbFollowFlow.default;
 
 			(touchNode.current as any) = undefined;
-			touchNodeGroup.current = undefined;
+			touchNodeGroup.current = undefined;			
 
 			document.body.classList.remove("connecting-nodes");
 			document.body.classList.remove("mouse--moving");
@@ -2130,7 +2182,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			event.evt.preventDefault();		
 			return false;
 		}
-
+		
 		const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;	
 					
 		if (!nodeIsSelected && canvasMode.selectedTask !== undefined &&

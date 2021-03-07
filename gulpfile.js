@@ -1,5 +1,7 @@
 var gulp = require('gulp');
 var ts = require('gulp-typescript');
+var rename = require("gulp-rename");
+ 
 const webpack = require('webpack');
 var startFlowStudioServer = require('./server/startFlowStudioServer');
 var named = require('vinyl-named'),   
@@ -304,9 +306,28 @@ gulp.task('startFlowServer', function(cb) {
   cb();
 });
 
+gulp.task('postcss', () => {
+  const autoprefixer = require('autoprefixer');
+  const postcss = require('gulp-postcss');
+  
+  var processors = [
+		autoprefixer({
+      overrideBrowserslist: ["last 2 versions", "ie >= 11"],
+      grid: true
+    })
+	];
+  return gulp.src('./styles/*.pcss')
+    .pipe(postcss(processors))
+    .pipe(rename(function (path) {
+      path.extname = ".css";
+    }))
+    .pipe(gulp.dest('./assets'))
+});
+
 gulp.task('build', function() { return buildTypescript() } );
 gulp.task('build-plugins', function() { return buildPluginTypescript() } );
-gulp.task('default', gulp.series('build', 'build-plugins', 'startFlowServer', function () {
+gulp.task('default', gulp.series('build', 'build-plugins','postcss', 'startFlowServer', function () {
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
   gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
+  gulp.watch('./styles/*.pcss', gulp.series('postcss'));
 }));

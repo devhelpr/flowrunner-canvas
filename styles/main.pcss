@@ -1,6 +1,5 @@
 * {
-	-webkit-box-sizing: border-box;
-	        box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 body, html {
@@ -42,10 +41,8 @@ body, html {
 
 .konvajs-content {
 	margin: 0 auto;
-	-webkit-box-shadow: 0px 5px 10px rgba(0,0,0,0.5);
-	        box-shadow: 0px 5px 10px rgba(0,0,0,0.5);
-	-webkit-box-shadow:none;
-	        box-shadow:none;
+	box-shadow: 0px 5px 10px rgba(0,0,0,0.5);
+	box-shadow:none;
 	margin-bottom: 20px;
 	background: #e2e2e2;
 	min-height: 100vh !important;
@@ -53,14 +50,10 @@ body, html {
 
 canvas,.konvajs-content,
 .stage-container {
-	-webkit-transform: translateZ(0);
-	        transform: translateZ(0);
-	-webkit-backface-visibility: hidden;
-	        backface-visibility: hidden;
-	-webkit-perspective: 1000;
-	        perspective: 1000;
-	-webkit-transform: translate3d(0, 0, 0);
-	        transform: translate3d(0, 0, 0);
+	transform: translateZ(0);
+	backface-visibility: hidden;
+	perspective: 1000;
+	transform: translate3d(0, 0, 0);
 }
 .canvas-controller {
 	width:100%;
@@ -72,7 +65,6 @@ canvas,.konvajs-content,
 	overflow: scroll;
 	overflow:hidden;
 	-webkit-overflow-scrolling: touch;
-	-webkit-transition: opacity .3s ease-in-out;
 	transition: opacity .3s ease-in-out;
 	position: relative;
 	z-index: 1;
@@ -88,14 +80,10 @@ canvas,.konvajs-content,
 	z-index: 2;
 	pointer-events: none;
 	overflow:hidden;
-	-webkit-transform: translateZ(0);
-	        transform: translateZ(0);
-	-webkit-backface-visibility: hidden;
-	        backface-visibility: hidden;
-	-webkit-perspective: 1000;
-	        perspective: 1000;
-	-webkit-transform: translate3d(0, 0, 0);
-	        transform: translate3d(0, 0, 0);
+	transform: translateZ(0);
+	backface-visibility: hidden;
+	perspective: 1000;
+	transform: translate3d(0, 0, 0);
 }
 
 .canvas__html-shape {
@@ -198,19 +186,10 @@ canvas,.konvajs-content,
 }
 
 .html-plugin-node {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
-	-webkit-box-pack: center;
-	    -ms-flex-pack: center;
-	        justify-content: center;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 	padding: 20px;
 	height: 100%;
 	width: 100%;
@@ -227,35 +206,22 @@ canvas,.konvajs-content,
 }
 
 .html-plugin-node__h-100 {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-pack: stretch;
-        -ms-flex-pack: stretch;
-            justify-content: stretch;
-    -webkit-box-align: stretch;
-        -ms-flex-align: stretch;
-            align-items: stretch;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
     padding: 10px;
     height: calc(100%);
     width: 100%;
     margin: 0 auto;
-    -webkit-box-flex: 1;
-        -ms-flex: 1 0 100%;
-            flex: 1 0 100%;
+    flex: 1 0 100%;
     position: absolute;
     top: 0;
     left: 0;
 }
 
 .html-plugin-node__grid-edit {
-	-webkit-box-pack: start;
-	    -ms-flex-pack: start;
-	        justify-content: flex-start;
+	justify-content: flex-start;
 	cursor: default;
 }
 
@@ -264,13 +230,8 @@ canvas,.konvajs-content,
 }
 
 .canvas__html-shape {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
+	flex-direction: column;
 }
 
 .canvas__html-shape-bar {
@@ -278,19 +239,10 @@ canvas,.konvajs-content,
 	pointer-events: none;
 	height: 32px;
 	min-height: 32px;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: horizontal;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: row;
-	        flex-direction: row;
-	-webkit-box-pack: start;
-	    -ms-flex-pack: start;
-	        justify-content: flex-start;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
 	background: #c2c2c2;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;	
@@ -333,22 +285,11 @@ canvas,.konvajs-content,
 	height: auto;
 	width: 100%;
 
-	-webkit-box-flex: 1;
-
-	    -ms-flex: 1 1 100%;
-
-	        flex: 1 1 100%;
+	flex: 1 1 100%;
     background: white;
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: row;
-            flex-direction: row;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    flex-direction: row;
+    align-items: center;
 }
 
 .connecting-nodes .canvas__html-shape-body {
@@ -362,9 +303,7 @@ canvas,.konvajs-content,
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
-	-webkit-box-align: start;
-	    -ms-flex-align: start;
-	        align-items: flex-start;
+	align-items: flex-start;
 	overflow: visible;
 }
 
@@ -382,9 +321,7 @@ canvas,.konvajs-content,
 }
 
 [data-html-plugin="formNode"] .html-plugin-node {
-	-webkit-box-pack: start;
-	    -ms-flex-pack: start;
-	        justify-content: flex-start;
+	justify-content: flex-start;
 }
 
 .mouse--moving .canvas__html-shape-body {
@@ -467,21 +404,10 @@ canvas,.konvajs-content,
 	padding: 5px;
 	z-index: 10000;
 	
-	display: -webkit-box;
-	
-	display: -ms-flexbox;
-	
 	display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-pack: start;
-        -ms-flex-pack: start;
-            justify-content: flex-start;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+	align-items: center;
 	padding-top: 10px;
 
 	overflow: hidden;
@@ -497,12 +423,8 @@ canvas,.konvajs-content,
 .taskbar__task {
 	background: transparent;	
 	cursor: pointer;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	width: 100%;
 	padding: 5px;
     border: 1px solid #e2e2e2;
@@ -515,12 +437,8 @@ canvas,.konvajs-content,
 }
 
 .taskbar__task svg {
-	-webkit-box-flex: 0;
-	    -ms-flex: 0 0 auto;
-	        flex: 0 0 auto;
-    -webkit-box-pack: end;
-        -ms-flex-pack: end;
-            justify-content: flex-end;
+	flex: 0 0 auto;
+    justify-content: flex-end;
     margin-left: auto;
 }
 
@@ -528,9 +446,7 @@ canvas,.konvajs-content,
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-	-webkit-box-flex: 0;
-	    -ms-flex: 0 1 auto;
-	        flex: 0 1 auto;
+	flex: 0 1 auto;
 	font-size: 12px;
 }
 .taskbar__task-text {
@@ -553,21 +469,10 @@ canvas,.konvajs-content,
     height: calc(100vh - 127px);
 	z-index: 10000;
 	
-	display: -webkit-box;
-	
-	display: -ms-flexbox;
-	
 	display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-pack: start;
-        -ms-flex-pack: start;
-            justify-content: flex-start;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+	align-items: center;
 	padding-top: 10px;
 
 	overflow: hidden;
@@ -585,14 +490,12 @@ canvas,.konvajs-content,
 }
 
 .MuiSlider-valueLabel {
-	-webkit-transform: translateY(9px) translateX(-20px) rotate(-90deg) !important;
-	        transform: translateY(9px) translateX(-20px) rotate(-90deg) !important;
+	transform: translateY(9px) translateX(-20px) rotate(-90deg) !important;
 	z-index: 100000;
 }
 
 .MuiSlider-valueLabel span span {
-	-webkit-transform: rotate(135deg);
-	        transform: rotate(135deg);
+	transform: rotate(135deg);
 }
 
 .ui-controls-bar::-webkit-scrollbar {
@@ -628,21 +531,10 @@ canvas,.konvajs-content,
     height: 200px;
 	z-index: 9990;
 	
-	display: -webkit-box;
-	
-	display: -ms-flexbox;
-	
 	display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-pack: start;
-        -ms-flex-pack: start;
-            justify-content: flex-start;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+	align-items: center;
 	padding-top: 10px;
 
 	overflow: hidden;
@@ -721,9 +613,7 @@ textarea.form-control {
 }
 
 .ui-controls-bar .html-plugin-node {
-	-webkit-box-align: start;
-	    -ms-flex-align: start;
-	        align-items: flex-start;
+	align-items: flex-start;
 }
 
 .ui-controls-bar .canvas__html-shape-body {
@@ -744,11 +634,7 @@ textarea.form-control {
 }
 
 .toolbar__form {
-	-webkit-box-flex: 1;
-	    -ms-flex: 1 1 auto;
-	        flex: 1 1 auto;
-    display: -webkit-box;
-    display: -ms-flexbox;
+	flex: 1 1 auto;
     display: flex;
     justify-items: flex-start;
     white-space: nowrap;
@@ -756,13 +642,8 @@ textarea.form-control {
 }
 @media only screen and (max-width: 1023px) {
 	.toolbar__container .form-inline {
-		-webkit-box-orient: vertical;
-		-webkit-box-direction: normal;
-		    -ms-flex-direction: column;
-		        flex-direction: column;
-		-webkit-box-align: start;
-		    -ms-flex-align: start;
-		        align-items: flex-start;		
+		flex-direction: column;
+		align-items: flex-start;		
 	}
 
 	.toolbar__container .form-control:first-child {
@@ -829,16 +710,9 @@ textarea.form-control {
 
 .ui-view__html-elements {
 	position: relative;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	flex-direction: column;
+	align-items: center;
 }
 
 .ui-view__html-elements .html-plugin-node .konvajs-content {
@@ -897,13 +771,8 @@ textarea.form-control {
 */
 
 .ui-view-layout__container-row {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    flex-direction: column;
     /*justify-content: space-between;*/
 }
 
@@ -1012,9 +881,7 @@ textarea.form-control {
 
 .container__ui-view [data-node-visualizer="text"] .html-plugin-node,
 .container__ui-view [data-node-visualizer="list"] .html-plugin-node {
-	-webkit-box-align: start;
-	    -ms-flex-align: start;
-	        align-items: flex-start;
+	align-items: flex-start;
 	text-align: left
 }
 
@@ -1041,8 +908,7 @@ textarea.form-control {
 }
 
 [data-task="FormTask"].untouched .html-plugin-node {
-	-webkit-filter: brightness(.91);
-	        filter: brightness(.91);
+	filter: brightness(.91);
 }
 
 [data-task="DebugTask"].untouched .html-plugin-node {
@@ -1063,15 +929,11 @@ textarea.form-control {
 .container__ui-view [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="gridcanvas"].untouched,
 .container__ui-view [data-task="DebugTask"][data-visualizer="xycanvas"].untouched {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
 }
 
 
 [data-task="DebugTask"][data-visualizer="number"].untouched .html-plugin-node {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
 }
 
@@ -1089,8 +951,6 @@ textarea.form-control {
 [data-task="DebugTask"][data-visualizer="animatedgridcanvas"].untouched .html-plugin-node__h-100 ,
 [data-task="DebugTask"][data-visualizer="gridcanvas"].untouched .html-plugin-node__h-100 ,
 [data-task="DebugTask"][data-visualizer="xycanvas"].untouched .html-plugin-node__h-100  {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
 }
 
