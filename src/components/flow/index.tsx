@@ -74,7 +74,7 @@ export const Flow = (props : IFlowProps) => {
 				}
 			});
 			if (changed) {
-				console.log("flow changed", changedNode, changedNodeProperty);
+				console.log("flow changed", changedNode, changedNodeProperty, props.flow);
 				setInternalFlow(props.flow);
 			}
 		}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef , useCallback } from 'react';
 import { Suspense } from 'react';
 
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
@@ -29,7 +29,11 @@ export class FormNodeHtmlPluginInfo {
 	}
 
 	getWidth(node) {
-		return 300;
+		let width = node.width || 300;
+		if (width < 300) {
+			width = 300;
+		}
+		return width;
 	}
 
 	getHeight(node) {
@@ -109,6 +113,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				}
 			} else {
 				if (props.node.taskType == "FormTask") {
+					console.log("pre modifyFlowNode mount", values);
 					props.flowrunnerConnector?.modifyFlowNode(
 						props.node.name, 
 						props.node.propertyName, 
@@ -137,7 +142,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 	useEffect(() => {
 
-		setNode(props.node);
+		setNode({...props.node});
+		//console.log("node is updated", props.node.name, props.node);
 		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 
 		return () => {
@@ -258,7 +264,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setReceivedPayload(payload);
 		}
 		return;
-	}
+	};
 
 	
 	const onSubmit = (event: any) => {
@@ -308,7 +314,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setErrors(updatedErrors);
 		}
 		return false;
-	}
+	};
 
 	const setValueHelper = (fieldName, value, metaInfo) => {
 		if (props.node && fieldName) {	
@@ -341,10 +347,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				[fieldName]: value
 			};
 			setNode(updatedNode);
-			
+			console.log("setValueHelper",updatedValues);
 			//console.log("props.node.name",value,props.node.name);
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
 				if (props.node.taskType == "FormTask") {
+					console.log("pre modifyFlowNode 2", updatedValues);
 					props.flowrunnerConnector?.modifyFlowNode(
 						props.node.name, 
 						fieldName, 
@@ -356,6 +363,17 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				} else {
 					console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
 					flow.storeFlowNode(updatedNode, props.node.name);
+					
+					// additional fix for updating nodes 
+					props.flowrunnerConnector?.modifyFlowNode(
+						props.node.name, 
+						fieldName, 
+						value,
+						props.node.name,
+						'',
+						updatedValues
+					);
+					
 				}
 				
 			} else if (props.onSetValue) {
@@ -363,7 +381,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}
+	};
 
 	
 	const onChange = (fieldName, fieldType, metaInfo, event: any) => {
@@ -390,7 +408,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 		
 		return false;
-	}
+	};
 
 	const setValueViaOnReceive = (newValue, metaInfo) => {
 		if (props.node && metaInfo.fieldName) {	
@@ -413,7 +431,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				...clearValues,				
 				[metaInfo.fieldName]: newValue
 			};
-			//console.log("setValueViaOnReceive", metaInfo.fieldName, newValue, newValues);
+			console.log("setValueViaOnReceive", metaInfo.fieldName, newValue, newValues);
 			setValues(newValues);
 			setErrors(_errors);
 			let updatedNode = {
@@ -427,7 +445,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 					// TODO : this should also push through all fields from this formnode
 					// 		kan dat de hele state.values zijn ?
-
+					console.log("pre modifyFlowNode 1", newValues);
 					props.flowrunnerConnector?.modifyFlowNode(
 						props.node.name, 
 						metaInfo.fieldName, 
@@ -439,6 +457,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				} else { 					
 					console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
 					flow.storeFlowNode(updatedNode, props.node.name);
+					// Looks like this is the fix...
+					props.flowrunnerConnector?.modifyFlowNode(
+						props.node.name, 
+						metaInfo.fieldName, 
+						newValue,
+						props.node.name,
+						'',
+						newValues
+					);
 				}
 			} else  if (props.onSetValue) {
 				props.onSetValue(newValue, metaInfo.fieldName);
@@ -473,6 +500,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		return metaInfo.fieldType;
 	}
 	
+	/*
 	let metaInfo : any[] = [];
 	if (!!props.isNodeSettingsUI) {
 		metaInfo = props.taskSettings.configMenu.fields
@@ -485,8 +513,23 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			metaInfo = props.node.metaInfo || [];
 		}
 	}
+	*/
 
 	const renderFields = () => {
+
+		let metaInfo : any[] = [];
+		if (!!props.isNodeSettingsUI) {
+			metaInfo = props.taskSettings.configMenu.fields
+		} else {
+			if (props.taskSettings && props.taskSettings.metaInfo) {
+				metaInfo = props.taskSettings && props.taskSettings.metaInfo;
+			}
+			if (!!props.isObjectListNodeEditing || 
+				!!props.taskSettings.hasMetaInfoInNode) {
+				metaInfo = props.node.metaInfo || [];
+			}
+		}
+		console.log("renderFields", receivedPayload, values);
 		return <>
 			{metaInfo.map((metaInfo, index) => {
 				const fieldType = getFieldType(metaInfo);
@@ -496,8 +539,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					if (!!props.isObjectListNodeEditing) {
 						data = {...props.node, ...receivedPayload, ...values};
 					} else {
-						data = {...receivedPayload, ...values};
+						data = {...props.node, ...receivedPayload, ...values};
 					}
+					console.log("visibilityCondition", metaInfo.visibilityCondition, data);
 					const result = executeExpressionTree(expression, data);
 					if (!result) {
 						return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
@@ -514,7 +558,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					}
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
-								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
+								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
 								<div className="input-group mb-1">
 									<input
 										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}

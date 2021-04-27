@@ -27,6 +27,9 @@ import { ExpressionTask } from '../flowrunner-plugins/expression-task';
 import { MultiFormTask } from '../flowrunner-plugins/multi-form-task';
 import { SelectValueFromListTask } from '../flowrunner-plugins/select-value-from-list-task';
 
+import { PrototypeTask } from '../flowrunner-plugins/prototype-task';
+import { ScriptTask } from '../flowrunner-plugins/script-task';
+
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);
@@ -54,4 +57,6 @@ export const registerTasks = flow => {
   flow.registerTask('ExpressionTask', ExpressionTask);
   flow.registerTask('MultiFormTask', MultiFormTask);
   flow.registerTask('SelectValueFromListTask', SelectValueFromListTask);
+  flow.registerTask('PrototypeTask', PrototypeTask);
+  flow.registerTask('ScriptTask', ScriptTask);
 };

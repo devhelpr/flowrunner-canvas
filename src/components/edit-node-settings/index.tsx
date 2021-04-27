@@ -104,6 +104,8 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 			*/
 
 			const node = {...requiredNodeValues, ...changedProperties};
+			
+			props.flowrunnerConnector.resetCurrentFlow();
 			flow.storeFlowNode(node, orgNodeName);
 			
 			selectedNode.selectNode(node.name, node);

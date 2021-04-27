@@ -12,9 +12,9 @@ import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbPositionRelativeT
 export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 	
-	const [fillColor, setFillColor] = useState("#000000");
+	const [fillColor, setFillColor] = useState(props.isConnectionWithVariable ?  "#0080e0" : "#000000");
 	const [strokeWidth, setStrokeWidth] = useState(2);
-	const [opacity, setOpacity] = useState(1);
+	const [opacity, setOpacity] = useState(0);
 	const [dash, setDash] = useState(props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5,10] : [1,1]);
 	const lineRef = useRef(null as any);
 	const bgLineRef = useRef(null as any);
@@ -33,12 +33,12 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 		if (props.isAltColor) {
 			_fillColor = "#a0a0a0";  
-			_strokeWidth = 2;
+			//_strokeWidth = 2;
 		}
 
 		if (props.isConnectionWithVariable) {
 			_fillColor = "#0080e0";  
-			_strokeWidth = 2;
+			//_strokeWidth = 2;
 		}
 
 		if (props.isEventNode) {
@@ -50,7 +50,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		if (!props.isSelected && props.canvasHasSelectedNode) {
 			if (props.selectedNodeName != props.startNodeName && 
 				props.selectedNodeName != props.endNodeName) {
-				_opacity = 0.15;
+				//_opacity = 0.15;
 			}
 		}
 
@@ -58,14 +58,24 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
 			dash = [5,10];
 			_strokeWidth = 8;
-			_opacity = 1;
+			//_opacity = 1;
 		} else {
-			_opacity = 0.5;
+			//_opacity = 0.5;
+		}
+	
+		if (lineRef.current) {
+			lineRef.current.to({								
+				duration: 0.15,
+				fill:_fillColor,
+				stroke:_fillColor,
+				strokeWidth:_strokeWidth,
+				opacity: _opacity		
+			});	
+		} else {
+			setFillColor(_fillColor);
+			setStrokeWidth(_strokeWidth);
 		}
 
-
-		setFillColor(_fillColor);
-		setStrokeWidth(_strokeWidth);
 		//setOpacity(_opacity);
 
 		if (props.touchedNodes && props.name && props.touchedNodes[props.name]) {
@@ -134,13 +144,27 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 					if (lineRef && lineRef.current && parameters) {
 						if (parameters.state == ShapeStateEnum.Touched) {
 							lineRef.current.dash([5,10]);
+							/*
 							lineRef.current.strokeWidth(8);
 							lineRef.current.opacity(1);
+							*/
+							lineRef.current.to({								
+								duration: 0.15,
+								strokeWidth:8,
+								opacity:1
+							});	
 						} else
 						if (parameters.state == ShapeStateEnum.Default) {
 							lineRef.current.dash([]);
+							/*
 							lineRef.current.strokeWidth(4);
 							lineRef.current.opacity(0.5);
+							*/
+							lineRef.current.to({								
+								duration: 0.15,
+								strokeWidth:4,
+								opacity:0.5
+							});	
 						}						
 					}
 					break;

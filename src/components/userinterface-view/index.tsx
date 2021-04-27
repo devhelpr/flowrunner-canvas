@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import * as uuid from 'uuid';
 import { Layout } from '@devhelpr/layoutrunner';
 import { renderLayoutType } from './components/layout-renderer';
@@ -121,7 +121,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 		}
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 
 		props.flowrunnerConnector.registerScreenUICallback(screenUICallback);
 
@@ -204,7 +204,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 		});
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		layoutTreeAsString.current  = JSON.parse(layout.layout) || {};
 		setLayoutTree(getLayoutNodeFromTree(1,0,0));	
 		updateTouchedNodes();		

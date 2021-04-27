@@ -11,7 +11,7 @@ export const getNewNode = (node: any, flow: any[]) => {
   for (var index = 0; index < node.name.length; index++) {
     let c = node.name.charAt(node.name.length - 1 - index);
     if (!nonNumberFound && c >= '0' && c <= '9') {
-      indexCharsFromName += c;
+      indexCharsFromName = c + indexCharsFromName;
     } else {
       nonNumberFound = true;
     }
@@ -20,12 +20,17 @@ export const getNewNode = (node: any, flow: any[]) => {
     indexFromName = parseInt(indexCharsFromName) + 1;
     let orgName = node.name.substring(0, node.name.length - indexCharsFromName.length);
 
-    let loop = 0;
-    while (loop < flow.length) {
-      if (flow[loop].name === orgName + indexFromName) {
-        indexFromName++;
+    let hasChanged = true;
+    while (hasChanged) {
+      hasChanged = false;
+      let loop = 0;
+      while (loop < flow.length) {
+        if (flow[loop].name === orgName + indexFromName) {
+          indexFromName++;
+          hasChanged = true;
+        }
+        loop++;
       }
-      loop++;
     }
 
     const newNode = Object.assign({}, node);

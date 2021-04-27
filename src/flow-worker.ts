@@ -7,6 +7,7 @@ import { replaceValues } from './helpers/replace-values';
 import * as uuid from 'uuid';
 
 import { registerTasks } from './flow-tasks';
+import { testRunner } from './tests-runner/tests-runner';
 
 import {
   registerExpressionFunction,
@@ -615,7 +616,7 @@ const onWorkerMessage = event => {
         return;
       }
       flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value, data.additionalValues || {});
-
+      //console.log('modifyFlowNode', data);
       if (data.executeNode !== undefined && data.executeNode !== '') {
         flow
           .retriggerNode(data.executeNode)
@@ -642,6 +643,7 @@ const onWorkerMessage = event => {
           });
       }
     } else if (command == 'pushFlowToFlowrunner') {
+      //console.log("pushFlowToFlowrunner", data);
       startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes, data.flowId);
     } else if (command == 'registerFlowNodeObserver') {
       if (observables[data.nodeName]) {
@@ -691,6 +693,11 @@ const onWorkerMessage = event => {
         return;
       }
       flow.resumeFlowrunner();
+    } else if (command == 'runTests') {
+      if (!flow) {
+        return;
+      }
+      testRunner(data.flowId, flow, ctx);
     }
 
     data = null;

@@ -162,7 +162,9 @@ function start(flowFileName, taskPlugins, options) {
 					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
 					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
 					tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
-					
+					tasks.push({className:"PrototypeTask", fullName: "PrototypeTask", flowType:"playground"});
+					tasks.push({className:"ScriptTask", fullName: "ScriptTask", flowType:"playground"});
+										
 					tasks.push({className:"MultiFormTask", fullName: "MultiFormTask", flowType:"playground"});
 
 					tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
@@ -300,6 +302,24 @@ function start(flowFileName, taskPlugins, options) {
 
 		app.get('/flow', flowRouteHandler);
 		app.get('/flowui', flowRouteHandler);
+
+
+		const testRouteHandler = (req, res) => {
+			const flowFilesFound = flowFiles.filter((flowFile) => {
+				return flowFile.id == req.query.flow;
+			});
+
+			if (flowFilesFound.length == 0) {
+				throw new Error("flow not found");
+			}
+
+			const flowFileName = flowFilesFound[0].fileName;
+			const testFileName = path.dirname(flowFileName) + "/test-" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
+			
+			res.send(JSON.stringify(JSON.parse(fs.readFileSync(testFileName))));
+		};
+
+		app.get('/test', testRouteHandler);
 
 		/*
 		

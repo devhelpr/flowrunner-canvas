@@ -29,8 +29,14 @@ export const LineHelper = (props : ILineHelperProps) => {
 			return node.name == props.endshapeid;
 		});
 	}, [props.flow, props.node.name, props.endshapeid]);
-
+	if (endNodes.length == 0) {
+		return null;
+	}
 	let endNode = endNodes[0];
+	if (!endNode) {
+		return null;
+	}
+	
 	let positionNode = props.positions[endNode.name] || endNode;
 	const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 		x: positionNode.x,

@@ -8,6 +8,29 @@ body, html {
 	overflow: hidden;
 }
 
+#loading {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 100000;
+	background: #f2f2f2;
+	opacity: 1;
+	transition: opacity 0.3s ease-in-out;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#loading.loaded {
+	opacity: 0;
+}
+#loading.hidden {
+	display: none;
+	z-index: -1;
+}
+
 .text-white a,
 .text-white a:hover {
 	color: #ffffff;
@@ -45,15 +68,26 @@ body, html {
 	box-shadow:none;
 	margin-bottom: 20px;
 	background: #e2e2e2;
-	min-height: 100vh !important;
 }
 
-canvas,.konvajs-content,
 .stage-container {
+
 	transform: translateZ(0);
 	backface-visibility: hidden;
 	perspective: 1000;
 	transform: translate3d(0, 0, 0);
+
+	canvas,
+	.konvajs-content{
+		transform: translateZ(0);
+		backface-visibility: hidden;
+		perspective: 1000;
+		transform: translate3d(0, 0, 0);
+	}
+
+	.konvajs-content {
+		min-height: 100vh !important;
+	}
 }
 .canvas-controller {
 	width:100%;
@@ -196,6 +230,8 @@ canvas,.konvajs-content,
 
 	margin: 0 auto;
 	position: relative;
+
+	transition: filter 0.15s ease-in-out, background-color 0.15s ease-in-out;
 }
 
 .html-plugin-node__visibility {
@@ -237,8 +273,8 @@ canvas,.konvajs-content,
 .canvas__html-shape-bar {
 	position: relative;
 	pointer-events: none;
-	height: 32px;
-	min-height: 32px;
+	height: 26px;
+	min-height: 26px;
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
@@ -330,6 +366,7 @@ canvas,.konvajs-content,
 
 .html-plugin-node {
 	pointer-events: none;
+	z-index: 1;
 }
 .html-plugin-node > div {
 	height: 100%;
@@ -342,10 +379,12 @@ canvas,.konvajs-content,
     position: absolute;
     top: -32px;
     left: -8px;
-    width: calc(100% + 16px);
-    height: calc(100% + 40px);
+    width: calc(100% + 16.5px);
+    height: calc(100% + 40.5px);
     border: 2px #cccccc solid;
     border-radius: 8px;
+	transition: border 0.2s ease-in-out;
+	z-index:2;
 }
 .canvas-controller__scroll-container .form .html-plugin-node::before {
 	display: none;
@@ -830,6 +869,11 @@ textarea.form-control {
 	padding: 2px;
 }
 
+.ui-view-layout__container [data-task="FormTask"].untouched .html-plugin-node .form,
+.ui-view-layout__container [data-task="FormTask"] .html-plugin-node .form {
+	pointer-events: auto;
+}
+
 #flowstudio-root {
 	min-height: 100vh;
 	overflow: hidden;
@@ -921,6 +965,18 @@ textarea.form-control {
 
 .container__ui-view [data-task="DebugTask"].untouched {
 	display: none;
+}
+
+[data-task="DebugTask"][data-visualizer="animatedgridcanvas"] {
+	max-width: calc(100% + 20px);
+}
+
+[data-task="DebugTask"][data-visualizer="animatedgridcanvas"] {
+	max-width: calc(100%);
+}
+
+.ui-view-layout__container [data-task="DebugTask"][data-visualizer="animatedgridcanvas"] canvas {
+	max-width: 100%;
 }
 
 .container__ui-view [data-task="DebugTask"][data-visualizer="number"].untouched,

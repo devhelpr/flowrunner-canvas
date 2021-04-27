@@ -11,6 +11,7 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { Observable, Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
+import { ModulesPopup } from '../modules-popup';
 
 import Navbar from 'react-bootstrap/Navbar';
 
@@ -18,6 +19,7 @@ import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
+import { useModulesStateStore } from '../../state/modules-menu-state';
 
 import { getPosition } from '../../services/position-service';
 
@@ -56,7 +58,7 @@ export interface ToolbarState {
 }
 
 export const Toolbar = (props: ToolbarProps) => {
-
+	const [showModulesPopup, setShowModulesPopup]	= useState(false);
 	const [showEditPopup, setShowEditPopup]	= useState(false);
 	const [showSchemaPopup, setShowSchemaPopup]	= useState(false);
 	const [showNewFlow, setShowNewFlow]	= useState(false);
@@ -70,11 +72,20 @@ export const Toolbar = (props: ToolbarProps) => {
 	const canvasMode = useCanvasModeStateStore();
 	const selectedNode = useSelectedNodeStore();
 	const layout = useLayoutStore();
+	const modulesMenu = useModulesStateStore();
 
 	useEffect(() => {
 		canvasMode.setSelectedTask("");
 		getFlows();
 	}, []);
+
+	useEffect(() => {
+		if (modulesMenu.selectedModule == "tests") {
+			setShowModulesPopup(true);
+		} else {
+			setShowModulesPopup(false);
+		}
+	}, [modulesMenu.selectedModule]);
 	
 
 	const setFlows = (flows : any[], id?: number | string) => {
@@ -257,10 +268,23 @@ export const Toolbar = (props: ToolbarProps) => {
 		setShowEditPopup(false);
 		setShowSchemaPopup(false);
 		setShowNewFlow(false);
+		setShowModulesPopup(false);
+
 		if (!!pushFlow) {
 			canvasMode.setFlowrunnerPaused(false);
 			props.flowrunnerConnector.pushFlowToFlowrunner(flow.flow, true, flow.flowId);
 		}
+	}
+
+	const onCloseModulesPopup = () => {
+
+		modulesMenu.showModule("");
+		modulesMenu.setOpen(false);
+
+		setShowEditPopup(false);
+		setShowSchemaPopup(false);
+		setShowNewFlow(false);
+		setShowModulesPopup(false);		
 	}
 
 	const onCloseNewFlowPopup = (id : number | string, flowType) => {
@@ -270,6 +294,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		setShowEditPopup(false);
 		setShowSchemaPopup(false);
 		setShowNewFlow(false);
+		setShowModulesPopup(false);
 
 		getFlows(id);
 	}
@@ -398,6 +423,12 @@ export const Toolbar = (props: ToolbarProps) => {
 		return false;
 	}
 
+	const showModules = (event) => {
+		event.preventDefault();
+		modulesMenu.setOpen(!modulesMenu.isOpen);
+		return false;
+	}
+
 	
 	let shapeType = "";
 	if (selectedNode && selectedNode.node) {
@@ -439,6 +470,10 @@ export const Toolbar = (props: ToolbarProps) => {
 								}
 								{canvasMode.flowType === "rustflowrunner" && canvasMode.editorMode === "canvas" && 
 									<img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />
+								}
+								{canvasMode.flowType === "playground" && canvasMode.editorMode === "canvas" && 
+									!!!selectedNode.node.name &&
+									<a href="#" onClick={showModules} className="mx-2 btn btn-outline-light">Modules</a>
 								}
 								
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
@@ -506,6 +541,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		{showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditPopup>}
 		{showNewFlow && <NewFlow onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
 		{showTaskHelp && <HelpPopup taskName={selectedNode && selectedNode.node ? (selectedNode.node as any).taskType : ""}></HelpPopup>}
+		{showModulesPopup && <ModulesPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseModulesPopup}></ModulesPopup>}
 	</>
 }
 

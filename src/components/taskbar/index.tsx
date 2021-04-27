@@ -4,6 +4,7 @@ import fetch from 'cross-fetch';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useModulesStateStore } from '../../state/modules-menu-state';
 
 export interface TaskbarProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -13,10 +14,17 @@ export interface TaskbarState {
 	metaDataInfo: any[];
 }
 
+export enum TaskMenuMode {
+	tasks = 0,
+	modules
+}
+
 export const Taskbar = (props: TaskbarProps) => {
 	const [metaDataInfo, setMetaDataInfo] = useState([] as any[]);
+	const [menuMode, setMenuMode] = useState(TaskMenuMode.tasks);
 	const canvasMode = useCanvasModeStateStore();
-
+	const modulesMenu = useModulesStateStore();
+	
 	const setupTasks = (metaDataInfo : any[]) => {
 		const taskPluginsSortedList = metaDataInfo.sort((a, b) => {
 			if (a.fullName < b.fullName) {
@@ -55,7 +63,7 @@ export const Taskbar = (props: TaskbarProps) => {
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			setupTasks(metaDataInfo);
+			setupTasks(metaDataInfo);			
 		})
 		.catch(err => {
 			console.error(err);
@@ -65,7 +73,36 @@ export const Taskbar = (props: TaskbarProps) => {
 	useEffect(() => {
 		loadTasks();
 	}, [canvasMode]);
+
+	useEffect(() => {
+		if (modulesMenu.isOpen) {
+			setMenuMode(TaskMenuMode.modules);
+		} else {
+			setMenuMode(TaskMenuMode.tasks);
+		}
+	}, [modulesMenu.isOpen])
 	
+	useEffect(() => {
+		if (metaDataInfo.length > 0) {
+			let loadingElement = document.getElementById("loading");
+			if (loadingElement && !loadingElement.classList.contains("loaded")) {
+				loadingElement.classList.add("loaded");
+				setTimeout(() => {
+					let loadingElement = document.getElementById("loading");
+					if (loadingElement) {
+						loadingElement.classList.add("hidden");
+					}
+				},350);
+			}
+		}
+	}, [metaDataInfo]);
+
+	const onShowTests = (event) => {
+		event.preventDefault();
+		modulesMenu.showModule("tests");
+		return false;
+	}
+
 	const onDragStart = (event) => {
 		// event.target.id
 		event.dataTransfer.setData("data-task", event.target.getAttribute("data-task"));
@@ -146,16 +183,19 @@ export const Taskbar = (props: TaskbarProps) => {
 		<img src="/svg/flow-circle.svg" alt="rect" data-task="InjectIntoPayload" draggable={true} />
 		<img src="/svg/flow-ellipse.svg" alt="rect" data-task="InjectIntoPayload" draggable={true} />
 	*/
-
 	
 	return <>
 		<div className="taskbar">
-			{metaDataInfo.map((taskMetaData : any, index) => {
-				//return <img key={"metadata-"+index} src="/svg/flow-rect.svg" alt={taskMetaData.fullName} data-task={taskMetaData.className}  draggable={true} onDragStart={this.onDragStart} />
-				return <React.Fragment key={index}>					
-					{renderRect(taskMetaData.className, taskMetaData)}
-				</React.Fragment>
-			})}
+			{menuMode == TaskMenuMode.tasks ?
+				<>{metaDataInfo.map((taskMetaData : any, index) => {
+					//return <img key={"metadata-"+index} src="/svg/flow-rect.svg" alt={taskMetaData.fullName} data-task={taskMetaData.className}  draggable={true} onDragStart={this.onDragStart} />
+					return <React.Fragment key={index}>					
+						{renderRect(taskMetaData.className, taskMetaData)}
+					</React.Fragment>
+				})}</> : 
+				<>
+					<button onClick={onShowTests} className="btn btn-outline-primary">Tests</button>
+				</>} 
 		</div>
 	</>;
 

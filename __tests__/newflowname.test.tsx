@@ -59,3 +59,42 @@ test('testNewFlowName4', async () => {
 	expect(newNode.name).toBe("test4");
 
 });
+
+test('testNewFlowName10', async () => {
+	const newNode = getNewNode(
+		{name:"test2"},[
+		{name:"test"},
+		{name:"test1"},
+		{name:"test2"},
+		{name:"test3"},
+		{name:"test4"},
+		{name:"test5"},
+		{name:"test6"},
+		{name:"test7"},
+		{name:"test8"},
+		{name:"test9"},
+	]);
+	
+	expect(newNode.name).toBe("test10");
+
+});
+
+test('testNewFlowName11', async () => {
+	const newNode = getNewNode(
+		{name:"test2"},[
+		{name:"test"},
+		{name:"test1"},
+		{name:"test2"},
+		{name:"test3"},
+		{name:"test4"},
+		{name:"test5"},
+		{name:"test6"},
+		{name:"test7"},
+		{name:"test8"},
+		{name:"test9"},
+		{name:"test10"},
+	]);
+	
+	expect(newNode.name).toBe("test11");
+
+});

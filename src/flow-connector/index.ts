@@ -35,6 +35,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
 
+  resetCurrentFlow = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {};
 
   executeFlowNode = (nodeName: string, payload: any) => {};
@@ -77,6 +78,8 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   killAndRecreateWorker = () => {};
 
   registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult: any) => {};
+
+  runTests = (flowId : string) => {};
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -264,7 +267,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       });
     }
 
-    console.log('registerFlowNodeObserver pre', nodeName, [...this.observables]);
+    //console.log('registerFlowNodeObserver pre', nodeName, [...this.observables]);
 
     if (this.worker) {
       this.worker.postMessage({
@@ -330,6 +333,10 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   currentFlowId: string = '';
+
+  resetCurrentFlow = () => {
+    this.currentFlowId = "";
+  }
 
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {
@@ -497,5 +504,14 @@ export class FlowConnector implements IFlowrunnerConnector {
       delete this.nodeStateObservables[indexInObservables];
       this.nodeStateObservables.splice(indexInObservables, 1);
     });
+  };
+
+  runTests = (flowId : string) => {
+    if (this.worker) {
+      this.worker.postMessage({
+        command: 'runTests',
+        flowId: flowId
+      });
+    }
   };
 }

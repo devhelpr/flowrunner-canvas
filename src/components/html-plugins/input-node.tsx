@@ -107,7 +107,7 @@ export const InputNodeHtmlPlugin = (props : InputNodeHtmlPluginProps) => {
 	}
 
 	const onChangeList = (index, event: any) => {
-		//console.log("input", event.target.value, props.node);
+		console.log("input onChangeList", event.target.value, props.node);
 		if (props.node) {
 
 			if (props.node.mode && props.node.mode === "list") {
@@ -119,8 +119,21 @@ export const InputNodeHtmlPlugin = (props : InputNodeHtmlPluginProps) => {
 					const newNode = {...props.node, values: newValues };
 					setNode(newNode);
 					setValues(newValues);
+
+					// TODO : fix this bug!! .. quicksort doesn't work anymore when changing the node
 					storeNode(newNode);
-	
+					// THIS SEEMS TO FIX IT: (the extra props.node.name triggers the current node)
+					props.flowrunnerConnector.modifyFlowNode(
+						props.node.name, 
+						props.node.propertyName, 
+						newValues,
+						props.node.name || "",
+						"",
+						newNode
+						
+					);
+					
+
 				} else {
 				
 					//console.log("newValues", newValues);

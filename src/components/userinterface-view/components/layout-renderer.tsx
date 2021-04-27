@@ -69,10 +69,10 @@ export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : bool
 			data-visualizer={nodeClone.visualizer || ""}	 
 			data-x={node.x} 
 			data-y={node.y} 
-			className="canvas__html-shape">
+			className="canvas__html-shape untouched">
 				{!!isInEditMode && settings && !!settings.hasConfigMenu && 
 					<div className="">
-						<a href="#" onClick={onShowNodeSettings.bind(node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>
+						{false && <a href="#" onClick={onShowNodeSettings.bind(node, settings)} className="canvas__html-shape-bar-icon fas fa-cog"></a>}
 					</div>
 				}
 				<div className="canvas__html-shape-body">

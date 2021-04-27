@@ -43,7 +43,11 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				}
 				case ModifyShapeEnum.SetOpacity : {
 					if (groupRef && groupRef.current && parameters) {
-						groupRef.current.opacity(parameters.opacity);						
+						groupRef.current.opacity(parameters.opacity);
+						regularPolygonRef.current.to({
+							duration: 0.05,
+							opacity:parameters.opacity
+						});					
 					}
 					break;
 				}
@@ -53,16 +57,31 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				case ModifyShapeEnum.SetState : {
 					if (regularPolygonRef && regularPolygonRef.current && parameters) {
 						if (parameters.state == ShapeStateEnum.Default) {
-							regularPolygonRef.current.stroke(settings.strokeColor);
-							regularPolygonRef.current.fill(settings.fillColor);
+							//regularPolygonRef.current.stroke(settings.strokeColor);
+							//regularPolygonRef.current.fill(settings.fillColor);
+							regularPolygonRef.current.to({
+								duration: 0.15,
+								stroke:settings.strokeColor,
+								fill:settings.fillColor
+							});
 						} else
 						if (parameters.state == ShapeStateEnum.Error) {
-							regularPolygonRef.current.stroke("#f00000");
-							regularPolygonRef.current.fill("#ff9d9d");
+							//regularPolygonRef.current.stroke("#f00000");
+							//regularPolygonRef.current.fill("#ff9d9d");
+							regularPolygonRef.current.to({
+								duration: 0.15,
+								stroke:"#f00000",
+								fill:"#ff9d9d"
+							});
 						} else
 						if (parameters.state == ShapeStateEnum.Ok) {
-							regularPolygonRef.current.stroke("#00e000");
-							regularPolygonRef.current.fill("#9dff9d");							
+							//regularPolygonRef.current.stroke("#00e000");
+							//regularPolygonRef.current.fill("#9dff9d");
+							regularPolygonRef.current.to({
+								duration: 0.15,
+								stroke:"#00e000",
+								fill:"#9dff9d"
+							});							
 						}						
 					}
 					

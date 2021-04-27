@@ -893,6 +893,58 @@ const taskTypeConfig: any = {
       ],
     },
   },
+  ScriptTask: {
+    icon: 'fa-bug',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'outputProperty',
+        fieldType: 'text'        
+      },
+      {
+        fieldName: 'script',
+        fieldType: 'textarea'        
+      }
+    ],
+    presetValues: {
+      outputProperty: 'script',
+      script: ''
+    }
+  },
+  PrototypeTask: {
+    icon: 'fa-brain',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'prototype',
+        required: true,
+        fieldType: 'select',
+        options: [
+          {
+            value: 'default',
+            label: 'Default',
+          },
+          {
+            value: 'webassembly-test',
+            label: 'Webassembly Test',
+          }
+        ],        
+      },
+      {
+        fieldName: 'outputProperty',
+        fieldType: 'text'        
+      },
+      {
+        fieldName: 'input',
+        fieldType: 'textarea'        
+      }
+    ],
+    presetValues: {
+      prototype: 'default'
+    }
+  },
   DebugTask: {
     shapeType: 'Html',
     hasUI: true,
@@ -974,6 +1026,11 @@ const taskTypeConfig: any = {
           visibilityCondition: 'visualizer == "animatedgridcanvas"',
           fieldType: 'select',
           datasource: '[PLAYGROUNDFLOW]',
+        },
+        {
+          fieldName: 'script',
+          fieldType: 'textarea',
+          visibilityCondition: 'visualizer == "animatedgridcanvas"'        
         },
       ],
     },

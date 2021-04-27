@@ -22,12 +22,12 @@ test('testZustand', async () => {
 	const { result } = renderHook(() => useLayoutStore());
 
 	act(() => {
-		result.current.storeLayout({a:"hello zustand"});
+		result.current.storeLayout(JSON.stringify({a:"hello zustand"}));
 		}
 	)
 
 	expect(result.current.layout).toBeDefined();
-	expect(result.current.layout.a).toBe("hello zustand");
+	expect(JSON.parse(result.current.layout).a).toBe("hello zustand");
 
 });
 

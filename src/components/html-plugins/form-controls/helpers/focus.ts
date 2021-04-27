@@ -11,4 +11,6 @@ export const onFocus = event => {
     elements[0].scrollLeft = 0;
     elements[0].scrollTop = 0;
   }
+
+  document.body.scrollTop = 0;
 };

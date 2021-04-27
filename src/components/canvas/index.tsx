@@ -557,6 +557,7 @@ export const Canvas = (props: CanvasProps) => {
 	const cancelScroll = () => {
 		(window as any).scrollTop = 0;
 		(window as any).scrollLeft = 0;
+		document.body.scrollTop = 0;
 	}
 
 	useLayoutEffect(() => {
@@ -567,6 +568,7 @@ export const Canvas = (props: CanvasProps) => {
 		window.addEventListener("scroll", cancelScroll);
 		document.addEventListener('paste', onPaste);
 		updateDimensions();	        
+		document.body.scrollTop = 0;
 
 		touchedNodesStore.clearNodesTouched();
 		props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
@@ -2320,6 +2322,15 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						}
 					}
 
+					const functionCallNodeMatches = nodeJson.match(/("functionnodeid":\ ?"[a-zA-Z0-9\- :]*")/g);
+					if (functionCallNodeMatches) {
+						if (nodeMatches) {
+							nodeMatches = nodeMatches.concat(functionCallNodeMatches);
+						} else {
+							nodeMatches = functionCallNodeMatches;
+						}
+					}
+
 					const detailNodeMatches = nodeJson.match(/("detailNode":\ ?"[a-zA-Z0-9\- :]*")/g);
 					if (detailNodeMatches) {
 						if (nodeMatches) {
@@ -2357,20 +2368,22 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						}
 					}
 
-					if (nodeMatches) {
+					if (nodeMatches) {						
 						nodeMatches.map((match, index) => {
 
 							let isNodeByName = match.indexOf('"node":') >= 0;
 							let isGetVariable = match.indexOf('"getVariable":') >= 0;
 							let isSetVariable = match.indexOf('"setVariable":') >= 0;
+							let isFunctionCall = match.indexOf('"functionnodeid":') >= 0;
 							let isUseListFromNode = match.indexOf('"useListFromNode":') >= 0;
-							isNodeByName = isNodeByName || isUseListFromNode;
+							isNodeByName = isNodeByName || isUseListFromNode || isFunctionCall;
 
 							let nodeName = match.replace('"node":', "");
 							nodeName = nodeName.replace('"variableName":', "");
 							nodeName = nodeName.replace('"getVariable":', "");
 							nodeName = nodeName.replace('"setVariable":', "");
 							nodeName = nodeName.replace('"datasourceNode":', "");
+							nodeName = nodeName.replace('"functionnodeid":', "");
 							nodeName = nodeName.replace('"detailNode":', "");
 							nodeName = nodeName.replace('"deleteNode":', "");
 							nodeName = nodeName.replace('"useListFromNode":', "");
@@ -2406,14 +2419,14 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 																					
 							if (nodeEnd) {
 
-								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y});
-								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
+								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
+								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
 
 								if (!startToEnd) {
-									startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y});
-									endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y});
-	
+									startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
+									endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
 								}
+
 								let connection = {
 									shapeType : "Line",
 									name: "_dc" + index,
@@ -2425,7 +2438,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 									notSelectable: true,
 									startshapeid: (startToEnd ? node.name : nodeEnd.name),
 									endshapeid: (startToEnd ? nodeEnd.name : node.name),
-									isConnectionWithVariable: isConnectionWithVariable
+									isConnectionWithVariable: isConnectionWithVariable || isFunctionCall
 								};
 								connections.push(connection);
 							}
@@ -2542,6 +2555,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		if (event.target && (event.target.tagName || "").toLowerCase() == "input") {
 			return;
 		}
+		if (event.target && (event.target.tagName || "").toLowerCase() == "textarea") {
+			return;
+		}
 		if (event.target && event.target.attributes && event.target.attributes["role"]
 				&& event.target.attributes["role"].value == "textbox") {
 			return;
@@ -2549,19 +2565,22 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		
 		console.log("oninput", event);
 
-		if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
+		/*if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
 			if (selectedNode && selectedNode.node) {
 				event.preventDefault();
 				fitStage(selectedNode.node, true);
 				return false;
 			}
 			return true;
-		}
+		}*/
 
 		if (event.keyCode == shiftKey) {
 			shiftDown.current = true;
 			return true;
 		}
+		/*
+		// this doesn't work when focus is on textarea
+		
 		if (event.keyCode == backspaceKey) {
 			if (selectedNode && selectedNode.node) {
 				if ((selectedNode.node as any).shapeType !== 'Line') {
@@ -2573,6 +2592,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			}
 			return true;
 		}
+		*/
 		if (event.keyCode == ctrlKey || event.keyCode == cmdKey) {
 			ctrlDown.current = true;
 			return true;
