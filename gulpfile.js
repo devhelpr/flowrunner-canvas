@@ -131,22 +131,7 @@ function buildTypescript() {
                   },
                 },
               ],
-            },
-            /*{
-              test: /\.wasm$/,
-              type:
-                "javascript/auto",
-              use: [
-                {
-                  loader: "file-loader",
-                  options: {
-                    name: "wasm/[name].[hash].[ext]",
-                    publicPath: "/lib/"
-                  }
-                }
-              ]
-            },
-            */
+            },            
             {
               test: /\.tsx?$/,
               loader: 'awesome-typescript-loader',
@@ -168,42 +153,19 @@ function buildTypescript() {
             'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
           }),
           new cleanPlugin(),
-          new WasmPackPlugin({
+          /*new WasmPackPlugin({
             crateDirectory: __dirname + "/rust", 
-            //outDir: "../lib",
-
-            // ??? https://pspdfkit.com/blog/2020/webassembly-in-a-web-worker/
-          }),
+          }),*/
           new webpackIgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/
           })      
         ]        
       }, webpack));
-  /*
-
-  {
-              test: /\.flow-worker\.ts$/,
-              use: {
-                  loader: 'worker-loader',
-                  options: {
-                      //name: '[name].[hash:8].js',
-                      // notice here
-                      inline: "no-fallback"
-                  }
-              }
-            },
-            */
+  
   return task.pipe(gulp.dest('./lib'));
 };
 
-/*
-,
-            {
-              test: /\.worker\.js$/,
-              use: { loader: 'worker-loader' }
-            }       
-*/
 
 function buildPluginTypescript() {
 

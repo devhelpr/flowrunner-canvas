@@ -539,6 +539,7 @@ const onWorkerMessage = event => {
 
       console.log('__webpack_public_path__', __webpack_public_path__, data.publicPath);
 
+      /*
       import('../rust/pkg').then(wasm => {
         console.log('wasm', wasm, wasm.greet('hello wasm!'));
         wasm.init();
@@ -577,8 +578,9 @@ const onWorkerMessage = event => {
           },
         ];
         let flowrunner = webAssembly.Flowrunner.new(`[]`, `{"flow":${JSON.stringify(flow)}}`);
-        console.log('wasm test', flowrunner.convert(JSON.stringify({})));
+        console.log('wasm test', flowrunner.convert(JSON.stringify({})));        
       });
+      */
     } else if (command == 'executeFlowNode' && data.nodeName) {
       if (!flow) {
         return;
