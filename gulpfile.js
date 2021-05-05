@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var ts = require('gulp-typescript');
 var rename = require("gulp-rename");
- 
+
 const webpack = require('webpack');
 var startFlowStudioServer = require('./server/startFlowStudioServer');
 var named = require('vinyl-named'),   
@@ -149,12 +149,8 @@ function buildTypescript() {
             */
             {
               test: /\.tsx?$/,
-              loader: "ts-loader",
-              options: {
-                transpileOnly: true,
-                experimentalWatchApi: true,
-              },
-              exclude: /(node_modules|bower_components)/ 
+              loader: 'awesome-typescript-loader',
+              exclude: /node_modules/              
             }
                    
           ]
@@ -181,7 +177,7 @@ function buildTypescript() {
           new webpackIgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/
-          })          
+          })      
         ]        
       }, webpack));
   /*
