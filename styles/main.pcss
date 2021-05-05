@@ -76,18 +76,16 @@ body, html {
 	backface-visibility: hidden;
 	perspective: 1000;
 	transform: translate3d(0, 0, 0);
-
-	canvas,
-	.konvajs-content{
-		transform: translateZ(0);
-		backface-visibility: hidden;
-		perspective: 1000;
-		transform: translate3d(0, 0, 0);
-	}
-
-	.konvajs-content {
-		min-height: 100vh !important;
-	}
+}
+.stage-container canvas,
+.stage-container .konvajs-content{
+	transform: translateZ(0);
+	backface-visibility: hidden;
+	perspective: 1000;
+	transform: translate3d(0, 0, 0);
+}
+.stage-container.konvajs-content {
+	min-height: 100vh !important;
 }
 .canvas-controller {
 	width:100%;
@@ -105,6 +103,7 @@ body, html {
 	height: calc(100vh - 128px);
 }
 
+
 .canvas__html-elements {
 	position: absolute;
 	left: 0;
@@ -113,7 +112,7 @@ body, html {
 	height:calc(100vh);
 	z-index: 2;
 	pointer-events: none;
-	overflow:hidden;
+	
 	transform: translateZ(0);
 	backface-visibility: hidden;
 	perspective: 1000;
@@ -623,6 +622,11 @@ input.form-control,
 textarea.form-control {
 	font-family: 'Fira Code';
 }
+
+textarea.form-control {
+	white-space: nowrap;
+}
+
 .debug-info__debug-info-content {
 	font-family: 'Fira Code';
 }

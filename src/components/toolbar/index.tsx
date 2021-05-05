@@ -16,12 +16,14 @@ import { ModulesPopup } from '../modules-popup';
 import Navbar from 'react-bootstrap/Navbar';
 
 import { useFlowStore} from '../../state/flow-state';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 
 import { getPosition } from '../../services/position-service';
+
+import { NamePopup } from '../popups/name-popup';
 
 /*
 	TODO:
@@ -145,6 +147,18 @@ export const Toolbar = (props: ToolbarProps) => {
 		event.preventDefault();
 		setShowNewFlow(true);
 		return false;
+	}
+
+	const onSavePresetName = (name) => {
+		if (canvasMode.onPresetName) {
+			canvasMode.onPresetName(name);
+		}
+		canvasMode.setCurrentPopup(PopupEnum.none, undefined);
+		return false;		
+	}
+	const onCloseNamePopup = () => {
+		canvasMode.setCurrentPopup(PopupEnum.none, undefined);
+		return false;		
 	}
 
 	const addNode = (event) => {
@@ -542,6 +556,11 @@ export const Toolbar = (props: ToolbarProps) => {
 		{showNewFlow && <NewFlow onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
 		{showTaskHelp && <HelpPopup taskName={selectedNode && selectedNode.node ? (selectedNode.node as any).taskType : ""}></HelpPopup>}
 		{showModulesPopup && <ModulesPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseModulesPopup}></ModulesPopup>}
+		{canvasMode.currentPopup == PopupEnum.editNamePopup && <NamePopup 
+			nameCaption="Preset name"
+			onSave={onSavePresetName}
+			onClose={onCloseNamePopup}
+		></NamePopup>}
 	</>
 }
 

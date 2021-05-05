@@ -143,7 +143,7 @@ export const AnimatedGridCanvas = (props : AnimatedGridCanvasProps) => {
 		}
 		//console.log("wasm output", (data as IWebassembly).instance.exports);
 		console.log("runwasm", width, height);
-		let buffer = null;
+		let buffer : any = null;
 		try {
 			buffer = new Uint8Array((data as IWebassembly).instance.exports.memory.buffer, 0, width * height * 4);
 		//console.log("buffer", buffer);

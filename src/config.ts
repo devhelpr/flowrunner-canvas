@@ -897,6 +897,7 @@ const taskTypeConfig: any = {
     icon: 'fa-bug',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
+    supportsPresets: true,
     metaInfo: [
       {
         fieldName: 'outputProperty',

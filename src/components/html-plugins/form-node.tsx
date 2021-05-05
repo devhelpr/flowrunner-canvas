@@ -12,10 +12,14 @@ import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { onFocus } from './form-controls/helpers/focus';
 
+import { PresetManager } from './components/preset-manager';
+
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
 /*
+	supportsPresets
+
 	Limitations
 
 		- can currently have only 1 datasource per form
@@ -515,6 +519,43 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}
 	*/
 
+	const onLoadPreset = () => {
+
+	}
+
+	const onGetData = () => {			
+		let data = {...props.node,...node,...values};
+		delete data.x;
+		delete data.y;
+		delete data.name;
+		delete data.id;
+		delete data._id;
+		delete data.shapeType;
+		delete data.taskType;
+		return data;
+	}
+
+	const onSetData = (data) => {
+
+		setValues(data);
+		const updatedNode = {
+			...props.node,
+			...node,
+			...data
+		};
+		setNode(updatedNode);
+
+		flow.storeFlowNode(updatedNode, props.node.name);
+		props.flowrunnerConnector?.modifyFlowNode(
+			props.node.name, 
+			"", 
+			value,
+			props.node.name,
+			'',
+			data
+		);
+	}
+
 	const renderFields = () => {
 
 		let metaInfo : any[] = [];
@@ -529,7 +570,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				metaInfo = props.node.metaInfo || [];
 			}
 		}
-		console.log("renderFields", receivedPayload, values);
+		//console.log("renderFields", receivedPayload, values);
 		return <>
 			{metaInfo.map((metaInfo, index) => {
 				const fieldType = getFieldType(metaInfo);
@@ -636,6 +677,13 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				{renderFields()}
 			</form>
 			}
+			{props.taskSettings && !!props.taskSettings.supportsPresets && 
+				<PresetManager
+					node={props.node}
+					onLoadPreset={onLoadPreset}
+					onGetData={onGetData}
+					onSetData={onSetData}
+				></PresetManager>}
 			</Suspense>
 		</div>
 	</div>;

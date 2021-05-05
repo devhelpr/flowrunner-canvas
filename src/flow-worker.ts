@@ -808,6 +808,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
     workerContext: ctx,
   };
   let value: boolean = false;
+  let perfstart = performance.now();
   flow
     .start(flowPackage, services, true, !!autoStartNodes, isSameFlow)
     .then((services: any) => {
@@ -839,7 +840,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
         }
       }
 
-      console.log('RegisterFlowNodeObservers after start');
+      console.log('RegisterFlowNodeObservers after start, init time:', (performance.now() - perfstart) + "ms");
 
       ctx.postMessage({
         command: 'RegisterFlowNodeObservers',

@@ -21,6 +21,8 @@ export const Flow = (props : IFlowProps) => {
 			let changedNode = "";
 			let changedNodeProperty = "";
 			let properties = ["x","y","xstart","ystart","xend","yend"];
+			
+			let perfstart = performance.now();
 
 			props.flow.map((node, index) => {
 				if (changed) {
@@ -73,6 +75,9 @@ export const Flow = (props : IFlowProps) => {
 					}
 				}
 			});
+
+			console.log("flow diffing time", (performance.now() - perfstart) + "ms");
+			
 			if (changed) {
 				console.log("flow changed", changedNode, changedNodeProperty, props.flow);
 				setInternalFlow(props.flow);

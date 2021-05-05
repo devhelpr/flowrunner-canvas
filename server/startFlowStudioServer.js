@@ -336,8 +336,11 @@ function start(flowFileName, taskPlugins, options) {
 
 		app.get('/get-presets', (req, res) => {
 			let presets = JSON.parse(fs.readFileSync("./presets.json"));		
-			let list = [];	
-			list = (presets[req.query.nodeName] || []).map((presetItem) => {
+			let list = [];
+			if (!req.query.flowId || !req.query.nodeName) {
+				throw new Error("Required parameters not specified.");
+			}	
+			list = (presets[req.query.flowId][req.query.nodeName] || []).map((presetItem) => {
 				return {
 					name: presetItem.name,
 					preset: presetItem.preset
@@ -347,7 +350,13 @@ function start(flowFileName, taskPlugins, options) {
 		});
 		app.get('/get-preset', (req, res) => {			
 			let presets = JSON.parse(fs.readFileSync("./presets.json"));
-			let foundPresets = (presets[req.query.nodeName] || []).filter((presetItem) => {
+			if (!req.query.flowId || !req.query.nodeName) {
+				throw new Error("Required parameters not specified.");
+			}
+			if (!presets[req.query.flowId]) {
+				presets[req.query.flowId] = {};
+			}
+			let foundPresets = (presets[req.query.flowId][req.query.nodeName] || []).filter((presetItem) => {
 				return presetItem.preset == req.query.preset;
 			});
 			if (foundPresets.length > 0) {
@@ -357,10 +366,16 @@ function start(flowFileName, taskPlugins, options) {
 			}
 		});
 		app.post('/save-preset', (req, res) => {
-			let presets = JSON.parse(fs.readFileSync("./presets.json"));			
-			presets[req.query.nodeName] = presets[req.query.nodeName] || [];
+			let presets = JSON.parse(fs.readFileSync("./presets.json"));
+			if (!req.query.flowId || !req.query.nodeName) {
+				throw new Error("Required parameters not specified.");
+			}
+			if (!presets[req.query.flowId]) {
+				presets[req.query.flowId] = {};
+			}			
+			presets[req.query.flowId][req.query.nodeName] = presets[req.query.flowId][req.query.nodeName] || [];
 			let found  = false;
-			presets[req.query.nodeName] = presets[req.query.nodeName].map((presetItem, index) => {
+			presets[req.query.flowId][req.query.nodeName] = presets[req.query.flowId][req.query.nodeName].map((presetItem, index) => {
 				if (presetItem.preset == req.query.preset) {
 					found = true;
 					presetItem.data = JSON.stringify(req.body.data);
@@ -368,10 +383,10 @@ function start(flowFileName, taskPlugins, options) {
 				return presetItem;
 			});
 			if (!found) {
-				presets[req.query.nodeName].push({
+				presets[req.query.flowId][req.query.nodeName].push({
 					data: JSON.stringify(req.body.data),
 					preset: req.query.preset,
-					name: req.query.nodeName
+					name: req.query.name
 				});
 			}			
 			fs.writeFileSync("./presets.json",JSON.stringify(presets));

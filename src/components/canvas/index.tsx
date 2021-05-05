@@ -75,6 +75,8 @@ export const Canvas = (props: CanvasProps) => {
 	const selectedNode = useSelectedNodeStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 	
+	let flowHashMap : any = {};
+
 	//let positions = useRef({} as any);
 
 	let stage = useRef(null);
@@ -652,7 +654,7 @@ export const Canvas = (props: CanvasProps) => {
 					if (element) {
 						const position = getPosition(node.name) || {x:node.x,y:node.y};
 						setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,position.x,position.y,node);
-						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true);
+						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw);
 					}
 				}
 			}
@@ -671,14 +673,22 @@ export const Canvas = (props: CanvasProps) => {
 		window.addEventListener("resize", updateDimensions);
 		const startPerf = performance.now();
 		if (flow && flow.flow.length > 0) {
+
+			flowHashMap = {};
 			
 			if (flowIsLoading && flowIsLoading.current) {
 				(flowIsLoading as any).current = false;
 				flowIsFittedStageForSingleNode.current = true;
 
+				let perfstart = performance.now();
+
 				clearPositions();
 
+				console.log("flow canvas initialize time - clearPositions", (performance.now() - perfstart) + "ms");
+				perfstart = performance.now();
+
 				flow.flow.map((node) => {
+					flowHashMap[node.name] = node;
 					if (node.x && node.y) {						
 						setPosition(node.name , {
 							x:node.x,
@@ -695,6 +705,9 @@ export const Canvas = (props: CanvasProps) => {
 					}
 				});
 
+				console.log("flow canvas initialize time - setPositions", (performance.now() - perfstart) + "ms");
+				perfstart = performance.now();
+				
 				nodesStateLocal.current = {};
 				touchedNodesLocal.current = {};
 
@@ -707,10 +720,12 @@ export const Canvas = (props: CanvasProps) => {
 						// needing to click the div first
 						stageDiv.attrs["container"].parentNode.focus();				
 					}
-				}
+				}				
 
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 				recalculateStartEndpoints(false);
+
+				console.log("flow canvas initialize time - recalculateStartEndpoints", (performance.now() - perfstart) + "ms");
 				
 			} else {
 
@@ -745,9 +760,12 @@ export const Canvas = (props: CanvasProps) => {
 			flowIsFittedStageForSingleNode.current = false;
 		}	
 				
+		let stageInstance = (stage.current as any).getStage();
+		stageInstance.batchDraw();
 		updateTouchedNodes();	
 
 		console.log("uselayouteffect flow", performance.now() - startPerf);
+
 		return () => {
 			//props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 
@@ -791,7 +809,7 @@ export const Canvas = (props: CanvasProps) => {
 		connectionY
 	]);
 	
-	const setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean) => {
+	const setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
 
 		if (!linesOnly) {
@@ -1000,9 +1018,11 @@ export const Canvas = (props: CanvasProps) => {
 			})
 		}
 		
-		let stageInstance = (stage.current as any).getStage();
-		stageInstance.batchDraw();
-		updateTouchedNodes();
+		if (!!doDraw) {
+			let stageInstance = (stage.current as any).getStage();
+			stageInstance.batchDraw();
+			updateTouchedNodes();
+		}
 
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
@@ -1160,7 +1180,7 @@ export const Canvas = (props: CanvasProps) => {
 				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.screenX ? {
 					x: event.evt.screenX,
 					y: event.evt.screenY
-				} : undefined, false, false);
+				} : undefined, false, false, true);
 			}
 		}
 		
@@ -1257,7 +1277,7 @@ export const Canvas = (props: CanvasProps) => {
 		
 		touchNodeGroup.current = undefined;
 		if (event.currentTarget && mouseDragging.current) {
-			setNewPositionForNode(node, shapeRefs.current[node.name], undefined, true, false);
+			setNewPositionForNode(node, shapeRefs.current[node.name], undefined, true, false, true);
 		}
 		(touchNode.current as any) = undefined;
 		mouseDragging.current = false;
@@ -1439,7 +1459,7 @@ export const Canvas = (props: CanvasProps) => {
 		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
-			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], false, false);
+			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], false, false, true);
 			cancelDragStage();
 			return false;
 		} else {
@@ -1541,7 +1561,7 @@ export const Canvas = (props: CanvasProps) => {
 			setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.touches.length > 0 ? {
 				x: event.evt.touches[0].screenX,
 				y: event.evt.touches[0].screenY
-			} : undefined, false, false);
+			} : undefined, false, false, true);
 		}
 		return false;
 	}
@@ -1576,7 +1596,7 @@ export const Canvas = (props: CanvasProps) => {
 			setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.changedTouches.length > 0 ? {
 				x: event.evt.changedTouches[0].screenX,
 				y: event.evt.changedTouches[0].screenY
-			} : undefined, false, false);
+			} : undefined, false, false, true);
 		}
 		return false;
 	}
@@ -1723,7 +1743,7 @@ export const Canvas = (props: CanvasProps) => {
 			draggingWhileTouching.current = true;
 			return false;
 		}
-		setNewPositionForNode(node, shapeRefs.current[node.name], false, false);		
+		setNewPositionForNode(node, shapeRefs.current[node.name], false, false, true);		
 	}
 
 	const onDragEnd = (node, event) => {
@@ -1734,6 +1754,10 @@ export const Canvas = (props: CanvasProps) => {
 
 		dragTime.current = undefined;
 		setNewPositionForNode(node, shapeRefs.current[node.name]);
+
+		let stageInstance = (stage.current as any).getStage();
+		stageInstance.batchDraw();
+		updateTouchedNodes();
 
 		// event.currentTarget points to the "Group" in the actual shape component
 		// the Group is the draggable part of the shape component

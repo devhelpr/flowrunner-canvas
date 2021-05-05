@@ -152,7 +152,14 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 								duration: 0.15,
 								strokeWidth:8,
 								opacity:1
-							});	
+							});
+							if (bgLineRef.current) {
+								bgLineRef.current.to({								
+									duration: 0.15,
+									strokeWidth:(8+12),
+									opacity:1
+								});
+							}	
 						} else
 						if (parameters.state == ShapeStateEnum.Default) {
 							lineRef.current.dash([]);
@@ -163,8 +170,15 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 							lineRef.current.to({								
 								duration: 0.15,
 								strokeWidth:4,
-								opacity:0.5
-							});	
+								opacity:1
+							});
+							if (bgLineRef.current) {
+								bgLineRef.current.to({								
+									duration: 0.15,
+									strokeWidth:(4+12),
+									opacity:1
+								});
+							}		
 						}						
 					}
 					break;

@@ -1,6 +1,10 @@
 import create from 'zustand';
 import { State, SetState } from 'zustand';
-import produce from 'immer';
+
+export enum PopupEnum {
+  none = 0,
+  editNamePopup
+}
 
 interface ICanvasModeState extends State {
   isConnectingNodes: boolean;
@@ -12,6 +16,8 @@ interface ICanvasModeState extends State {
   editorMode: string;
   flowsPlayground: any[];
   flowsWasm: any[];
+  currentPopup : PopupEnum;
+  onPresetName? : (name: string) => void;
   setConnectiongNodeCanvasMode: (isConnectingNodes: boolean) => void;
   setSelectedTask: (selectedTask: string) => void;
   setShowDependencies: (showDependencies: boolean) => void;
@@ -21,6 +27,7 @@ interface ICanvasModeState extends State {
   setEditorMode: (editorMode: string) => void;
   setFlowsPlayground: (flowsPlayground: any[]) => void;
   setFlowsWasm: (flowsWasm: any[]) => void;
+  setCurrentPopup: (popup: PopupEnum, onPresetName : undefined | ((name: string) => void)) => void;
 }
 
 //set(state => ({ bears: state.bears + 1 }))
@@ -36,6 +43,8 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
     editorMode: 'canvas',
     flowsPlayground: [],
     flowsWasm: [],
+    currentPopup: PopupEnum.none,
+    onPresetName: undefined,
     setConnectiongNodeCanvasMode: (isConnectingNodes: boolean) =>
       set(state => ({
         isConnectingNodes: isConnectingNodes,
@@ -72,6 +81,12 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
       set(state => ({
         flowsWasm: flowsWasm,
       })),
+    setCurrentPopup: (popup: PopupEnum, onPresetName? : undefined | ((name: string) => void)) => 
+      set(state => 
+        ({
+      currentPopup: popup,
+      onPresetName: onPresetName
+    }))
   };
 };
 
