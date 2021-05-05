@@ -8,7 +8,8 @@
     "lib/**/*",
     "server/**/*",
     "views/**/*",
-    "assets/**/*"
+    "assets/**/*",
+    "rust/**/*"
   ],
   "scripts": {
     "test": "jest --config jestconfig.json",
