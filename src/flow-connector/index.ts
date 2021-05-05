@@ -79,7 +79,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult: any) => {};
 
-  runTests = (flowId : string) => {};
+  runTests = (flowId: string) => {};
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -335,8 +335,8 @@ export class FlowConnector implements IFlowrunnerConnector {
   currentFlowId: string = '';
 
   resetCurrentFlow = () => {
-    this.currentFlowId = "";
-  }
+    this.currentFlowId = '';
+  };
 
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {
@@ -506,11 +506,11 @@ export class FlowConnector implements IFlowrunnerConnector {
     });
   };
 
-  runTests = (flowId : string) => {
+  runTests = (flowId: string) => {
     if (this.worker) {
       this.worker.postMessage({
         command: 'runTests',
-        flowId: flowId
+        flowId: flowId,
       });
     }
   };

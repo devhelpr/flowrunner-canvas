@@ -19,7 +19,7 @@ export interface IFlowrunnerConnector {
   registerFlowNodeObserver: (nodeName: string, observableId: string, callback: (payload: any) => void) => void;
   unregisterFlowNodeObserver: (nodeName: string, observableId: string) => void;
 
-  resetCurrentFlow:  () => void;
+  resetCurrentFlow: () => void;
   updateFlowNode: () => void;
   pushFlowToFlowrunner: (flow: any, autoStartNodes: boolean, flowId: string) => void;
   executeFlowNode: (nodeName: string, payload: any) => void;
@@ -58,7 +58,7 @@ export interface IFlowrunnerConnector {
 
   registerOnReceiveFlowNodeExecuteResult: (onReceiveFlowNodeExecuteResult: any) => void;
 
-  runTests: (flowId : string) => void;
+  runTests: (flowId: string) => void;
 }
 
 export interface IExecutionEvent {

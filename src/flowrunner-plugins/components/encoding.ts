@@ -1,9 +1,8 @@
 export const ieee754 = (n: number) => {
-
   // Buffer is not defined... this is not compatible with web worker
   var farr = new Float32Array(1);
   farr[0] = n;
-  var barr = new Int8Array(farr.buffer)
+  var barr = new Int8Array(farr.buffer);
   return Uint8Array.from(barr);
   /*const buf = Buffer.alloc(4);
   buf.writeFloatLE(n, 0);
@@ -11,13 +10,10 @@ export const ieee754 = (n: number) => {
   */
 };
 
-export const encodeString = (str: string) => [
-  str.length,
-  ...str.split("").map(s => s.charCodeAt(0))
-];
+export const encodeString = (str: string) => [str.length, ...str.split('').map(s => s.charCodeAt(0))];
 
 export const signedLEB128 = (n: number) => {
-  const buffer : any = [];
+  const buffer: any = [];
   let more = true;
   const isNegative = n < 0;
   const bitCount = Math.ceil(Math.log2(Math.abs(n))) + 1;
@@ -38,7 +34,7 @@ export const signedLEB128 = (n: number) => {
 };
 
 export const unsignedLEB128 = (value: number) => {
-  const buffer : any[] = [];
+  const buffer: any[] = [];
   do {
     let byte = value & 0x7f;
     value >>>= 7;

@@ -840,7 +840,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
         }
       }
 
-      console.log('RegisterFlowNodeObservers after start, init time:', (performance.now() - perfstart) + "ms");
+      console.log('RegisterFlowNodeObservers after start, init time:', performance.now() - perfstart + 'ms');
 
       ctx.postMessage({
         command: 'RegisterFlowNodeObservers',

@@ -10,5 +10,5 @@
 */
 
 export const compile = (code: string) => {
-	return false;
-}
+  return false;
+};

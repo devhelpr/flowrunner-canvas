@@ -6,14 +6,14 @@ interface IModulesMenuState extends State {
   isOpen: boolean;
   selectedModule: string;
   setOpen: (isOpen: boolean) => void;
-  showModule: (moduleName: string) => void;  
+  showModule: (moduleName: string) => void;
 }
 
 let storeHandler = (set: SetState<IModulesMenuState>): IModulesMenuState => {
   return {
     isOpen: false,
-    selectedModule : "",
-    
+    selectedModule: '',
+
     setOpen: (isOpen: boolean) =>
       set(state => ({
         isOpen: isOpen,
@@ -24,9 +24,9 @@ let storeHandler = (set: SetState<IModulesMenuState>): IModulesMenuState => {
       })),
     closeModule: () => {
       set(state => ({
-        selectedModule: "",
-      }))
-    }
+        selectedModule: '',
+      }));
+    },
   };
 };
 

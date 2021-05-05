@@ -901,17 +901,17 @@ const taskTypeConfig: any = {
     metaInfo: [
       {
         fieldName: 'outputProperty',
-        fieldType: 'text'        
+        fieldType: 'text',
       },
       {
         fieldName: 'script',
-        fieldType: 'textarea'        
-      }
+        fieldType: 'textarea',
+      },
     ],
     presetValues: {
       outputProperty: 'script',
-      script: ''
-    }
+      script: '',
+    },
   },
   PrototypeTask: {
     icon: 'fa-brain',
@@ -930,21 +930,21 @@ const taskTypeConfig: any = {
           {
             value: 'webassembly-test',
             label: 'Webassembly Test',
-          }
-        ],        
+          },
+        ],
       },
       {
         fieldName: 'outputProperty',
-        fieldType: 'text'        
+        fieldType: 'text',
       },
       {
         fieldName: 'input',
-        fieldType: 'textarea'        
-      }
+        fieldType: 'textarea',
+      },
     ],
     presetValues: {
-      prototype: 'default'
-    }
+      prototype: 'default',
+    },
   },
   DebugTask: {
     shapeType: 'Html',
@@ -1031,7 +1031,7 @@ const taskTypeConfig: any = {
         {
           fieldName: 'script',
           fieldType: 'textarea',
-          visibilityCondition: 'visualizer == "animatedgridcanvas"'        
+          visibilityCondition: 'visualizer == "animatedgridcanvas"',
         },
       ],
     },

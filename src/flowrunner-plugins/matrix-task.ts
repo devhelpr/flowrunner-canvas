@@ -386,12 +386,9 @@ export class MatrixTask extends FlowTask {
               return promises;
             };
             let promise = new Promise((mainResolve, mainReject) => {
-
               // initial "dummy" flow execution to trigger the caching in nodes
-              services.flowEventRunner.triggerEventOnNode(
-                node.name,
-                'onCalculateNewGenerationForEachCell',
-                {
+              services.flowEventRunner
+                .triggerEventOnNode(node.name, 'onCalculateNewGenerationForEachCell', {
                   value: 0,
                   x: 0,
                   y: 0,
@@ -401,78 +398,77 @@ export class MatrixTask extends FlowTask {
                   t: 0,
                   index: 0,
                   i: 0,
-                }
-              ).then(() => {
-                try {
+                })
+                .then(() => {
+                  try {
+                    let innerPromise = new Promise((resolve, reject) => {
+                      Promise.all(executeFlowForEachCell(node.name))
+                        .then(values => {
+                          (matrix as any) = null;
+                          //let _matrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
 
-                  let innerPromise = new Promise((resolve, reject) => {
-                    Promise.all(executeFlowForEachCell(node.name))
-                      .then(values => {
-                        (matrix as any) = null;
-                        //let _matrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
-
-                        let currentMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName);
-                        if (currentMatrix.uuid != currentUUID) {
-                          console.log("currentMatrix.uuid != currentUUID", currentMatrix.uuid , currentUUID);
-                          //|| _matrix.uuid != currentMatrix.uuid
-                          currentMatrix = null;
-                          reject();
-                          return false;
-                        }
-                        currentMatrix = null;
-
-                        values.map((resultPayload, index) => {
-                          if (resultPayload !== undefined) {
-                            if (resultPayload.isAlive === undefined) {
-                              newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] =
-                                resultPayload.value || 0;
-                            } else if (resultPayload.isAlive === 1) {
-                              newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] = 1;
-                            }
+                          let currentMatrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName);
+                          if (currentMatrix.uuid != currentUUID) {
+                            console.log('currentMatrix.uuid != currentUUID', currentMatrix.uuid, currentUUID);
+                            //|| _matrix.uuid != currentMatrix.uuid
+                            currentMatrix = null;
+                            reject();
+                            return false;
                           }
-                        });
+                          currentMatrix = null;
 
-                        /*if (_matrix.uuid != currentUUID) {
+                          values.map((resultPayload, index) => {
+                            if (resultPayload !== undefined) {
+                              if (resultPayload.isAlive === undefined) {
+                                newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] =
+                                  resultPayload.value || 0;
+                              } else if (resultPayload.isAlive === 1) {
+                                newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] = 1;
+                              }
+                            }
+                          });
+
+                          /*if (_matrix.uuid != currentUUID) {
                           (_matrix as any) = null;
                           reject();
                           return;
                         }
                         */
-                        //console.log("onCalculateNewGenerationForEachCell resolved",node.name, matrix);
+                          //console.log("onCalculateNewGenerationForEachCell resolved",node.name, matrix);
 
-                        //console.log("calculate new generation", matrix);
+                          //console.log("calculate new generation", matrix);
 
-                        services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, newMatrix);
-                        //(_matrix as any) = null;
-                        (newMatrix as any) = null;
-                        (matrix as any) = null;
-                        (neigbourMatrix as any) = null;
-                        services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName + 'NEW', null);
-                        resolve(_payload);
-                        _payload = null;
+                          services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName, newMatrix);
+                          //(_matrix as any) = null;
+                          (newMatrix as any) = null;
+                          (matrix as any) = null;
+                          (neigbourMatrix as any) = null;
+                          services.flowEventRunner.setPropertyOnNode(nodeName, node.propertyName + 'NEW', null);
+                          resolve(_payload);
+                          _payload = null;
+                        })
+                        .catch(() => {
+                          console.log('matrix error');
+                          (newMatrix as any) = null;
+                          (matrix as any) = null;
+                          reject();
+                          (neigbourMatrix as any) = null;
+                          _payload = null;
+                        });
+                    });
+
+                    innerPromise
+                      .then(payload => {
+                        mainResolve(payload);
                       })
                       .catch(() => {
-                        console.log("matrix error");
-                        (newMatrix as any) = null;
-                        (matrix as any) = null;
-                        reject();
-                        (neigbourMatrix as any) = null;
-                        _payload = null;
+                        console.log('matrix inner reject');
+                        mainReject();
                       });
-                    });
-                                        
-                    innerPromise.then((payload) => {
-                      mainResolve(payload);
-                    }).catch(() => {
-                      console.log("matrix inner reject");
-                      mainReject();
-                    });
-
                   } catch (err) {
-                    console.log("catch err", err);
+                    console.log('catch err', err);
                   }
-              });
-
+                });
             });
 
             //(matrix as any) = null;
