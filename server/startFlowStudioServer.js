@@ -247,7 +247,19 @@ function start(flowFileName, taskPlugins, options) {
 			console.log("Flow file written to:", flowFileName);
 			res.send(JSON.stringify({ status: true }));
 
+			if (!!options && !!options.copyFlowLayoutJsonTo) {
+				options.copyFlowLayoutJsonTo.map((folderName) => {
+					const layoutCopyFileName = path.dirname(folderName) + "/layout-" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
+					const flowCopyFileName = path.dirname(folderName) + "/" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
+					fs.writeFileSync(flowCopyFileName, bodyAsJsonString);
+					fs.writeFileSync(layoutCopyFileName, layoutAsJsonString);
+				});
+			}
+
 			if (!!options && !!options.flowFileCopies) {
+
+				// TODO : flowFileCopies should be list of maps
+				// .. and then copy bodyAsJsonString and layoutAsJsonString to that folder
 				options.flowFileCopies.map((flowFileCopy) => {
 					fs.writeFileSync(flowFileCopy, bodyAsJsonString);
 					console.log("Flow file copied to:", flowFileCopy);
