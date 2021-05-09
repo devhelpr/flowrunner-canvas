@@ -88,110 +88,104 @@ function start(flowFileName, taskPlugins, options) {
 
 	const intializeMetadataPromise = new Promise((resolve, reject) => {
 		if (defaultPlugins) {
-			//var flowRunner = require('@devhelpr/flowrunner-redux').getFlowEventRunner();
-			//flowRunner.start({ flow: [] }).then(function (services) {
-				let tasks = [];//flowRunner.getTaskMetaData();
+			let tasks = [];//flowRunner.getTaskMetaData();
 
-				tasks = tasks.map((task) => {
-					task.flowType = "playground";
-					return task;
-				});
+			tasks = tasks.map((task) => {
+				task.flowType = "playground";
+				return task;
+			});
 
-				tasks.push({className:"ModelTask", fullName:"Model", flowType:"backend"});
+			tasks.push({className:"ModelTask", fullName:"Model", flowType:"backend"});
+			
+			if (hasPreviewPlugin) {
+				/*
+
+					TODO:
+
+					- implement presets
+					- implement plugin/task help
+
+					- why are there 2 parallel tasks? bug in flowrunner-redux??
+
+					- rename previewtask to htmltask
+
+				*/
+				tasks.push({className:"PreviewTask", fullName:"PreviewTask", flowType:"playground"});
+			}
+
+			// if something is added here .. also check out index.ejs for the storageprovider
+			if (isStandalone) {
+
+				tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "playground"});
+				tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "playground"});
+				tasks.push({className:"ForwardTask", fullName: "ForwardTask", flowType: "playground"});
+				tasks.push({className:"InjectIntoPayloadTask", fullName: "InjectIntoPayloadTask", flowType: "playground"});
+				tasks.push({className:"ObserverTask", fullName: "ObserverTask", flowType: "playground"});
+				tasks.push({className:"ObservableTask", fullName: "ObservableTask", flowType: "playground"});
+				tasks.push({className:"TraceConsoleTask", fullName: "TraceConsoleTask", flowType: "playground"});
+				tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "playground"});
+				tasks.push({className:"FunctionCallTask", fullName: "FunctionCallTask", flowType: "playground"});
+				tasks.push({className:"FunctionInputTask", fullName: "FunctionInputTask", flowType: "playground"});
+				tasks.push({className:"FunctionOutputTask", fullName: "FunctionOutputTask", flowType: "playground"});
+				tasks.push({className:"ParallelTask", fullName: "ParallelTask", flowType: "playground"});
+				tasks.push({className:"ParallelResolveTask", fullName: "ParallelResolveTask", flowType: "playground"});
 				
-				if (hasPreviewPlugin) {
-					/*
-
-						TODO:
-
-						- implement presets
-						- implement plugin/task help
-
-						- why are there 2 parallel tasks? bug in flowrunner-redux??
-
-						- rename previewtask to htmltask
-
-					*/
-					tasks.push({className:"PreviewTask", fullName:"PreviewTask", flowType:"playground"});
-				}
-
-				// if something is added here .. also check out index.ejs for the storageprovider
-				if (isStandalone) {
-
-					tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "playground"});
-					tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "playground"});
-					tasks.push({className:"ForwardTask", fullName: "ForwardTask", flowType: "playground"});
-					tasks.push({className:"InjectIntoPayloadTask", fullName: "InjectIntoPayloadTask", flowType: "playground"});
-					tasks.push({className:"ObserverTask", fullName: "ObserverTask", flowType: "playground"});
-					tasks.push({className:"ObservableTask", fullName: "ObservableTask", flowType: "playground"});
-					tasks.push({className:"TraceConsoleTask", fullName: "TraceConsoleTask", flowType: "playground"});
-					tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "playground"});
-					tasks.push({className:"FunctionCallTask", fullName: "FunctionCallTask", flowType: "playground"});
-					tasks.push({className:"FunctionInputTask", fullName: "FunctionInputTask", flowType: "playground"});
-					tasks.push({className:"FunctionOutputTask", fullName: "FunctionOutputTask", flowType: "playground"});
-					tasks.push({className:"ParallelTask", fullName: "ParallelTask", flowType: "playground"});
-					tasks.push({className:"ParallelResolveTask", fullName: "ParallelResolveTask", flowType: "playground"});
+				tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
+				tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
+				tasks.push({className:"RandomTask", fullName:"RandomTask", flowType:"playground"});
+				tasks.push({className:"TimerTask", fullName:"TimerTask", flowType:"playground"});
+				tasks.push({className:"ExpressionTask", fullName:"ExpressionTask", flowType:"playground"});
+				tasks.push({className:"OutputValueTask", fullName:"OutputValueTask", flowType:"playground"});
+				tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask", flowType:"playground"});
+				tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask", flowType:"playground"});
+				tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask", flowType:"playground"});
+				tasks.push({className:"InputTask", fullName: "InputTask", flowType:"playground"});
+				tasks.push({className:"ListTask", fullName: "ListTask", flowType:"playground"});					
+				tasks.push({className:"MatrixTask", fullName: "MatrixTask", flowType:"playground"});
+				tasks.push({className:"GridEditTask", fullName: "GridEditTask", flowType:"playground"});
+				tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
+				tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
+				tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
+				tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
+				tasks.push({className:"GroupAndSumTask", fullName: "GroupAndSumTask", flowType: "playground"});
+				tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
+				tasks.push({className:"DeepAssignTask", fullName: "DeepAssignTask", flowType: "playground"});
+				tasks.push({className:"ExtractUniqueTask", fullName: "ExtractUniqueTask", flowType: "playground"});									
+				tasks.push({className:"FilterTask", fullName: "FilterTask", flowType: "playground"});									
+				tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
+				tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
+				tasks.push({className:"SelectValueFromListTask", fullName: "SelectValueFromListTask", flowType: "playground"});									
 					
-					tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
-					tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
-					tasks.push({className:"RandomTask", fullName:"RandomTask", flowType:"playground"});
-					tasks.push({className:"TimerTask", fullName:"TimerTask", flowType:"playground"});
-					tasks.push({className:"ExpressionTask", fullName:"ExpressionTask", flowType:"playground"});
-					tasks.push({className:"OutputValueTask", fullName:"OutputValueTask", flowType:"playground"});
-					tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask", flowType:"playground"});
-					tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask", flowType:"playground"});
-					tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask", flowType:"playground"});
-					tasks.push({className:"InputTask", fullName: "InputTask", flowType:"playground"});
-					tasks.push({className:"ListTask", fullName: "ListTask", flowType:"playground"});					
-					tasks.push({className:"MatrixTask", fullName: "MatrixTask", flowType:"playground"});
-					tasks.push({className:"GridEditTask", fullName: "GridEditTask", flowType:"playground"});
-					tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
-					tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
-					tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
-					tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
-					tasks.push({className:"GroupAndSumTask", fullName: "GroupAndSumTask", flowType: "playground"});
-					tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
-					tasks.push({className:"DeepAssignTask", fullName: "DeepAssignTask", flowType: "playground"});
-					tasks.push({className:"ExtractUniqueTask", fullName: "ExtractUniqueTask", flowType: "playground"});									
-					tasks.push({className:"FilterTask", fullName: "FilterTask", flowType: "playground"});									
-					tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
-					tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
-					tasks.push({className:"SelectValueFromListTask", fullName: "SelectValueFromListTask", flowType: "playground"});									
-						
-					tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
-					tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
-					tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
-					tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
-					tasks.push({className:"PrototypeTask", fullName: "PrototypeTask", flowType:"playground"});
-					tasks.push({className:"ScriptTask", fullName: "ScriptTask", flowType:"playground"});
-										
-					tasks.push({className:"MultiFormTask", fullName: "MultiFormTask", flowType:"playground"});
+				tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
+				tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
+				tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
+				tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
+				tasks.push({className:"PrototypeTask", fullName: "PrototypeTask", flowType:"playground"});
+				tasks.push({className:"ScriptTask", fullName: "ScriptTask", flowType:"playground"});
+									
+				tasks.push({className:"MultiFormTask", fullName: "MultiFormTask", flowType:"playground"});
 
-					tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
-					tasks.push({className:"ActivationTask", fullName: "ActivationTask", flowType:"playground"});
-					tasks.push({className:"UpdateWeightsTask", fullName: "UpdateWeightsTask", flowType:"playground"});
+				tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
+				tasks.push({className:"ActivationTask", fullName: "ActivationTask", flowType:"playground"});
+				tasks.push({className:"UpdateWeightsTask", fullName: "UpdateWeightsTask", flowType:"playground"});
 
-					tasks.push({className:"assign", fullName: "Assign", flowType:"rustflowrunner"});
-					tasks.push({className:"operation", fullName: "Operation", flowType:"rustflowrunner"});
-					tasks.push({className:"if", fullName: "If", flowType:"rustflowrunner"});
-					tasks.push({className:"matrix", fullName: "Matrix", flowType:"rustflowrunner"});
-					tasks.push({className:"getParameter", fullName: "GetParameter", flowType:"rustflowrunner"});
-					tasks.push({className:"getVariable", fullName: "GetVariable", flowType:"rustflowrunner"});
-					tasks.push({className:"setVariable", fullName: "SetVariable", flowType:"rustflowrunner"});
-					tasks.push({className:"operationVariable", fullName: "OperationVariable", flowType:"rustflowrunner"});
+				tasks.push({className:"assign", fullName: "Assign", flowType:"rustflowrunner"});
+				tasks.push({className:"operation", fullName: "Operation", flowType:"rustflowrunner"});
+				tasks.push({className:"if", fullName: "If", flowType:"rustflowrunner"});
+				tasks.push({className:"matrix", fullName: "Matrix", flowType:"rustflowrunner"});
+				tasks.push({className:"getParameter", fullName: "GetParameter", flowType:"rustflowrunner"});
+				tasks.push({className:"getVariable", fullName: "GetVariable", flowType:"rustflowrunner"});
+				tasks.push({className:"setVariable", fullName: "SetVariable", flowType:"rustflowrunner"});
+				tasks.push({className:"operationVariable", fullName: "OperationVariable", flowType:"rustflowrunner"});
 
-					//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
-					//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});
-				}
+				//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
+				//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});
+			}
 
-				if (taskPlugins) {
-					tasks = [...tasks, ...taskPlugins];
-				}
-				resolve(tasks);
-			//}).catch((err) => {
-			//		console.log("Flowrunner-canvas couldn't be started because of problem with flowRunner getting default task-plugins");
-			//	reject();
-			//})
+			if (taskPlugins) {
+				tasks = [...tasks, ...taskPlugins];
+			}
+			resolve(tasks);
 		} else {
 			resolve(taskPlugins);
 		}
@@ -224,8 +218,12 @@ function start(flowFileName, taskPlugins, options) {
 		}
 		app.locals.hasLogin = hasLogin;
 
-		app.get('/', (req, res) => res.render('./pages/index'));
-		app.get('/ui/:flowId', (req, res) => res.render('./pages/ui'));
+		app.get('/', (req, res) => res.render('./pages/index', {
+			assetsRootPath: options.assetsRootPath || "/" 
+		}));
+		app.get('/ui/:flowId', (req, res) => res.render('./pages/ui', {
+			assetsRootPath: options.assetsRootPath || "/"
+		}));
 		app.post('/save-flow', (req, res) => {
 			const bodyAsJsonString = JSON.stringify(req.body.flow);
 			const layoutAsJsonString = JSON.stringify(req.body.layout);
@@ -326,10 +324,12 @@ function start(flowFileName, taskPlugins, options) {
 		structure:
 
 		let presets = {
-			"SmallGameOfLiveGridEditTask":[
-				{"name":"spaceship1","id":"1111-2222","data":[]},
-				{"name":"spaceship2","id":"1111-3333","data":[]},
-				{"name":"spaceship3","id":"1111-4444","data":[]}]
+			"1111-2222-3333-4444" : {
+				"SmallGameOfLiveGridEditTask":[
+					{"name":"spaceship1","id":"1111-2222","data":[]},
+					{"name":"spaceship2","id":"1111-3333","data":[]},
+					{"name":"spaceship3","id":"1111-4444","data":[]}]
+			}
 		};
 
 		*/
