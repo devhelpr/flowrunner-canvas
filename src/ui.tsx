@@ -14,7 +14,8 @@ import { renderHtmlNode, getNodeInstance , setPluginRegistry } from './render-ht
 import { UserInterfaceView } from './components/userinterface-view';
 
 export interface IUIViewProps {
-	flowId : string
+	flowId : string;
+	flowPackage? : any;
 }
 export const UIView = (props: IUIViewProps) => {
 	const flowrunnerConnector = useRef(null as any);
@@ -117,6 +118,7 @@ export const UIView = (props: IUIViewProps) => {
 		flowrunnerConnector={flowrunnerConnector.current}
 		getNodeInstance={getNodeInstance}
 		flowId={props.flowId}
+		flowPackage={props.flowPackage}
 	></UserInterfaceView>;
 }
 

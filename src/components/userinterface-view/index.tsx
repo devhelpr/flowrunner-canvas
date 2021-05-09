@@ -20,6 +20,7 @@ export interface UserInterfaceViewProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 
 	flowId? : string;
+	flowPackage? : any;
 
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
@@ -131,6 +132,10 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 
 		const paths = location.pathname.split("/");
 
+		if (props.flowPackage !== undefined && props.flowPackage !== "" &&
+			props.flowId !== undefined && props.flowId !== "") {
+			setupFlow(props.flowPackage, props.flowId);
+		} else
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			// TODO : make this data dependent instead of fixed
 			loadFlow("flow");
