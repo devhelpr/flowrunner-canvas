@@ -172,22 +172,20 @@ export class FlowToCanvas {
       return nodes;
     }
     return false;
-    
-    
-      return flow.filter(node => {
-        return node.shapeType === 'Line' && node.startshapeid === startNode.name;
-      });
-    
+
+    return flow.filter(node => {
+      return node.shapeType === 'Line' && node.startshapeid === startNode.name;
+    });
   }
 
   static getLinesForEndNodeFromCanvasFlow(flow: any, endNode: any, flowHashMap: any) {
     if (flow === undefined || endNode === undefined || flowHashMap == undefined) {
       return false;
     }
-    
+
     const endConnection = flowHashMap[endNode.name];
     if (endConnection) {
-      let nodes: any[] = [];      
+      let nodes: any[] = [];
       flowHashMap[flow[endConnection.index].name].end.map(endIndex => {
         let connection = flow[endIndex];
         if (connection) {
@@ -197,12 +195,10 @@ export class FlowToCanvas {
       return nodes;
     }
     return false;
-    
-    
+
     return flow.filter(node => {
       return node.shapeType === 'Line' && node.endshapeid === endNode.name;
     });
-    
   }
 
   static getTaskSettings(taskType) {
