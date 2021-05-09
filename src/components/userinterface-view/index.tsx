@@ -123,49 +123,52 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 	}
 
 	useLayoutEffect(() => {
+		if (props.flowrunnerConnector) {
+			props.flowrunnerConnector.registerScreenUICallback(screenUICallback);
 
-		props.flowrunnerConnector.registerScreenUICallback(screenUICallback);
-
-		props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
-		props.flowrunnerConnector.registerNodeStateObserver("canvas", nodeStateObserver);
+			props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+			props.flowrunnerConnector.registerNodeStateObserver("canvas", nodeStateObserver);
 
 
-		const paths = location.pathname.split("/");
+			const paths = location.pathname.split("/");
 
-		if (props.flowPackage !== undefined && props.flowPackage !== "" &&
-			props.flowId !== undefined && props.flowId !== "") {
-			setupFlow(props.flowPackage, props.flowId);
-		} else
-		if (props.flowrunnerConnector.hasStorageProvider) {
-			// TODO : make this data dependent instead of fixed
-			loadFlow("flow");
-		} else 
-		if (props.flowId !== undefined && props.flowId !== "") {
-			loadFlow(props.flowId);
-		} else
-		if (paths.length > 2) {
-			if (paths[1] == "ui") {
-				const flowId = paths[2];
-				if (flowId !== undefined) {
-					loadFlow(flowId);
-				} else {
-					console.error("No flowId specified");
+			if (props.flowPackage !== undefined && props.flowPackage !== "" &&
+				props.flowId !== undefined && props.flowId !== "") {
+				setupFlow(props.flowPackage, props.flowId);
+			} else
+			if (props.flowrunnerConnector.hasStorageProvider) {
+				// TODO : make this data dependent instead of fixed
+				loadFlow("flow");
+			} else 
+			if (props.flowId !== undefined && props.flowId !== "") {
+				loadFlow(props.flowId);
+			} else
+			if (paths.length > 2) {
+				if (paths[1] == "ui") {
+					const flowId = paths[2];
+					if (flowId !== undefined) {
+						loadFlow(flowId);
+					} else {
+						console.error("No flowId specified");
+					}
 				}
 			}
 		}
 
 		return () => {
 			unmounted.current = true;
-			props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+			if (props.flowrunnerConnector) {
+				props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+			}
 		}
 
-	}, []);
+	}, [props.flowrunnerConnector, props.flowId,props.flowPackage]);
 
 	const setupFlow = (flowPackage: any, flowId) => {
 
 		// TODO : can this setTimeout be removed ???
-		
-		setTimeout(() => {
+
+		//setTimeout(() => {
 			if (flowPackage.flowType === "playground") {
 				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
 				canvasMode.setFlowrunnerPaused(false);
@@ -184,7 +187,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 				setIsFlowLoaded(true);
 			}
 
-		} , 500);
+		//} , 500);
 	}
 
 	const loadFlow = (flowId) => {
