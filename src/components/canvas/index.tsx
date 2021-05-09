@@ -30,6 +30,7 @@ import { onFocus } from '../html-plugins/form-controls/helpers/focus';
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
+import { IndeterminateCheckBox } from '@material-ui/icons';
 
 const uuidV4 = uuid.v4;
 
@@ -75,7 +76,7 @@ export const Canvas = (props: CanvasProps) => {
 	const selectedNode = useSelectedNodeStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 	
-	let flowHashMap : any = {};
+	let flowHashMap = useRef({} as any);
 
 	//let positions = useRef({} as any);
 
@@ -188,6 +189,8 @@ export const Canvas = (props: CanvasProps) => {
 			if (stageInstance !== undefined && stageInstance.getPointerPosition() !== undefined) {
 				const oldScale = stageInstance.scaleX();
 
+				const startPerf = performance.now();
+
 				let xPos = stageInstance.getPointerPosition().x;
 				let yPos = stageInstance.getPointerPosition().y;
 				
@@ -221,6 +224,8 @@ export const Canvas = (props: CanvasProps) => {
 				stageScale.current = newScale;
 
 				setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
+
+				console.log("WheelEvent performance", performance.now() - startPerf);
 				
 			}
 			oldwheeltime.current = performance.now();
@@ -413,9 +418,11 @@ export const Canvas = (props: CanvasProps) => {
 			} else if (nodeState.nodeState == "error") {
 				newShapeState = ShapeStateEnum.Error;
 			}
-			shapeRef.modifyShape(ModifyShapeEnum.SetState , {
-				state: newShapeState
-			});
+			if (shapeRef) {
+				shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+					state: newShapeState
+				});
+			}
 		});
 
 		Object.keys(touchedNodesLocal.current).map((touchNodeId: string) => {
@@ -668,14 +675,56 @@ export const Canvas = (props: CanvasProps) => {
 		}		
 	}
 
+	const createFlowHashMap = () => {
+		flowHashMap.current = {};
+
+		flow.flow.map((node, index) => {
+			if (node.shapeType !== 'Line') {
+				const nodeMap = flowHashMap.current[node.name];
+				if (nodeMap) {
+					nodeMap.index = index;
+					flowHashMap.current[node.name] = nodeMap;
+				} else {
+					flowHashMap.current[node.name] = {
+						index: index,
+						start: [] as number[],
+						end: [] as number[]
+					}
+				}
+			} else {
+				const startNode = flowHashMap.current[node.startshapeid];
+				if (startNode) {
+					startNode.start.push(index);
+				} else {
+					flowHashMap.current[node.startshapeid] = {
+						index: -1,
+						start: [index] as number[],
+						end: [] as number[]
+					}
+				}
+
+				const endNode = flowHashMap.current[node.endshapeid];
+				if (endNode) {
+					endNode.end.push(index);
+				} else {
+					flowHashMap.current[node.endshapeid] = {
+						index: -1,
+						start: [] as number[],
+						end: [index] as number[]
+					}
+				}
+			}
+		});
+		console.log("flowHashMap", flowHashMap.current);
+	}
+
 	useLayoutEffect(() => {
 
 		window.addEventListener("resize", updateDimensions);
 		const startPerf = performance.now();
 		if (flow && flow.flow.length > 0) {
+						
 
-			flowHashMap = {};
-			
 			if (flowIsLoading && flowIsLoading.current) {
 				(flowIsLoading as any).current = false;
 				flowIsFittedStageForSingleNode.current = true;
@@ -686,9 +735,11 @@ export const Canvas = (props: CanvasProps) => {
 
 				console.log("flow canvas initialize time - clearPositions", (performance.now() - perfstart) + "ms");
 				perfstart = performance.now();
+				
+				createFlowHashMap();
 
-				flow.flow.map((node) => {
-					flowHashMap[node.name] = node;
+				flow.flow.map((node, index) => {					
+
 					if (node.x && node.y) {						
 						setPosition(node.name , {
 							x:node.x,
@@ -735,6 +786,8 @@ export const Canvas = (props: CanvasProps) => {
 						flowIsFittedStageForSingleNode.current = true;
 					}
 				}				
+				
+				createFlowHashMap();
 
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 				recalculateStartEndpoints(false);
@@ -914,17 +967,42 @@ export const Canvas = (props: CanvasProps) => {
 		setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current, 
 			newPosition.x, newPosition.y, node);						
 
-		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flow.flow, node);
+		/*
+			TODO : getLinesForStartNodeFromCanvasFlow does
+				a flow.filter to get the connections that have start = node
+
+				in useLayoutEffect just after initialising new flow
+
+				- loop through whole flow and create hashmap
+				- hashMap :
+					nodeName => nodeHelper
+						nodeHelper has:
+							index
+							start : array of indexes to connections
+							end : array of indexes connections
+				- if node == connection				
+					.. for start : add index to startNode in hashmap
+					   (if startNode doesn't exist, then create)
+					.. same for end
+
+			
+		*/
+		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flow.flow, node, flowHashMap.current);
 		let lines = {};
 		if (startLines) {			
 			startLines.map((lineNode) => {				
 				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, props.getNodeInstance,
 					lineNode.thumbPosition as ThumbPositionRelativeToNode);
-
-				let endNodes = flow.flow.filter((node) => {
+				/*
+					TODO : get node by lineNode.endshapeid
+					endNode = flowHashMap.current[lineNode.endshapeid]
+				*/
+				/*let endNodes = flow.flow.filter((node) => {
 					return node.name == lineNode.endshapeid;
 				})
 				let endNode = endNodes[0];
+				*/
+				let endNode = flow.flow[flowHashMap.current[lineNode.endshapeid].index];
 				if (endNode) {
 					const positionNode = getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
@@ -962,7 +1040,7 @@ export const Canvas = (props: CanvasProps) => {
 			})
 		}
 
-		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flow.flow, node);
+		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flow.flow, node, flowHashMap.current);
 		if (endLines) {
 			
 			endLines.map((lineNode) => {
@@ -974,10 +1052,14 @@ export const Canvas = (props: CanvasProps) => {
 					y : positionLine.ystart
 				};
 
+				/*
 				let startNodes = flow.flow.filter((node) => {
 					return node.name == lineNode.startshapeid;
 				})
-				let startNode = startNodes[0];				
+				let startNode = startNodes[0];
+				*/
+				let startNode = flow.flow[flowHashMap.current[lineNode.startshapeid].index];	
+				//console.log("startNode" , startNode, lineNode.startshapeid, lineNode, endLines);	
 				if (startNode) {
 					const positionNode = getPosition(startNode.name) || startNode;
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {

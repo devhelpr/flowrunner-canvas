@@ -156,24 +156,53 @@ export class FlowToCanvas {
     }
   }
 
-  static getLinesForStartNodeFromCanvasFlow(flow: any, startNode: any) {
-    if (flow === undefined || startNode === undefined) {
+  static getLinesForStartNodeFromCanvasFlow(flow: any, startNode: any, flowHashMap: any) {
+    if (flow === undefined || startNode === undefined || flowHashMap == undefined) {
       return false;
     }
-
-    return flow.filter(node => {
-      return node.shapeType === 'Line' && node.startshapeid === startNode.name;
-    });
+    const startConnection = flowHashMap[startNode.name];
+    if (startConnection) {
+      let nodes: any[] = [];
+      flowHashMap[flow[startConnection.index].name].start.map(startIndex => {
+        let connection = flow[startIndex];
+        if (connection) {
+          nodes.push(connection);
+        }
+      });
+      return nodes;
+    }
+    return false;
+    
+    
+      return flow.filter(node => {
+        return node.shapeType === 'Line' && node.startshapeid === startNode.name;
+      });
+    
   }
 
-  static getLinesForEndNodeFromCanvasFlow(flow: any, endNode: any) {
-    if (flow === undefined || endNode === undefined) {
+  static getLinesForEndNodeFromCanvasFlow(flow: any, endNode: any, flowHashMap: any) {
+    if (flow === undefined || endNode === undefined || flowHashMap == undefined) {
       return false;
     }
-
+    
+    const endConnection = flowHashMap[endNode.name];
+    if (endConnection) {
+      let nodes: any[] = [];      
+      flowHashMap[flow[endConnection.index].name].end.map(endIndex => {
+        let connection = flow[endIndex];
+        if (connection) {
+          nodes.push(connection);
+        }
+      });
+      return nodes;
+    }
+    return false;
+    
+    
     return flow.filter(node => {
       return node.shapeType === 'Line' && node.endshapeid === endNode.name;
     });
+    
   }
 
   static getTaskSettings(taskType) {

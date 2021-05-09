@@ -50,7 +50,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 	
 	useEffect(() => { 
 		loadInitialPresets() 
-	}, [props.node]);
+	}, [props.node, flow.flow]);
 
 	const onSelectPreset = useCallback((event) => {
 		event.preventDefault();
@@ -62,7 +62,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 			});
 		}
 		return false;
-	}, [flow])
+	}, [props.node, flow.flow])
 
 	const onSavePreset = useCallback((event) => {
 		event.preventDefault();
@@ -77,7 +77,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 			});
 		}
 		return false;
-	}, [flow])
+	}, [props.node, flow.flow])
 
 	const onPresetName = (name : string) => {
 		const newId = uuidV4();

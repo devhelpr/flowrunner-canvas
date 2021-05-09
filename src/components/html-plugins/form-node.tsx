@@ -154,7 +154,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 
 		}
-	}, [props.node]);
+	}, [props.node, flow.flow]);
 
 	/*
 
@@ -543,6 +543,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			...node,
 			...data
 		};
+		
+		console.log("Preset onSetData", updatedNode);
+
 		setNode(updatedNode);
 
 		flow.storeFlowNode(updatedNode, props.node.name);

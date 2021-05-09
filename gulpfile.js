@@ -77,7 +77,7 @@ var tsProject = ts.createProject('tsconfig.json');
 function buildTypescript() {
 
   const gulpwebpack = require('webpack-stream');
-  var task = gulp.src('src/index.tsx')
+  var task = gulp.src(['src/index.tsx','src/ui.tsx'])
       .pipe(named())
       .pipe(gulpwebpack({
         mode:"development",
