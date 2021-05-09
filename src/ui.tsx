@@ -18,6 +18,7 @@ export interface IUIViewProps {
 	flowPackage? : any;
 }
 export const UIView = (props: IUIViewProps) => {
+	const [flowPackage, setFlowPackage] = useState(undefined as any);
 	const flowrunnerConnector = useRef(null as any);
 
 	useEffect(() => {
@@ -111,6 +112,16 @@ export const UIView = (props: IUIViewProps) => {
 			flowrunnerConnector.current.setPluginRegistry(pluginRegistry);
 		}
 		(window as any).registerFlowRunnerCanvasPlugin = registerFlowRunnerCanvasPlugin;
+
+		if (props.flowPackage) {
+			setFlowPackage(props.flowPackage);
+		}
+		return () => {
+			if (worker) {
+				worker.terminate();
+				worker = null;
+			}
+		}
 	}, []);
 
 	return <UserInterfaceView 						
@@ -118,7 +129,7 @@ export const UIView = (props: IUIViewProps) => {
 		flowrunnerConnector={flowrunnerConnector.current}
 		getNodeInstance={getNodeInstance}
 		flowId={props.flowId}
-		flowPackage={props.flowPackage}
+		flowPackage={flowPackage}
 	></UserInterfaceView>;
 }
 
