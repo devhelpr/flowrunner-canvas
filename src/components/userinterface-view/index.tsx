@@ -162,6 +162,9 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 	}, []);
 
 	const setupFlow = (flowPackage: any, flowId) => {
+
+		// TODO : can this setTimeout be removed ???
+		
 		setTimeout(() => {
 			if (flowPackage.flowType === "playground") {
 				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
