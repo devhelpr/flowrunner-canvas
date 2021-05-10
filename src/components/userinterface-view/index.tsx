@@ -22,6 +22,7 @@ export interface UserInterfaceViewProps {
 	flowId? : string;
 	flowPackage? : any;
 
+	showTitleBar? : boolean;
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	getNodeInstance?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	
@@ -276,11 +277,11 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 	}
 
 	return <div className="pb-4 container__background">
-		<div style={style} className={navContainerClassName}>
+		{(props.showTitleBar === undefined || props.showTitleBar === true) && <div style={style} className={navContainerClassName}>
 			<nav style={style} className={navbarClassName}>
 				<h1 className={h1ClassName}>{title}</h1>
 			</nav>
-		</div>
+		</div>}
 		<div className="container container__ui-view">
 			<Layout nodeName="ui"
 				renderLayoutType={renderLayoutType}

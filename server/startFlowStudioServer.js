@@ -248,9 +248,13 @@ function start(flowFileName, taskPlugins, options) {
 			res.send(JSON.stringify({ status: true }));
 
 			if (!!options && !!options.copyFlowLayoutJsonTo) {
+				console.log("copyFlowLayoutJsonTo", options.copyFlowLayoutJsonTo);
 				options.copyFlowLayoutJsonTo.map((folderName) => {
-					const layoutCopyFileName = path.dirname(folderName) + "/layout-" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
-					const flowCopyFileName = path.dirname(folderName) + "/" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
+					console.log("folderName", folderName);
+					const layoutCopyFileName = folderName + "/layout-" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
+					const flowCopyFileName = folderName + "/" + path.basename(flowFileName, path.extname(flowFileName)) + ".json";
+					console.log("flowCopyFileName", flowCopyFileName);
+					console.log("layoutCopyFileName", layoutCopyFileName);
 					fs.writeFileSync(flowCopyFileName, bodyAsJsonString);
 					fs.writeFileSync(layoutCopyFileName, layoutAsJsonString);
 				});
