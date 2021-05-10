@@ -16,6 +16,7 @@ import { UserInterfaceView } from './components/userinterface-view';
 export interface IUIViewProps {
 	flowId : string;
 	flowPackage? : any;
+	showTitleBar? : boolean;
 }
 export const UIView = (props: IUIViewProps) => {
 	const [flowPackage, setFlowPackage] = useState(undefined as any);
@@ -130,6 +131,7 @@ export const UIView = (props: IUIViewProps) => {
 		getNodeInstance={getNodeInstance}
 		flowId={props.flowId}
 		flowPackage={flowPackage}
+		showTitleBar={props.showTitleBar}
 	></UserInterfaceView>;
 }
 
