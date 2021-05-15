@@ -190,5 +190,11 @@
     "name": "stress",
     "fileName": "./data/stress.json",
     "flowType": "playground"
+  },
+  {
+    "id": "ce2f54dc-bbdf-45b7-8445-db19044846a4",
+    "name": "backend-test",
+    "fileName": "./data/backend-test.json",
+    "flowType": "backend"
   }
 ]

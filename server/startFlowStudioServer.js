@@ -3,6 +3,10 @@ const path = require('path');
 const fetch = require('cross-fetch');
 const uuid = require('uuid');
 const uuidV4 = uuid.v4;
+const flowRunner = require('@devhelpr/flowrunner');
+const RouteEndpointTask = require('./plugins/route-end-point-task');
+const SendJsonTask = require('./plugins/send-json-task');
+const ExpressionTask = require('./plugins/expression-task');
 
 const replaceValues = (content, payload) => {
 	let resultContent = content;
@@ -178,6 +182,15 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"setVariable", fullName: "SetVariable", flowType:"rustflowrunner"});
 				tasks.push({className:"operationVariable", fullName: "OperationVariable", flowType:"rustflowrunner"});
 
+				tasks.push({className:"RouteEndpointTask", fullName: "RouteEndpointTask", flowType:"backend"});
+				tasks.push({className:"SendJsonTask", fullName: "SendJsonTask", flowType:"backend"});
+				
+				tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "backend"});
+				tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "backend"});
+				tasks.push({className:"InjectIntoPayloadTask", fullName: "InjectIntoPayloadTask", flowType: "backend"});
+				tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "backend"});
+				tasks.push({className:"ExpressionTask", fullName: "ExpressionTask", flowType: "backend"});
+				
 				//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
 				//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});
 			}
@@ -268,6 +281,11 @@ function start(flowFileName, taskPlugins, options) {
 					fs.writeFileSync(flowFileCopy, bodyAsJsonString);
 					console.log("Flow file copied to:", flowFileCopy);
 				});
+			}
+
+			if (req.body.flowType == "backend") {
+				// RESET BACKEND FLOW
+				setupFlowRouteTable();
 			}
 		});
 
@@ -508,7 +526,122 @@ function start(flowFileName, taskPlugins, options) {
 
 		app.get('/managable-entities', (req, res) => {			
 			res.send(JSON.stringify([]));
+		});	
+		
+		app.get('/api/modules', (req, res) => {		
+			// get modules	
+			res.send(JSON.stringify([]));
+		});	
+		app.get('/api/module', (req, res) => {		
+			// get module	
+			res.send(JSON.stringify([]));
+		});	
+		app.put('/api/module', (req, res) => {	
+			// save/update existing module		
+			res.send(JSON.stringify([]));
 		});
+		app.post('/api/module', (req, res) => {	
+			// new		
+			res.send(JSON.stringify([]));
+		});
+		app.delete('/api/module', (req, res) => {	
+			// delete		
+			res.send(JSON.stringify([]));
+		});	
+		
+		/*
+			TODO:
+				get all backend flows
+				read all RouteEndpointTask nodes
+				create endpoints for each using url
+
+				special handling for params needed?
+					.. if params need to be part of url, then yes
+					.. query params and body json (post) need to
+						added to the payload automatically
+
+
+				special endpoint RELOADFLOWROUTE recreate endpoint list
+				.. or... on save RELOADFLOWROUTE when current flowType == backend
+
+				create flowrunner instances for each flow
+		*/
+		let flowRoutes = {};
+		let flowRunners = {};		
+
+		function setupFlowRouteTable() {
+			
+			flowRoutes = {};
+			flowRunners = {};
+
+			const routes = app._router.stack;
+			
+			function removeMiddlewares(route, i, routes) {
+				switch (route.handle.name) {
+					case 'routeHandler':
+						routes.splice(i, 1);
+				}
+				if (route.route)
+					route.route.stack.forEach(removeMiddlewares);
+			}
+
+			routes.forEach(removeMiddlewares);
+
+			const backendFlows = flowFiles.filter((flowFile) => {
+				return flowFile.flowType == "backend";
+			});
+
+			backendFlows.map((flowFile) => {
+				try {
+					let flow = JSON.parse(fs.readFileSync(flowFile.fileName));
+					if (flow) {
+						const runner = new flowRunner.FlowEventRunner();
+						flowRunners[flowFile.id] = runner;						
+
+						runner.registerTask('RouteEndpointTask', RouteEndpointTask);
+						runner.registerTask('SendJsonTask', SendJsonTask);
+						runner.registerTask('ExpressionTask', ExpressionTask);
+									
+						/*
+							TODO : html view task (ejs in nodejs, twig in php)
+						*/
+
+						let services = {
+							flowEventRunner: flow,
+							pluginClasses: {},
+							logMessage: (arg1, arg2) => {
+							  //console.log(arg1, arg2);
+							},
+							registerModel: (modelName, definition) => {},
+							
+						  };
+
+						runner.start({
+							flow:flow,
+							name: flowFile.fileName,
+							id: flowFile.id
+						}, services,true,false,false);
+
+						flow.map((node) => {
+							if (node.taskType == "RouteEndpointTask") {
+								flowRoutes[node.name] = app.get(node.url, function routeHandler (req, res) {			
+									runner.executeNode(node.name, {
+										...req.query,
+										...req.body
+									}, {
+										response: res,
+										request: req
+									});
+								}.bind(this));	
+							}
+						});
+					}
+				} catch (err) {
+					console.log(`error in setupFlowRouteTable: ${err}`);
+				}
+			});
+		}
+		setupFlowRouteTable();
 
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));
 	});

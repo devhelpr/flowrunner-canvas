@@ -255,7 +255,8 @@ export const Toolbar = (props: ToolbarProps) => {
 			method: "POST",
 			body: JSON.stringify({
 				flow: flowAndUpdatedPositions,
-				layout: JSON.parse(layout.layout) 
+				layout: JSON.parse(layout.layout),
+				flowType: canvasMode.flowType
 			}),
 			headers: {
 				"Content-Type": "application/json"
