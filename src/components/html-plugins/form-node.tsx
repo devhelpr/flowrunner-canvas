@@ -40,6 +40,33 @@ export class FormNodeHtmlPluginInfo {
 		return width;
 	}
 
+	getMetaInfoLength(metaInfo, node , isParent) {
+		if (metaInfo) {
+			let metaInfolength = 0;
+			metaInfo.map((metaInfoItem) => {
+				if (metaInfoItem.fieldType == 'radiobutton' &&
+					metaInfoItem.options) {
+					metaInfolength += metaInfoItem.options.length;
+				} else
+				if (metaInfoItem.fieldType == 'textarea') {
+					metaInfolength += (node && node.rows) || metaInfo.rows || 3;
+				} else			
+				if (isParent && 
+					metaInfoItem.fieldType == 'objectList' &&
+					node && node[metaInfoItem.fieldName]) {
+					metaInfolength += node[metaInfoItem.fieldName].length;
+				} else
+				if (metaInfoItem.metaInfo) {
+					metaInfolength += this.getMetaInfoLength(metaInfoItem.metaInfo, node, false);
+				} else {
+					metaInfolength += 2;
+				}
+			});
+			return metaInfolength;
+		}
+		return 0;
+	}
+
 	getHeight(node) {
 
 		let metaInfo : any[] = [];
@@ -51,11 +78,13 @@ export class FormNodeHtmlPluginInfo {
 		}
 
 		if (metaInfo.length > 0) {
-			const height = metaInfo.length * (70 + 16) + (48);
+			// 70 + 16
+			const height = this.getMetaInfoLength(metaInfo, node, true) * (36) + (48);
 
 			//console.log("FormNodeHtmlPluginInfo height", height);
 			return height;
 		}
+		return 0;
 		//return (((node && node.rows) || 8) * 16) + (3 * 16) + 4 + 150;
 	}
 }

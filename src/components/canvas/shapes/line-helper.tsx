@@ -100,8 +100,6 @@ export const Lines = (
 			})}
 		 , [props.node.name, props.flow]);
 
-	// TODO: use memoize here to prevent looping through the whole flow map on
-	// every render .. needs cache keys for flow and node.name
 	return <>{lines.map((lineNode, index) => {		
 			/*
 				- lijnen vanuit de huidige node naar een andere node

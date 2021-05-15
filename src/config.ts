@@ -888,6 +888,18 @@ const taskTypeConfig: any = {
               fieldName: 'visibilityCondition',
               fieldType: 'textarea',
             },
+            ,
+            {
+              fieldName: 'min',
+              fieldType: 'text',
+              visibilityCondition: "(fieldType=='slider')"
+            },
+            ,
+            {
+              fieldName: 'max',
+              fieldType: 'text',
+              visibilityCondition: "(fieldType=='slider')"
+            },
           ],
         },
       ],

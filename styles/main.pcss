@@ -149,6 +149,19 @@ body, html {
 	border: 2px #000000 solid;
 	background: #ffffff;
 }
+.canvas__html-shape-thumb-start::before {
+	content: "";
+    position: absolute;
+    top: -4px;
+	z-index: 2;
+	
+	width: 20px;
+    height: 20px;
+	border-radius: 50%;
+	right: -4px;
+	border: 2px #e2e2e2 solid;
+	background: transparent;
+}
 
 .canvas__html-shape-thumb-end {
 	width: 16px;
@@ -173,6 +186,20 @@ body, html {
 	border-radius: 50%;
 	border: 2px #000000 solid;
 	background: #ffffff;
+}
+
+.canvas__html-shape-thumb-end::before {
+	content: "";
+    position: absolute;
+    top: -4px;
+	z-index: 2;
+	
+	width: 20px;
+    height: 20px;
+	border-radius: 50%;
+	right: -4px;
+	border: 2px #e2e2e2 solid;
+	background: transparent;
 }
 
 .canvas__html-shape-event {
@@ -372,19 +399,22 @@ body, html {
 	pointer-events: auto;
 }
 
+
 .canvas-controller__scroll-container .html-plugin-node::before {
     content: "";
     display: block;
     position: absolute;
-    top: -32px;
-    left: -8px;
-    width: calc(100% + 16.5px);
-    height: calc(100% + 40.5px);
-    border: 2px #cccccc solid;
+    top: -27px;
+    left: 0px;
+    width: 100%;
+    height: calc(100% + 30px);
+    border: 2px transparent solid;
     border-radius: 8px;
 	transition: border 0.2s ease-in-out;
-	z-index:2;
+	z-index: 2;
 }
+
+
 .canvas-controller__scroll-container .form .html-plugin-node::before {
 	display: none;
 }

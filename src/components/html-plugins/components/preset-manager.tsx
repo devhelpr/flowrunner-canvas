@@ -108,7 +108,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 					value={selectedPreset}
 					>
 					<option value="" disabled>Select preset</option>
-					{presets.map((preset : any,index) => {
+					{presets && presets.map((preset : any,index) => {
 						if (!preset) {
 							return null;
 						}

@@ -187,9 +187,8 @@ export const Canvas = (props: CanvasProps) => {
 			*/
 
 			if (stageInstance !== undefined && stageInstance.getPointerPosition() !== undefined) {
-				const oldScale = stageInstance.scaleX();
-
-				const startPerf = performance.now();
+				
+				const oldScale = stageInstance.scaleX();				
 
 				let xPos = stageInstance.getPointerPosition().x;
 				let yPos = stageInstance.getPointerPosition().y;
@@ -205,7 +204,9 @@ export const Canvas = (props: CanvasProps) => {
 				};
 
 				const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+				const startPerf = performance.now();
 				stageInstance.scale({ x: newScale, y: newScale });
+				console.log("WheelEvent performance", performance.now() - startPerf);
 				const newPos = {
 					x: -(mousePointTo.x - xPos / newScale) * newScale,
 					y: -(mousePointTo.y - yPos / newScale) * newScale
@@ -225,7 +226,7 @@ export const Canvas = (props: CanvasProps) => {
 
 				setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
 
-				console.log("WheelEvent performance", performance.now() - startPerf);
+				
 				
 			}
 			oldwheeltime.current = performance.now();
@@ -2044,8 +2045,11 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 
 	const setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {
+		
 		let nodeElements = document.querySelectorAll(".canvas__html-shape");
 		const elements = Array.from(nodeElements);
+		const startPerf = performance.now();
+
 		for (var element of elements) {
 			let x = parseFloat(element.getAttribute("data-x") || "");
 			let y = parseFloat(element.getAttribute("data-y") || "");
@@ -2073,6 +2077,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					(stageY + top + y * stageScale) + "px) "+
 				"scale(" + (stageScale) + "," + (stageScale) + ") ";						
 		}
+
+		console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
+
+		
 	}
 
 	const fitStage = useCallback((node? : any, doBatchdraw? : boolean) => {
@@ -2110,8 +2118,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							
 							containsHtmlShape = true;
 
-							let width = undefined;
-							let height = undefined;
+							let width : any = undefined;
+							let height : any = undefined;
+							
 
 							if (props.getNodeInstance) {
 								const instance = props.getNodeInstance(shape, props.flowrunnerConnector, flow.flow, taskSettings);
@@ -2122,6 +2131,22 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 									}
 								}
 							}
+
+							let element = document.querySelector("#" + shape.name + " .html-plugin-node");
+							if (element) {
+								const elementHeight = element.clientHeight;
+								if (elementHeight > height) {
+									height = elementHeight;
+								}
+
+								const elementWidth = element.clientWidth;
+								if (elementWidth > width) {
+									width = elementWidth;
+								}
+
+								console.log("shape size", shape.name, elementWidth, elementHeight);
+							}
+
 							// subWidth needed here ... html nodes start at x-width/2
 							subtractWidth = (width || shape.width || 250) / 2;
 							subtractHeight = (height || shape.height || 250) / 2
@@ -2199,7 +2224,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								scale = realStageHeight / flowHeight;								
 							} 	
 
-							scale = scale * 0.85;						
+							scale = scale * 0.7;						
 						}
 
 						if (node !== undefined) {
@@ -2217,8 +2242,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							y: 0 
 						};											
 						
-						newPos.x = (-(xMin)*scale) + stageInstance.getWidth()/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-(yMin)*scale) + (stageInstance.getHeight() - 64)/2 - ((flowHeight*scale))/2 ;	
+						newPos.x = 64 + (-(xMin)*scale) + (stageInstance.getWidth())/2 - ((flowWidth*scale))/2 ;
+						newPos.y = (-(yMin + 64)*scale) + (stageInstance.getHeight() - 64)/2 - ((flowHeight*scale))/2 ;	
 						 
 						stageInstance.position(newPos);
 						if (!!doBatchdraw) {
@@ -2231,7 +2256,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
 						setCanvasOpacity(1);
 
-						console.log("loadflow setCanvasOpacity 1");
+						console.log("fitStage realStageHeight flowHeight yMin yMax", realStageHeight, flowHeight, yMin, yMax);
 					}
 				} else {
 					const newPos = {
