@@ -892,13 +892,13 @@ const taskTypeConfig: any = {
             {
               fieldName: 'min',
               fieldType: 'text',
-              visibilityCondition: "(fieldType=='slider')"
+              visibilityCondition: "(fieldType=='slider')",
             },
             ,
             {
               fieldName: 'max',
               fieldType: 'text',
-              visibilityCondition: "(fieldType=='slider')"
+              visibilityCondition: "(fieldType=='slider')",
             },
           ],
         },
