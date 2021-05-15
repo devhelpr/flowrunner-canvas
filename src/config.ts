@@ -1123,7 +1123,9 @@ const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     presetValues: {
-      view: ''
+      view: '',
+      rows: 10,
+      width: 600
     },
     metaInfo: [
       {
