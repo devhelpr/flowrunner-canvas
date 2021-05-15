@@ -7,6 +7,7 @@ const flowRunner = require('@devhelpr/flowrunner');
 const RouteEndpointTask = require('./plugins/route-end-point-task');
 const SendJsonTask = require('./plugins/send-json-task');
 const ExpressionTask = require('./plugins/expression-task');
+const HtmlViewTask = require('./plugins/html-view-task');
 
 const replaceValues = (content, payload) => {
 	let resultContent = content;
@@ -184,6 +185,7 @@ function start(flowFileName, taskPlugins, options) {
 
 				tasks.push({className:"RouteEndpointTask", fullName: "RouteEndpointTask", flowType:"backend"});
 				tasks.push({className:"SendJsonTask", fullName: "SendJsonTask", flowType:"backend"});
+				tasks.push({className:"HtmlViewTask", fullName: "HtmlViewTask", flowType:"backend"});
 				
 				tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "backend"});
 				tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "backend"});
@@ -576,16 +578,26 @@ function start(flowFileName, taskPlugins, options) {
 
 			const routes = app._router.stack;
 			
+			let wasRemoved = false;
+
 			function removeMiddlewares(route, i, routes) {
 				switch (route.handle.name) {
-					case 'routeHandler':
+					case 'bound routeHandler': {
+						console.log("removed routeHandler");
 						routes.splice(i, 1);
+						wasRemoved = true;
+					}
 				}
 				if (route.route)
 					route.route.stack.forEach(removeMiddlewares);
 			}
 
-			routes.forEach(removeMiddlewares);
+			let doLoop = true;
+			while (doLoop) {
+				routes.forEach(removeMiddlewares);
+				doLoop = wasRemoved;
+				wasRemoved = false;
+			}
 
 			const backendFlows = flowFiles.filter((flowFile) => {
 				return flowFile.flowType == "backend";
@@ -601,9 +613,13 @@ function start(flowFileName, taskPlugins, options) {
 						runner.registerTask('RouteEndpointTask', RouteEndpointTask);
 						runner.registerTask('SendJsonTask', SendJsonTask);
 						runner.registerTask('ExpressionTask', ExpressionTask);
-									
+						runner.registerTask('HtmlViewTask', HtmlViewTask);
+								
 						/*
-							TODO : html view task (ejs in nodejs, twig in php)
+
+							TODO : make endpoints needing authentication
+								(user/apiclient/token etc)
+
 						*/
 
 						let services = {
@@ -612,9 +628,8 @@ function start(flowFileName, taskPlugins, options) {
 							logMessage: (arg1, arg2) => {
 							  //console.log(arg1, arg2);
 							},
-							registerModel: (modelName, definition) => {},
-							
-						  };
+							registerModel: (modelName, definition) => {},							
+						};
 
 						runner.start({
 							flow:flow,

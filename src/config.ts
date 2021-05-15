@@ -1119,6 +1119,20 @@ const taskTypeConfig: any = {
       },
     ],
   },
+  HtmlViewTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    presetValues: {
+      view: ''
+    },
+    metaInfo: [
+      {
+        fieldName: 'view',
+        fieldType: 'textarea',
+        required: true,
+      },
+    ],
+  },
 };
 
 let fullConfig = { ...taskTypeConfig };
