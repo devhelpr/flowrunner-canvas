@@ -146,7 +146,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				}
 			} else {
 				if (props.node.taskType == "FormTask") {
-					console.log("pre modifyFlowNode mount", values);
+					//console.log("pre modifyFlowNode mount", values);
 					if (props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
@@ -388,11 +388,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				[fieldName]: value
 			};
 			setNode(updatedNode);
-			console.log("setValueHelper",updatedValues);
+			//console.log("setValueHelper",updatedValues);
 			//console.log("props.node.name",value,props.node.name);
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
 				if (props.node.taskType == "FormTask") {
-					console.log("pre modifyFlowNode 2", updatedValues);
+					//console.log("pre modifyFlowNode 2", updatedValues);
 					if (props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
@@ -404,7 +404,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						);
 					}
 				} else {
-					console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
+					//console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
 					if (props.flowrunnerConnector) {
 						flow.storeFlowNode(updatedNode, props.node.name);
 						
@@ -476,7 +476,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				...clearValues,				
 				[metaInfo.fieldName]: newValue
 			};
-			console.log("setValueViaOnReceive", metaInfo.fieldName, newValue, newValues);
+			//console.log("setValueViaOnReceive", metaInfo.fieldName, newValue, newValues);
 			setValues(newValues);
 			setErrors(_errors);
 			let updatedNode = {
@@ -490,7 +490,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 					// TODO : this should also push through all fields from this formnode
 					// 		kan dat de hele state.values zijn ?
-					console.log("pre modifyFlowNode 1", newValues);
+					//console.log("pre modifyFlowNode 1", newValues);
 					if (props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
@@ -502,7 +502,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						);
 					}
 				} else { 					
-					console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
+					//console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
 					if (props.flowrunnerConnector) {
 						flow.storeFlowNode(updatedNode, props.node.name);
 						// Looks like this is the fix...
@@ -589,7 +589,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			...data
 		};
 		
-		console.log("Preset onSetData", updatedNode);
+		//console.log("Preset onSetData", updatedNode);
 
 		setNode(updatedNode);
 		if (props.flowrunnerConnector) {
@@ -646,6 +646,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 							</div>
 						</React.Fragment>
 					}
+
+					// below code replace this one-liner:
+					//(values[metaInfo.fieldName] !== undefined && (values[metaInfo.fieldName] || "")) || props.node[metaInfo.fieldName] || "";
+					let inputValue = "";
+					if (values[metaInfo.fieldName] !== undefined) {
+						inputValue = values[metaInfo.fieldName];
+					} else {
+						inputValue = props.node[metaInfo.fieldName] || "";
+					}
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
 								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
@@ -656,7 +665,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 										key={"index" + index}
 										type={fieldType}
 										className="form-control"
-										value={values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || ""}
+										value={inputValue}
 										id={"input-" + props.node.name + "-" +metaInfo.fieldName}
 										data-index={index}
 										disabled={!!canvasMode?.isFlowrunnerPaused}													 

@@ -152,8 +152,9 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 	}
 
 	const onSetValue = (newValue, fieldName) => {
-		setItemValues({...itemValues, [fieldName]: newValue});
+		setItemValues({...itemValues, [fieldName]: newValue || ""});
 	}
+	
 	return <>
 		{!isAddingNewItem && module && module.items && module.items.map((item, index) => { 
 			return <div key={"module-item-" + index} 

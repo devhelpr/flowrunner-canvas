@@ -638,7 +638,7 @@ function start(flowFileName, taskPlugins, options) {
 			function removeMiddlewares(route, i, routes) {
 				switch (route.handle.name) {
 					case 'bound contentRouteHandler': {
-						console.log("removed contentRouteHandler");
+						//console.log("removed contentRouteHandler");
 						routes.splice(i, 1);
 						wasRemoved = true;
 					}
@@ -701,7 +701,7 @@ function start(flowFileName, taskPlugins, options) {
 			function removeMiddlewares(route, i, routes) {
 				switch (route.handle.name) {
 					case 'bound routeHandler': {
-						console.log("removed routeHandler");
+						//console.log("removed routeHandler");
 						routes.splice(i, 1);
 						wasRemoved = true;
 					}
