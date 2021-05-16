@@ -567,7 +567,18 @@ function start(flowFileName, taskPlugins, options) {
 								moduleContent[index] = {...req.body.data};
 							}
 						})
-						fs.writeFileSync("./data/modules/" + module.fileName, JSON.stringify(moduleContent));
+						const content = JSON.stringify(moduleContent);
+						fs.writeFileSync("./data/modules/" + module.fileName, content);
+
+						if (!!options && !!options.copyFlowLayoutJsonTo) {
+							console.log("copyFlowLayoutJsonTo", options.copyFlowLayoutJsonTo);
+							options.copyFlowLayoutJsonTo.map((folderName) => {
+								console.log("folderName", folderName);
+								const contentCopyFileName = folderName + "/modules/" + module.fileName;
+								console.log("contentCopyFileName", flowCopyFileName);
+								fs.writeFileSync(contentCopyFileName, content);
+							});
+						}
 						isFound = true;
 						return;
 					}
@@ -588,7 +599,19 @@ function start(flowFileName, taskPlugins, options) {
 						const newId = uuidV4();
 						moduleContent.push({...req.body.data, id: newId});
 						console.log("New moduleContent", moduleContent);
-						fs.writeFileSync("./data/modules/" + module.fileName, JSON.stringify(moduleContent));
+
+						const content = JSON.stringify(moduleContent);
+						fs.writeFileSync("./data/modules/" + module.fileName, content);
+
+						if (!!options && !!options.copyFlowLayoutJsonTo) {
+							console.log("copyFlowLayoutJsonTo", options.copyFlowLayoutJsonTo);
+							options.copyFlowLayoutJsonTo.map((folderName) => {
+								console.log("folderName", folderName);
+								const contentCopyFileName = folderName + "/modules/" + module.fileName;
+								console.log("contentCopyFileName", flowCopyFileName);
+								fs.writeFileSync(contentCopyFileName, content);
+							});
+						}
 						isFound = true;
 						return;
 					}
