@@ -30,7 +30,7 @@ export const ModulesPopup = (props: ModulesPopupProps) => {
 		<Modal 
 			show={show} 
 			centered 
-			size={"lg"} 
+			size={"xl"} 
 			container={containerRef.current}>
 			<Modal.Header>
 				<Modal.Title>{modulesMenu.selectedModule}</Modal.Title>
