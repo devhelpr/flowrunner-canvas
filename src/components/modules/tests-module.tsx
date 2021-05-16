@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Button } from 'react-bootstrap';
 
+import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { useFlowStore} from '../../state/flow-state';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
@@ -13,8 +14,9 @@ export interface ModulesPopupProps {
 
 export const TestsModule = (props: ModulesPopupProps) => {
 	const [results, setResults] = useState([]);
-	const [error, setError] = useState("");
+	const [error, setError] = useState("");	
 	const modulesMenu = useModulesStateStore();
+	const canvasMode = useCanvasModeStateStore();
 	const flow = useFlowStore();
 	const workerRef = useRef(null);
 

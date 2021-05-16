@@ -84,6 +84,8 @@ export const Toolbar = (props: ToolbarProps) => {
 	useEffect(() => {
 		if (modulesMenu.selectedModule == "tests") {
 			setShowModulesPopup(true);
+		} else if (modulesMenu.selectedModule != "") {
+			setShowModulesPopup(true);
 		} else {
 			setShowModulesPopup(false);
 		}
@@ -486,7 +488,10 @@ export const Toolbar = (props: ToolbarProps) => {
 								{canvasMode.flowType === "rustflowrunner" && canvasMode.editorMode === "canvas" && 
 									<img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />
 								}
-								{canvasMode.flowType === "playground" && canvasMode.editorMode === "canvas" && 
+								{canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
+									<img title="backend flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/server-solid.svg" />
+								}
+								{canvasMode.editorMode === "canvas" && 
 									!!!selectedNode.node.name &&
 									<a href="#" onClick={showModules} className="mx-2 btn btn-outline-light">Modules</a>
 								}

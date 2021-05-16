@@ -1,0 +1,42 @@
+[
+	{
+		"id" : "1234-4567",
+		"name": "Content",
+		"fileName" : "content.json",
+		"moduleType" : "crud-model",
+		"urlProperty" : "url",
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fields" : [
+			{
+				"fieldName": "url"
+			},
+			{
+				"fieldName": "title"
+			},
+			{
+				"fieldName": "subtitle"
+			},
+			{
+				"fieldName": "intro",
+				"fieldType": "textarea"
+			},
+			{
+				"fieldName": "content",
+				"fieldType": "richtexteditor",
+				"label": "Content"
+			},
+			{
+				"fieldName": "windowtitle"
+			},
+			{
+				"fieldName": "metadescription",
+				"fieldType": "textarea"
+			},
+			{
+				"fieldName": "metakeywords",
+				"fieldType": "textarea"
+			}
+		]
+	}
+]

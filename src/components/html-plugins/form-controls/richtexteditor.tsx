@@ -28,30 +28,35 @@ export const RichTextEditor = (props: IFormControlProps) => {
 
 	let formControl = useFormControlFromCode(props.value, metaInfo, props.onChange);
 	
-	useEffect(() => {
-		
-		//console.log("RichTextEditor useeffect editorState");
-
+	useEffect(() => {		
 		const result = convertContentToHTML();
-		//console.log("handleEditorChange editorState", result);
 		formControl.handleChangeByValue(result);
 	}, [editorState]);
 
 	useEffect(() => {
-		let currentHtml = convertToHTML(editorState.getCurrentContent());
-		
-		if (currentHtml.trim() == props.value.trim()) {
-			//console.log("RichTextEditor useeffect equal!");
-			return;
-		}
-		//console.log("RichTextEditor useeffect", currentHtml, props.value);
 
-		const contentBlock = htmlToDraft(props.value);
-		if (contentBlock) {
-			const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
-			const editorState = EditorState.createWithContent(contentState);
-			setEditorState(editorState);
-		}		
+		try {		
+			let currentHtml = convertToHTML(editorState.getCurrentContent());
+			
+			if (currentHtml.trim() == props.value.trim()) {
+				return;
+			}
+
+			const contentBlock = htmlToDraft(props.value);
+			if (contentBlock) {
+				const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
+				const newEditorState = EditorState.createWithContent(contentState);
+
+				const currentSelection = editorState.getSelection();
+				const stateWithContentAndSelection = EditorState.forceSelection(editorState, currentSelection);
+				setEditorState(stateWithContentAndSelection);
+				/*			
+				setEditorState(newEditorState);		
+				*/
+			}		
+		} catch (err) {
+			console.log(`Error in Richtexteditor useEffect ${err}`);
+		} 
 	}, [props.value]);
 
 
@@ -60,10 +65,6 @@ export const RichTextEditor = (props: IFormControlProps) => {
 	}
 
 	const convertContentToHTML = () => {
-		//let currentContentAsHTML = convertToHTML(editorState.getCurrentContent());
-		//setConvertedContent(currentContentAsHTML);
-		//return currentContentAsHTML;
-
 		return draftToHtml(convertToRaw(editorState.getCurrentContent()));
 	}
 

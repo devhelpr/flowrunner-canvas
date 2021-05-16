@@ -6,6 +6,7 @@ import { Modal, Button } from 'react-bootstrap';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { TestsModule } from '../modules/tests-module';
+import { CrudModule } from '../modules/crud-module';
 
 export interface ModulesPopupProps {
 	onClose : () => void;
@@ -38,6 +39,8 @@ export const ModulesPopup = (props: ModulesPopupProps) => {
 			<Modal.Body>
 				{modulesMenu.selectedModule == "tests" &&
 					<TestsModule flowrunnerConnector={props.flowrunnerConnector}></TestsModule>}
+				{modulesMenu.selectedModule != "tests" && modulesMenu.selectedModule != "" &&
+					<CrudModule></CrudModule>}	
 			</Modal.Body>
 		
 			<Modal.Footer>

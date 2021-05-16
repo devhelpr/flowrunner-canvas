@@ -5,6 +5,7 @@ import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
+import { string } from 'prop-types';
 
 export interface TaskbarProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -19,9 +20,20 @@ export enum TaskMenuMode {
 	modules
 }
 
+export interface IModule {
+	id: string;
+	name: string;
+	fileName: string
+	moduleType: string;
+	urlProperty : string;
+	structure : string;
+	primaryKey : string;
+}
+
 export const Taskbar = (props: TaskbarProps) => {
 	const [metaDataInfo, setMetaDataInfo] = useState([] as any[]);
 	const [menuMode, setMenuMode] = useState(TaskMenuMode.tasks);
+	const [modules , setModules] = useState([] as IModule[]);
 	const canvasMode = useCanvasModeStateStore();
 	const modulesMenu = useModulesStateStore();
 	
@@ -70,6 +82,23 @@ export const Taskbar = (props: TaskbarProps) => {
 		});
 	}
 
+	const loadModules = () => {
+		fetch('/api/modules')
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(modules => {
+			console.log("modules", modules);
+			setModules(modules);			
+		})
+		.catch(err => {
+			console.error(err);
+		});
+	}
+
 	useEffect(() => {
 		loadTasks();
 	}, [canvasMode]);
@@ -77,6 +106,7 @@ export const Taskbar = (props: TaskbarProps) => {
 	useEffect(() => {
 		if (modulesMenu.isOpen) {
 			setMenuMode(TaskMenuMode.modules);
+			loadModules();
 		} else {
 			setMenuMode(TaskMenuMode.tasks);
 		}
@@ -103,72 +133,41 @@ export const Taskbar = (props: TaskbarProps) => {
 		return false;
 	}
 
+	const onShowModule = (module : IModule, event) => {
+		event.preventDefault();
+		modulesMenu.showModule(module.name, module.id);
+		return false;
+	}
+
 	const onDragStart = (event) => {
 		// event.target.id
 		event.dataTransfer.setData("data-task", event.target.getAttribute("data-task"));
 	}
 
 	const renderRect = (className, taskMetaData) => {
-		/*
-		style={{				
-					fill: "rgb(255,255,255)",
-					stroke-width: 2,
-					stroke: "rgb(0,0,0)"
-					}
-				}
-		*/
-
+		
 		const shapeType = FlowToCanvas.getShapeType("Rect", className, false);
 
-		if (shapeType == "Circle") {
-			/*
-				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36">
-					<circle cx="18" cy="18" r="14" className="taskbar__task-circle" />
-					<text fill="#000000" className="taskbar__task-text" x="50%" y="19px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={36} width={32}>{className.substring(0,2)}</text>
-				</svg>
-
-			*/
+		if (shapeType == "Circle") {			
 			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>				
 				<div className="taskbar__taskname">{className}</div>
 			</div>;
 		}
 
-		if (shapeType == "Ellipse") {
-			/*
-				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36">
-					<ellipse cx="18" cy="18" rx="14" ry="10" className="taskbar__task-circle" />
-					<text fill="#000000" className="taskbar__task-text" x="50%" y="19px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={36} width={32}>{className.substring(0,2)}</text>
-				</svg>
-
-			*/
+		if (shapeType == "Ellipse") {			
 			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>	
 				<div className="taskbar__taskname">{className}</div>			
 			</div>;
 		}
 
-		if (shapeType == "Diamond") {						
-			/*
-				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36">
-					<polygon points="18,4,34,20,18,36,2,20" className="taskbar__task-circle"  />
-					<text fill="#000000" className="taskbar__task-text" x="50%" y="19px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={36} width={32}>{className.substring(0,2)}</text>
-				</svg>							
-
-			*/
+		if (shapeType == "Diamond") {									
 			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>				
 				<div className="taskbar__taskname">{className}</div>
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 					<polygon points="8,2,14,8,8,14,2,8"  className="taskbar__task-circle"  />
 				</svg>							
 			</div>;	
-		}
-
-		/*
-			<svg xmlns="http://www.w3.org/2000/svg" width="36" height="20" viewBox="0 0 36 22">
-				<rect fill="#ffffff" strokeWidth={2} stroke="#000000" width="32" y="1" x="2" height="20" rx="0" ry="0"  />
-				<text fill="#000000" className="taskbar__task-text" x="50%" y="13px" dominantBaseline="middle" textAnchor="middle" fontSize="12" height={20} width={32}>{className.substring(0,2)}</text>
-			</svg>
-
-		*/	
+		}	
 
 		return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>
 			<div className="taskbar__taskname">{className}</div>
@@ -176,25 +175,18 @@ export const Taskbar = (props: TaskbarProps) => {
 		</div>;
 	}
 
-	/*
-		<img src="/svg/flow-rect.svg" alt="rect" data-task="Assign"  draggable={true} onDragStart={this.onDragStart} />
-		<img src="/svg/flow-rect.svg" alt="rect" data-task="InjectIntoPayload"  draggable={true} onDragStart={this.onDragStart} />
-		<img src="/svg/flow-rect.svg" alt="rect" data-task="SliderTask"  draggable={true} onDragStart={this.onDragStart} />
-		<img src="/svg/flow-circle.svg" alt="rect" data-task="InjectIntoPayload" draggable={true} />
-		<img src="/svg/flow-ellipse.svg" alt="rect" data-task="InjectIntoPayload" draggable={true} />
-	*/
-	
 	return <>
 		<div className="taskbar">
 			{menuMode == TaskMenuMode.tasks ?
 				<>{metaDataInfo.map((taskMetaData : any, index) => {
-					//return <img key={"metadata-"+index} src="/svg/flow-rect.svg" alt={taskMetaData.fullName} data-task={taskMetaData.className}  draggable={true} onDragStart={this.onDragStart} />
 					return <React.Fragment key={index}>					
 						{renderRect(taskMetaData.className, taskMetaData)}
 					</React.Fragment>
 				})}</> : 
-				<>
-					<button onClick={onShowTests} className="btn btn-outline-primary">Tests</button>
+				<>{modules.map((module, index) => {
+						return <button key={"module-" + index} onClick={(event) => onShowModule(module, event)} className="btn btn-outline-primary w-100 mb-2">{module.name}</button>
+					})}
+					{canvasMode.flowType == "playground" && <button onClick={onShowTests} className="btn btn-outline-primary w-100">Tests</button>}
 				</>} 
 		</div>
 	</>;

@@ -461,14 +461,7 @@ function start(flowFileName, taskPlugins, options) {
 			if (flowsFileName == "") {
 				throw new Error("no flows-file specified");
 			}
-			/*let newId = -1;			
-			flowFiles.map((flowFile) => {
-				if (flowFile.id > newId) {
-					newId = flowFile.id;
-				}
-			});
 			
-			newId++;*/
 			const newId = uuidV4();
 			const fileName = "./data/" + req.query.flow + ".json";
 			flowFiles.push({
@@ -532,42 +525,144 @@ function start(flowFileName, taskPlugins, options) {
 		
 		app.get('/api/modules', (req, res) => {		
 			// get modules	
-			res.send(JSON.stringify([]));
+			const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+			res.send(JSON.stringify(modules));
 		});	
 		app.get('/api/module', (req, res) => {		
-			// get module	
-			res.send(JSON.stringify([]));
+			// get module
+			if (!req.query.id) {
+				res.send(JSON.stringify({}));
+				return;
+			}
+			let isFound = false;
+			const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+			modules.map((module) => {
+				if (module.id == req.query.id && !isFound) {
+					const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+					res.send(JSON.stringify({
+						...module,
+						items:moduleContent
+					}));
+					isFound = true;
+					return;
+				}
+			});
+			if (!isFound) {
+				res.send(JSON.stringify({}));
+			}
 		});	
-		app.put('/api/module', (req, res) => {	
-			// save/update existing module		
-			res.send(JSON.stringify([]));
+		app.get('/api/modulecontent', (req, res) => {		
+			// get module content item
 		});
-		app.post('/api/module', (req, res) => {	
-			// new		
+		app.put('/api/modulecontent', (req, res) => {	
+			// save/update existing module content item	
+			if (req.query.id && req.query.moduleId) {
+				let isFound = false;
+				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+				modules.map((module) => {
+					if (module.id == req.query.moduleId && !isFound) {
+						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+						moduleContent.map((content, index) => {
+							if (content.id == req.query.id) {
+								moduleContent[index] = {...req.body.data};
+							}
+						})
+						fs.writeFileSync("./data/modules/" + module.fileName, JSON.stringify(moduleContent));
+						isFound = true;
+						return;
+					}
+				});
+			}	
 			res.send(JSON.stringify([]));
+			setupContentRoutes();
 		});
-		app.delete('/api/module', (req, res) => {	
-			// delete		
+		app.post('/api/modulecontent', (req, res) => {	
+			// new module content item
+			
+			if (req.query.moduleId) {
+				let isFound = false;
+				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+				modules.map((module) => {
+					if (module.id == req.query.moduleId && !isFound) {
+						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+						const newId = uuidV4();
+						moduleContent.push({...req.body.data, id: newId});
+						console.log("New moduleContent", moduleContent);
+						fs.writeFileSync("./data/modules/" + module.fileName, JSON.stringify(moduleContent));
+						isFound = true;
+						return;
+					}
+				});
+			}	
+
 			res.send(JSON.stringify([]));
+			setupContentRoutes();
+		});
+		app.delete('/api/modulecontent', (req, res) => {	
+			// delete module content item		
+			res.send(JSON.stringify([]));
+			setupContentRoutes();
 		});	
 		
-		/*
-			TODO:
-				get all backend flows
-				read all RouteEndpointTask nodes
-				create endpoints for each using url
+		let contentRoutes = {};
+		function setupContentRoutes() {
+			contentRoutes = {};
 
-				special handling for params needed?
-					.. if params need to be part of url, then yes
-					.. query params and body json (post) need to
-						added to the payload automatically
+			const routes = app._router.stack;
+			
+			let wasRemoved = false;
 
+			function removeMiddlewares(route, i, routes) {
+				switch (route.handle.name) {
+					case 'bound contentRouteHandler': {
+						console.log("removed contentRouteHandler");
+						routes.splice(i, 1);
+						wasRemoved = true;
+					}
+				}
+				if (route.route)
+					route.route.stack.forEach(removeMiddlewares);
+			}
 
-				special endpoint RELOADFLOWROUTE recreate endpoint list
-				.. or... on save RELOADFLOWROUTE when current flowType == backend
+			let doLoop = true;
+			while (doLoop) {
+				routes.forEach(removeMiddlewares);
+				doLoop = wasRemoved;
+				wasRemoved = false;
+			}
 
-				create flowrunner instances for each flow
-		*/
+			try {
+				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+				modules.map((module) => {
+					let urlProperty = module["urlProperty"];
+					if (urlProperty && urlProperty != "") {
+						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+						moduleContent.map((moduleContentItem) => {
+							app.get(moduleContentItem[urlProperty], function contentRouteHandler (req, res) {	
+								res.render('./pages/content', {
+									assetsRootPath: options.assetsRootPath || "/",
+									id: "",
+									url: "",
+									title: "",
+									subtitle: "",
+									intro: "",
+									content: "",
+									windowtitle: "",
+									metadescription: "",
+									metakeywords: "",
+									...moduleContentItem 
+								});
+							}.bind(this));	
+						})	
+					}					
+				});
+			} catch (err) {
+				console.log(`Exception in setupContentRoutes ${err}`);
+			}
+		}
+
+		setupContentRoutes();
+		
 		let flowRoutes = {};
 		let flowRunners = {};		
 

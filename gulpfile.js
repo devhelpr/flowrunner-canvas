@@ -265,6 +265,7 @@ gulp.task('startFlowServer', function(cb) {
 });
 
 gulp.task('postcss', () => {
+  console.log("postcss processing");
   const autoprefixer = require('autoprefixer');
   const postcss = require('gulp-postcss');
   
@@ -287,5 +288,5 @@ gulp.task('build-plugins', function() { return buildPluginTypescript() } );
 gulp.task('default', gulp.series('build', 'build-plugins','postcss', 'startFlowServer', function () {
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
   gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
-  gulp.watch('./styles/*.pcss', gulp.series('postcss'));
+  gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));

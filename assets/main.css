@@ -298,6 +298,8 @@ body, html {
 	transition: filter 0.15s ease-in-out, background-color 0.15s ease-in-out;
 
 	transition: filter 0.15s ease-in-out, background-color 0.15s ease-in-out, -webkit-filter 0.15s ease-in-out;
+	border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px
 }
 
 .html-plugin-node__visibility {
@@ -447,6 +449,7 @@ body, html {
 	    -ms-flex-align: start;
 	        align-items: flex-start;
 	overflow: visible;
+	background: transparent;
 }
 
 [data-html-plugin="dataGridNode"] .html-plugin-node,
@@ -489,7 +492,7 @@ body, html {
     top: -27px;
     left: 0px;
     width: 100%;
-    height: calc(100% + 30px);
+    height: calc(100% + 29px);
     border: 2px transparent solid;
     border-radius: 8px;
 	-webkit-transition: border 0.2s ease-in-out;

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><%= windowtitle %></title>		
+		<link rel="stylesheet" href="<%= assetsRootPath %>bootstrap.min.css"></link>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css" integrity="sha384-OLYO0LymqQ+uHXELyx93kblK5YIS3B2ZfLGBmsJaUyor7CpMTBsahDHByqSuWW+q" crossorigin="anonymous">
+		<meta name="description" content="<%= metadescription %>" >
+		<meta name="keywords" content="<%= metakeywords %>" >
+	</head>
+	<body>
+		<div class="container">
+			<h1><%= title %></h1>
+			<h2><%= subtitle %></h2>
+			<p><%= intro %></p>
+			<article><%- content %></article>
+		</div>
+	</body>
+</html>

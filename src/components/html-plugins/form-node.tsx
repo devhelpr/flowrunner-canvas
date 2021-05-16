@@ -147,12 +147,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			} else {
 				if (props.node.taskType == "FormTask") {
 					console.log("pre modifyFlowNode mount", values);
-					props.flowrunnerConnector?.modifyFlowNode(
-						props.node.name, 
-						props.node.propertyName, 
-						props.node.defaultValue || "",
-						""
-					);
+					if (props.flowrunnerConnector) {
+						props.flowrunnerConnector?.modifyFlowNode(
+							props.node.name, 
+							props.node.propertyName, 
+							props.node.defaultValue || "",
+							""
+						);
+					}
 				}
 				setNode(props.node);
 				setValues([]);
@@ -162,14 +164,18 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setValues([]);
 		}
 
-		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		if (props.flowrunnerConnector) {
+			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		}
 		return () => {
 			unmounted.current = true;
 			if (throttleTimer.current) {
 				clearTimeout(throttleTimer.current);
 				throttleTimer.current = undefined;
 			}
-			props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
+			if (props.flowrunnerConnector) {
+				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
+			}
 		}
 	}, []);
 
@@ -177,11 +183,13 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 		setNode({...props.node});
 		//console.log("node is updated", props.node.name, props.node);
-		props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
-
+		if (props.flowrunnerConnector) {
+			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
+		}
 		return () => {
-			props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
-
+			if (props.flowrunnerConnector) {
+				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
+			}
 		}
 	}, [props.node, flow.flow]);
 
@@ -385,27 +393,31 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
 				if (props.node.taskType == "FormTask") {
 					console.log("pre modifyFlowNode 2", updatedValues);
-					props.flowrunnerConnector?.modifyFlowNode(
-						props.node.name, 
-						fieldName, 
-						value,
-						props.node.name,
-						'',
-						updatedValues
-					);
+					if (props.flowrunnerConnector) {
+						props.flowrunnerConnector?.modifyFlowNode(
+							props.node.name, 
+							fieldName, 
+							value,
+							props.node.name,
+							'',
+							updatedValues
+						);
+					}
 				} else {
 					console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
-					flow.storeFlowNode(updatedNode, props.node.name);
-					
-					// additional fix for updating nodes 
-					props.flowrunnerConnector?.modifyFlowNode(
-						props.node.name, 
-						fieldName, 
-						value,
-						props.node.name,
-						'',
-						updatedValues
-					);
+					if (props.flowrunnerConnector) {
+						flow.storeFlowNode(updatedNode, props.node.name);
+						
+						// additional fix for updating nodes 
+						props.flowrunnerConnector?.modifyFlowNode(
+							props.node.name, 
+							fieldName, 
+							value,
+							props.node.name,
+							'',
+							updatedValues
+						);
+					}
 					
 				}
 				
@@ -479,26 +491,30 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					// TODO : this should also push through all fields from this formnode
 					// 		kan dat de hele state.values zijn ?
 					console.log("pre modifyFlowNode 1", newValues);
-					props.flowrunnerConnector?.modifyFlowNode(
-						props.node.name, 
-						metaInfo.fieldName, 
-						newValue,
-						props.node.name,
-						'',
-						newValues
-					);
+					if (props.flowrunnerConnector) {
+						props.flowrunnerConnector?.modifyFlowNode(
+							props.node.name, 
+							metaInfo.fieldName, 
+							newValue,
+							props.node.name,
+							'',
+							newValues
+						);
+					}
 				} else { 					
 					console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
-					flow.storeFlowNode(updatedNode, props.node.name);
-					// Looks like this is the fix...
-					props.flowrunnerConnector?.modifyFlowNode(
-						props.node.name, 
-						metaInfo.fieldName, 
-						newValue,
-						props.node.name,
-						'',
-						newValues
-					);
+					if (props.flowrunnerConnector) {
+						flow.storeFlowNode(updatedNode, props.node.name);
+						// Looks like this is the fix...
+						props.flowrunnerConnector?.modifyFlowNode(
+							props.node.name, 
+							metaInfo.fieldName, 
+							newValue,
+							props.node.name,
+							'',
+							newValues
+						);
+					}
 				}
 			} else  if (props.onSetValue) {
 				props.onSetValue(newValue, metaInfo.fieldName);
@@ -576,16 +592,17 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		console.log("Preset onSetData", updatedNode);
 
 		setNode(updatedNode);
-
-		flow.storeFlowNode(updatedNode, props.node.name);
-		props.flowrunnerConnector?.modifyFlowNode(
-			props.node.name, 
-			"", 
-			value,
-			props.node.name,
-			'',
-			data
-		);
+		if (props.flowrunnerConnector) {
+			flow.storeFlowNode(updatedNode, props.node.name);
+			props.flowrunnerConnector?.modifyFlowNode(
+				props.node.name, 
+				"", 
+				value,
+				props.node.name,
+				'',
+				data
+			);
+		}
 	}
 
 	const renderFields = () => {
