@@ -23,7 +23,7 @@ let storeHandler = (set: SetState<IModulesMenuState>): IModulesMenuState => {
     showModule: (moduleName: string, moduleId?: string) =>
       set(state => ({
         selectedModule: moduleName,
-        moduleId: moduleId || ""
+        moduleId: moduleId || '',
       })),
     closeModule: () => {
       set(state => ({

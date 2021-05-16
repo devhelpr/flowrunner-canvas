@@ -1101,9 +1101,8 @@ const taskTypeConfig: any = {
     },
   },
   SendJsonTask: {
-    shapeType: 'Rect',    
-    presetValues: {      
-    },
+    shapeType: 'Rect',
+    presetValues: {},
   },
   RouteEndpointTask: {
     shapeType: 'Html',
@@ -1125,7 +1124,7 @@ const taskTypeConfig: any = {
     presetValues: {
       view: '',
       rows: 10,
-      width: 600
+      width: 600,
     },
     metaInfo: [
       {
