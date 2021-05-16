@@ -575,7 +575,7 @@ function start(flowFileName, taskPlugins, options) {
 							options.copyFlowLayoutJsonTo.map((folderName) => {
 								console.log("folderName", folderName);
 								const contentCopyFileName = folderName + "/modules/" + module.fileName;
-								console.log("contentCopyFileName", flowCopyFileName);
+								console.log("contentCopyFileName", contentCopyFileName);
 								fs.writeFileSync(contentCopyFileName, content);
 							});
 						}
@@ -608,7 +608,7 @@ function start(flowFileName, taskPlugins, options) {
 							options.copyFlowLayoutJsonTo.map((folderName) => {
 								console.log("folderName", folderName);
 								const contentCopyFileName = folderName + "/modules/" + module.fileName;
-								console.log("contentCopyFileName", flowCopyFileName);
+								console.log("contentCopyFileName", contentCopyFileName);
 								fs.writeFileSync(contentCopyFileName, content);
 							});
 						}
