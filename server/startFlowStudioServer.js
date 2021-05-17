@@ -225,6 +225,11 @@ function start(flowFileName, taskPlugins, options) {
 		app.use(express.static(path.join(__dirname, '../lib')));
 		app.use(express.static(path.join(__dirname, '../assets')));
 		app.use(express.static(path.join(__dirname, '../rust')));
+
+		if (!!options && options.mediaUrl && options.mediaPath) {
+			app.use(options.mediaUrl, express.static(options.mediaPath));
+		}
+		
 		app.use(bodyParser.json());
 
 		let hasLogin = false;
