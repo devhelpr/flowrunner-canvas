@@ -242,7 +242,7 @@ gulp.task('startFlowServer', function(cb) {
   [{
     className: "TestCustomConfigTask",
     fullName:"TestCustomConfigTask",
-    flowType:"playground",
+    flowType:"playground",    
     config: {
       presetValues: {
         "hello" : "custom"
@@ -253,6 +253,8 @@ gulp.task('startFlowServer', function(cb) {
     hasPreviewPlugin: true,
     isStandalone: true,
     defaultPlugins: true,
+    mediaPath:path.join(__dirname, 'media'),
+    mediaUrl:"/media",
     config: {
       "TestCustomConfigTask": {
         presetValues: {

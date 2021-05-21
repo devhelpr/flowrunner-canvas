@@ -5,7 +5,13 @@ import { Button } from 'react-bootstrap';
 
 import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
+import { useFlowStore } from '../../state/flow-state';
 import { FormNodeHtmlPlugin } from '../html-plugins/form-node';
+
+import * as uuid from 'uuid';
+
+const uuidV4 = uuid.v4;
+
 
 export interface CrudModulePopupProps {
 	
@@ -18,8 +24,9 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 	const [itemValues, setItemValues] = useState({} as any);
 	const modulesMenu = useModulesStateStore();
 	const canvasMode = useCanvasModeStateStore();
-	
-	const { get, post, put, response, loading, error } = useFetch(
+	const flow = useFlowStore();
+
+	const { get, del, post, put, response, loading, error } = useFetch(
 		{
 			data: [],
 			cachePolicy: CachePolicies.NO_CACHE
@@ -85,14 +92,14 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 			isAborting = true;
 			controller.abort();
 		};
-	}, []);
+	}, [modulesMenu.selectedModule]);
 
 	useEffect(() => {
 		loadModule();
 		return () => {
-			//
+			console.log("unmount crud-module");
 		}
-	}, [modulesMenu.selectedModule]);
+	}, [modulesMenu.selectedModule, flow]);
 
 	const openModuleItem = (moduleItem, event) => {
 		event.preventDefault();
@@ -107,6 +114,28 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 		return false;
 	}
 
+	const deleteModuleItem = (moduleItem, event) => {
+		event.preventDefault();		
+		if (module && module.datasource == "flows" && moduleItem.id == flow.flowId) {
+			alert(`You can't delete the current flow in the editor`);
+			return;
+		}
+		if (confirm(`Are you sure you want to delete "${moduleItem.title || moduleItem.name}"?`)) {
+			del(`/api/modulecontent?moduleId=${modulesMenu.moduleId}&id=${moduleItem.id}`).then(() => {
+				setItemId("");
+				setIsAddingNewItem(false);
+				setItemValues({});
+
+				if (module && module.datasource == "flows") {
+					canvasMode.setFlowsUpdateId(uuidV4());
+				}
+
+				loadModule();
+			});
+		};
+		return false;
+	}
+
 	const onSaveItem = (moduleItem, event) => {
 		event.preventDefault();
 		put(`/api/modulecontent?moduleId=${modulesMenu.moduleId}&id=${moduleItem.id}`, 
@@ -116,6 +145,11 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 				setItemId("");
 				setIsAddingNewItem(false);
 				setItemValues({});
+
+				if (module && module.datasource == "flows") {
+					canvasMode.setFlowsUpdateId(uuidV4());
+				}
+				
 				loadModule();
 		});
 		return false;
@@ -129,7 +163,7 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 			}).then(() => {
 				setItemId("");
 				setIsAddingNewItem(false);
-				setItemValues({});
+				setItemValues({});				
 				loadModule();
 		});
 		return false;
@@ -155,16 +189,31 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 		setItemValues({...itemValues, [fieldName]: newValue || ""});
 	}
 	
+	const supportsAdd = () => {
+		console.log("supportsAdd", module);
+		if (module && 
+			((!module.crudOperations) ||
+			 (module.crudOperations && module.crudOperations.indexOf("add") >= 0))
+		 ) {
+			return true;
+		}
+		return false;
+	}
+
 	return <>
 		{!isAddingNewItem && module && module.items && module.items.map((item, index) => { 
 			return <div key={"module-item-" + index} 
 				className="row no-gutters position-relative">
 				<div className="col">
-					<h2 className="h5">{item.title}</h2>
-					<p className="text-secondary mb-0">{item.url}</p>
+					<h2 className="h5">{item.title || item.name}</h2>
+					{item.url && <p className="text-secondary mb-0">{item.url}</p>}
 				</div>
+				<a href="#" onClick={(event) => {deleteModuleItem(item ,event)}} 
+					className={"col-auto align-self-center text-center position-static mr-2"}>
+					<span className="fa fa-trash"></span>
+				</a>
 				<a href="#" onClick={(event) => {openModuleItem(item ,event)}} 
-					className={(itemId == "" && "stretched-link ") + "col-auto align-self-center text-center position-static"}>
+					className={"col-auto align-self-center text-center position-static"}>
 					<span className="fa fa-edit"></span>
 				</a>
 				<div className="col-12">
@@ -186,7 +235,7 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 							flowrunnerConnector={undefined}
 							></FormNodeHtmlPlugin>
 					</div>
-					<div className="align-self-start mb-2">
+					<div className="align-self-start mb-4">
 						<button onClick={(event) => {onSaveItem(item ,event)}} className="btn btn-primary mr-2">Save</button>
 						<button onClick={onCancelEdit} className="btn btn-outline-primary">Cancel</button>
 					</div>
@@ -195,7 +244,7 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 			</div>;
 		})}
 		<div>
-			{!isAddingNewItem && itemId == "" && <button onClick={onAddNewItem} className="btn btn-outline-primary">Add</button>}
+			{supportsAdd() && !isAddingNewItem && itemId == "" && <button onClick={onAddNewItem} className="btn btn-outline-primary">Add</button>}
 			{isAddingNewItem && <>
 				<div className="border mb-2">
 					<FormNodeHtmlPlugin 

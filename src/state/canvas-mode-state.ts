@@ -17,6 +17,7 @@ interface ICanvasModeState extends State {
   flowsPlayground: any[];
   flowsWasm: any[];
   currentPopup: PopupEnum;
+  flowsUpdateId : string;
   onPresetName?: (name: string) => void;
   setConnectiongNodeCanvasMode: (isConnectingNodes: boolean) => void;
   setSelectedTask: (selectedTask: string) => void;
@@ -28,6 +29,7 @@ interface ICanvasModeState extends State {
   setFlowsPlayground: (flowsPlayground: any[]) => void;
   setFlowsWasm: (flowsWasm: any[]) => void;
   setCurrentPopup: (popup: PopupEnum, onPresetName: undefined | ((name: string) => void)) => void;
+  setFlowsUpdateId : (id : string) => void;
 }
 
 //set(state => ({ bears: state.bears + 1 }))
@@ -45,6 +47,7 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
     flowsWasm: [],
     currentPopup: PopupEnum.none,
     onPresetName: undefined,
+    flowsUpdateId: "",
     setConnectiongNodeCanvasMode: (isConnectingNodes: boolean) =>
       set(state => ({
         isConnectingNodes: isConnectingNodes,
@@ -86,6 +89,10 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
         currentPopup: popup,
         onPresetName: onPresetName,
       })),
+    setFlowsUpdateId : (id : string) => 
+      set(state => ({
+        flowsUpdateId: id
+      }))
   };
 };
 

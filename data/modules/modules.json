@@ -38,5 +38,12 @@
 				"fieldType": "textarea"
 			}
 		]
+	},
+	{
+		"id": "13f79819-8790-419b-8109-43c345b424b3",
+		"name": "Flows",
+		"moduleType" : "crud-model",
+		"datasource" : "flows",
+		"crudOperations" : ["edit","delete"]
 	}
 ]

@@ -30,7 +30,6 @@ import { onFocus } from '../html-plugins/form-controls/helpers/focus';
 import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
-import { IndeterminateCheckBox } from '@material-ui/icons';
 
 const uuidV4 = uuid.v4;
 

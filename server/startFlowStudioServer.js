@@ -8,6 +8,7 @@ const RouteEndpointTask = require('./plugins/route-end-point-task');
 const SendJsonTask = require('./plugins/send-json-task');
 const ExpressionTask = require('./plugins/expression-task');
 const HtmlViewTask = require('./plugins/html-view-task');
+const fileUpload = require('express-fileupload');
 
 const replaceValues = (content, payload) => {
 	let resultContent = content;
@@ -230,6 +231,9 @@ function start(flowFileName, taskPlugins, options) {
 			app.use(options.mediaUrl, express.static(options.mediaPath));
 		}
 		
+		app.use(fileUpload({
+			createParentPath: true
+		}));
 		app.use(bodyParser.json());
 
 		let hasLogin = false;
@@ -536,24 +540,44 @@ function start(flowFileName, taskPlugins, options) {
 		app.get('/api/module', (req, res) => {		
 			// get module
 			if (!req.query.id) {
-				res.send(JSON.stringify({}));
+				res.status(422).send(JSON.stringify({}));
 				return;
 			}
 			let isFound = false;
 			const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
 			modules.map((module) => {
 				if (module.id == req.query.id && !isFound) {
-					const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
-					res.send(JSON.stringify({
-						...module,
-						items:moduleContent
-					}));
+					if (module.moduleType == "crud-model") {
+						if (module.datasource && module.datasource == "flows") {
+							res.send(JSON.stringify({
+								...module,
+								"fields" : [
+									{
+										"fieldName": "id",
+										"visibilityCondition": "false"
+									},
+									{
+										"fieldName": "name"
+									}
+								],
+								items:flowFiles
+							}));
+						} else {
+							const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+							res.send(JSON.stringify({
+								...module,
+								items:moduleContent
+							}));
+						}
+					} else {
+						res.status(422).send(JSON.stringify({}));
+					}
 					isFound = true;
 					return;
 				}
 			});
 			if (!isFound) {
-				res.send(JSON.stringify({}));
+				res.status(404).send(JSON.stringify({}));
 			}
 		});	
 		app.get('/api/modulecontent', (req, res) => {		
@@ -563,33 +587,59 @@ function start(flowFileName, taskPlugins, options) {
 			// save/update existing module content item	
 			if (req.query.id && req.query.moduleId) {
 				let isFound = false;
+				let isChanged = false;
 				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
 				modules.map((module) => {
 					if (module.id == req.query.moduleId && !isFound) {
-						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
-						moduleContent.map((content, index) => {
-							if (content.id == req.query.id) {
-								moduleContent[index] = {...req.body.data};
-							}
-						})
-						const content = JSON.stringify(moduleContent);
-						fs.writeFileSync("./data/modules/" + module.fileName, content);
-
-						if (!!options && !!options.copyFlowLayoutJsonTo) {
-							console.log("copyFlowLayoutJsonTo", options.copyFlowLayoutJsonTo);
-							options.copyFlowLayoutJsonTo.map((folderName) => {
-								console.log("folderName", folderName);
-								const contentCopyFileName = folderName + "/modules/" + module.fileName;
-								console.log("contentCopyFileName", contentCopyFileName);
-								fs.writeFileSync(contentCopyFileName, content);
-							});
-						}
 						isFound = true;
-						return;
+
+						if (module.moduleType == "crud-model") {
+							if (module.datasource && module.datasource == "flows") {
+								if (req.body.data && !req.body.data.name) {
+									res.status(422).send(JSON.stringify([]));
+									return;
+								}
+								let flowIndex = -1;
+								flowFiles.map((flow, index) => {
+									if (flow.id === req.query.id) {
+										flowIndex = index;
+									}
+								});
+								if (flowIndex >= 0) {
+									flowFiles[flowIndex].name = req.body.data.name;
+
+									if (typeof flowFileName == "string") {
+										fs.writeFileSync(flowFileName, JSON.stringify(flowFiles));
+										res.send(JSON.stringify([]));
+										isChanged = true;
+									}
+								}
+							} else {
+								const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+								moduleContent.map((content, index) => {
+									if (content.id == req.query.id) {
+										moduleContent[index] = {...req.body.data};
+									}
+								})
+								const content = JSON.stringify(moduleContent);
+								fs.writeFileSync("./data/modules/" + module.fileName, content);
+
+								if (!!options && !!options.copyFlowLayoutJsonTo) {
+									console.log("copyFlowLayoutJsonTo", options.copyFlowLayoutJsonTo);
+									options.copyFlowLayoutJsonTo.map((folderName) => {
+										console.log("folderName", folderName);
+										const contentCopyFileName = folderName + "/modules/" + module.fileName;
+										console.log("contentCopyFileName", contentCopyFileName);
+										fs.writeFileSync(contentCopyFileName, content);
+									});
+								}
+
+								res.send(JSON.stringify([]));
+							}
+						}												
 					}
 				});
-			}	
-			res.send(JSON.stringify([]));
+			}				
 			setupContentRoutes();
 		});
 		app.post('/api/modulecontent', (req, res) => {	
@@ -628,8 +678,61 @@ function start(flowFileName, taskPlugins, options) {
 		});
 		app.delete('/api/modulecontent', (req, res) => {	
 			// delete module content item		
-			res.send(JSON.stringify([]));
-			setupContentRoutes();
+			
+			if (req.query.moduleId) {
+				let isDeteled = false;
+				let isFound = false;
+				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+				modules.map((module) => {
+					if (module.id == req.query.moduleId && !isFound) {
+						if (module.moduleType == "crud-model") {
+							if (module.datasource && module.datasource == "flows") {
+								let flowIndex = -1;
+								flowFiles.map((flow, index) => {
+									if (flow.id === req.query.id) {
+										flowIndex = index;
+									}
+								});
+								if (flowIndex >= 0) {
+									flowFiles.splice(flowIndex, 1);
+
+									if (typeof flowFileName == "string") {
+										fs.writeFileSync(flowFileName, JSON.stringify(flowFiles));
+										res.send(JSON.stringify([]));
+										isDeteled = true;
+									}
+								}
+							} else {
+								const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+								let itemIndex = -1;
+								moduleContent.map((moduleContent, index) => {
+									if (moduleContent.id === req.query.id) {
+										itemIndex = index;
+									}
+								});
+								if (itemIndex >= 0) {
+									moduleContent.splice(itemIndex, 1);
+									fs.writeFileSync("./data/modules/" + module.fileName, JSON.stringify(moduleContent));
+									res.send(JSON.stringify([]));
+									isDeteled = true;
+								}
+								
+							}
+						} else {
+							res.status(422).send(JSON.stringify({}));
+						}
+						isFound = true;
+						return;
+					}
+				});
+				if (!isDeteled) {
+					res.status(404).send(JSON.stringify({}));
+				} else {
+					setupContentRoutes();
+				}
+			} else {
+				res.status(422).send(JSON.stringify({}));
+			}								
 		});	
 		
 		let contentRoutes = {};
@@ -780,6 +883,26 @@ function start(flowFileName, taskPlugins, options) {
 			});
 		}
 		setupFlowRouteTable();
+
+		app.post('/api/media', (req, res) => {	
+			console.log("api media", req.files);
+			let media = req.files.image;
+            try {
+            	media.mv('./media/' + media.name);
+			} catch (err) {
+				console.log("api media error", err);
+			}
+            //send response
+            res.send({
+                status: true,
+                message: 'File is uploaded',
+                data: {
+                    name: media.name,
+                    mimetype: media.mimetype,
+                    size: media.size
+                }
+            });
+		});	
 
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));
 	});

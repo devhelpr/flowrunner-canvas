@@ -24,6 +24,10 @@ import { useModulesStateStore } from '../../state/modules-menu-state';
 import { getPosition } from '../../services/position-service';
 
 import { NamePopup } from '../popups/name-popup';
+import * as uuid from 'uuid';
+
+const uuidV4 = uuid.v4;
+
 
 /*
 	TODO:
@@ -80,6 +84,11 @@ export const Toolbar = (props: ToolbarProps) => {
 		canvasMode.setSelectedTask("");
 		getFlows();
 	}, []);
+
+	useEffect(() => {
+		canvasMode.setSelectedTask("");
+		getFlows();
+	}, [canvasMode.flowsUpdateId]);
 
 	useEffect(() => {
 		if (modulesMenu.selectedModule == "tests") {
