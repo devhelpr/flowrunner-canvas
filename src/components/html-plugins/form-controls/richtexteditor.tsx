@@ -149,6 +149,6 @@ export const RichTextEditor = (props: IFormControlProps) => {
 					}
 				}}
 			/>
-			<div className="preview" dangerouslySetInnerHTML={createMarkup(draftToHtml(convertToRaw(editorState.getCurrentContent())))}></div>
+			{!!metaInfo.hasPreview && <div className="preview" dangerouslySetInnerHTML={createMarkup(draftToHtml(convertToRaw(editorState.getCurrentContent())))}></div>}
 	</div>;
 }

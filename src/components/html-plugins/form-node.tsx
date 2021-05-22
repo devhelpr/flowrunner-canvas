@@ -637,7 +637,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
 					}								
 				}
-				if (!fieldType || fieldType == "text" || fieldType == "color" || fieldType == "date") {
+				if (!fieldType || fieldType == "text" || fieldType == "fileupload" || fieldType == "color" || fieldType == "date") {
 					if (!!props.isReadOnly) {
 						return <React.Fragment key={"index-f-r-" + index}>
 							<div className="form-group">						
@@ -663,9 +663,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}
 										onFocus={onFocus}
 										key={"index" + index}
-										type={fieldType}
+										type={fieldType === "fileupload" ? "file" : fieldType}
 										className="form-control"
 										value={inputValue}
+										accept={metaInfo.acceptFiles || ""}
 										id={"input-" + props.node.name + "-" +metaInfo.fieldName}
 										data-index={index}
 										disabled={!!canvasMode?.isFlowrunnerPaused}													 

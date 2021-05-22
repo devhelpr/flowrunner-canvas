@@ -8,6 +8,7 @@ import { InputSlider } from './input-slider';
 import { List } from './list';
 import { ObjectList } from './object-list';
 import { IFormControlProps } from './form-control-interface';
+import { HashMap } from './hashmap';
 
 const RichTextEditor = React.lazy(() => import('./richtexteditor').then(({ RichTextEditor }) => ({ default: RichTextEditor })));
 
@@ -20,6 +21,7 @@ const formControls = {
 	slider: InputSlider,
 	list: List,
 	objectList: ObjectList,
+	hashmap: HashMap,
 	richtexteditor: RichTextEditor
 }
 

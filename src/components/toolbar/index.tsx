@@ -476,6 +476,12 @@ export const Toolbar = (props: ToolbarProps) => {
 						<Navbar.Toggle aria-controls="basic-navbar-nav" />
 						<Navbar.Collapse id="basic-navbar-nav">
 							<form className="form-inline toolbar__form flex-nowrap">
+								{canvasMode.editorMode === "canvas" && 
+									!!!selectedNode.node.name &&
+									<div className="mr-2">
+										<a href="#" onClick={showModules} className="btn btn-outline-light"><span className="fas fa-bars"></span></a>
+									</div>	
+								}
 								<>
 									<select className="form-control mr-2" 
 										disabled={canvasMode.editorMode !== "canvas"}
@@ -500,10 +506,7 @@ export const Toolbar = (props: ToolbarProps) => {
 								{canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
 									<img title="backend flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/server-solid.svg" />
 								}
-								{canvasMode.editorMode === "canvas" && 
-									!!!selectedNode.node.name &&
-									<a href="#" onClick={showModules} className="mx-2 btn btn-outline-light">Modules</a>
-								}
+								
 								
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit</a>

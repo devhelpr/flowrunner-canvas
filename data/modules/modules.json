@@ -12,6 +12,20 @@
 				"fieldName": "url"
 			},
 			{
+				"fieldName" : "template",
+				"fieldType" : "select",
+				"options": [
+					{
+					  "label": "Content",
+					  "value": "content"
+					},
+					{
+						"label": "Landing",
+						"value": "landing"
+					}
+				]
+			},
+			{
 				"fieldName": "title"
 			},
 			{
@@ -36,6 +50,21 @@
 			{
 				"fieldName": "metakeywords",
 				"fieldType": "textarea"
+			},
+			{
+				"fieldName": "blocks",
+				"fieldType" : "hashmap",
+				"idtype" : "name-identifier",
+				"blockFields" : [				
+					{
+						"fieldName": "title"
+					},
+					{
+						"fieldName": "content",
+						"fieldType": "richtexteditor",
+						"label": "Content"
+					}
+				]
 			}
 		]
 	},
@@ -45,5 +74,52 @@
 		"moduleType" : "crud-model",
 		"datasource" : "flows",
 		"crudOperations" : ["edit","delete"]
+	},
+	{
+		"id" : "829c55a6-caff-4130-b5e6-051460fd270b",
+		"name": "Media",
+		"fileName" : "media.json",
+		"moduleType" : "crud-model",		
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fileuploadField": "filename",
+		"fileuploadTYpe": "media",
+		"fields" : [			
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "alt"
+			},
+			{
+				"fieldName": "filename",
+				"fieldType": "fileupload",
+				"accept":"image/png, image/jpeg",
+				"api" : "/api/media"
+			}
+		]
+	},
+	{
+		"id" : "f42914f3-6529-4458-80b3-07c496e85297",
+		"name": "Data",
+		"fileName" : "data.json",
+		"moduleType" : "crud-model",		
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fileuploadField": "filename",
+		"fileuploadTYpe":"data",
+		"fields" : [			
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "alt"
+			},
+			{
+				"fieldName": "filename",
+				"fieldType": "fileupload",				
+				"accept":"application/json"
+			}
+		]
 	}
 ]
