@@ -225,7 +225,7 @@ export const Canvas = (props: CanvasProps) => {
 
 				setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
 
-				
+				console.log("WheelEvent performance setHtmlElementsPositionAndScale", performance.now() - startPerf);
 				
 			}
 			oldwheeltime.current = performance.now();
@@ -606,7 +606,7 @@ export const Canvas = (props: CanvasProps) => {
 						setCanvasOpacity(0);
 					} else
 					if (message == "fitStage") {
-						fitStage(undefined, true);
+						fitStage(undefined, true, true);
 						setCanvasOpacity(1);	
 					} else 
 					if (message == "reload") {
@@ -653,6 +653,9 @@ export const Canvas = (props: CanvasProps) => {
 	}
 	
 	const recalculateStartEndpoints = (doBatchdraw : boolean) => {
+
+		const startPerf = performance.now();
+		console.log("START recalculateStartEndpoints");
 		flow.flow.map((node, index) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
@@ -660,12 +663,42 @@ export const Canvas = (props: CanvasProps) => {
 					let element = document.getElementById(node.name);
 					if (element) {
 						const position = getPosition(node.name) || {x:node.x,y:node.y};
-						setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,position.x,position.y,node);
-						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw);
+						//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,
+						//	position.x,position.y,node);
+
+
+						let x = parseFloat(element.getAttribute("data-x") || "");
+						let y = parseFloat(element.getAttribute("data-y") || "");
+						let top = 0;
+						let minHeight = parseFloat(element.getAttribute("data-height") || "");
+
+						const clientElementHeight = element.clientHeight;
+						let diffHeight = clientElementHeight - minHeight;
+
+						if (node && element.getAttribute("data-node") == node.name) {
+							//if (position.x && !isNaN(stageX.current)) {
+								x = position.x;
+							//}
+							//if (stageY.current && !isNaN(stageY.current)) {
+								y = position.y;
+							//}				
+
+							element.setAttribute("data-x", x.toString()); 
+							element.setAttribute("data-y", y.toString());
+						}
+
+						const nodeName = element.getAttribute("data-node") || "";
+						(element as any).style.transform = 						
+							"translate(" + (stageX.current  + x * stageScale.current) + "px," + 
+								(stageY.current + top + y * stageScale.current) + "px) "+
+							"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ";	
+							
+						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw , true);
 					}
 				}
 			}
 		});
+		console.log("recalculateStartEndpoints", performance.now() - startPerf);
 
 		if (!!doBatchdraw && stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -676,6 +709,8 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const createFlowHashMap = () => {
+
+		const startPerf = performance.now();
 		flowHashMap.current = {};
 
 		flow.flow.map((node, index) => {
@@ -715,7 +750,9 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			}
 		});
-		console.log("flowHashMap", flowHashMap.current);
+		console.log("createFlowHashMap", performance.now() - startPerf);
+
+		//console.log("flowHashMap", flowHashMap.current);
 	}
 
 	useLayoutEffect(() => {
@@ -729,6 +766,7 @@ export const Canvas = (props: CanvasProps) => {
 				(flowIsLoading as any).current = false;
 				flowIsFittedStageForSingleNode.current = true;
 
+				console.log("FLOW CANVAS INITIALIZE TIME - START" , performance.now());
 				let perfstart = performance.now();
 
 				clearPositions();
@@ -762,7 +800,7 @@ export const Canvas = (props: CanvasProps) => {
 				nodesStateLocal.current = {};
 				touchedNodesLocal.current = {};
 
-				fitStage(undefined, false);
+				fitStage(undefined, false, false);
 
 				if (stage && stage.current) {
 					let stageDiv = (stage.current as any);
@@ -773,16 +811,19 @@ export const Canvas = (props: CanvasProps) => {
 					}
 				}				
 
+				console.log("flow canvas initialize time - setHtmlElementsPositionAndScale PRE", (performance.now() - perfstart), "ms");
+
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+				console.log("flow canvas initialize time - setHtmlElementsPositionAndScale", (performance.now() - perfstart) , "ms");
 				recalculateStartEndpoints(false);
 
-				console.log("flow canvas initialize time - recalculateStartEndpoints", (performance.now() - perfstart) + "ms");
+				console.log("flow canvas initialize time - recalculateStartEndpoints", (performance.now() - perfstart) , "ms");
 				
 			} else {
 
 				if (flow.flow.length == 1) {
 					if (!flowIsFittedStageForSingleNode.current) {
-						fitStage(undefined, false);
+						fitStage(undefined, false, false);
 						flowIsFittedStageForSingleNode.current = true;
 					}
 				}				
@@ -809,7 +850,7 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 				setUpdateNodeTouchedState(true);
 			}			
-		} else if (flow && flow.length == 0) {
+		} else if (flow && flow.flow.length == 0) {
 			flowIsFittedStageForSingleNode.current = false;
 		}	
 				
@@ -831,6 +872,9 @@ export const Canvas = (props: CanvasProps) => {
 	}, [flow.flow]);
 
 	useLayoutEffect(() => {
+
+		console.log("CANVAS useLayoutEffect3" , performance.now());
+
 		updateDimensions();			
 
 		if (canvasWrapper && canvasWrapper.current) {
@@ -847,6 +891,7 @@ export const Canvas = (props: CanvasProps) => {
 	}, [canvasKey]);
 
 	useLayoutEffect(() => {	
+		console.log("CANVAS useLayoutEffect2" , performance.now());
 		updateTouchedNodes();
 	}, [
 		canvasMode,
@@ -862,9 +907,9 @@ export const Canvas = (props: CanvasProps) => {
 		connectionY
 	]);
 	
-	const setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean) => {
+	const setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
-
+//console.log("setNewPositionForNode" , performance.now());
 		if (!linesOnly) {
 			flow.flow.map((flowNode) => {
 				if (flowNode.name !== node.name) {
@@ -963,9 +1008,10 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		
 		setPosition(node.name, {...newPosition});
-
-		setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current, 
-			newPosition.x, newPosition.y, node);						
+		if (skipSetHtml === undefined || skipSetHtml === false) {
+			setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current, 
+				newPosition.x, newPosition.y, node);		
+		}				
 
 		/*
 			TODO : getLinesForStartNodeFromCanvasFlow does
@@ -2082,7 +2128,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		
 	}
 
-	const fitStage = useCallback((node? : any, doBatchdraw? : boolean) => {
+	const fitStage = useCallback((node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean) => {
 		let xMin;
 		let yMin;
 		let xMax;
@@ -2143,7 +2189,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 									width = elementWidth;
 								}
 
-								console.log("shape size", shape.name, elementWidth, elementHeight);
+								//console.log("shape size", shape.name, elementWidth, elementHeight);
 							}
 
 							// subWidth needed here ... html nodes start at x-width/2
@@ -2252,7 +2298,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						stageY.current = newPos.y;
 						stageScale.current = scale;
 						
-						setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
+						if (doSetHtmlElementsPositionAndScale === undefined || !!doSetHtmlElementsPositionAndScale) {
+							setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
+						}
 						setCanvasOpacity(1);
 
 						console.log("fitStage realStageHeight flowHeight yMin yMax", realStageHeight, flowHeight, yMin, yMax);
@@ -2277,6 +2325,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				}
 			}
 		}
+	}, [flow.flow]);
+
+	useEffect(() => {
+		console.log("useEffect", flow.flowId, performance.now());
 	}, [flow.flow]);
 
 	const clickStage = (event) => {
@@ -2755,7 +2807,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		return flow.flow
 	}, [flow.flow]);
 
-
+	console.log("CANVAS RENDER" , performance.now());
 
 	return <>
 		<div 
@@ -2846,10 +2898,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								flow={flowMemo}
 								taskType={node.taskType}
 								node={node}			
-								
+								flowHash={flow.flowHashmap}
 								shapeRefs={shapeRefs as any}
 								
-								positions={getPositions()}
+								positions={getPosition}
 								canvasHasSelectedNode={canvasHasSelectedNode}
 								
 								nodeState={""}
@@ -2935,7 +2987,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								node={node}																	
 								ref={ref => (shapeRefs.current[node.name] = ref)}
 								shapeRefs={shapeRefs}
-								positions={getPositions()}
+								positions={getPosition}
 								canvasHasSelectedNode={canvasHasSelectedNode}
 								
 								nodeState={nodeState}
@@ -3106,6 +3158,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						const Shape = Shapes[shapeType];
 						
 						if (shapeType === "Html" && Shape) {
+							
 							const nodeClone = {...node};
 							const position = getPosition(node.name) || node;
 							let nodeState = (nodesStateLocal.current[node.name] || "") == "error" ? " has-error" : "";
@@ -3164,9 +3217,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 									{settings.events && settings.events.map((event ,eventIndex) => {
 										return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + index + "-" + eventIndex}></div>
 									})}
-									</div>;
+									</div>;						
 						}
 						return <React.Fragment key={"html" + index}></React.Fragment>;
+						
 					})
 				}
 			</div>

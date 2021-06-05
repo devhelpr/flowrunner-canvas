@@ -288,6 +288,9 @@ gulp.task('postcss', () => {
 gulp.task('build', function() { return buildTypescript() } );
 gulp.task('build-plugins', function() { return buildPluginTypescript() } );
 gulp.task('default', gulp.series('build', 'build-plugins','postcss', 'startFlowServer', function () {
+  
+  console.log("WATCHING...");
+  
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
   gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
   gulp.watch('styles/*.pcss', gulp.series('postcss'));

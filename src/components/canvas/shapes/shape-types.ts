@@ -42,6 +42,8 @@ export interface ShapeTypeProps {
   selectedNode: any;
 
   touchedNodes: any;
+
+  flowHash?: any;
 }
 
 export interface ThumbPosition {

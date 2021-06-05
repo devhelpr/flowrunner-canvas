@@ -99,7 +99,7 @@ export interface FormNodeHtmlPluginProps {
 	isReadOnly? : boolean;
 
 	isNodeSettingsUI? : boolean;
-
+	datasources? : any;
 	onSetValue? : (value, fieldName) => void;
 }
 
@@ -121,7 +121,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const [datasource, setDatasource] = useState({} as any);
 	const [receivedPayload, setReceivedPayload] = useState({} as any);		
 
-	const flow = useFlowStore();
+	//const flow = useFlowStore();
+	//const [storeFlowNode] = useFlowStore();
+	const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
 	const canvasMode = useCanvasModeStateStore();
 	
 	const observableId = useRef(uuidV4());
@@ -134,7 +136,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	useEffect(() => {
 
 		if (props.node) {
-
+			
 			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
 				if (props.node.mode && props.node.mode === "list") {
 					setNode(props.node);
@@ -182,7 +184,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	useEffect(() => {
 
 		setNode({...props.node});
-		//console.log("node is updated", props.node.name, props.node);
+		//console.log("FORM-NODE use-effect", props.node.name, performance.now());
 		if (props.flowrunnerConnector) {
 			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		}
@@ -191,7 +193,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 			}
 		}
-	}, [props.node, flow.flow]);
+	}, [props.node]);
 
 	/*
 
@@ -406,7 +408,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				} else {
 					//console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
 					if (props.flowrunnerConnector) {
-						flow.storeFlowNode(updatedNode, props.node.name);
+						storeFlowNode(updatedNode, props.node.name);
 						
 						// additional fix for updating nodes 
 						props.flowrunnerConnector?.modifyFlowNode(
@@ -504,7 +506,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				} else { 					
 					//console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
 					if (props.flowrunnerConnector) {
-						flow.storeFlowNode(updatedNode, props.node.name);
+						storeFlowNode(updatedNode, props.node.name);
 						// Looks like this is the fix...
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
@@ -593,7 +595,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 		setNode(updatedNode);
 		if (props.flowrunnerConnector) {
-			flow.storeFlowNode(updatedNode, props.node.name);
+			storeFlowNode(updatedNode, props.node.name);
 			props.flowrunnerConnector?.modifyFlowNode(
 				props.node.name, 
 				"", 
@@ -678,7 +680,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				}
 				if (fieldType) {
 					let datasourceToUse : any;
-
+					if (metaInfo.datasource == "module") {
+						console.log("datasoure module", metaInfo.datasourceId, props.datasources);
+						datasourceToUse = props.datasources[metaInfo.datasourceId] || [];
+					} else
 					if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
 						datasourceToUse = canvasMode?.flowsPlayground;
 					} else
@@ -712,6 +717,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						fieldType: metaInfo.fieldType,
 						metaInfo: metaInfo,
 						datasource : datasourceToUse,
+						datasources: props.datasources,
 						payload: receivedPayload
 					})}</React.Fragment>
 				}

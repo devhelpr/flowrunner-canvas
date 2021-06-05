@@ -78,7 +78,7 @@ export const SliderNodeHtmlPlugin = (props : SliderNodeHtmlPluginProps) => {
 				"onChangeSlider"
 			);
 			let preventLoop = false;
-			if (!selectedNode || !selectedNode.payload) {
+			if (!selectedNode || !selectedNode.node.payload) {
 				//props.selectNode(props.node.name, props.node);
 			}
 			setValue(value);

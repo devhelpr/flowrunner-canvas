@@ -1,0 +1,10 @@
+{
+  "menus": {
+    "primaryMenu": {
+      "title": "primaryMenu",
+	  "codeName" : "primaryMenu",
+      "language": "nl",
+      "options": [{ "page": "1" }, { "page": "2" }, { "page": "56487c37-d329-4a19-b7a4-b4c793630b29" }]
+    }
+  }
+}

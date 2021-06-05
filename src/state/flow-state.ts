@@ -6,7 +6,7 @@ import produce from 'immer';
 interface IFlowState extends State {
   flow: any[];
   flowId: string;
-
+  flowHashmap: any;
   storeFlow: (flow: any[], flowId: string) => void;
   storeFlowNode: (node: any, orgNodeName: string) => void;
   addFlowNode: (node: any) => void;
@@ -15,16 +15,30 @@ interface IFlowState extends State {
   deleteNode: (node: any) => void;
 }
 
+/*
+  TODO : handle delete/add in flowHashmap
+*/
+
+/*produce(draftState => {
+          draftState.flowId = flowId;
+          draftState.flowHashmap = FlowToCanvas.createFlowHashMap(flow);
+          draftState.flow = FlowToCanvas.convertFlowPackageToCanvasFlow(flow);
+}),*/
+
 let storeHandler = (set: SetState<IFlowState>): IFlowState => {
   return {
     flow: [],
     flowId: '',
+    flowHashmap: {},
     storeFlow: (flow: any[], flowId: string) =>
-      set(
-        produce(draftState => {
-          draftState.flowId = flowId;
-          draftState.flow = FlowToCanvas.convertFlowPackageToCanvasFlow(flow);
-        }),
+      set(        
+        state => {
+          return {
+            flowId : flowId,
+            flowHashmap : FlowToCanvas.createFlowHashMap(flow),
+            flow : FlowToCanvas.convertFlowPackageToCanvasFlow(flow)
+          }
+        }
       ),
     storeFlowNode: (node: any, orgNodeName: string) =>
       set(state => {
@@ -52,13 +66,46 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
       }),
     addFlowNode: (node: any) =>
       set(state => {
+        const flowHashmap = state.flowHashmap;
+        flowHashmap.set(node.name, {
+          index: state.flow.length,
+          start: [] as number[],
+          end: [] as number[]
+        });
         return {
+          flowHashmap: flowHashmap,
           flow: [...state.flow, node],
         };
       }),
     addConnection: (connection: any) =>
       set(state => {
+        const flowHashmap = state.flowHashmap;
+        if (flowHashmap.has(connection.startshapeid)) {
+          let copy = flowHashmap.get(connection.startshapeid);
+          copy.start.push(state.flow.length);
+          flowHashmap.set(connection.startshapeid, {...copy});
+          //startNode.start.push(index);
+        } else {
+          flowHashmap.set(connection.startshapeid, {
+						index: -1,
+						start: [state.flow.length] as number[],
+						end: [] as number[]
+					});
+        }
+				
+        if (flowHashmap.has(connection.endshapeid)) {
+          let copy = flowHashmap.get(connection.endshapeid);
+          copy.end.push(state.flow.length);
+          flowHashmap.set(connection.endshapeid, {...copy});
+        } else {
+          flowHashmap.set(connection.endshapeid, {
+						index: -1,
+						start: [] as number[],
+						end: [state.flow.length] as number[]
+					});
+        }
         return {
+          flowHashmap: flowHashmap,
           flow: [...state.flow, connection],
         };
       }),
@@ -73,6 +120,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           });
           if (index >= 0) {
             draftState.flow.splice(index, 1);
+            draftState.flowHashmap = FlowToCanvas.createFlowHashMap(draftState.flow);
           }
         }),
       ),
@@ -87,6 +135,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           });
           if (index >= 0) {
             draftState.flow.splice(index, 1);
+            draftState.flowHashmap =  FlowToCanvas.createFlowHashMap(draftState.flow);
           }
         }),
       ),

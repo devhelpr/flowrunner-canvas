@@ -66,8 +66,8 @@ export const DebugInfo = (props : DebugInfoProps) => {
 
 	if (selectedNode && selectedNode.node && selectedNode.node.name) {
 		
-		if (selectedNode.payload) {
-			const debugInfo = JSON.stringify(selectedNode.payload, null, 2);
+		if (selectedNode.node.payload) {
+			const debugInfo = JSON.stringify(selectedNode.node.payload, null, 2);
 			return <div className={"debug-info" + fullscreenCss}>
 				<div className="debug-info__debug-info">
 					<a href="#" onClick={onToggleFullscreen} className={iconCss}></a> 

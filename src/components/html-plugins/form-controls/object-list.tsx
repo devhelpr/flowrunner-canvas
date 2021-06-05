@@ -127,6 +127,7 @@ export const ObjectList = (props: IFormControlProps) => {
 													node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 													isObjectListNodeEditing={true}
 													onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
+													datasources={props.datasources}
 												></FormNodeHtmlPlugin>
 											</div>
 										</td>
@@ -143,6 +144,7 @@ export const ObjectList = (props: IFormControlProps) => {
 							node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 							isObjectListNodeEditing={true}
 							onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
+							datasources={props.datasources}
 						></FormNodeHtmlPlugin>
 					</div>
 				})
@@ -153,6 +155,7 @@ export const ObjectList = (props: IFormControlProps) => {
 						node={{...newValue, metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-add", id: props.node.name + "-add"}}
 						isObjectListNodeEditing={true}
 						onSetValue={onAddNodeKeyValue}
+						datasources={props.datasources}
 					></FormNodeHtmlPlugin>
 					<div className="form-control__object-list-node-controls">
 						<button onFocus={onFocus} onClick={onAppendValue} className="btn btn-primary mr-2">Add</button>

@@ -135,7 +135,7 @@ export const Taskbar = (props: TaskbarProps) => {
 
 	const onShowModule = (module : IModule, event) => {
 		event.preventDefault();
-		modulesMenu.showModule(module.name, module.id);
+		modulesMenu.showModule(module.name, module.id, module.moduleType);
 		return false;
 	}
 

@@ -16,5 +16,6 @@ export const LinesForShape = (props: ShapeTypeProps) => {
 		onClickLine={props.onClickLine}
 		touchedNodes={props.touchedNodes}
 		positions={props.positions}
+		flowHash={props.flowHash}
 	></Lines>;	
 };

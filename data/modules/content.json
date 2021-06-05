@@ -1,1 +1,54 @@
-[{"id":"1","url":"/content","title":"Hello world","subtitle":"Subtitle","intro":"This is an intro","content":"<p>Hallo</p>\n<p></p>\n<p></p>\n<p></p>\n<p>Lorem <strong>ipsum</strong></p>\n<p></p>\n","windowtitle":"Hello world","metadescription":"Hello world","metakeywords":"Dit is een metadescription","blocks":{}},{"id":"2","url":"/content2","title":"Contentpage2","subtitle":"Subtitle","intro":"This is an introtje","content":"<p>Lorem ipsum</p>\n","windowtitle":"Hello world","metadescription":"Hello world","metakeywords":"Dit is een metadescription","blocks":{"test":{"title":"block1","content":"<p>Hallo wereldje hello world</p>\n"},"test2":{"title":"block2","content":"<p>Hallo wereld test test</p>\n"}},"template":"content"},{"content":"<p></p>\n","url":"/url","title":"test","id":"56487c37-d329-4a19-b7a4-b4c793630b29","blocks":{},"template":"landing"},{"content":"<p></p>\n","url":"/url2","title":"test2","id":"f32ec6d3-4ce7-46ed-9c69-ee351102bfca","blocks":{}}]
+[
+  {
+    "id": "1",
+    "url": "/content",
+    "title": "Hello world",
+    "subtitle": "Subtitle",
+    "intro": "This is an intro",
+    "content": "<p>Hallo</p>\n<p></p>\n<p></p>\n<p></p>\n<p>Lorem <strong>ipsum</strong></p>\n<p></p>\n",
+    "windowtitle": "Hello world",
+    "metadescription": "Hello world",
+    "metakeywords": "Dit is een metadescription",
+	"language":"en",
+	"relationId": "cf2a7f55-e560-42d3-aaf8-d9d9196706e7",
+    "blocks": {}
+  },
+  {
+    "id": "2",
+    "url": "/content2",
+    "title": "Contentpage2",
+    "subtitle": "Subtitle",
+    "intro": "This is an introtje",
+    "content": "<p>Lorem ipsum</p>\n",
+    "windowtitle": "Hello world",
+    "metadescription": "Hello world",
+    "metakeywords": "Dit is een metadescription",
+    "blocks": {
+      "test": { "title": "block1", "content": "<p>Hallo wereldje hello world</p>\n" },
+      "test2": { "title": "block2", "content": "<p>Hallo wereld test test</p>\n" }
+    },
+    "template": "content",
+	"relationId": "72fceb16-8bc1-45ec-8c8a-be63a9589747",
+	"language":"en"
+  },
+  {
+    "content": "<p></p>\n",
+    "url": "/url-nl",
+    "title": "test nl",
+    "id": "56487c37-d329-4a19-b7a4-b4c793630b29",
+    "blocks": {},
+	"language":"nl",
+	"relationId": "927f7f5d-3e75-43c0-8446-80b32eadbbfe",
+    "template": "landing"
+  },
+  {
+    "content": "<p></p>\n",
+    "url": "/url-en",
+    "title": "test en",
+    "id": "f32ec6d3-4ce7-46ed-9c69-ee351102bfca",
+	"language":"en",
+	"relationId": "927f7f5d-3e75-43c0-8446-80b32eadbbfe",
+	"template": "landing",
+    "blocks": {}
+  }
+]

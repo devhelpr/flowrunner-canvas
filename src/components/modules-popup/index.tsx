@@ -7,6 +7,7 @@ import { useModulesStateStore } from '../../state/modules-menu-state';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { TestsModule } from '../modules/tests-module';
 import { CrudModule } from '../modules/crud-module';
+import { ObjectModule } from '../modules/object-module';
 
 export interface ModulesPopupProps {
 	onClose : () => void;
@@ -40,7 +41,11 @@ export const ModulesPopup = (props: ModulesPopupProps) => {
 				{modulesMenu.selectedModule == "tests" &&
 					<TestsModule flowrunnerConnector={props.flowrunnerConnector}></TestsModule>}
 				{modulesMenu.selectedModule != "tests" && modulesMenu.selectedModule != "" &&
-					<CrudModule></CrudModule>}	
+					modulesMenu.moduleType == "crud-model" &&
+					<CrudModule></CrudModule>}
+				{modulesMenu.selectedModule != "tests" && modulesMenu.selectedModule != "" &&
+					modulesMenu.moduleType == "object-model" &&
+					<ObjectModule></ObjectModule>}	
 			</Modal.Body>
 		
 			<Modal.Footer>

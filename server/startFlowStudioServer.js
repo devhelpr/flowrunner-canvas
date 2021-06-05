@@ -539,14 +539,24 @@ function start(flowFileName, taskPlugins, options) {
 		});	
 		app.get('/api/module', (req, res) => {		
 			// get module
-			if (!req.query.id) {
+			if (!req.query.id && !req.query.codeName) {
 				res.status(422).send(JSON.stringify({}));
 				return;
 			}
 			let isFound = false;
 			const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
 			modules.map((module) => {
-				if (module.id == req.query.id && !isFound) {
+				if ((
+					(req.query.codeName && module.codeName == req.query.codeName) ||
+					(req.query.id && module.id == req.query.id))
+					&& !isFound) {
+					if (module.moduleType == "object-model") {
+						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
+						res.send(JSON.stringify({
+							...module,
+							items:moduleContent
+						}));
+					} else
 					if (module.moduleType == "crud-model") {
 						if (module.datasource && module.datasource == "flows") {
 							res.send(JSON.stringify({
@@ -585,7 +595,7 @@ function start(flowFileName, taskPlugins, options) {
 		});
 		app.put('/api/modulecontent', (req, res) => {	
 			// save/update existing module content item	
-			if (req.query.id && req.query.moduleId) {
+			if (req.query.moduleId) {
 				let isFound = false;
 				let isChanged = false;
 				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
@@ -593,6 +603,23 @@ function start(flowFileName, taskPlugins, options) {
 					if (module.id == req.query.moduleId && !isFound) {
 						isFound = true;
 
+						if (module.moduleType == "object-model") {
+							
+							const content = JSON.stringify(req.body.data);
+							fs.writeFileSync("./data/modules/" + module.fileName, content);
+
+							if (!!options && !!options.copyFlowLayoutJsonTo) {
+								console.log("copyFlowLayoutJsonTo", options.copyFlowLayoutJsonTo);
+								options.copyFlowLayoutJsonTo.map((folderName) => {
+									console.log("folderName", folderName);
+									const contentCopyFileName = folderName + "/modules/" + module.fileName;
+									console.log("contentCopyFileName", contentCopyFileName);
+									fs.writeFileSync(contentCopyFileName, content);
+								});
+							}
+
+							res.send(JSON.stringify([]));
+						} else
 						if (module.moduleType == "crud-model") {
 							if (module.datasource && module.datasource == "flows") {
 								if (req.body.data && !req.body.data.name) {
@@ -764,12 +791,40 @@ function start(flowFileName, taskPlugins, options) {
 
 			try {
 				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+
+				const menus = modules.filter((module) => {
+					return module.codeName == "menu";
+				});
+				const menu = menus.length > 0 ? menus[0] : {};
+				const menuContent = JSON.parse(fs.readFileSync("./data/modules/"+ menu.fileName));
+				console.log("menu", menuContent);
 				modules.map((module) => {
 					let urlProperty = module["urlProperty"];
 					if (urlProperty && urlProperty != "") {
 						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
 						moduleContent.map((moduleContentItem) => {
 							app.get(moduleContentItem[urlProperty], function contentRouteHandler (req, res) {	
+								let primaryMenu = [];
+								Object.keys(menuContent.menus).map((menuKeyName) => {
+									
+									const menu = menuContent.menus[menuKeyName];
+									
+									if (menu && menu.codeName == "primaryMenu" && menu.language == moduleContentItem.language) {
+										primaryMenu = menu.options || [];
+									}
+								});
+								let primaryMenuOptions = [];
+								primaryMenu.map((menuOption) => {
+									moduleContent.map((moduleContentItem) => {
+										if (menuOption.page === moduleContentItem.id) {
+											primaryMenuOptions.push({
+												url: moduleContentItem.url || "",
+												title: moduleContentItem.title || "",
+											});
+										}
+									});
+								});
+
 								res.render('./pages/content', {
 									assetsRootPath: options.assetsRootPath || "/",
 									id: "",
@@ -781,6 +836,7 @@ function start(flowFileName, taskPlugins, options) {
 									windowtitle: "",
 									metadescription: "",
 									metakeywords: "",
+									primaryMenu: primaryMenuOptions,
 									...moduleContentItem 
 								});
 							}.bind(this));	

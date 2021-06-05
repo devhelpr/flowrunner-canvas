@@ -6,7 +6,8 @@ export class FlowToCanvas {
     if (flow === undefined) {
       return [];
     }
-    return flow.map((node, index) => {
+    const startPerf = performance.now();
+    const resultFlow = flow.map((node, index) => {
       if (node.shapeType === 'line') {
         const shartShapes = flow.filter(startnode => startnode.name === node.startshapeid);
         const endShapes = flow.filter(endnode => endnode.name === node.endshapeid);
@@ -32,7 +33,83 @@ export class FlowToCanvas {
       }
       return node;
     });
+    console.log("convertFlowPackageToCanvasFlow performance" , performance.now() - startPerf);
+    return resultFlow;
   }
+
+  static createFlowHashMap = (flow) => {
+
+		const startPerf = performance.now();
+		let flowHashMap = new Map();
+
+		flow.map((node, index) => {
+			if (node.shapeType !== 'Line') {
+				//const nodeMap = flowHashMap[node.name];
+				if (flowHashMap.has(node.name)) {
+          flowHashMap.set(node.name, {...flowHashMap.get(node.name), index:index})
+					//nodeMap.index = index;
+					//flowHashMap[node.name] = nodeMap;
+				} else {
+					flowHashMap.set(node.name, {
+						index: index,
+						start: [] as number[],
+						end: [] as number[]
+					});
+				}
+			} else {
+        if (flowHashMap.has(node.startshapeid)) {
+          let copy = flowHashMap.get(node.startshapeid);
+          copy.start.push(index);
+          flowHashMap.set(node.startshapeid, {...copy});
+          //startNode.start.push(index);
+        } else {
+          flowHashMap.set(node.startshapeid, {
+						index: -1,
+						start: [index] as number[],
+						end: [] as number[]
+					});
+        }
+				/*const startNode = flowHashMap[node.startshapeid];
+				if (startNode) {
+					startNode.start.push(index);
+				} else {
+					flowHashMap[node.startshapeid] = {
+						index: -1,
+						start: [index] as number[],
+						end: [] as number[]
+					}
+				}
+        */
+
+        if (flowHashMap.has(node.endshapeid)) {
+          let copy = flowHashMap.get(node.endshapeid);
+          copy.end.push(index);
+          flowHashMap.set(node.endshapeid, {...copy});
+        } else {
+          flowHashMap.set(node.endshapeid, {
+						index: -1,
+						start: [] as number[],
+						end: [index] as number[]
+					});
+        }
+        /*
+				const endNode = flowHashMap[node.endshapeid];
+				if (endNode) {
+					endNode.end.push(index);
+				} else {
+					flowHashMap[node.endshapeid] = {
+						index: -1,
+						start: [] as number[],
+						end: [index] as number[]
+					}
+				}
+        */
+			}
+		});
+		console.log("createFlowHashMap", performance.now() - startPerf);
+
+		return flowHashMap;
+	}
 
   static getStartPointForLine(
     startShape,

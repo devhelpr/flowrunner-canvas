@@ -13,7 +13,7 @@ export const Flow = (props : IFlowProps) => {
 	const [internalFlow , setInternalFlow] = useState([] as any);
 
 	useEffect(() => {
-		//console.log("FLOW in flow component useEffect", props.flow);
+		console.log("FLOW in flow component useEffect", performance.now());
 		if (internalFlow.length != props.flow.length) {
 			setInternalFlow(props.flow);
 		} else {
@@ -87,7 +87,9 @@ export const Flow = (props : IFlowProps) => {
 	}, [props.flow, props.flowId]);
 
 	useEffect(() => {
+		let perfstart = performance.now();
 		props.flowrunnerConnector.pushFlowToFlowrunner(internalFlow, true, props.flowId);
+		console.log("flow pushFlowToFlowrunner", (performance.now() - perfstart) + "ms");
 	}, [internalFlow]);
 	return <></>;
 }

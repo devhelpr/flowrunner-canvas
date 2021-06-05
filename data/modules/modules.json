@@ -2,6 +2,7 @@
 	{
 		"id" : "1234-4567",
 		"name": "Content",
+		"codeName" : "content",
 		"fileName" : "content.json",
 		"moduleType" : "crud-model",
 		"urlProperty" : "url",
@@ -71,6 +72,7 @@
 	{
 		"id": "13f79819-8790-419b-8109-43c345b424b3",
 		"name": "Flows",
+		"codeName" : "flows",
 		"moduleType" : "crud-model",
 		"datasource" : "flows",
 		"crudOperations" : ["edit","delete"]
@@ -78,6 +80,7 @@
 	{
 		"id" : "829c55a6-caff-4130-b5e6-051460fd270b",
 		"name": "Media",
+		"codeName" : "media",
 		"fileName" : "media.json",
 		"moduleType" : "crud-model",		
 		"structure" : "list",
@@ -102,6 +105,7 @@
 	{
 		"id" : "f42914f3-6529-4458-80b3-07c496e85297",
 		"name": "Data",
+		"codeName" : "data",
 		"fileName" : "data.json",
 		"moduleType" : "crud-model",		
 		"structure" : "list",
@@ -119,6 +123,48 @@
 				"fieldName": "filename",
 				"fieldType": "fileupload",				
 				"accept":"application/json"
+			}
+		]
+	},
+	{
+		"id" : "71402a90-8fb9-43cc-8ef9-43d4338332f8",
+		"name": "Menus",
+		"codeName" : "menu",
+		"fileName" : "menu.json",
+		"moduleType" : "object-model",	
+		"datasources" : [
+			"content"
+		],	
+		"fields" : [			
+			{
+				"fieldName": "menus",
+				"fieldType": "hashmap",
+				"idtype" : "name-identifier",
+				"blockFields" : [	
+					{
+						"fieldName": "title"
+					}, 
+					{
+						"fieldName": "codeName"
+					},
+					{
+						"fieldName": "language",
+						"fieldType":"text"
+					},
+					{
+						"fieldName":"options",
+						"fieldType":"objectList",
+						"metaInfo": [
+							{
+								"fieldName": "page",
+								"fieldType":"select",
+								"datasource":"module",
+								"datasourceId":"content"
+							}
+						]
+					}
+					
+				]
 			}
 		]
 	}

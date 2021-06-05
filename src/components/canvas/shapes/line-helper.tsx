@@ -21,9 +21,21 @@ export interface ILineHelperProps {
 	touchedNodes,
 	newStartPosition,
 	positions: any;
+	flowHash?: any;
 }
 
 export const LineHelper = (props : ILineHelperProps) => {
+
+	
+	const endNode = useMemo(() => {
+		const endIndex = props.flowHash.get(props.endshapeid).index;
+		if (endIndex < 0) {
+			return false;
+		}
+		return props.flow[endIndex];	
+	}, [props.node.name, props.flow, props.flowHash, props.endshapeid]);
+	
+	/*
 	const endNodes = useMemo(() => { 
 		return props.flow.filter((node) => {
 			return node.name == props.endshapeid;
@@ -33,11 +45,12 @@ export const LineHelper = (props : ILineHelperProps) => {
 		return null;
 	}
 	let endNode = endNodes[0];
+	*/
 	if (!endNode) {
 		return null;
 	}
 	
-	let positionNode = props.positions[endNode.name] || endNode;
+	let positionNode = props.positions(endNode.name) || endNode;
 	const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 		x: positionNode.x,
 		y: positionNode.y
@@ -85,12 +98,20 @@ export interface ILinesProp {
 	onClickLine,
 	touchedNodes,
 	positions?: any;
+	flowHash? : any;
 }
 
 export const Lines = (
 		props : ILinesProp
 	) => {
 
+		
+	const lines = useMemo(() => {
+		return props.flowHash.get(props.node.name).start.map((lineIndex, index) => {
+			return props.flow[lineIndex];
+		});	
+	}, [props.node.name, props.flow, props.flowHash]);
+	/*
 	const lines = useMemo(() => {
 		return props.flow.filter((lineNode, index) => {		
 			if (lineNode.startshapeid == props.node.name && lineNode.shapeType === "Line") {
@@ -99,19 +120,20 @@ export const Lines = (
 			return false;
 			})}
 		 , [props.node.name, props.flow]);
-
+	*/
 	return <>{lines.map((lineNode, index) => {		
 			/*
 				- lijnen vanuit de huidige node naar een andere node
 			*/
 			let newPosition ={x:props.node.x, y:props.node.y};
-			newPosition = props.positions[props.node.name] || newPosition;
+			newPosition = props.positions(props.node.name) || newPosition;
 
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, lineNode, props.getNodeInstance,
 				lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 			
-			return <React.Fragment key={index}><ErrorBoundary><LineHelper
+			return <React.Fragment key={index}><LineHelper
 					flow={props.flow}
+					flowHash={props.flowHash}
 					positions={props.positions}
 					endshapeid={lineNode.endshapeid}
 					node={props.node}
@@ -126,7 +148,7 @@ export const Lines = (
 					onClickLine={props.onClickLine}
 					touchedNodes={props.touchedNodes}	
 					newStartPosition={newStartPosition}></LineHelper>		
-			</ErrorBoundary></React.Fragment>;
+			</React.Fragment>;
 		})
 	}</>;
 }

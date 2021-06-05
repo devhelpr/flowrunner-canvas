@@ -374,13 +374,23 @@ export const Toolbar = (props: ToolbarProps) => {
 			return res.json();
 		})
 		.then(flowPackage => {
+			console.log("FLOW loaded 1", flowId , performance.now());
 
 			props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
-			canvasMode.setFlowrunnerPaused(false);
-			canvasMode.setFlowType(flowPackage.flowType || "playground");
-			flow.storeFlow(flowPackage.flow, flowId);
-			layout.storeLayout(JSON.stringify(flowPackage.layout));
+			console.log("FLOW loaded 2", flowId , performance.now());
 			
+			canvasMode.setFlowrunnerPaused(false);
+			console.log("FLOW loaded 3", flowId , performance.now());
+			
+			canvasMode.setFlowType(flowPackage.flowType || "playground");
+			console.log("FLOW loaded 4", flowId , performance.now());
+			
+			flow.storeFlow(flowPackage.flow, flowId);
+			console.log("FLOW loaded 5", flowId , performance.now());
+			
+			layout.storeLayout(JSON.stringify(flowPackage.layout));
+	
+			console.log("FLOW loaded after zustand", flowId , performance.now());
 		})
 		.catch(err => {
 			console.error(err);
@@ -388,6 +398,7 @@ export const Toolbar = (props: ToolbarProps) => {
 	}
 
 	const setSelectedFlowChange = (event) => {
+		console.log("FLOW selected",event.target.value,performance.now());
 		props.flowrunnerConnector.killAndRecreateWorker();
 		setSelectedFlow(event.target.value);
 		if (props.flowrunnerConnector.hasStorageProvider && 
@@ -493,7 +504,7 @@ export const Toolbar = (props: ToolbarProps) => {
 										})}								
 									</select>
 									{!props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={addNewFlow} 
-										className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
+										className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
 										title="Add new flow"><span>New</span></a>}
 									{props.flowrunnerConnector.hasStorageProvider && <span className="mr-4"></span>}
 								</>

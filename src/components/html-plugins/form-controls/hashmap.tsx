@@ -137,6 +137,7 @@ export const HashMap = (props: IFormControlProps) => {
 								id: props.node.name + "-edit-" + objectPropertyName}}
 							isObjectListNodeEditing={true}
 							onSetValue={(value, fieldName) => onEditNodeKeyValue(objectPropertyName, value, fieldName)}
+							datasources={props.datasources}
 						></FormNodeHtmlPlugin>
 					</div>}
 				</div>
@@ -156,6 +157,7 @@ export const HashMap = (props: IFormControlProps) => {
 							id: props.node.name + "-add"}}
 						isObjectListNodeEditing={true}
 						onSetValue={onAddNodeKeyValue}
+						datasources={props.datasources}
 					></FormNodeHtmlPlugin>
 					<div className="form-control__object-list-node-controls">
 						<button onFocus={onFocus} onClick={onAppendValue} className="btn btn-primary mr-2">Add</button>
