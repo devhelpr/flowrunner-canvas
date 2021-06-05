@@ -26,14 +26,14 @@ let storeHandler = (set: SetState<IModulesMenuState>): IModulesMenuState => {
       set(state => ({
         selectedModule: moduleName,
         moduleId: moduleId || '',
-        moduleType: moduleType || ''
+        moduleType: moduleType || '',
       })),
     closeModule: () =>
       set(state => ({
         selectedModule: '',
         moduleId: '',
-        moduleType: ''
-      }))    
+        moduleType: '',
+      })),
   };
 };
 

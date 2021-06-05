@@ -1,4 +1,4 @@
-let positions = new Map()
+let positions = new Map();
 
 export const clearPositions = () => {
   positions = new Map();

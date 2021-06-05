@@ -31,15 +31,13 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
     flowId: '',
     flowHashmap: {},
     storeFlow: (flow: any[], flowId: string) =>
-      set(        
-        state => {
-          return {
-            flowId : flowId,
-            flowHashmap : FlowToCanvas.createFlowHashMap(flow),
-            flow : FlowToCanvas.convertFlowPackageToCanvasFlow(flow)
-          }
-        }
-      ),
+      set(state => {
+        return {
+          flowId: flowId,
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          flow: FlowToCanvas.convertFlowPackageToCanvasFlow(flow),
+        };
+      }),
     storeFlowNode: (node: any, orgNodeName: string) =>
       set(state => {
         let flow = state.flow.map((currentNode, index) => {
@@ -70,7 +68,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
         flowHashmap.set(node.name, {
           index: state.flow.length,
           start: [] as number[],
-          end: [] as number[]
+          end: [] as number[],
         });
         return {
           flowHashmap: flowHashmap,
@@ -83,26 +81,26 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
         if (flowHashmap.has(connection.startshapeid)) {
           let copy = flowHashmap.get(connection.startshapeid);
           copy.start.push(state.flow.length);
-          flowHashmap.set(connection.startshapeid, {...copy});
+          flowHashmap.set(connection.startshapeid, { ...copy });
           //startNode.start.push(index);
         } else {
           flowHashmap.set(connection.startshapeid, {
-						index: -1,
-						start: [state.flow.length] as number[],
-						end: [] as number[]
-					});
+            index: -1,
+            start: [state.flow.length] as number[],
+            end: [] as number[],
+          });
         }
-				
+
         if (flowHashmap.has(connection.endshapeid)) {
           let copy = flowHashmap.get(connection.endshapeid);
           copy.end.push(state.flow.length);
-          flowHashmap.set(connection.endshapeid, {...copy});
+          flowHashmap.set(connection.endshapeid, { ...copy });
         } else {
           flowHashmap.set(connection.endshapeid, {
-						index: -1,
-						start: [] as number[],
-						end: [state.flow.length] as number[]
-					});
+            index: -1,
+            start: [] as number[],
+            end: [state.flow.length] as number[],
+          });
         }
         return {
           flowHashmap: flowHashmap,
@@ -135,7 +133,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           });
           if (index >= 0) {
             draftState.flow.splice(index, 1);
-            draftState.flowHashmap =  FlowToCanvas.createFlowHashMap(draftState.flow);
+            draftState.flowHashmap = FlowToCanvas.createFlowHashMap(draftState.flow);
           }
         }),
       ),
