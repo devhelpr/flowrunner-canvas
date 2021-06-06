@@ -223,6 +223,7 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 					<div className="border mb-2">
 						<FormNodeHtmlPlugin 
 							isNodeSettingsUI={true} 
+							isInFlowEditor={false}
 							node={item} 
 							taskSettings={
 								{
@@ -248,7 +249,8 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 			{isAddingNewItem && <>
 				<div className="border mb-2">
 					<FormNodeHtmlPlugin 
-						isNodeSettingsUI={true} 
+						isNodeSettingsUI={true}
+						isInFlowEditor={false} 
 						node={{}} 
 						taskSettings={
 							{

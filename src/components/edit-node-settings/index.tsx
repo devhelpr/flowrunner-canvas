@@ -141,6 +141,7 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 						node={props.node} 
 						taskSettings={props.settings}
 						onSetValue={onSetValue}
+						isInFlowEditor={false}
 						flowrunnerConnector={props.flowrunnerConnector}
 						></FormNodeHtmlPlugin>
 				</div>

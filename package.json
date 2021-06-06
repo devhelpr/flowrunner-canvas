@@ -28,6 +28,8 @@
     "@devhelpr/expressionrunner": "^0.2.9",
     "@devhelpr/flowrunner": "^0.12.5",
     "@devhelpr/layoutrunner": "^0.0.2",
+    "@dnd-kit/core": "^3.0.4",
+    "@dnd-kit/sortable": "^3.1.0",
     "@material-ui/core": "4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@types/jexl": "^2.2.0",

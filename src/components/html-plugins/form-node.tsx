@@ -97,7 +97,7 @@ export interface FormNodeHtmlPluginProps {
 
 	isObjectListNodeEditing? : boolean;
 	isReadOnly? : boolean;
-
+	isInFlowEditor: boolean;
 	isNodeSettingsUI? : boolean;
 	datasources? : any;
 	onSetValue? : (value, fieldName) => void;
@@ -681,7 +681,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				if (fieldType) {
 					let datasourceToUse : any;
 					if (metaInfo.datasource == "module") {
-						console.log("datasoure module", metaInfo.datasourceId, props.datasources);
 						datasourceToUse = props.datasources[metaInfo.datasourceId] || [];
 					} else
 					if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
@@ -718,7 +717,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						metaInfo: metaInfo,
 						datasource : datasourceToUse,
 						datasources: props.datasources,
-						payload: receivedPayload
+						payload: receivedPayload,
+						isInFlowEditor:!!props.isInFlowEditor
 					})}</React.Fragment>
 				}
 				return null;

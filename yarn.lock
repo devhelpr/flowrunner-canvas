@@ -972,6 +972,37 @@
   resolved "https://registry.yarnpkg.com/@devhelpr/layoutrunner/-/layoutrunner-0.0.2.tgz#8e9a1ee5bfc8391c1ea577a4d8a8076eaea0594f"
   integrity sha512-w7092Xgo/T3Nz5rFPd0bDwDPR686lPs7K/ZIhshz9xtmBfig1HIpwV8wgzc/Bh1ThFKX41uXiURw3CAoC24+WA==
 
+"@dnd-kit/accessibility@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/accessibility/-/accessibility-3.0.0.tgz#b56e3750414fd907b7d6972b3116aa8f96d07fde"
+  integrity sha512-QwaQ1IJHQHMMuAGOOYHQSx7h7vMZPfO97aDts8t5N/MY7n2QTDSnW+kF7uRQ1tVBkr6vJ+BqHWG5dlgGvwVjow==
+  dependencies:
+    tslib "^2.0.0"
+
+"@dnd-kit/core@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/core/-/core-3.0.4.tgz#b10a0ffc9300a665108a4f7387b1c55dc6bf9c7f"
+  integrity sha512-EoUNyRWnRm8l0okwqG0iUwB0zrPkqBfJrIPdb3kMrTjoG/+70i4RnIuAhdKDnOxldFynWahPfJV3YBoDgeudgg==
+  dependencies:
+    "@dnd-kit/accessibility" "^3.0.0"
+    "@dnd-kit/utilities" "^2.0.0"
+    tslib "^2.0.0"
+
+"@dnd-kit/sortable@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/sortable/-/sortable-3.1.0.tgz#4638ea3d9202287ffb186679b593b3407c7e737d"
+  integrity sha512-BwnNgqMTqwIASdu9/x5PdqnAaFakx4HrflDP/zHfZAnGm912+Y545PlztVtAdxK+U6L3pXPR1BQaZO7JQjDxmg==
+  dependencies:
+    "@dnd-kit/utilities" "^2.0.0"
+    tslib "^2.0.0"
+
+"@dnd-kit/utilities@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/utilities/-/utilities-2.0.0.tgz#a8462dff65c6f606ecbe95273c7e263b14a1ab97"
+  integrity sha512-bjs49yMNzMM+BYRsBUhTqhTk6HEvhuY3leFt6Em6NaYGgygaMbtGbbXof/UXBv7rqyyi0OkmBBnrCCcxqS2t/g==
+  dependencies:
+    tslib "^2.0.0"
+
 "@emotion/hash@^0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.8.0.tgz#bbbff68978fefdbe68ccb533bc8cbe1d1afb5413"
@@ -8889,6 +8920,11 @@ tslib@^1.13.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
+
+tslib@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
+  integrity sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
 
 tslint-config-prettier@^1.18.0:
   version "1.18.0"

@@ -1236,7 +1236,14 @@ textarea.form-control {
 	position: absolute;
 	right: 20px;
 	top: 20px;
-	z-index: 1;
+	z-index: 2;
+}
+.form-control__object-list-node-grip {
+	position: absolute;
+	right: -1px;
+	top: -1px;
+	z-index: 2;
+	color: #d0d0d0;
 }
 
 .form-control__hash-map-heading {
@@ -1271,3 +1278,19 @@ textarea.form-control {
 .richtext-visualizer p:only-child {
 	margin-bottom: 0;
 }
+
+.form-control__object-list-node--sorting {
+	-webkit-filter: opacity(.5);
+	        filter: opacity(.5);
+}
+
+.form-control__object-list-node--sortable {
+	-webkit-transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) scaleX(var(--scale-x, 1)) scaleY(var(--scale-y, 1));
+	        transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) scaleX(var(--scale-x, 1)) scaleY(var(--scale-y, 1));
+    -webkit-transform-origin: 0 0;
+            transform-origin: 0 0;
+    -ms-touch-action: manipulation;
+        touch-action: manipulation;
+}
+
+

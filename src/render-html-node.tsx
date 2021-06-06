@@ -59,6 +59,7 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		return <FormNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
 			node={node}
 			taskSettings={taskSettings}
+			isInFlowEditor={true}
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {

@@ -30,6 +30,10 @@
 				"fieldName": "title"
 			},
 			{
+				"fieldName": "language",
+				"fieldType":"text"
+			},
+			{
 				"fieldName": "subtitle"
 			},
 			{

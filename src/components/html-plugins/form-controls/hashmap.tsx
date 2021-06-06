@@ -136,6 +136,7 @@ export const HashMap = (props: IFormControlProps) => {
 								name: props.node.name + "-edit-" + objectPropertyName, 
 								id: props.node.name + "-edit-" + objectPropertyName}}
 							isObjectListNodeEditing={true}
+							isInFlowEditor={props.isInFlowEditor}
 							onSetValue={(value, fieldName) => onEditNodeKeyValue(objectPropertyName, value, fieldName)}
 							datasources={props.datasources}
 						></FormNodeHtmlPlugin>
@@ -156,6 +157,7 @@ export const HashMap = (props: IFormControlProps) => {
 							name: props.node.name + "-add", 
 							id: props.node.name + "-add"}}
 						isObjectListNodeEditing={true}
+						isInFlowEditor={props.isInFlowEditor}
 						onSetValue={onAddNodeKeyValue}
 						datasources={props.datasources}
 					></FormNodeHtmlPlugin>

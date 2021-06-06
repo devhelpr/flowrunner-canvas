@@ -110,20 +110,11 @@ export const ObjectModule = (props: ObjectModulePopupProps) => {
 		put(`/api/modulecontent?moduleId=${modulesMenu.moduleId}`, 
 			{
 				data: {...itemValues}
-			}).then(() => {
-				setItemValues({});
-
+			}).then(() => {				
 				if (module && module.datasource == "flows") {
 					canvasMode.setFlowsUpdateId(uuidV4());
 				}				
 			});
-		return false;
-	}
-	
-
-	const onCancelEdit = (event) => {
-		event.preventDefault();
-		setItemValues({});
 		return false;
 	}
 
@@ -144,6 +135,7 @@ export const ObjectModule = (props: ObjectModulePopupProps) => {
 					<div className="border mb-2">
 						<FormNodeHtmlPlugin 
 							isNodeSettingsUI={true} 
+							isInFlowEditor={false}
 							node={module.items}
 							datasources={datasources} 
 							taskSettings={
@@ -159,7 +151,6 @@ export const ObjectModule = (props: ObjectModulePopupProps) => {
 					</div>
 					<div className="align-self-start mb-4">
 						<button onClick={(event) => {onSaveItem(module.items ,event)}} className="btn btn-primary mr-2">Save</button>
-						<button onClick={onCancelEdit} className="btn btn-outline-primary">Cancel</button>
 					</div>
 				</div>
 				

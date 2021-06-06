@@ -8,4 +8,5 @@ export interface IFormControlProps {
   datasource?: any;
   datasources?: any;
   payload?: any;
+  isInFlowEditor: boolean;
 }
