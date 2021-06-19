@@ -40,7 +40,9 @@ export class FlowToCanvas {
   static createFlowHashMap = flow => {
     const startPerf = performance.now();
     let flowHashMap = new Map();
-
+    if (!flow) {
+      return flowHashMap;
+    }
     flow.map((node, index) => {
       if (node.shapeType !== 'Line') {
         //const nodeMap = flowHashMap[node.name];
