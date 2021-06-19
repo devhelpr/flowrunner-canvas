@@ -27,8 +27,7 @@ export const TestsModule = (props: ModulesPopupProps) => {
 		//(workerRef.current as any) = new Worker(new URL("../../flow-worker", import.meta.url));
 		(workerRef.current as any) = getWorker();
 		(workerRef.current as any).postMessage("worker", {
-			command: 'init',
-			publicPath: __webpack_public_path__
+			command: 'init'
 		});
 		(workerRef.current as any).addEventListener("external", onMessage);
 

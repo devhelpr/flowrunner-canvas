@@ -1,4 +1,3 @@
-import './public-path';
 import * as React from 'react';
 import { useState } from 'react';
 import { Suspense } from 'react';
@@ -72,14 +71,11 @@ export const startEditor = () => {
 			*/
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
-
-		/*global __webpack_public_path__ */
  
 		let worker = getWorker();
 		//worker = new Worker(new URL("./flow-worker", import.meta.url));
 		worker.postMessage("worker", {
-			command: 'init',
-			publicPath: __webpack_public_path__
+			command: 'init'
 		});
 		//worker = new Worker("/worker.js");
 
@@ -103,8 +99,7 @@ export const startEditor = () => {
 			//worker = new Worker(new URL("./flow-worker", import.meta.url));
 			//worker = new Worker("/worker.js");
 			worker.postMessage("worker", {
-				command: 'init',
-				publicPath: __webpack_public_path__
+				command: 'init'
 			});
 			flowrunnerConnector.registerWorker(worker);
 		

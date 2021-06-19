@@ -559,10 +559,6 @@ const onWorkerMessage = event => {
     let data: any = event.data;
     let command = data.command;
     if (command == 'init') {
-      /*global __webpack_public_path__ */
-      __webpack_public_path__ = data.publicPath;
-
-      console.log('__webpack_public_path__', __webpack_public_path__, data.publicPath);
 
       /*
       import('../rust/pkg').then(wasm => {

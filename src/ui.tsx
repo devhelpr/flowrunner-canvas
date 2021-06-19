@@ -1,4 +1,3 @@
-import './public-path';
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -39,13 +38,10 @@ export const UIView = (props: IUIViewProps) => {
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
 
-		/*global __webpack_public_path__ */
-
 		let worker = getWorker();
 		//worker = new Worker(new URL("./flow-worker", import.meta.url));
 		worker.postMessage("worker", {
-			command: 'init',
-			publicPath: __webpack_public_path__
+			command: 'init'
 		});
 
 		let pluginRegistry = {};
@@ -65,8 +61,7 @@ export const UIView = (props: IUIViewProps) => {
 			//worker = new Worker(new URL("./flow-worker", import.meta.url));
 			worker = getWorker();
 			worker.postMessage("worker", {
-				command: 'init',
-				publicPath: __webpack_public_path__
+				command: 'init'
 			});
 			flowrunnerConnector.current.registerWorker(worker);		
 		}
