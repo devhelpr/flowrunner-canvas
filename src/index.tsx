@@ -21,6 +21,7 @@ import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerC
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
+import { getWorker } from './flow-worker';
 
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
 
@@ -74,9 +75,9 @@ export const startEditor = () => {
 
 		/*global __webpack_public_path__ */
  
-		let worker : Worker | null;
-		worker = new Worker(new URL("./flow-worker", import.meta.url));
-		worker.postMessage({
+		let worker = getWorker();
+		//worker = new Worker(new URL("./flow-worker", import.meta.url));
+		worker.postMessage("worker", {
 			command: 'init',
 			publicPath: __webpack_public_path__
 		});
@@ -96,12 +97,12 @@ export const startEditor = () => {
 			console.log("onDestroyAndRecreateWorker handling");
 			if (worker) {
 				worker.terminate();
-				worker = null;
+				//worker = null;
 			}
-			//worker = new Worker();
-			worker = new Worker(new URL("./flow-worker", import.meta.url));
+			worker = getWorker();
+			//worker = new Worker(new URL("./flow-worker", import.meta.url));
 			//worker = new Worker("/worker.js");
-			worker.postMessage({
+			worker.postMessage("worker", {
 				command: 'init',
 				publicPath: __webpack_public_path__
 			});

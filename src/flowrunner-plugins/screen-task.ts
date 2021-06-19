@@ -4,7 +4,7 @@ export class ScreenTask extends FlowTask {
   public execute(node: any, services: any) {
     console.log('ScreenTask', node);
     try {
-      services.workerContext.postMessage({
+      services.workerContext.postMessage("worker", {
         command: 'SendScreen',
         payload: {
           ...(node.payload.titleBar || {

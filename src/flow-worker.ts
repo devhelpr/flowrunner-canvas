@@ -1,4 +1,30 @@
-const ctx: Worker = self as any;
+import { IWorker } from "./interfaces/IWorker";
+
+export class FlowWorker implements IWorker {
+  eventListeners : any = {}; 
+  postMessage = (eventName, message: any) => {
+    (this.eventListeners[eventName] || []).map((listener) => {
+      listener({eventName: eventName, data : message});
+    });
+  };
+  addEventListener = (eventName: string, callback: (event: any) => void) => {
+    if (!this.eventListeners[eventName]) {
+      this.eventListeners[eventName] = [];
+    }
+    this.eventListeners[eventName].push(callback);
+  };
+  terminate= () => {
+    this.eventListeners = {};
+  }
+}
+
+let ctx: FlowWorker = new FlowWorker();
+export const getWorker = () => {
+  ctx = new FlowWorker();
+  ctx.addEventListener("worker" , onWorkerMessage);
+  return ctx;
+}
+
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import { BehaviorSubject, Subject } from 'rxjs';
 
@@ -296,7 +322,7 @@ const FlowPluginWrapperTask = pluginName => {
             executeId,
           };
           const payload = { ...node.payload, executeId: executeId };
-          ctx.postMessage({
+          ctx.postMessage("external", {
             command: 'ExecuteFlowPlugin',
             payload: payload,
             nodeName: node.name,
@@ -529,7 +555,6 @@ export class MapPayloadTask extends FlowTask {
 const onWorkerMessage = event => {
   // event.data contains event message data
   //console.log("event from flow", event);
-
   if (event && event.data) {
     let data: any = event.data;
     let command = data.command;
@@ -591,7 +616,7 @@ const onWorkerMessage = event => {
         .executeNode(data.nodeName, payload || {})
         .then(result => {
           if (sendMessageOnResolve) {
-            ctx.postMessage({
+            ctx.postMessage("external", {
               command: 'ExecuteFlowNodeResult',
               result: result,
               payload: { ...(result as any) },
@@ -601,7 +626,7 @@ const onWorkerMessage = event => {
         .catch(error => {
           console.log('executeNode failed', error);
           if (sendMessageOnResolve) {
-            ctx.postMessage({
+            ctx.postMessage("external", {
               command: 'ExecuteFlowNodeResult',
               result: false,
               payload: undefined,
@@ -667,7 +692,7 @@ const onWorkerMessage = event => {
           },
           next: (payload: any) => {
             //console.log("command SendObservableNodePayload", payload);
-            ctx.postMessage({
+            ctx.postMessage("external", {
               command: 'SendObservableNodePayload',
               payload: payload.payload,
               nodeName: payload.nodeName,
@@ -711,7 +736,7 @@ let lastDate = new Date();
 const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
   //if (dateTime >= lastDate) {
   lastDate = dateTime;
-  ctx.postMessage({
+  ctx.postMessage("external", {
     command: 'SendNodeExecution',
     result: result,
     dateTime: dateTime,
@@ -831,7 +856,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
           let subscribtion = observable.subscribe({
             next: (payload: any) => {
               console.log('SendObservableNodePayload in worker', payload, key);
-              ctx.postMessage({
+              ctx.postMessage("external", {
                 command: 'SendObservableNodePayload',
                 payload: { ...(payload || {}) },
                 nodeName: key,
@@ -844,7 +869,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
 
       console.log('RegisterFlowNodeObservers after start, init time:', performance.now() - perfstart + 'ms');
 
-      ctx.postMessage({
+      ctx.postMessage("external", {
         command: 'RegisterFlowNodeObservers',
         payload: {},
       });
@@ -855,7 +880,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
     });
 };
 
-ctx.addEventListener('message', onWorkerMessage);
+ctx.addEventListener('worker', onWorkerMessage);
 
 console.log('flowrunner web-worker started');
 

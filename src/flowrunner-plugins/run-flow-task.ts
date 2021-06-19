@@ -2,6 +2,7 @@ import { FlowTask, FlowEventRunner } from '@devhelpr/flowrunner';
 import { FlowLoader } from './components/flow-loader';
 import { FlowConnector } from '../flow-connector';
 import { IWorker } from '../interfaces/IWorker';
+import { getWorker } from '../flow-worker';
 
 /*
   can we create a worker here an use that to run?
@@ -35,7 +36,8 @@ export class RunFlowTask extends FlowTask {
   public execute(node: any, services: any) {
     try {
       if (!this.worker && !this.flowrunnerConnector) {
-        this.worker = new Worker(new URL('../flow-worker', import.meta.url));
+        //this.worker = new Worker(new URL('../flow-worker', import.meta.url));
+        this.worker = getWorker();
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IWorker);
 

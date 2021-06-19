@@ -118,10 +118,10 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   registerWorker(worker: IWorker) {
     this.worker = worker;
-    worker.postMessage({ a: 1 });
+    worker.postMessage("worker", { a: 1 });
     console.log('registerWorker');
-    worker.addEventListener('message', this.onMessage);
-    worker.addEventListener('error', this.onError);
+    worker.addEventListener('external', this.onMessage);
+    worker.addEventListener('externalerror', this.onError);
   }
 
   onReceiveFlowNodeExecuteResult: any;
@@ -223,7 +223,7 @@ export class FlowConnector implements IFlowrunnerConnector {
             },
           );
           if (this.worker) {
-            this.worker.postMessage({
+            this.worker.postMessage("worker", {
               command: 'ResultFlowPlugin',
               nodeName: event.data.nodeName,
               payload: result,
@@ -243,7 +243,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         console.log('RegisterFlowNodeObservers', this.observables);
         this.observables.map(observable => {
           if (this.worker) {
-            this.worker.postMessage({
+            this.worker.postMessage("worker", {
               command: 'registerFlowNodeObserver',
               nodeName: observable.nodeName,
             });
@@ -270,7 +270,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     //console.log('registerFlowNodeObserver pre', nodeName, [...this.observables]);
 
     if (this.worker) {
-      this.worker.postMessage({
+      this.worker.postMessage("worker", {
         command: 'registerFlowNodeObserver',
         nodeName: nodeName,
       });
@@ -363,7 +363,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         pluginRegistryTaskNames.push(plugin.FlowTaskPluginClassName);
       }
       if (this.flowType == 'playground') {
-        this.worker.postMessage({
+        this.worker.postMessage("worker", {
           command: 'pushFlowToFlowrunner',
           flow: flow,
           flowId: flowId,
@@ -371,7 +371,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           autoStartNodes: autoStartNodes,
         });
       } else {
-        this.worker.postMessage({
+        this.worker.postMessage("worker", {
           command: 'pushFlowToFlowrunner',
           flow: [],
           pluginRegistry: pluginRegistryTaskNames,
@@ -383,7 +383,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   executeFlowNode = (nodeName: string, payload: any) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
-        this.worker.postMessage({
+        this.worker.postMessage("worker", {
           command: 'executeFlowNode',
           nodeName: nodeName,
           payload: payload,
@@ -403,7 +403,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   ) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
-        this.worker.postMessage({
+        this.worker.postMessage("worker", {
           command: 'modifyFlowNode',
           nodeName: nodeName,
           propertyName: propertyName,
@@ -430,7 +430,7 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   pauseFlowrunner = () => {
     if (this.worker) {
-      this.worker.postMessage({
+      this.worker.postMessage("worker", {
         command: 'PauseFlowrunner',
       });
     }
@@ -438,7 +438,7 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   resumeFlowrunner = () => {
     if (this.worker) {
-      this.worker.postMessage({
+      this.worker.postMessage("worker",  {
         command: 'ResumeFlowrunner',
       });
     }
@@ -508,7 +508,7 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   runTests = (flowId: string) => {
     if (this.worker) {
-      this.worker.postMessage({
+      this.worker.postMessage("worker", {
         command: 'runTests',
         flowId: flowId,
       });

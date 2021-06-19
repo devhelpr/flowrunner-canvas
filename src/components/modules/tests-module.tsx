@@ -7,6 +7,7 @@ import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { useFlowStore} from '../../state/flow-state';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { getWorker } from '../../flow-worker';
 
 export interface ModulesPopupProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -23,16 +24,17 @@ export const TestsModule = (props: ModulesPopupProps) => {
 	// TODO : setup modules folder and components so that TestRunner has its own file and other modules as well
 
 	useEffect(() => {
-		(workerRef.current as any) = new Worker(new URL("../../flow-worker", import.meta.url));
-		(workerRef.current as any).postMessage({
+		//(workerRef.current as any) = new Worker(new URL("../../flow-worker", import.meta.url));
+		(workerRef.current as any) = getWorker();
+		(workerRef.current as any).postMessage("worker", {
 			command: 'init',
 			publicPath: __webpack_public_path__
 		});
-		(workerRef.current as any).addEventListener("message", onMessage);
+		(workerRef.current as any).addEventListener("external", onMessage);
 
 		return () => {
 			if (workerRef.current) {
-				(workerRef.current as any).removeEventListener("message");
+				//(workerRef.current as any).removeEventListener("message");
 				(workerRef.current as any).terminate();
 				(workerRef.current as any) = null;
 			}
@@ -68,7 +70,7 @@ export const TestsModule = (props: ModulesPopupProps) => {
 	useEffect(() => {
 		setResults([]);
 		setError("");
-		(workerRef.current as any).postMessage({
+		(workerRef.current as any).postMessage("worker", {
 			command: 'pushFlowToFlowrunner',
 			flow: flow.flow,
 			flowId: flow.flowId,
@@ -81,7 +83,7 @@ export const TestsModule = (props: ModulesPopupProps) => {
 		event.preventDefault();
 		//props.flowrunnerConnector.runTests(flow.flowId);
 		if (workerRef.current as any) {
-			(workerRef.current as any).postMessage({
+			(workerRef.current as any).postMessage("worker", {
 				command: 'runTests',
 				flowId: flow.flowId
 			});

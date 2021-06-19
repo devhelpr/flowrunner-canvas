@@ -3,6 +3,7 @@ import { useState , useRef, useEffect } from 'react';
 import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
 import { FlowConnector } from '../../../flow-connector';
 import { MultiFormView } from '../../userinterface-view/multi-form-view';
+import { getWorker } from '../../../flow-worker';
 
 export interface IMultiForm {
 	node : any;
@@ -23,8 +24,9 @@ export const MultiForm = (props: IMultiForm) => {
 		// TODO : refactor to use a module which loads the worker. This module should also be 
 		//    used elsewhere
 
-		(workerRef.current as any) = new Worker(new URL("../../../flow-worker", import.meta.url));
-		(workerRef.current as any).postMessage({
+		//(workerRef.current as any) = new Worker(new URL("../../../flow-worker", import.meta.url));
+		(workerRef.current as any) = getWorker();
+		(workerRef.current as any).postMessage("worker", {
 			command: 'init',
 			publicPath: __webpack_public_path__
 		});

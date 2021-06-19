@@ -12,6 +12,7 @@ import { IStorageProvider } from './interfaces/IStorageProvider';
 import { setCustomConfig } from './config';
 import { renderHtmlNode, getNodeInstance , setPluginRegistry } from './render-html-node';
 import { UserInterfaceView } from './components/userinterface-view';
+import { getWorker } from './flow-worker';
 
 export interface IUIViewProps {
 	flowId : string;
@@ -40,9 +41,9 @@ export const UIView = (props: IUIViewProps) => {
 
 		/*global __webpack_public_path__ */
 
-		let worker : Worker | null;
-		worker = new Worker(new URL("./flow-worker", import.meta.url));
-		worker.postMessage({
+		let worker = getWorker();
+		//worker = new Worker(new URL("./flow-worker", import.meta.url));
+		worker.postMessage("worker", {
 			command: 'init',
 			publicPath: __webpack_public_path__
 		});
@@ -59,10 +60,11 @@ export const UIView = (props: IUIViewProps) => {
 			console.log("onDestroyAndRecreateWorker handling");
 			if (worker) {
 				worker.terminate();
-				worker = null;
+				//worker = null;
 			}
-			worker = new Worker(new URL("./flow-worker", import.meta.url));
-			worker.postMessage({
+			//worker = new Worker(new URL("./flow-worker", import.meta.url));
+			worker = getWorker();
+			worker.postMessage("worker", {
 				command: 'init',
 				publicPath: __webpack_public_path__
 			});
@@ -120,7 +122,7 @@ export const UIView = (props: IUIViewProps) => {
 		return () => {
 			if (worker) {
 				worker.terminate();
-				worker = null;
+				//worker = null;
 			}
 		}
 	}, []);
