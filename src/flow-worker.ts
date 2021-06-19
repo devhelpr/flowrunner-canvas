@@ -559,7 +559,6 @@ const onWorkerMessage = event => {
     let data: any = event.data;
     let command = data.command;
     if (command == 'init') {
-
       /*
       import('../rust/pkg').then(wasm => {
         console.log('wasm', wasm, wasm.greet('hello wasm!'));
