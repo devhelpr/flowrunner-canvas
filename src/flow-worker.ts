@@ -764,13 +764,13 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
       clearInterval(timers[timer]);
     }
     timers = {};
-    console.log("before destroyflow" , flowId, currentFlowId, isSameFlow);
-    
+    console.log('before destroyflow', flowId, currentFlowId, isSameFlow);
+
     // TODO: analyse if everything that is done in destroyflow should
     //  only be done when !isSameFlow
     // When flow.destroyflow is run here, currently the observable-tasks dont
     //   work anymore (debugtask)
-    
+
     //flow.destroyFlow();
 
     if (!isSameFlow) {
