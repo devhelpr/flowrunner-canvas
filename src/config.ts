@@ -707,7 +707,7 @@ const taskTypeConfig: any = {
       {
         fieldName: 'formFlows',
         fieldType: 'objectList',
-        idProperty: "formName",
+        idProperty: 'formName',
         metaInfo: [
           {
             fieldName: 'formName',
@@ -816,7 +816,7 @@ const taskTypeConfig: any = {
           fieldName: 'metaInfo',
           fieldType: 'objectList',
           label: 'Form controls',
-          idProperty: "fieldName",
+          idProperty: 'fieldName',
           metaInfo: [
             {
               fieldName: 'fieldName',
@@ -874,7 +874,7 @@ const taskTypeConfig: any = {
               fieldName: 'options',
               fieldType: 'objectList',
               label: 'Options',
-              idProperty: "value",
+              idProperty: 'value',
               metaInfo: [
                 {
                   fieldName: 'value',

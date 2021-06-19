@@ -9,5 +9,5 @@ export interface IFormControlProps {
   datasources?: any;
   payload?: any;
   isInFlowEditor: boolean;
-  fieldDefinition? : any;
+  fieldDefinition?: any;
 }
