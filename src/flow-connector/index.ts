@@ -365,7 +365,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       if (this.flowType == 'playground') {
         this.worker.postMessage('worker', {
           command: 'pushFlowToFlowrunner',
-          flow: flow,
+          flow: [...flow],
           flowId: flowId,
           pluginRegistry: pluginRegistryTaskNames,
           autoStartNodes: autoStartNodes,

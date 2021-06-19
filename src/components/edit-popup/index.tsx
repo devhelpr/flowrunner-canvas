@@ -64,7 +64,8 @@ export const EditPopup = (props: EditPopupProps) => {
 		delete node._id;
 		delete node.id;
 		delete node.shapeType;
-		
+		delete node.observable;
+		console.log("EditPopup", node);
 		setValue(JSON.stringify(node, null, 2));
 		setOrgNodeName(selectedNode.node.name);
 		setOrgNodeValues({...selectedNode.node});
