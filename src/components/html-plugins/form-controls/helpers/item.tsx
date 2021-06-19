@@ -120,22 +120,16 @@ export const Item = forwardRef((props: ItemProps, ref?: any) => {
 			</tr>
 		}
 	} else {
+		// 
 		return <div ref={ref} 
-			style={props.style} 
-			
+			style={props.style}			 	
 			className={"form-control__object-list-node form-control__object-list-node--sortable " + 
 				(props.isBeingSorted ? "form-control__object-list-node--sorting" : "")} 
 			key={"input" + props.metaInfo.fieldName + props.index}>
 			<a href="#" onFocus={onFocus} 
-			{	...props.listeners} 				
+				{...props.listeners} 				
 				className="form-control__object-list-node-grip fas fa-grip-vertical"></a>
-			<a href="#" onFocus={onFocus} 
-				onMouseOver={() => {
-					// TODO : set onhoverstate in object-list and disable useSortable...
-				}} 
-				onMouseOut={() => {
-					// TODO : set onhoverstate in object-list to -1 and enable useSortable...
-				}} 
+			<a href="#" onFocus={onFocus} 		
 				onClick={(event) => props.deleteClick(event, props.index)} 
 				className="form-control__object-list-node-delete fas fa-trash-alt"></a>
 			<FormNodeHtmlPlugin 

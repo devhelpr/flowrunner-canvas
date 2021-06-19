@@ -1587,7 +1587,12 @@ export const Canvas = (props: CanvasProps) => {
 		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
-			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], false, false, true);
+			
+			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], event.evt.screenX ? {
+				x: event.evt.screenX,
+				y: event.evt.screenY
+			} : undefined, false, false, true);
+			
 			cancelDragStage();
 			return false;
 		} else {

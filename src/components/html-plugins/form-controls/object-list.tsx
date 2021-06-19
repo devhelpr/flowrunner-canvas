@@ -3,18 +3,25 @@ import { useState, useEffect } from 'react';
 import {
 	DndContext, 
 	closestCenter,
+	closestCorners,
 	KeyboardSensor,
 	PointerSensor,
+	TouchSensor,
+	MouseSensor,
 	useSensor,
 	useSensors,
-	DragOverlay
+	DragOverlay,
+	LayoutMeasuringStrategy, 
+	DropAnimation,
+	defaultDropAnimation,
 } from '@dnd-kit/core';
 import {
 	arrayMove,
 	SortableContext,
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
-	AnimateLayoutChanges
+	AnimateLayoutChanges,
+	rectSwappingStrategy
 } from '@dnd-kit/sortable';
 
 import { IFormControlProps } from './form-control-interface';
@@ -24,6 +31,10 @@ import { FormNodeHtmlPlugin } from '../form-node';
 import { onFocus } from './helpers/focus';
 import { SortableItem } from './helpers/sortable-context';
 import { Item } from './helpers/item';
+
+import * as uuid from 'uuid';
+const uuidV4 = uuid.v4;
+
 /*
 	Purpose:
 		show list of form-nodes
@@ -41,14 +52,21 @@ import { Item } from './helpers/item';
 
 export const ObjectList = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
-	const [activeId, setActiveId] = useState(-1);
+	const [activeId, setActiveId] = useState("");
 	const [ isAdding , setAdding] = useState(false);
 	const [ newValue, setNewValue ] = useState({});
 	const [ editIndex , setEditIndex] = useState(-1);
 	let formControl = useFormControlFromCode(props.value || [], metaInfo, props.onChange);
 	
+	const defaultDropAnimationConfig: DropAnimation = {
+		...defaultDropAnimation,
+		dragSourceOpacity: 0.5,
+		//duration: 0
+	  };
+
 	const sensors = useSensors(
-		useSensor(PointerSensor),
+		useSensor(MouseSensor),
+		useSensor(TouchSensor),
 		useSensor(KeyboardSensor, {
 			coordinateGetter: sortableKeyboardCoordinates,
 		})
@@ -81,9 +99,13 @@ export const ObjectList = (props: IFormControlProps) => {
 		event.preventDefault();
 
 		let newList = [...formControl.value];
+		if (props.fieldDefinition && props.fieldDefinition.idProperty &&
+			!newValue[props.fieldDefinition.idProperty]) {
+			newValue[props.fieldDefinition.idProperty] = uuidV4();
+		}
 		newList.push(newValue);
 		formControl.handleChangeByValue(newList);
-
+		
 		setAdding(false);
 		setNewValue({});
 
@@ -121,33 +143,118 @@ export const ObjectList = (props: IFormControlProps) => {
 
 	function handleDragStart(event) {
 		const {active} = event;		
-		let index = parseInt(active.id);
-		setActiveId(index);
-		console.log("handleDragStart", index, active);
+		//let index = parseInt(active.id);
+		setActiveId(active.id);
+		console.log("handleDragStart", active.id, props, formControl.value);
+		//console.log("handleDragStart", index, active);
 	}	  
+
+	function handleDragOver(event) {
+		const {active, over} = event;
+	
+		if (over && active.id !== over.id) {
+			if (props.fieldDefinition && props.fieldDefinition.idProperty) { 
+				let newList = [...formControl.value];
+				let index = -1;
+				let overIndex = -1;
+				newList.map((item, currentIndex) => {
+					if (item[props.fieldDefinition.idProperty] == active.id) {
+						index = currentIndex;
+					}
+					if (item[props.fieldDefinition.idProperty] == over.id) {
+						overIndex = currentIndex;
+					}
+				});
+				let oldIndex = index;
+				let newIndex = overIndex;
+
+				console.log("handleDragOver", oldIndex,newIndex);
+				formControl.handleChangeByValue(arrayMove(newList, oldIndex, newIndex));	
+
+			} else {
+			
+				let index = parseInt(active.id);
+				let overIndex = parseInt(over.id);
+				let newList = [...formControl.value];
+				let oldIndex = index;
+				let newIndex = overIndex;
+				formControl.handleChangeByValue(arrayMove(newList, oldIndex, newIndex));						
+			}
+
+		}
+	  }
 
 	function handleDragEnd(event) {
 		const {active, over} = event;
-		let index = parseInt(active.id);
-		let overIndex = parseInt(over.id);
-		console.log("handleDragEnd", index, overIndex);
-		if (index !== overIndex) {
+		if (props.fieldDefinition && props.fieldDefinition.idProperty) { 
 			let newList = [...formControl.value];
+			let index = -1;
+			let overIndex = -1;
+			newList.map((item, currentIndex) => {
+				if (item[props.fieldDefinition.idProperty] == active.id) {
+					index = currentIndex;
+				}
+				if (item[props.fieldDefinition.idProperty] == over.id) {
+					overIndex = currentIndex;
+				}
+			});
 			let oldIndex = index;
 			let newIndex = overIndex;
-			/*newList.map((item, index) => {
-				if (item.id == active.id) {
-					oldIndex = index;
-				} else 
-				if (item.id == over.id) {
-					newIndex = index;
-				}
-			});*/
-			formControl.handleChangeByValue(arrayMove(newList, oldIndex, newIndex));						
+			console.log("handleDragEnd", oldIndex,newIndex);
+			formControl.handleChangeByValue(arrayMove(newList, oldIndex, newIndex));	
+		} else {
+			let index = parseInt(active.id);
+			let overIndex = parseInt(over.id);
+			console.log("handleDragEnd", index, overIndex);
+			if (index !== overIndex) {
+				let newList = [...formControl.value];
+				let oldIndex = index;
+				let newIndex = overIndex;
+				/*newList.map((item, index) => {
+					if (item.id == active.id) {
+						oldIndex = index;
+					} else 
+					if (item.id == over.id) {
+						newIndex = index;
+					}
+				});*/
+				formControl.handleChangeByValue(arrayMove(newList, oldIndex, newIndex));						
+			}
 		}
-		setActiveId(-1);
+		setActiveId("");
 	}
 
+	const getValueByActiveId = (id) => {
+		let value : any = {};
+		formControl.value.map((item, index) => {
+			if (props.fieldDefinition && props.fieldDefinition.idProperty) {
+				if (item[props.fieldDefinition.idProperty] == id) {
+					value = item;
+				}
+			} else 
+			if (parseInt(id) == index) {
+				value = item;
+			}
+		});
+		return value;
+	}	
+
+	const getSortableItems = () => {
+		if (!formControl.value) {
+			return [];
+		}
+		const result = formControl.value.map(
+			(item,index) => {
+
+				if (props.fieldDefinition && props.fieldDefinition.idProperty) {
+					return item[props.fieldDefinition.idProperty]
+				}
+				return index.toString()
+			}
+		)
+		console.log("getSortableItems", result);
+		return result;
+	}
 	/*
 
 	<DndContext 
@@ -232,20 +339,22 @@ export const ObjectList = (props: IFormControlProps) => {
 				<table>
 					<tbody>
 						<DndContext 
-						
+							layoutMeasuring={{strategy: LayoutMeasuringStrategy.Always}}
 							sensors={sensors}
-							collisionDetection={closestCenter}
+							collisionDetection={closestCorners}
 							onDragStart={handleDragStart}
 							onDragEnd={handleDragEnd}
+							onDragCancel={handleDragEnd}
+							onDragOver={handleDragOver}							
 						>
 							<SortableContext 								
-								items={formControl.value}
-								strategy={verticalListSortingStrategy}
+								items={getSortableItems()}
+								strategy={rectSwappingStrategy}								
 							>
 								{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
 									return <SortableItem 
 										key={"viewmode-table-" + index} 
-										id={index.toString()} 
+										id={props.fieldDefinition && props.fieldDefinition.idProperty? listItem[props.fieldDefinition.idProperty] : index.toString()} 
 										index={index}
 										node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 										isObjectListNodeEditing={true}
@@ -265,13 +374,13 @@ export const ObjectList = (props: IFormControlProps) => {
 								})
 							}
 							</SortableContext>
-							<DragOverlay>
-								{activeId >= 0 ? <Item id={activeId.toString()}
+							<DragOverlay dropAnimation={defaultDropAnimationConfig}>
+								{activeId != "" ? <Item id={activeId.toString()}
 									style={{}}
 									children={{}}	
 									listeners={{}}		
-									index={activeId}
-									node={{...formControl.value[activeId], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + activeId, 
+									index={-1}
+									node={{...getValueByActiveId(activeId), metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + activeId, 
 										id: props.node.name + "-edit-" + activeId}}
 									isObjectListNodeEditing={true}
 									onSetValue={(value, fieldName) => onEditNodeKeyValue(activeId, value, fieldName)}
@@ -294,17 +403,19 @@ export const ObjectList = (props: IFormControlProps) => {
 				</table>
 			: <DndContext 
 				sensors={sensors}
-				collisionDetection={closestCenter}
+				collisionDetection={closestCorners}
 				onDragStart={handleDragStart}
 				onDragEnd={handleDragEnd}
+				onDragCancel={handleDragEnd}
+				onDragOver={handleDragOver}
 			>
 				<SortableContext 
-					items={formControl.value}
-					strategy={verticalListSortingStrategy}
+					items={getSortableItems()}
+					strategy={rectSwappingStrategy}
 				>{Array.isArray(formControl.value) && formControl.value.map((listItem, index) => {
 					return <SortableItem 
-							key={"viewmode-list-" + index} 
-							id={index.toString()} 
+							key={index.toString()} 
+							id={props.fieldDefinition && props.fieldDefinition.idProperty? listItem[props.fieldDefinition.idProperty] : index.toString()} 
 							index={index}
 							node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
 							isObjectListNodeEditing={true}
@@ -315,7 +426,7 @@ export const ObjectList = (props: IFormControlProps) => {
 							listItem={listItem}									
 							isInFlowEditor={props.isInFlowEditor}
 							editIndex={editIndex}
-							isBeingSorted={index == activeId}
+							isBeingSorted={false}
 							onEditItem={onEditItem}
 							metaInfo={metaInfo}
 							deleteClick={deleteClick}
@@ -325,12 +436,12 @@ export const ObjectList = (props: IFormControlProps) => {
 				}
 				</SortableContext>
 				<DragOverlay>
-					{activeId >= 0 ? <Item id={activeId.toString()}
+					{activeId != "" ? <Item id={activeId.toString()}
 						style={{}}						
 						children={{}}		
 						listeners={{}}	
-						index={activeId}
-						node={{...formControl.value[activeId], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + activeId, 
+						index={-1}
+						node={{...getValueByActiveId(activeId), metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + activeId, 
 							id: props.node.name + "-edit-" + activeId}}
 						isObjectListNodeEditing={true}
 						onSetValue={(value, fieldName) => onEditNodeKeyValue(activeId, value, fieldName)}
@@ -347,7 +458,7 @@ export const ObjectList = (props: IFormControlProps) => {
 						onEditNodeKeyValue={onEditNodeKeyValue}		
 					></Item> : null}
 				</DragOverlay>
-				</DndContext>
+			</DndContext>
 			}</>}
 			{isAdding ?
 				<div className="form-control__object-list-node">

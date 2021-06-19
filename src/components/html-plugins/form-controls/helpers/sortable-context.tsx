@@ -41,7 +41,8 @@ const animateLayoutChanges: AnimateLayoutChanges = (args) =>
     setNodeRef,
     transform,
     transition,
-  } = useSortable({id: props.id, animateLayoutChanges});
+	isDragging
+  } = useSortable({id: props.id});
   
   /*const style = {
     transform: CSS.Transform.toString(transform),
@@ -50,9 +51,11 @@ const animateLayoutChanges: AnimateLayoutChanges = (args) =>
   */
 
   const style = {
-    '--translate-x': transform ? transform.x : 0,
-    '--translate-y': transform ? transform.y : 0,
+    position: 'relative',
+    transform: CSS.Transform.toString(transform),
     transition,
+	zIndex: isDragging ? "100" : "auto",
+	opacity : isDragging ? 0 : 1
   };
   //console.log("SortableItem", style);
   // WHY is the transform not changing when sorting???

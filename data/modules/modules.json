@@ -158,6 +158,7 @@
 					{
 						"fieldName":"options",
 						"fieldType":"objectList",
+						"idProperty":"id",
 						"metaInfo": [
 							{
 								"fieldName": "page",

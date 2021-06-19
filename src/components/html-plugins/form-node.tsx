@@ -718,7 +718,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						datasource : datasourceToUse,
 						datasources: props.datasources,
 						payload: receivedPayload,
-						isInFlowEditor:!!props.isInFlowEditor
+						isInFlowEditor:!!props.isInFlowEditor,
+						fieldDefinition: metaInfo
 					})}</React.Fragment>
 				}
 				return null;

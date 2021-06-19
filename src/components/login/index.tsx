@@ -30,7 +30,18 @@ export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
     isRegistratingNewUser: false,
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    let loadingElement = document.getElementById("loading");
+    if (loadingElement && !loadingElement.classList.contains("loaded")) {
+      loadingElement.classList.add("loaded");
+      setTimeout(() => {
+        let loadingElement = document.getElementById("loading");
+        if (loadingElement) {
+          loadingElement.classList.add("hidden");
+        }
+      },350);
+    }
+  }
 
   onChange = (event: {
     preventDefault: any;
@@ -51,6 +62,19 @@ export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
     this.setState({ isRegistratingNewUser: !this.state.isRegistratingNewUser });
     return false;
   };
+
+  showLoadingScreen = () => {
+    let loadingElement = document.getElementById("loading");
+    if (loadingElement && !loadingElement.classList.contains("loaded")) {
+      loadingElement.classList.add("loaded");
+      setTimeout(() => {
+        let loadingElement = document.getElementById("loading");
+        if (loadingElement) {
+          loadingElement.classList.remove("hidden");
+        }
+      },350);
+    }
+  }
 
   onSubmit = event => {
     event.preventDefault();
@@ -82,6 +106,7 @@ export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
         })
         .then(repsonse => {
           if (repsonse.jwt !== undefined && repsonse.jwt !== '') {
+            this.showLoadingScreen();
             this.props.onClose();
           } else {
             alert('Register new user failed, please try again');
@@ -110,6 +135,7 @@ export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
         })
         .then(repsonse => {
           if (repsonse.jwt !== undefined && repsonse.jwt !== '') {
+            this.showLoadingScreen();
             this.props.onClose();
           } else {
             alert('Login failed, please try again');
