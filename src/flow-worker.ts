@@ -1,10 +1,10 @@
-import { IWorker } from "./interfaces/IWorker";
+import { IWorker } from './interfaces/IWorker';
 
 export class FlowWorker implements IWorker {
-  eventListeners : any = {}; 
+  eventListeners: any = {};
   postMessage = (eventName, message: any) => {
-    (this.eventListeners[eventName] || []).map((listener) => {
-      listener({eventName: eventName, data : message});
+    (this.eventListeners[eventName] || []).map(listener => {
+      listener({ eventName: eventName, data: message });
     });
   };
   addEventListener = (eventName: string, callback: (event: any) => void) => {
@@ -13,17 +13,17 @@ export class FlowWorker implements IWorker {
     }
     this.eventListeners[eventName].push(callback);
   };
-  terminate= () => {
+  terminate = () => {
     this.eventListeners = {};
-  }
+  };
 }
 
 let ctx: FlowWorker = new FlowWorker();
 export const getWorker = () => {
   ctx = new FlowWorker();
-  ctx.addEventListener("worker" , onWorkerMessage);
+  ctx.addEventListener('worker', onWorkerMessage);
   return ctx;
-}
+};
 
 import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -322,7 +322,7 @@ const FlowPluginWrapperTask = pluginName => {
             executeId,
           };
           const payload = { ...node.payload, executeId: executeId };
-          ctx.postMessage("external", {
+          ctx.postMessage('external', {
             command: 'ExecuteFlowPlugin',
             payload: payload,
             nodeName: node.name,
@@ -616,7 +616,7 @@ const onWorkerMessage = event => {
         .executeNode(data.nodeName, payload || {})
         .then(result => {
           if (sendMessageOnResolve) {
-            ctx.postMessage("external", {
+            ctx.postMessage('external', {
               command: 'ExecuteFlowNodeResult',
               result: result,
               payload: { ...(result as any) },
@@ -626,7 +626,7 @@ const onWorkerMessage = event => {
         .catch(error => {
           console.log('executeNode failed', error);
           if (sendMessageOnResolve) {
-            ctx.postMessage("external", {
+            ctx.postMessage('external', {
               command: 'ExecuteFlowNodeResult',
               result: false,
               payload: undefined,
@@ -692,7 +692,7 @@ const onWorkerMessage = event => {
           },
           next: (payload: any) => {
             //console.log("command SendObservableNodePayload", payload);
-            ctx.postMessage("external", {
+            ctx.postMessage('external', {
               command: 'SendObservableNodePayload',
               payload: payload.payload,
               nodeName: payload.nodeName,
@@ -736,7 +736,7 @@ let lastDate = new Date();
 const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
   //if (dateTime >= lastDate) {
   lastDate = dateTime;
-  ctx.postMessage("external", {
+  ctx.postMessage('external', {
     command: 'SendNodeExecution',
     result: result,
     dateTime: dateTime,
@@ -856,7 +856,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
           let subscribtion = observable.subscribe({
             next: (payload: any) => {
               console.log('SendObservableNodePayload in worker', payload, key);
-              ctx.postMessage("external", {
+              ctx.postMessage('external', {
                 command: 'SendObservableNodePayload',
                 payload: { ...(payload || {}) },
                 nodeName: key,
@@ -869,7 +869,7 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
 
       console.log('RegisterFlowNodeObservers after start, init time:', performance.now() - perfstart + 'ms');
 
-      ctx.postMessage("external", {
+      ctx.postMessage('external', {
         command: 'RegisterFlowNodeObservers',
         payload: {},
       });
