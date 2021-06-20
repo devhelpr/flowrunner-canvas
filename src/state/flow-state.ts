@@ -16,27 +16,30 @@ interface IFlowState extends State {
   deleteNode: (node: any) => void;
 }
 
+const handleStorageProvider = config => (set, get, api) =>
+  config(
+    args => {
+      // pre setstate
 
-const handleStorageProvider = config => (set, get, api) => config(args => {
-  
-  // pre setstate
+      // set state
+      set(args);
 
-  // set state
-  set(args);
-  
-  // after setstate
-  let hasStorageProvider = false;
+      // after setstate
+      let hasStorageProvider = false;
 
-  let storageProvider : IStorageProvider | undefined= undefined;
-  if ((window as any).flowrunnerStorageProvider !== undefined) {
-    storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
-    hasStorageProvider = true;
-  }
-  
-  if (storageProvider) {
-    storageProvider.storeFlowPackage(get());
-  }
-}, get, api)
+      let storageProvider: IStorageProvider | undefined = undefined;
+      if ((window as any).flowrunnerStorageProvider !== undefined) {
+        storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
+        hasStorageProvider = true;
+      }
+
+      if (storageProvider) {
+        storageProvider.storeFlowPackage(get());
+      }
+    },
+    get,
+    api,
+  );
 
 /*
   TODO : handle delete/add in flowHashmap
