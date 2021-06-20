@@ -340,6 +340,9 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {
+
+    let flowToFlowRunner = [...flow.map((node) => {return {...node};})]
+
     this.nodeState = {};
 
     if (this.worker) {
@@ -365,7 +368,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       if (this.flowType == 'playground') {
         this.worker.postMessage('worker', {
           command: 'pushFlowToFlowrunner',
-          flow: [...flow],
+          flow: flowToFlowRunner,
           flowId: flowId,
           pluginRegistry: pluginRegistryTaskNames,
           autoStartNodes: autoStartNodes,

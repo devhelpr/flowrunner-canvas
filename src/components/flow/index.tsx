@@ -80,6 +80,8 @@ export const Flow = (props : IFlowProps) => {
 			
 			if (changed) {
 				console.log("flow changed", changedNode, changedNodeProperty, props.flow);
+				// make deep copy here tot prevent circulair refererence
+				// flowrunner  needs its own flow
 				setInternalFlow(props.flow);
 			}
 		}
@@ -88,6 +90,9 @@ export const Flow = (props : IFlowProps) => {
 
 	useEffect(() => {
 		let perfstart = performance.now();
+		if (!internalFlow) {
+			return;
+		}
 		props.flowrunnerConnector.pushFlowToFlowrunner(internalFlow, true, props.flowId);
 		console.log("flow pushFlowToFlowrunner", (performance.now() - perfstart) + "ms");
 	}, [internalFlow]);
