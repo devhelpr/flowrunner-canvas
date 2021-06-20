@@ -44,10 +44,11 @@ export interface IFlowFile {
 
 export interface ToolbarProps {
 	
+	isFlowEditorOnly? : boolean;
 	canvasToolbarsubject : Subject<string>;
 	hasRunningFlowRunner: boolean;
 
-	onEditorMode: (editorMode) => void;
+	onEditorMode?: (editorMode) => void;
 
 	flowrunnerConnector : IFlowrunnerConnector;
 }
@@ -443,20 +444,24 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const swithToUIViewEditor = (event) => {
 		event.preventDefault();
-		canvasMode.setEditorMode("uiview-editor");
-		props.onEditorMode("uiview-editor");
+		if (props.onEditorMode) {
+			canvasMode.setEditorMode("uiview-editor");
+			props.onEditorMode("uiview-editor");
+		}
 		return false;
 	}
 
 	const swithToCanvasEditor = (event) => {
 		event.preventDefault();
-		canvasMode.setEditorMode("canvas");
-		props.onEditorMode("canvas");
-		setTimeout(() => {
-			if (props.canvasToolbarsubject) {
-				props.canvasToolbarsubject.next("fitStage");
-			}
-		}, 50);
+		if (props.onEditorMode) {
+			canvasMode.setEditorMode("canvas");
+			props.onEditorMode("canvas");
+			setTimeout(() => {
+				if (props.canvasToolbarsubject) {
+					props.canvasToolbarsubject.next("fitStage");
+				}
+			}, 50);
+		}
 		return false;
 	}
 
@@ -465,7 +470,6 @@ export const Toolbar = (props: ToolbarProps) => {
 		modulesMenu.setOpen(!modulesMenu.isOpen);
 		return false;
 	}
-
 	
 	let shapeType = "";
 	if (selectedNode && selectedNode.node) {
@@ -479,6 +483,12 @@ export const Toolbar = (props: ToolbarProps) => {
 			<a href="#" onClick={addNode} className="mx-2 btn btn-outline-light">Add</a>
 		}
 	*/
+
+	let isFlowEditorOnly = false;
+	if (props.isFlowEditorOnly !== undefined && !!props.isFlowEditorOnly) {
+		isFlowEditorOnly = true;
+	}
+
 	return <>
 		<div className="bg-dark toolbar__root">
 			<div className="toolbar__container">
@@ -486,7 +496,7 @@ export const Toolbar = (props: ToolbarProps) => {
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar w-100">						
 						<Navbar.Collapse id="basic-navbar-nav">
 							<form className="form-inline toolbar__form flex-nowrap">
-								{canvasMode.editorMode === "canvas" && 
+								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 
 									!!!selectedNode.node.name &&
 									<div className="mr-2">
 										<a href="#" onClick={showModules} className="btn btn-outline-light"><span className="fas fa-bars"></span></a>
@@ -530,7 +540,7 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 
 									<a href="#" onClick={deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>
 								}
-								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
+								{!isFlowEditorOnly && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={helpNode} className="mx-2 btn btn-outline-light">Help</a>
 								}
 
@@ -545,14 +555,14 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>
 								}
-								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
+								{!isFlowEditorOnly && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>
 								}
-								{!!!selectedNode.node.name && canvasMode.editorMode === "canvas" && <>
+								{!isFlowEditorOnly && !!!selectedNode.node.name && canvasMode.editorMode === "canvas" && <>
 									<input id="showDependenciesInput" type="checkbox" checked={showDependencies} onChange={onShowDependenciesChange} />
 									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 								</>}
-								{!!props.hasRunningFlowRunner && 
+								{!isFlowEditorOnly && !!props.hasRunningFlowRunner && 
 									canvasMode.editorMode === "canvas" &&
 									canvasMode.flowType == "playground" && 
 									<a href="#" onClick={onSetPausedClick} className="ml-2 pause-button">{!!canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>
@@ -560,17 +570,17 @@ export const Toolbar = (props: ToolbarProps) => {
 								{canvasMode.editorMode === "canvas" && 
 									<a href="#" onClick={fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
 								}
-								{!props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={saveFlow} className="ml-2 btn btn-primary">Save</a>}
+								{!isFlowEditorOnly && !props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={saveFlow} className="ml-2 btn btn-primary">Save</a>}
 								<span className="ml-auto"></span>
 								{canvasMode.flowType == "playground" && 
 									<a href={"/ui/" + selectedFlow} className="ml-2">UI View</a>
 								}
-								{!!!selectedNode.node.name &&
+								{!isFlowEditorOnly && !!!selectedNode.node.name &&
 									canvasMode.flowType == "playground" &&
 									canvasMode.editorMode == "canvas" &&
 									<a href="#" onClick={swithToUIViewEditor} className="ml-2">Edit UI View</a>
 								}
-								{canvasMode.flowType == "playground" &&
+								{!isFlowEditorOnly && canvasMode.flowType == "playground" &&
 									canvasMode.editorMode != "canvas" &&
 									<a href="#" onClick={swithToCanvasEditor} className="ml-2">Edit Flow</a>
 								}

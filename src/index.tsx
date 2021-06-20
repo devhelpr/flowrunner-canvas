@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
@@ -24,6 +24,7 @@ import { getWorker } from './flow-worker';
 import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
 import { flowrunnerStorageProvider } from './flow-localstorage-provider';
+import { AnyArray, AnyMap } from 'immer/dist/internal';
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
 
 // TODO : improve this.. currently needed to be able to use react in an external script
@@ -36,6 +37,105 @@ const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterf
 (window as any).react = React;
 
 export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
+
+export interface IFlowrunnerCanvasProps {
+	flowStorageProvider? : IStorageProvider;
+}
+
+export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
+	const [canvas , setCanvas] = useState(undefined as any);
+	const flowrunnerConnector = useRef(undefined as FlowConnector | undefined);
+	const canvasToolbarsubject = useRef(undefined as any);
+	const renderHtmlNode = useRef(undefined as any);
+	const getNodeInstance = useRef(undefined as any);
+	useEffect(() => {
+
+		import( './render-html-node').then((moduleRenderHtmlNode) => 
+		{
+			const setPluginRegistry = moduleRenderHtmlNode.setPluginRegistry;
+			
+			renderHtmlNode.current = moduleRenderHtmlNode.renderHtmlNode;
+			getNodeInstance.current = moduleRenderHtmlNode.getNodeInstance;
+
+			let hasStorageProvider = false;
+
+			let storageProvider : IStorageProvider | undefined= undefined;
+			if (props.flowStorageProvider !== undefined) {
+				storageProvider = props.flowStorageProvider as IStorageProvider;
+				hasStorageProvider = true;
+				FlowStorageProviderService.setFlowStorageProvider(storageProvider);
+			}
+	
+			const options : any = {
+			}
+	
+			if (hasStorageProvider) {			
+				options.initialStoreState = storageProvider?.getFlowPackage();
+			}
+	 
+			let worker = getWorker();
+			worker.postMessage("worker", {
+				command: 'init'
+			});
+	
+			let pluginRegistry = {};
+			setPluginRegistry(pluginRegistry);
+
+			flowrunnerConnector.current= undefined;
+
+			const onDestroyAndRecreateWorker = () => {
+				console.log("onDestroyAndRecreateWorker handling");
+				if (worker) {
+					worker.terminate();
+				}
+				worker = getWorker();
+				worker.postMessage("worker", {
+					command: 'init'
+				});
+				if (flowrunnerConnector.current) {
+					flowrunnerConnector.current.registerWorker(worker);
+				}
+			}
+
+			flowrunnerConnector.current = new FlowConnector();	
+			flowrunnerConnector.current.registerWorker(worker);
+			flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
+			flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
+			(flowrunnerConnector.current as any).storageProvider = storageProvider;
+			flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
+
+			canvasToolbarsubject.current = new Subject<string>();
+			import('./components/canvas').then((moduleCanvas) => {
+				setCanvas(moduleCanvas.Canvas);
+			});
+		});
+
+		return () => {
+
+		}
+	});	
+
+	if (!canvas || !flowrunnerConnector.current) {
+		return <></>;
+	}
+	
+	let Canvas = canvas;
+	return <>
+		<Taskbar flowrunnerConnector={flowrunnerConnector.current}></Taskbar>
+		<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
+		<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
+				hasRunningFlowRunner={true}
+				isFlowEditorOnly={true}
+				flowrunnerConnector={flowrunnerConnector.current}
+		></Toolbar>
+								
+		<Canvas canvasToolbarsubject={canvasToolbarsubject} 
+			renderHtmlNode={renderHtmlNode.current}
+			flowrunnerConnector={flowrunnerConnector.current}
+			getNodeInstance={getNodeInstance.current}
+		></Canvas>
+	</>;
+}
 
 export const startEditor = (flowStorageProvider? : IStorageProvider) => {
 	import( './render-html-node').then((module) => 
