@@ -3,7 +3,7 @@ import { IWorker } from '../interfaces/IWorker';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 
 export class EmptyFlowConnector implements IFlowrunnerConnector {
-  storageProvider : IStorageProvider | undefined = undefined;
+  storageProvider: IStorageProvider | undefined = undefined;
   hasStorageProvider = false;
   flowView = '';
 
@@ -84,7 +84,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
-  storageProvider : IStorageProvider | undefined = undefined;
+  storageProvider: IStorageProvider | undefined = undefined;
   hasStorageProvider = false;
 
   worker?: IWorker = undefined;
