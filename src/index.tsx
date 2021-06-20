@@ -26,13 +26,12 @@ import { FlowStorageProviderService} from './services/FlowStorageProviderService
 import { flowrunnerStorageProvider } from './flow-localstorage-provider';
 import { AnyArray, AnyMap } from 'immer/dist/internal';
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
+const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ Canvas }) => ({ default: Canvas })));
 
 // TODO : improve this.. currently needed to be able to use react in an external script
 // which is used by the online editor to provide external defined tasks
 // solution could be to import flowrunner-canvas and build/package it like that by
 // the webpack-build pipeline from the online editor it self
-//
-// This is basically a trick to have "micro-frontends" in react
 //
 (window as any).react = React;
 
@@ -44,7 +43,7 @@ export interface IFlowrunnerCanvasProps {
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
-	const [canvas , setCanvas] = useState(undefined as any);
+	const [flowRenderCanvas , setRenderFlowCanvas] = useState(false);
 	const flowrunnerConnector = useRef(undefined as FlowConnector | undefined);
 	const canvasToolbarsubject = useRef(undefined as any);
 	const renderHtmlNode = useRef(undefined as any);
@@ -107,9 +106,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
 
 			canvasToolbarsubject.current = new Subject<string>();
-			import('./components/canvas').then((moduleCanvas) => {
-				setCanvas(moduleCanvas.Canvas);
-			});
+			setRenderFlowCanvas(true);
 		});
 
 		return () => {
@@ -117,31 +114,34 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		}
 	}, []);	
 
-	let CanvasComponent = canvas;
-	if (!canvas || !flowrunnerConnector.current) {
-		return <>
-			<div className="toolbar__root" role="menu"></div>
-		</>;
+	if (!flowRenderCanvas || !flowrunnerConnector.current) {
+		return <></>;
 	}
 	
 	return <>
-		<Taskbar flowrunnerConnector={flowrunnerConnector.current}></Taskbar>
-		<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
-		<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
-				hasRunningFlowRunner={true}
-				isFlowEditorOnly={true}
+		<Suspense fallback={<div>Loading...</div>}>
+			<Taskbar flowrunnerConnector={flowrunnerConnector.current}></Taskbar>
+			<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
+			<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
+					hasRunningFlowRunner={true}
+					isFlowEditorOnly={true}
+					flowrunnerConnector={flowrunnerConnector.current}
+			></Toolbar>
+							
+			<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current} 
+				renderHtmlNode={renderHtmlNode.current}
 				flowrunnerConnector={flowrunnerConnector.current}
-		></Toolbar>
-								
-		<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
-			renderHtmlNode={renderHtmlNode.current}
-			flowrunnerConnector={flowrunnerConnector.current}
-			getNodeInstance={getNodeInstance.current}
-		></CanvasComponent>
+				getNodeInstance={getNodeInstance.current}
+			></CanvasComponent>
+		</Suspense>		
 	</>;
 }
 
 export const startEditor = (flowStorageProvider? : IStorageProvider) => {
+	//const root = document.getElementById('flowstudio-root');
+	//(ReactDOM as any).render(<FlowrunnerCanvas flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
+	//return;
+
 	import( './render-html-node').then((module) => 
 	{ 
 		const setPluginRegistry = module.setPluginRegistry;
