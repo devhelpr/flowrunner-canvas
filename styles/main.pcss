@@ -668,17 +668,54 @@ textarea.form-control {
 	font-family: 'Fira Code';
 }
 
+.form-inline label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
 @media only screen and (max-width: 1023px) {
 
 	.taskbar {
 		bottom: 56px;
 		height: auto;
 		display: none;
+
+		display: flex;
+		width: 100%;
+		height: 56px;
+		flex-direction: row;
+		overflow-x: scroll;
+	}
+
+	.taskbar__task {
+		width: 128px;
+		text-overflow: ellipsis;
+		margin-right: 5px;
+	}
+
+	.taskbar__taskname {
+		margin-right: 5px;
 	}
 
 	.ui-controls-bar {
 		bottom: 56px;
 		height: auto;
+	}
+
+	.toolbar__container .navbar-collapse {
+		display: flex !important;
+	}
+
+	.toolbar__container .form-inline {
+		flex-direction: row;
+		overflow-x: scroll;	
+		width: 100%;	
+	}
+
+	.toolbar__container .form-inline::-webkit-scrollbar {
+		display: none;
 	}
 }
 
@@ -721,26 +758,26 @@ textarea.form-control {
     overflow-x: auto;
 }
 @media only screen and (max-width: 1023px) {
-	.toolbar__container .form-inline {
+	.disabled__toolbar__container .form-inline {
 		flex-direction: column;
 		align-items: flex-start;		
 	}
 
-	.toolbar__container .form-control:first-child {
+	.disabled_toolbar__container .form-control:first-child {
 		margin-top: 10px;
 	}
 	
-	.toolbar__container .form-control {
+	.disabled_toolbar__container .form-control {
 		margin-bottom: 10px;
 	}
 
-	.toolbar__container .btn {
+	.disabled_toolbar__container .btn {
 		margin-left: 0 !important;
 		margin-right: 0 !important;
 		margin-bottom: 10px;
 	}
 
-	.toolbar__container .task-selector {
+	.disabled_toolbar__container .task-selector {
 		margin-bottom: 10px;
 	}
 }

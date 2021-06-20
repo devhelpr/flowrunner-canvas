@@ -483,8 +483,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		<div className="bg-dark sticky-top toolbar__root">
 			<div className="toolbar__container">
 				<Navbar bg="dark" expand="lg">
-					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar w-100">
-						<Navbar.Toggle aria-controls="basic-navbar-nav" />
+					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar w-100">						
 						<Navbar.Collapse id="basic-navbar-nav">
 							<form className="form-inline toolbar__form flex-nowrap">
 								{canvasMode.editorMode === "canvas" && 
