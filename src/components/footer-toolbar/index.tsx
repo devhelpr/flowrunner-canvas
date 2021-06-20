@@ -15,10 +15,12 @@ export class FooterToolbar extends React.Component<FooterProps, FooterState> {
 	}
 
 	render() {
-
+		return <></>;
+		/*
 		return <nav className="navbar fixed-bottom navbar-light bg-light">
 				<span className="navbar-brand">(c) Devhelpr 2021</span>
 			</nav>;
+		*/
 		/*	
 		if (!this.props.selectedNode || !this.props.selectedNode.name) {
 			return <nav className="navbar fixed-bottom navbar-light bg-light">

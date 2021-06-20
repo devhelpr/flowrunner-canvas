@@ -2,6 +2,7 @@ import create from 'zustand';
 import { State, SetState } from 'zustand';
 import { FlowToCanvas } from '../helpers/flow-to-canvas';
 import produce from 'immer';
+import { IStorageProvider } from '../interfaces/IStorageProvider';
 
 interface IFlowState extends State {
   flow: any[];
@@ -14,6 +15,28 @@ interface IFlowState extends State {
   deleteConnection: (node: any) => void;
   deleteNode: (node: any) => void;
 }
+
+
+const handleStorageProvider = config => (set, get, api) => config(args => {
+  
+  // pre setstate
+
+  // set state
+  set(args);
+  
+  // after setstate
+  let hasStorageProvider = false;
+
+  let storageProvider : IStorageProvider | undefined= undefined;
+  if ((window as any).flowrunnerStorageProvider !== undefined) {
+    storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
+    hasStorageProvider = true;
+  }
+  
+  if (storageProvider) {
+    storageProvider.storeFlowPackage(get());
+  }
+}, get, api)
 
 /*
   TODO : handle delete/add in flowHashmap
@@ -140,5 +163,5 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
   };
 };
 
-export const useFlowStore = create<IFlowState>(set => storeHandler(set));
+export const useFlowStore = create<IFlowState>(handleStorageProvider(set => storeHandler(set)));
 export const useFlowForMultiFormStore = create<IFlowState>(set => storeHandler(set));
