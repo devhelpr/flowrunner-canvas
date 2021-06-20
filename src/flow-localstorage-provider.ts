@@ -1,153 +1,153 @@
-import { IStorageProvider } from "./interfaces/IStorageProvider";
+import { IStorageProvider } from './interfaces/IStorageProvider';
 
 function getTasks() {
   let tasks: any[] = [];
 
   tasks.push({
-    className: "AssignTask",
-    fullName: "AssignTask",
-    flowType: "playground"
+    className: 'AssignTask',
+    fullName: 'AssignTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "ClearTask",
-    fullName: "ClearTask",
-    flowType: "playground"
+    className: 'ClearTask',
+    fullName: 'ClearTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "InjectIntoPayloadTask",
-    fullName: "InjectIntoPayloadTask",
-    flowType: "playground"
+    className: 'InjectIntoPayloadTask',
+    fullName: 'InjectIntoPayloadTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "IfConditionTask",
-    fullName: "IfConditionTask",
-    flowType: "playground"
+    className: 'IfConditionTask',
+    fullName: 'IfConditionTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "PreviewTask",
-    fullName: "PreviewTask",
-    flowType: "playground"
+    className: 'PreviewTask',
+    fullName: 'PreviewTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "DebugTask",
-    fullName: "DebugTask",
-    flowType: "playground"
+    className: 'DebugTask',
+    fullName: 'DebugTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "SliderTask",
-    fullName: "SliderTask",
-    flowType: "playground"
+    className: 'SliderTask',
+    fullName: 'SliderTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "RandomTask",
-    fullName: "RandomTask",
-    flowType: "playground"
+    className: 'RandomTask',
+    fullName: 'RandomTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "TimerTask",
-    fullName: "TimerTask",
-    flowType: "playground"
+    className: 'TimerTask',
+    fullName: 'TimerTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "ExpressionTask",
-    fullName: "ExpressionTask",
-    flowType: "playground"
+    className: 'ExpressionTask',
+    fullName: 'ExpressionTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "OutputValueTask",
-    fullName: "OutputValueTask",
-    flowType: "playground"
+    className: 'OutputValueTask',
+    fullName: 'OutputValueTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "ConditionalTriggerTask",
-    fullName: "ConditionalTriggerTask",
-    flowType: "playground"
+    className: 'ConditionalTriggerTask',
+    fullName: 'ConditionalTriggerTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "MapPayloadTask",
-    fullName: "MapPayloadTask",
-    flowType: "playground"
+    className: 'MapPayloadTask',
+    fullName: 'MapPayloadTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "InputTask",
-    fullName: "InputTask",
-    flowType: "playground"
+    className: 'InputTask',
+    fullName: 'InputTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "ListTask",
-    fullName: "ListTask",
-    flowType: "playground"
+    className: 'ListTask',
+    fullName: 'ListTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "MatrixTask",
-    fullName: "MatrixTask",
-    flowType: "playground"
+    className: 'MatrixTask',
+    fullName: 'MatrixTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "GridEditTask",
-    fullName: "GridEditTask",
-    flowType: "playground"
+    className: 'GridEditTask',
+    fullName: 'GridEditTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "DataGridTask",
-    fullName: "DataGridTask",
-    flowType: "playground"
+    className: 'DataGridTask',
+    fullName: 'DataGridTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "SearchDataGridTask",
-    fullName: "SearchDataGridTask",
-    flowType: "playground"
+    className: 'SearchDataGridTask',
+    fullName: 'SearchDataGridTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "FilterDataGridTask",
-    fullName: "FilterDataGridTask",
-    flowType: "playground"
+    className: 'FilterDataGridTask',
+    fullName: 'FilterDataGridTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "TransformTask",
-    fullName: "TransformTask",
-    flowType: "playground"
+    className: 'TransformTask',
+    fullName: 'TransformTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "SortTask",
-    fullName: "SortTask",
-    flowType: "playground"
+    className: 'SortTask',
+    fullName: 'SortTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "DeepAssignTask",
-    fullName: "DeepAssignTask",
-    flowType: "playground"
+    className: 'DeepAssignTask',
+    fullName: 'DeepAssignTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "ExtractUniqueTask",
-    fullName: "ExtractUniqueTask",
-    flowType: "playground"
+    className: 'ExtractUniqueTask',
+    fullName: 'ExtractUniqueTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "FilterTask",
-    fullName: "FilterTask",
-    flowType: "playground"
+    className: 'FilterTask',
+    fullName: 'FilterTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "CountTask",
-    fullName: "CountTask",
-    flowType: "playground"
+    className: 'CountTask',
+    fullName: 'CountTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "CustomCodeTask",
-    fullName: "CustomCodeTask",
-    flowType: "playground"
+    className: 'CustomCodeTask',
+    fullName: 'CustomCodeTask',
+    flowType: 'playground',
   });
 
   tasks.push({
-    className: "ScreenTask",
-    fullName: "ScreenTask",
-    flowType: "playground"
+    className: 'ScreenTask',
+    fullName: 'ScreenTask',
+    flowType: 'playground',
   });
   tasks.push({
-    className: "FormTask",
-    fullName: "FormTask",
-    flowType: "playground"
+    className: 'FormTask',
+    fullName: 'FormTask',
+    flowType: 'playground',
   });
   return tasks;
 }
@@ -157,63 +157,63 @@ function saveFlow(flowId: string, flow: any) {
     flow: flow,
     name: flowId,
     id: flowId,
-    flowType: "playground"
+    flowType: 'playground',
   };
-  localStorage.setItem("flow-" + flowId, JSON.stringify(flowPackage));
+  localStorage.setItem('flow-' + flowId, JSON.stringify(flowPackage));
 }
 
 function setSelectedFlow(flowName: string) {
-  localStorage.setItem("selected-flow", flowName);
+  localStorage.setItem('selected-flow', flowName);
 }
 
 function getSelectedFlow() {
-  return localStorage.getItem("selected-flow") || "flow";
+  return localStorage.getItem('selected-flow') || 'flow';
 }
 
 function storeFlowPackage(flowPackage: any) {
   if (flowPackage) {
     saveFlow(getSelectedFlow(), flowPackage.flow);
   }
-  localStorage.setItem("flowPackage", JSON.stringify(flowPackage));
+  localStorage.setItem('flowPackage', JSON.stringify(flowPackage));
 }
 function getFlowPackage() {
-  var packageAsString = localStorage.getItem("flowPackage");
+  var packageAsString = localStorage.getItem('flowPackage');
   if (packageAsString) {
     return JSON.parse(packageAsString);
   }
   return {
-    dummy: "",
+    dummy: '',
     flow: [],
-    layout: "{}",
+    layout: '{}',
     selectedNode: {},
-    selectedFlow: "flow"
+    selectedFlow: 'flow',
   };
 }
 
 function getFlows() {
-  var flowsAsString = localStorage.getItem("flows");
+  var flowsAsString = localStorage.getItem('flows');
   if (flowsAsString) {
     return JSON.parse(flowsAsString);
   }
   return [
     {
-      fileName: "flow.json",
-      name: "flow",
-      id: "flow",
-      flowType: "playground"
-    }
+      fileName: 'flow.json',
+      name: 'flow',
+      id: 'flow',
+      flowType: 'playground',
+    },
   ];
 }
 
 function getFlow(flowId: string) {
-  var flowAsString = localStorage.getItem("flow-" + flowId);
+  var flowAsString = localStorage.getItem('flow-' + flowId);
   if (flowAsString) {
     return JSON.parse(flowAsString);
   }
   return [];
 }
 
-export const flowrunnerStorageProvider : IStorageProvider = {
+export const flowrunnerStorageProvider: IStorageProvider = {
   storeFlowPackage: storeFlowPackage,
   getFlowPackage: getFlowPackage,
   getFlows: getFlows,
@@ -222,7 +222,9 @@ export const flowrunnerStorageProvider : IStorageProvider = {
   setSelectedFlow: setSelectedFlow,
   getSelectedFlow: getSelectedFlow,
   getTasks: getTasks,
-  getApiProxyUrl: () => {return "";},
+  getApiProxyUrl: () => {
+    return '';
+  },
   addFlow: (name, flow) => {},
-  isUI : false
+  isUI: false,
 };
