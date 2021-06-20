@@ -340,8 +340,11 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {
-
-    let flowToFlowRunner = [...flow.map((node) => {return {...node};})]
+    let flowToFlowRunner = [
+      ...flow.map(node => {
+        return { ...node };
+      }),
+    ];
 
     this.nodeState = {};
 
