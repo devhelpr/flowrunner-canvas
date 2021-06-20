@@ -43,11 +43,13 @@ export interface IFlowrunnerCanvasProps {
 }
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
+
 	const [canvas , setCanvas] = useState(undefined as any);
 	const flowrunnerConnector = useRef(undefined as FlowConnector | undefined);
 	const canvasToolbarsubject = useRef(undefined as any);
 	const renderHtmlNode = useRef(undefined as any);
 	const getNodeInstance = useRef(undefined as any);
+
 	useEffect(() => {
 
 		import( './render-html-node').then((moduleRenderHtmlNode) => 
@@ -101,7 +103,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			flowrunnerConnector.current.registerWorker(worker);
 			flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
 			flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
-			(flowrunnerConnector.current as any).storageProvider = storageProvider;
+			flowrunnerConnector.current.storageProvider = storageProvider;
 			flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
 
 			canvasToolbarsubject.current = new Subject<string>();
@@ -113,13 +115,15 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		return () => {
 
 		}
-	});	
+	}, []);	
 
+	let CanvasComponent = canvas;
 	if (!canvas || !flowrunnerConnector.current) {
-		return <></>;
+		return <>
+			<div className="toolbar__root" role="menu"></div>
+		</>;
 	}
 	
-	let Canvas = canvas;
 	return <>
 		<Taskbar flowrunnerConnector={flowrunnerConnector.current}></Taskbar>
 		<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
@@ -129,11 +133,11 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				flowrunnerConnector={flowrunnerConnector.current}
 		></Toolbar>
 								
-		<Canvas canvasToolbarsubject={canvasToolbarsubject} 
+		<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
 			renderHtmlNode={renderHtmlNode.current}
 			flowrunnerConnector={flowrunnerConnector.current}
 			getNodeInstance={getNodeInstance.current}
-		></Canvas>
+		></CanvasComponent>
 	</>;
 }
 

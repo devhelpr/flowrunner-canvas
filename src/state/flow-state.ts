@@ -56,7 +56,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
   return {
     flow: [],
     flowId: '',
-    flowHashmap: {},
+    flowHashmap: new Map(),
     storeFlow: (flow: any[], flowId: string) =>
       set(state => {
         return {
