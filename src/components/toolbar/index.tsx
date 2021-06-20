@@ -480,7 +480,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		}
 	*/
 	return <>
-		<div className="bg-dark sticky-top toolbar__root">
+		<div className="bg-dark toolbar__root">
 			<div className="toolbar__container">
 				<Navbar bg="dark" expand="lg">
 					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar w-100">						

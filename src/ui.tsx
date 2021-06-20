@@ -13,6 +13,8 @@ import { renderHtmlNode, getNodeInstance , setPluginRegistry } from './render-ht
 import { UserInterfaceView } from './components/userinterface-view';
 import { getWorker } from './flow-worker';
 
+import { FlowStorageProviderService} from './services/FlowStorageProviderService';
+
 export interface IUIViewProps {
 	flowId : string;
 	flowPackage? : any;
@@ -26,8 +28,8 @@ export const UIView = (props: IUIViewProps) => {
 		let hasStorageProvider = false;
 
 		let storageProvider : IStorageProvider | undefined= undefined;
-		if ((window as any).flowrunnerStorageProvider !== undefined) {
-			storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
+		if (FlowStorageProviderService.getIsFlowStorageProviderEnabled()) {
+			storageProvider = FlowStorageProviderService.getFlowStorageProvider();
 			hasStorageProvider = true;
 		}
 

@@ -21,7 +21,9 @@ import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
 import { getWorker } from './flow-worker';
+import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
+import { flowrunnerStorageProvider } from './flow-localstorage-provider';
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
 
 // TODO : improve this.. currently needed to be able to use react in an external script
@@ -33,51 +35,35 @@ const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterf
 //
 (window as any).react = React;
 
-export const startEditor = () => {
+export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
+
+export const startEditor = (flowStorageProvider? : IStorageProvider) => {
 	import( './render-html-node').then((module) => 
 	{ 
 		const setPluginRegistry = module.setPluginRegistry;
 		const renderHtmlNode = module.renderHtmlNode;
 		const getNodeInstance = module.getNodeInstance;
+
 		let hasStorageProvider = false;
 
 		let storageProvider : IStorageProvider | undefined= undefined;
-		if ((window as any).flowrunnerStorageProvider !== undefined) {
-			storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
+		if (flowStorageProvider !== undefined) {
+			storageProvider = flowStorageProvider as IStorageProvider;
 			hasStorageProvider = true;
+			FlowStorageProviderService.setFlowStorageProvider(storageProvider);
 		}
 
 		const options : any = {
-			//reduxMiddleware: undefined
 		}
 
-		if (hasStorageProvider) {
-			/*
-			TODO : fix using zustand middleware ??
-
-			options.reduxMiddleware = function(middlewareAPI: any) {
-				return function(next: any) {
-				return function(action: any) {	
-					var result = next(action);
-			
-					let nextState = middlewareAPI.getState();
-					if (storageProvider) {
-						storageProvider.storeFlowPackage(nextState);
-					}
-					return result;
-				};
-				};
-			};
-			*/
+		if (hasStorageProvider) {			
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
  
 		let worker = getWorker();
-		//worker = new Worker(new URL("./flow-worker", import.meta.url));
 		worker.postMessage("worker", {
 			command: 'init'
 		});
-		//worker = new Worker("/worker.js");
 
 		let pluginRegistry = {};
 		setPluginRegistry(pluginRegistry);
@@ -86,23 +72,18 @@ export const startEditor = () => {
 
 		const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
 
-
 		let flowrunnerConnector : any = undefined;
 
 		const onDestroyAndRecreateWorker = () => {
 			console.log("onDestroyAndRecreateWorker handling");
 			if (worker) {
 				worker.terminate();
-				//worker = null;
 			}
 			worker = getWorker();
-			//worker = new Worker(new URL("./flow-worker", import.meta.url));
-			//worker = new Worker("/worker.js");
 			worker.postMessage("worker", {
 				command: 'init'
 			});
 			flowrunnerConnector.registerWorker(worker);
-		
 		}
 
 		if (!!hasRunningFlowRunner) {
@@ -129,16 +110,7 @@ export const startEditor = () => {
 			}
 		}
 		flowrunnerConnector.setAppMode(applicationMode);
-
-		let flowPackage = HumanFlowToMachineFlow.convert({flow: [
-			{
-				"name" : "dummyReducer",
-				"taskType": "ReduxPropertyStateType",
-				"subtype": "registrate",
-				"variableName": "dummy"
-			}
-		]});
-
+		
 		const hasLogin = root && root.getAttribute("data-has-login") === "true";
 		const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
@@ -196,59 +168,51 @@ export const startEditor = () => {
 							</>
 						}
 					</>;
-				}
-				
-				//startFlow(flowPackage, reducers , options).then((services : any) => {
+				}				
 					
-					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
-						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
-							registerFunction();
-							return true;
-						});
-					}
-					flowrunnerConnector.setPluginRegistry(pluginRegistry);
-
-					// isLoggedIn is set below and it forced to true when running using a storageProvider
-					// or it is not used if data-has-login="false" is set on the document root used by reactdom.render
-					const start = (isLoggednIn) => {
-						console.log("pluginRegistry", pluginRegistry);
-						// (ReactDOM as any).createRoot(
-						(ReactDOM as any).render(<App isLoggedIn={isLoggednIn}></App>, root);
-					}
-
-
-					if (hasStorageProvider) {
-						start(true);
-						return;
-					}
-
-					fetch('/api/verify-token', {
-						method: "GET",			
-						headers: {
-						"Content-Type": "application/json"
-						}
-					})
-					.then(res => {
-						if (res.status >= 400) {
-							return {
-								isLoggedIn : false
-							}
-						}
-						return {
-							isLoggedIn : true
-						}
-					})
-					.then(response => {
-						start((response as any).isLoggedIn);	
-					})
-					.catch(err => {
-						console.error(err);
+				if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
+					(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+						registerFunction();
+						return true;
 					});
-								
-						
-				//}).catch((err) => {
-				//	console.log("error during start flowunner (check internal startFlow error)", err);
-				//})
+				}
+				flowrunnerConnector.setPluginRegistry(pluginRegistry);
+
+				// isLoggedIn is set below and it forced to true when running using a storageProvider
+				// or it is not used if data-has-login="false" is set on the document root used by reactdom.render
+				const start = (isLoggednIn) => {
+					console.log("pluginRegistry", pluginRegistry);
+					// (ReactDOM as any).createRoot(
+					(ReactDOM as any).render(<App isLoggedIn={isLoggednIn}></App>, root);
+				}
+
+				if (hasStorageProvider) {
+					start(true);
+					return;
+				}
+
+				fetch('/api/verify-token', {
+					method: "GET",			
+					headers: {
+					"Content-Type": "application/json"
+					}
+				})
+				.then(res => {
+					if (res.status >= 400) {
+						return {
+							isLoggedIn : false
+						}
+					}
+					return {
+						isLoggedIn : true
+					}
+				})
+				.then(response => {
+					start((response as any).isLoggedIn);	
+				})
+				.catch(err => {
+					console.error(err);
+				});																	
 			});
 		} else
 		if (applicationMode === ApplicationMode.UI) {
@@ -264,8 +228,6 @@ export const startEditor = () => {
 						getNodeInstance={getNodeInstance}
 					></UserInterfaceView>;
 				};
-
-				//startFlow(flowPackage, reducers, options).then((services : any) => {
 					
 					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
 						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
@@ -276,12 +238,7 @@ export const startEditor = () => {
 					flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 					console.log("pluginRegistry", pluginRegistry);
-					//(ReactDOM as any).createRoot(
-					(ReactDOM as any).render(<App></App>, root);							
-						
-				//}).catch((err) => {
-				//	console.log("error during start flowunner (check internal startFlow error)", err);
-				//})
+					(ReactDOM as any).render(<App></App>, root);												
 			});
 		}
 

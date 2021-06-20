@@ -58,6 +58,11 @@ img {
 
 .toolbar__root {
 	height: 72px;
+	position: absolute;
+    top: 0;
+    height: 72px;
+    z-index: 10000;
+	width: 100%;
 }
 
 .sticky-top.toolbar__root {
@@ -125,6 +130,7 @@ img {
 	position: relative;
 	z-index: 1;
 	height: calc(100vh - 128px);
+	height: calc(100vh);
 }
 
 
@@ -552,13 +558,14 @@ img {
 }
 
 .taskbar {
-	position: fixed;
+	position: absolute;
     top: 72px;
 	width: 48px;
 	width: 128px;
     background: #f8f8f8;
     left: 0;
 	height: calc(100vh - 127px);
+	height: calc(100vh - 1px);
 	padding: 5px;
 	z-index: 10000;
 	
@@ -783,6 +790,21 @@ img {
     white-space: pre;
 }
 
+@media only screen and (max-width: 1023px) {
+	.debug-info:not(.debug-info--fullscreen) {
+		height: 20px;
+		width: 50px;
+	}
+
+	.debug-info__debug-info-content {
+		display: none;
+	}
+
+	.debug-info--fullscreen .debug-info__debug-info-content {
+		display: block;
+	}
+}
+
 input.form-control,
 textarea.form-control {
 	font-family: 'Fira Code';
@@ -807,6 +829,12 @@ textarea.form-control {
         -ms-flex-pack: center;
             justify-content: center;
     margin-bottom: 0;
+}
+
+.form-inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
 }
 
 @media only screen and (max-width: 1023px) {

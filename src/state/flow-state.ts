@@ -3,6 +3,7 @@ import { State, SetState } from 'zustand';
 import { FlowToCanvas } from '../helpers/flow-to-canvas';
 import produce from 'immer';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
+import { FlowStorageProviderService} from '../services/FlowStorageProviderService';
 
 interface IFlowState extends State {
   flow: any[];
@@ -28,8 +29,8 @@ const handleStorageProvider = config => (set, get, api) =>
       let hasStorageProvider = false;
 
       let storageProvider: IStorageProvider | undefined = undefined;
-      if ((window as any).flowrunnerStorageProvider !== undefined) {
-        storageProvider = (window as any).flowrunnerStorageProvider as IStorageProvider;
+      if (FlowStorageProviderService.getIsFlowStorageProviderEnabled()) {
+        storageProvider = FlowStorageProviderService.getFlowStorageProvider();
         hasStorageProvider = true;
       }
 
