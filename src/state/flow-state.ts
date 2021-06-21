@@ -87,9 +87,9 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
           return currentNode;
         });
-        return { 
+        return {
           flow: flow,
-          flowHashmap: FlowToCanvas.createFlowHashMap(flow)
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
         };
       }),
     addFlowNode: (node: any) =>
@@ -134,7 +134,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           });
         }
         */
-        
+
         let flow = [...state.flow, connection];
         return {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
