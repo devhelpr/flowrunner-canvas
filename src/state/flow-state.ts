@@ -87,28 +87,32 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
           return currentNode;
         });
-        return { flow: flow };
+        return { 
+          flow: flow,
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow)
+        };
       }),
     addFlowNode: (node: any) =>
       set(state => {
-        const flowHashmap = state.flowHashmap;
+        /*const flowHashmap = state.flowHashmap;
         flowHashmap.set(node.name, {
           index: state.flow.length,
           start: [] as number[],
           end: [] as number[],
-        });
+        });*/
+        let flow = [...state.flow, node];
         return {
-          flowHashmap: flowHashmap,
-          flow: [...state.flow, node],
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          flow: flow,
         };
       }),
     addConnection: (connection: any) =>
       set(state => {
-        const flowHashmap = state.flowHashmap;
+        /*const flowHashmap = state.flowHashmap;
         if (flowHashmap.has(connection.startshapeid)) {
-          let copy = flowHashmap.get(connection.startshapeid);
+          let copy = {...flowHashmap.get(connection.startshapeid)};
           copy.start.push(state.flow.length);
-          flowHashmap.set(connection.startshapeid, { ...copy });
+          flowHashmap.set(connection.startshapeid, copy);
           //startNode.start.push(index);
         } else {
           flowHashmap.set(connection.startshapeid, {
@@ -119,9 +123,9 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
         }
 
         if (flowHashmap.has(connection.endshapeid)) {
-          let copy = flowHashmap.get(connection.endshapeid);
+          let copy = {...flowHashmap.get(connection.endshapeid)};
           copy.end.push(state.flow.length);
-          flowHashmap.set(connection.endshapeid, { ...copy });
+          flowHashmap.set(connection.endshapeid, copy);
         } else {
           flowHashmap.set(connection.endshapeid, {
             index: -1,
@@ -129,9 +133,12 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
             end: [state.flow.length] as number[],
           });
         }
+        */
+        
+        let flow = [...state.flow, connection];
         return {
-          flowHashmap: flowHashmap,
-          flow: [...state.flow, connection],
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          flow: flow,
         };
       }),
     deleteConnection: (node: any) =>
