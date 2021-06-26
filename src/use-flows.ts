@@ -31,10 +31,10 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
       const flows = flowrunnerConnector.storageProvider?.getFlows();
       setFlows(flows);
 
-	  let loadFlowId= flowId === undefined && flows ? flows[0].id : flowId; 
-	  if (getFlowId) {
-		  loadFlowId = getFlowId;
-	  }
+      let loadFlowId = flowId === undefined && flows ? flows[0].id : flowId;
+      if (getFlowId) {
+        loadFlowId = getFlowId;
+      }
 
       loadFlow(loadFlowId);
       return;
@@ -50,14 +50,14 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
       })
       .then(flows => {
         if (flows.length > 0) {
-        	setFlows(flows);
-          	//const id =      flowId === undefined ? flows[0].id : currentFlowId;
-		  	let loadFlowId= flowId === undefined && flows ? flows[0].id : currentFlowId; 
-			if (getFlowId) {
-				loadFlowId = getFlowId;
-			}
-			loadFlow(loadFlowId);
-          	//loadFlow(id);
+          setFlows(flows);
+          //const id =      flowId === undefined ? flows[0].id : currentFlowId;
+          let loadFlowId = flowId === undefined && flows ? flows[0].id : currentFlowId;
+          if (getFlowId) {
+            loadFlowId = getFlowId;
+          }
+          loadFlow(loadFlowId);
+          //loadFlow(id);
         }
       })
       .catch(err => {

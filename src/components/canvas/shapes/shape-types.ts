@@ -120,7 +120,7 @@ export interface LineTypeProps {
   touchedNodes?: any;
   name?: string;
   thumbPosition?: ThumbPositionRelativeToNode;
-  isNodeConnectorHelper? : boolean;
+  isNodeConnectorHelper?: boolean;
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';
