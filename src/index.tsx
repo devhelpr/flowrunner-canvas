@@ -47,8 +47,14 @@ export interface IFlowrunnerCanvasProps {
 	TODO : 
 
 		- improve gulpfile : fast path using esbuild and publish path using awesome-typescript-loader
-
+		- fixen rode lijntjes in codesanbox .. waarom kunnen typedefs niet gevonden worden?
+		   .. switchen naar tsdx en splitting in project zelf doen met webpack !?
+		- resizing mbv debouncing
+		- default flow tbv localstorage
+		- localstorage route voorbeeld toevoegen aan library zelf
+		- iframe route verwijderen  
 */
+
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 	const [renderFlowCanvas , setRenderFlowCanvas] = useState(false);

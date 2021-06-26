@@ -245,9 +245,6 @@ function start(flowFileName, taskPlugins, options) {
 		app.get('/', (req, res) => res.render('./pages/index', {
 			assetsRootPath: options.assetsRootPath || "/" 
 		}));
-		app.get('/iframe', (req, res) => res.render('./pages/iframe', {
-			assetsRootPath: options.assetsRootPath || "/" 
-		}));
 		app.get('/ui/:flowId', (req, res) => res.render('./pages/ui', {
 			assetsRootPath: options.assetsRootPath || "/"
 		}));

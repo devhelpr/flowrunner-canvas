@@ -581,7 +581,7 @@ export const Canvas = (props: CanvasProps) => {
 		if (canvasWrapper && canvasWrapper.current) {
 			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
 		}
-		window.addEventListener("resize", updateDimensions);
+		window.addEventListener("resize", onResize);
 		window.addEventListener("scroll", cancelScroll);
 		document.addEventListener('paste', onPaste);
 		updateDimensions();	        
@@ -593,10 +593,15 @@ export const Canvas = (props: CanvasProps) => {
 
 		return () => {
 			props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
-			window.removeEventListener("resize", updateDimensions);
+			window.removeEventListener("resize", onResize);
 			window.removeEventListener("scroll", cancelScroll);
 		}
 	}, []);
+
+	const onResize = (event) => {
+		updateDimensions();
+		fitStage(undefined,true,true);
+	}
 
 
 	useEffect(() => {
@@ -722,7 +727,7 @@ export const Canvas = (props: CanvasProps) => {
 
 	useLayoutEffect(() => {
 
-		window.addEventListener("resize", updateDimensions);
+		window.addEventListener("resize", onResize);
 		
 		const lineRef = shapeRefs.current[connectionForDraggingName];
 		if (lineRef && lineRef) {
@@ -845,7 +850,7 @@ export const Canvas = (props: CanvasProps) => {
 
 			document.removeEventListener('paste', onPaste);
 
-			window.removeEventListener("resize", updateDimensions);
+			window.removeEventListener("resize", onResize);
 			//(refs.canvasWrapper as any).removeEventListener('wheel', wheelEvent);
 			
 		}
