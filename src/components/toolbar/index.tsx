@@ -304,10 +304,11 @@ export const Toolbar = (props: ToolbarProps) => {
 		setShowEditPopup(false);
 		setShowSchemaPopup(false);
 		setShowNewFlow(false);
-		setShowModulesPopup(false);
+		setShowModulesPopup(false);		
 
-		//getFlows(id);
 		props.onGetFlows(id);
+
+		setSelectedFlow(id as string);
 	}
 
 	const onSelectTask = (taskClassName) => {
@@ -492,7 +493,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		<div className="bg-dark toolbar__root" role="menu">
 			<div className="toolbar__container">
 				<Navbar bg="dark" expand="lg">
-					<div className="navbar navbar-expand-lg navbar-dark bg-dark toolbar w-100">						
+					<div className="bg-dark toolbar w-100">						
 						<Navbar.Collapse id="basic-navbar-nav">
 							<form className="form-inline toolbar__form flex-nowrap">
 								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 

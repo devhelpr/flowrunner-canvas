@@ -617,6 +617,7 @@ export const Canvas = (props: CanvasProps) => {
 						setCanvasOpacity(0);
 					} else
 					if (message == "fitStage") {
+						console.log("before fitstage", flowStore.flow);
 						fitStage(undefined, true, true);
 						setCanvasOpacity(1);	
 					} else 
@@ -635,7 +636,7 @@ export const Canvas = (props: CanvasProps) => {
 				subscription.unsubscribe();
 			}
 		}
-	}, [])
+	}, [flowStore.flow])
 
 	const updateTouchedNodes = () => {
 		// DONT UPDATE STATE HERE!!!
@@ -769,6 +770,12 @@ export const Canvas = (props: CanvasProps) => {
 	useLayoutEffect(() => {
 
 		window.addEventListener("resize", updateDimensions);
+		
+		const lineRef = shapeRefs.current[connectionForDraggingName];
+		if (lineRef && lineRef) {
+			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
+		}
+
 		const startPerf = performance.now();
 		if (props.flow && props.flow.length > 0) {
 						
@@ -870,6 +877,12 @@ export const Canvas = (props: CanvasProps) => {
 			}			
 		} else if (flowStore && flowStore.flow.length == 0) {
 			flowIsFittedStageForSingleNode.current = false;
+
+			if (props.flowState == FlowState.loaded) {
+				if (canvasOpacity == 0) {
+					setCanvasOpacity(1);
+				}
+			}
 		}	
 				
 		let stageInstance = (stage.current as any).getStage();
@@ -1087,7 +1100,7 @@ export const Canvas = (props: CanvasProps) => {
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
 							controlPoints.controlPointx2, controlPoints.controlPointy2,
 							newEndPosition.x, newEndPosition.y]});					
-						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
+						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
 					}
 					const endNodeRef = shapeRefs.current[lineNode.endshapeid] as any;
 					if (endNodeRef && endNodeRef) {					
@@ -1148,7 +1161,7 @@ export const Canvas = (props: CanvasProps) => {
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
 							controlPoints.controlPointx2, controlPoints.controlPointy2,
 							newEndPosition.x, newEndPosition.y]});					
-						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
+						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
 					}
 					
 					setPosition(lineNode.name, {
@@ -2281,7 +2294,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					if (stageContainerElement !== null) {
 
 						let realStageWidth = stageContainerElement.clientWidth - 128;
-						let realStageHeight = stageContainerElement.clientHeight - 128;
+						let realStageHeight = stageContainerElement.clientHeight - 64;
 						if (realStageHeight < 500) {
 							realStageHeight = 600;
 						}
@@ -2317,7 +2330,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						let stageWidth = stageInstance.getWidth() || stageContainerElement.clientWidth;
 						let stageHeight = stageInstance.getHeight() || stageContainerElement.clientHeight;
 						newPos.x = 64 + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-(yMin)*scale) + (stageHeight)/2 - ((flowHeight*scale))/2 ;	
+						newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;	
 						 
 						stageInstance.position(newPos);
 						if (!!doBatchdraw) {
@@ -3175,6 +3188,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						endNodeName={""}
 						opacity={0}	
 						noMouseEvents={true}
+						isNodeConnectorHelper={true}
 					></Shapes.Line>
 				</Layer>
 			</Stage>

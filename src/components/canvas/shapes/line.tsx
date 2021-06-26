@@ -47,6 +47,14 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 
 		let _opacity = 1;
+		if (props.isNodeConnectorHelper !== undefined && !!props.isNodeConnectorHelper) {
+			_opacity = 0;
+			if (lineRef.current) {
+				lineRef.current.pointerWidth(0);
+				lineRef.current.pointerLength(0);
+			}
+		}
+		
 		if (!props.isSelected && props.canvasHasSelectedNode) {
 			if (props.selectedNodeName != props.startNodeName && 
 				props.selectedNodeName != props.endNodeName) {
@@ -127,8 +135,21 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 				}
 				case ModifyShapeEnum.SetOpacity : {
 					if (lineRef && lineRef.current && parameters) {
-						//lineRef.current.opacity(parameters.opacity);						
+						lineRef.current.opacity(parameters.opacity);
+						
+						if (props.isNodeConnectorHelper !== undefined && !!props.isNodeConnectorHelper) {
+							if (lineRef.current) {
+								if (parameters.opacity > 0) {
+									lineRef.current.pointerWidth(10);
+									lineRef.current.pointerLength(10);
+								} else {
+									lineRef.current.pointerWidth(0);
+									lineRef.current.pointerLength(0);
+								}							
+							}
+						}
 					}
+					
 					break;
 				}
 				case ModifyShapeEnum.SetPoints : {
@@ -270,7 +291,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			hitStrokeWidth={16}
 			dash={dash}
 			fill={fillColor} 
-			opacity={1}
+			opacity={props.opacity !== undefined ? props.opacity : 1}
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}

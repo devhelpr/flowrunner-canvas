@@ -26,12 +26,17 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
   const layout = useLayoutStore();
   const canvasMode = useCanvasModeStateStore();
 
-  const getFlows = () => {
+  const getFlows = (getFlowId?) => {
     if (flowrunnerConnector.hasStorageProvider) {
       const flows = flowrunnerConnector.storageProvider?.getFlows();
-      console.log('useflow getFlows', flows);
       setFlows(flows);
-      loadFlow(flowId === undefined && flows ? flows[0].id : flowId);
+
+	  let loadFlowId= flowId === undefined && flows ? flows[0].id : flowId; 
+	  if (getFlowId) {
+		  loadFlowId = getFlowId;
+	  }
+
+      loadFlow(loadFlowId);
       return;
     }
 
@@ -45,9 +50,14 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
       })
       .then(flows => {
         if (flows.length > 0) {
-          setFlows(flows);
-          const id = flowId === undefined ? flows[0].id : currentFlowId;
-          loadFlow(id);
+        	setFlows(flows);
+          	//const id =      flowId === undefined ? flows[0].id : currentFlowId;
+		  	let loadFlowId= flowId === undefined && flows ? flows[0].id : currentFlowId; 
+			if (getFlowId) {
+				loadFlowId = getFlowId;
+			}
+			loadFlow(loadFlowId);
+          	//loadFlow(id);
         }
       })
       .catch(err => {
@@ -100,7 +110,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
 
   const onGetFlows = (id?: string | number) => {
     setCurrentFlowId(id);
-    getFlows();
+    getFlows(id);
   };
 
   const saveFlow = (selectedFlow?) => {

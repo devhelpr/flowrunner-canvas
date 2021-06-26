@@ -45,9 +45,8 @@ export interface IFlowrunnerCanvasProps {
 
 /*
 	TODO : 
-		when hasStorageProvider
 
-			.. fixStage doesn't behave properly after loading flow/starting
+		whats the gray arrow?
 
 */
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
