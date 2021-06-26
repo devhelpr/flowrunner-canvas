@@ -21,10 +21,11 @@ import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 
-import { getPosition } from '../../services/position-service';
 
 import { NamePopup } from '../popups/name-popup';
 import * as uuid from 'uuid';
+
+import { FlowState } from '../../use-flows';
 
 const uuidV4 = uuid.v4;
 
@@ -44,6 +45,12 @@ export interface IFlowFile {
 
 export interface ToolbarProps {
 	
+	flow : any[];
+	flowId? : number | string;
+	flows: any[] | undefined;
+	flowState : FlowState;
+	flowType : string;
+
 	isFlowEditorOnly? : boolean;
 	canvasToolbarsubject : Subject<string>;
 	hasRunningFlowRunner: boolean;
@@ -51,6 +58,11 @@ export interface ToolbarProps {
 	onEditorMode?: (editorMode) => void;
 
 	flowrunnerConnector : IFlowrunnerConnector;
+
+	getFlows : () => void;
+	loadFlow : (flowId) => void;
+	saveFlow : (flowId?) => void;
+	onGetFlows : (id? : string | number) => void;
 }
 
 export interface ToolbarState {
@@ -82,14 +94,22 @@ export const Toolbar = (props: ToolbarProps) => {
 	const modulesMenu = useModulesStateStore();
 
 	useEffect(() => {
-		canvasMode.setSelectedTask("");
-		getFlows();
+		props.getFlows();
 	}, []);
 
 	useEffect(() => {
-		canvasMode.setSelectedTask("");
+		console.log("TOOLBAR useffect1");
+		canvasMode.setSelectedTask("");		
+		setFlows(props.flows, selectedFlow || props.flowId);
+	}, [props.flow, props.flowId, canvasMode.flowsUpdateId]);
+
+	/*
+	*useEffect(() => {
+		console.log("TOOLBAR useffect2");
+		canvasMode.setSelectedTask("");		
 		getFlows();
 	}, [canvasMode.flowsUpdateId]);
+	*/
 
 	useEffect(() => {
 		if (modulesMenu.selectedModule == "tests") {
@@ -102,8 +122,8 @@ export const Toolbar = (props: ToolbarProps) => {
 	}, [modulesMenu.selectedModule]);
 	
 
-	const setFlows = (flows : any[], id?: number | string) => {
-		if (flows.length > 0) {
+	const setFlows = (flows : any[] | undefined, id?: number | string) => {
+		if (flows && flows.length > 0) {
 			const flowId = (id === undefined) ? flows[0].id : id;
 
 			canvasMode.setFlowsPlayground(flows.filter((flow)=> {
@@ -129,14 +149,16 @@ export const Toolbar = (props: ToolbarProps) => {
 			}
 			setFlowFiles(flows);
 			setSelectedFlow(flowId);
-			loadFlow(flowId);
 		}
 	}
 
-	const getFlows = (id? : number | string) => {
+	/*const getFlows = (id? : number | string) => {
 		if (props.flowrunnerConnector.hasStorageProvider) {
-			const flows = props.flowrunnerConnector.storageProvider?.getFlows();
-			setFlows(flows as any[], id);
+			setTimeout(()=> {
+				const flows = props.flowrunnerConnector.storageProvider?.getFlows();
+				setFlows(flows as any[], id);
+				return;
+			}, 50);
 			return;
 		};
 
@@ -154,6 +176,7 @@ export const Toolbar = (props: ToolbarProps) => {
 			console.error(err);
 		});
 	}
+	*/
 
 	const addNewFlow = (event) => {
 		event.preventDefault();
@@ -247,47 +270,7 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const saveFlow = (event) => {
 		event.preventDefault();
-		const flowAndUpdatedPositions = flow.flow.map((node) => {
-			let updatedNode = {...node};
-			if (node.x && node.y && node.shapeType !== "Line") {
-				const position = getPosition(node.name);
-				updatedNode.x = position.x;
-				updatedNode.y = position.y;
-			} else if (node.xstart && node.ystart  && node.shapeType === "Line") {
-				const position = getPosition(node.name);
-				
-				updatedNode.xstart = position.xstart;
-				updatedNode.ystart = position.ystart;
-				updatedNode.xend = position.xend;
-				updatedNode.yend = position.yend;
-			}
-			return updatedNode;
-		});
-		fetch('/save-flow?id=' + selectedFlow, {
-			method: "POST",
-			body: JSON.stringify({
-				flow: flowAndUpdatedPositions,
-				layout: JSON.parse(layout.layout),
-				flowType: canvasMode.flowType
-			}),
-			headers: {
-				"Content-Type": "application/json"
-			}
-		})
-			.then(res => {
-				if (res.status >= 400) {
-					throw new Error("Bad response from server");
-				}
-				
-				return res.json();
-			})
-			.then(status => {
-				console.log(status);
-				loadFlow(selectedFlow, true);
-			})
-			.catch(err => {
-				console.error(err);
-			});
+		props.saveFlow(selectedFlow);
 		return false;
 	}
 
@@ -323,7 +306,8 @@ export const Toolbar = (props: ToolbarProps) => {
 		setShowNewFlow(false);
 		setShowModulesPopup(false);
 
-		getFlows(id);
+		//getFlows(id);
+		props.onGetFlows(id);
 	}
 
 	const onSelectTask = (taskClassName) => {
@@ -347,23 +331,37 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const loadFlow = (flowId, withoutRefit? : boolean) => {
 
-		if (!withoutRefit) {
+		/*if (!withoutRefit) {
 			if (props.canvasToolbarsubject) {
-				setTimeout(() => {
-					props.canvasToolbarsubject.next("loadFlow");
-				}, 5);
+				
+				// TODO : change this to a more reliable way 
+				// of communicating with the canvas
+				//.. intention is to fadeout the current flow
+				// when starting loading a new flow
+				// .. and once it loaded.. fitstage and fade-in
+				//
+				// solution: state machine and custom hook on higher level?
+
+				console.log("RENDER ORDER 2");
+				props.canvasToolbarsubject.next("loadFlow");
 			}
 		}
+		*/
 
+		//props.flowrunnerConnector.setFlowType(props.flowType || "playground");
+		canvasMode.setFlowrunnerPaused(false);
+		canvasMode.setFlowType(props.flowType || "playground");
+		//flow.storeFlow(props.flow, flowId);
+		//layout.storeLayout(JSON.stringify(props.layout));
+
+		/*
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			const flowPackage : any = props.flowrunnerConnector.storageProvider?.getFlow(flowId) as any;
-			setTimeout(() => {
-				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
-				canvasMode.setFlowrunnerPaused(false);
-				canvasMode.setFlowType(flowPackage.flowType || "playground");
-				flow.storeFlow(flowPackage.flow, flowId);
-				layout.storeLayout(JSON.stringify(flowPackage.layout));
-			}, 500);
+			props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+			canvasMode.setFlowrunnerPaused(false);
+			canvasMode.setFlowType(flowPackage.flowType || "playground");
+			flow.storeFlow(flowPackage.flow, flowId);
+			layout.storeLayout(JSON.stringify(flowPackage.layout));
 			return;
 		}
 
@@ -396,6 +394,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		.catch(err => {
 			console.error(err);
 		});
+		*/
 	}
 
 	const setSelectedFlowChange = (event) => {
@@ -406,7 +405,7 @@ export const Toolbar = (props: ToolbarProps) => {
 			props.flowrunnerConnector.storageProvider) {
 			props.flowrunnerConnector.storageProvider.setSelectedFlow(event.target.value);
 		}
-		loadFlow(event.target.value);		
+		props.loadFlow(event.target.value);		
 	}
 
 	const onSetPausedClick = (event) => {
@@ -503,7 +502,7 @@ export const Toolbar = (props: ToolbarProps) => {
 									</div>	
 								}
 								<>
-									<select className="form-control mr-2" 
+									{!isFlowEditorOnly && <select className="form-control mr-2" 
 										disabled={canvasMode.editorMode !== "canvas"}
 										value={selectedFlow}
 										onChange={setSelectedFlowChange}>
@@ -511,19 +510,18 @@ export const Toolbar = (props: ToolbarProps) => {
 										{flowFiles.map((flow : IFlowFile, index) => {
 											return <option key={index} value={flow.id}>{flow.name}</option>;
 										})}								
-									</select>
+									</select>}
 									{!props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={addNewFlow} 
 										className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
-										title="Add new flow"><span>New</span></a>}
-									{props.flowrunnerConnector.hasStorageProvider && <span className="mr-4"></span>}
+										title="Add new flow"><span>New</span></a>}									
 								</>
-								{canvasMode.flowType === "playground" && canvasMode.editorMode === "canvas" && 
+								{!isFlowEditorOnly && canvasMode.flowType === "playground" && canvasMode.editorMode === "canvas" && 
 									<img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />
 								}
-								{canvasMode.flowType === "rustflowrunner" && canvasMode.editorMode === "canvas" && 
+								{!isFlowEditorOnly && canvasMode.flowType === "rustflowrunner" && canvasMode.editorMode === "canvas" && 
 									<img title="rust/webassembly flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/webassembly.svg" />
 								}
-								{canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
+								{!isFlowEditorOnly && canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
 									<img title="backend flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/server-solid.svg" />
 								}
 								
@@ -571,8 +569,8 @@ export const Toolbar = (props: ToolbarProps) => {
 									<a href="#" onClick={fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
 								}
 								{!isFlowEditorOnly && !props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={saveFlow} className="ml-2 btn btn-primary">Save</a>}
-								<span className="ml-auto"></span>
-								{canvasMode.flowType == "playground" && 
+								{!isFlowEditorOnly && <span className="ml-auto"></span>}
+								{!isFlowEditorOnly && canvasMode.flowType == "playground" && 
 									<a href={"/ui/" + selectedFlow} className="ml-2">UI View</a>
 								}
 								{!isFlowEditorOnly && !!!selectedNode.node.name &&

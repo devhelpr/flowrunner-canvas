@@ -24,7 +24,9 @@ import { getWorker } from './flow-worker';
 import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
 import { flowrunnerStorageProvider } from './flow-localstorage-provider';
-import { AnyArray, AnyMap } from 'immer/dist/internal';
+
+import { useFlows } from './use-flows';
+
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
 const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ Canvas }) => ({ default: Canvas })));
 
@@ -41,15 +43,37 @@ export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
 }
 
+/*
+	TODO : 
+		when hasStorageProvider
+
+			.. fixStage doesn't behave properly after loading flow/starting
+
+*/
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
-	const [flowRenderCanvas , setRenderFlowCanvas] = useState(false);
-	const flowrunnerConnector = useRef(undefined as FlowConnector | undefined);
+	const [renderFlowCanvas , setRenderFlowCanvas] = useState(false);
+	const flowrunnerConnector = useRef(new FlowConnector());
 	const canvasToolbarsubject = useRef(undefined as any);
 	const renderHtmlNode = useRef(undefined as any);
 	const getNodeInstance = useRef(undefined as any);
 
+	let hasStorageProvider = false;
+
+	let storageProvider : IStorageProvider | undefined= undefined;
+	if (props.flowStorageProvider !== undefined) {
+		storageProvider = props.flowStorageProvider as IStorageProvider;
+		hasStorageProvider = true;
+		FlowStorageProviderService.setFlowStorageProvider(storageProvider);
+	}
+
+	flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
+	flowrunnerConnector.current.storageProvider = storageProvider;
+	
+	const flows = useFlows(flowrunnerConnector.current);
+	
 	useEffect(() => {
+		canvasToolbarsubject.current = new Subject<string>();
 
 		import( './render-html-node').then((moduleRenderHtmlNode) => 
 		{
@@ -57,16 +81,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			
 			renderHtmlNode.current = moduleRenderHtmlNode.renderHtmlNode;
 			getNodeInstance.current = moduleRenderHtmlNode.getNodeInstance;
-
-			let hasStorageProvider = false;
-
-			let storageProvider : IStorageProvider | undefined= undefined;
-			if (props.flowStorageProvider !== undefined) {
-				storageProvider = props.flowStorageProvider as IStorageProvider;
-				hasStorageProvider = true;
-				FlowStorageProviderService.setFlowStorageProvider(storageProvider);
-			}
-	
+		
 			const options : any = {
 			}
 	
@@ -80,9 +95,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			});
 	
 			let pluginRegistry = {};
-			setPluginRegistry(pluginRegistry);
-
-			flowrunnerConnector.current= undefined;
+			setPluginRegistry(pluginRegistry);			
 
 			const onDestroyAndRecreateWorker = () => {
 				console.log("onDestroyAndRecreateWorker handling");
@@ -98,15 +111,13 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				}
 			}
 
-			flowrunnerConnector.current = new FlowConnector();	
-			flowrunnerConnector.current.registerWorker(worker);
-			flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
-			flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
-			flowrunnerConnector.current.storageProvider = storageProvider;
-			flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
-
-			canvasToolbarsubject.current = new Subject<string>();
-			setRenderFlowCanvas(true);
+			if (flowrunnerConnector.current) {	
+				flowrunnerConnector.current.registerWorker(worker);
+				flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
+				flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
+				console.log("RENDER ORDER 1");
+				setRenderFlowCanvas(true);
+			}
 		});
 
 		return () => {
@@ -114,7 +125,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		}
 	}, []);	
 
-	if (!flowRenderCanvas || !flowrunnerConnector.current) {
+	if (!renderFlowCanvas || !flowrunnerConnector.current) {
 		return <></>;
 	}
 	
@@ -126,12 +137,26 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					hasRunningFlowRunner={true}
 					isFlowEditorOnly={true}
 					flowrunnerConnector={flowrunnerConnector.current}
+					flow={flows.flow}
+					flowId={flows.flowId}
+					flows={flows.flows}
+					flowType={flows.flowType}
+					flowState={flows.flowState}
+					getFlows={flows.getFlows}
+					loadFlow={flows.loadFlow}
+					saveFlow={flows.saveFlow}
+					onGetFlows={flows.onGetFlows}
 			></Toolbar>
 							
 			<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current} 
 				renderHtmlNode={renderHtmlNode.current}
 				flowrunnerConnector={flowrunnerConnector.current}
 				getNodeInstance={getNodeInstance.current}
+				flow={flows.flow}
+				flowId={flows.flowId}
+				flowType={flows.flowType}
+				flowState={flows.flowState}
+				saveFlow={flows.saveFlow}
 			></CanvasComponent>
 		</Suspense>		
 	</>;
@@ -225,11 +250,12 @@ export const startEditor = (flowStorageProvider? : IStorageProvider) => {
 		}
 
 		if (applicationMode === ApplicationMode.Canvas) {
-			import('./components/canvas').then((module) => {
-				const Canvas = module.Canvas;
+			//import('./components/canvas').then((module) => {
+				//const Canvas = module.Canvas;
 				const App = (props : IAppProps) => {
 					const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
-					const [editorMode, setEditorMode] = useState("canvas");
+					const [editorMode, setEditorMode] = useState("canvas");					
+					const flows = useFlows(flowrunnerConnector);
 
 					const onClose = () => {
 						setLoggedIn(true);
@@ -247,28 +273,44 @@ export const startEditor = (flowStorageProvider? : IStorageProvider) => {
 					return <>
 						{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 							<>
-								{editorMode == "canvas" && <Taskbar flowrunnerConnector={flowrunnerConnector}></Taskbar>}
-								
-								{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
-									flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+								<Suspense fallback={<div>Loading...</div>}>
+									{editorMode == "canvas" && <Taskbar flowrunnerConnector={flowrunnerConnector}></Taskbar>}
+									
+									{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+										flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
-								<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
-									hasRunningFlowRunner={!!hasRunningFlowRunner}
-									flowrunnerConnector={flowrunnerConnector}
-									onEditorMode={onEditorMode}
-									></Toolbar>
-								{editorMode == "canvas" &&
-								<Canvas canvasToolbarsubject={canvasToolbarsubject} 
-									renderHtmlNode={renderHtmlNode}
-									flowrunnerConnector={flowrunnerConnector}
-									getNodeInstance={getNodeInstance}
-								></Canvas>}
-								{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
-									<UserInterfaceViewEditor 
-									renderHtmlNode={renderHtmlNode}
-									flowrunnerConnector={flowrunnerConnector}
-									getNodeInstance={getNodeInstance} /></Suspense>}
-								<FooterToolbar></FooterToolbar>	
+									<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
+										hasRunningFlowRunner={!!hasRunningFlowRunner}
+										flowrunnerConnector={flowrunnerConnector}
+										onEditorMode={onEditorMode}
+										flow={flows.flow}
+										flowId={flows.flowId}
+										flows={flows.flows}
+										flowType={flows.flowType}
+										flowState={flows.flowState}
+										getFlows={flows.getFlows}
+										loadFlow={flows.loadFlow}
+										saveFlow={flows.saveFlow}
+										onGetFlows={flows.onGetFlows}
+										></Toolbar>
+									{editorMode == "canvas" &&
+									<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
+										renderHtmlNode={renderHtmlNode}
+										flowrunnerConnector={flowrunnerConnector}
+										getNodeInstance={getNodeInstance}
+										flow={flows.flow}
+										flowId={flows.flowId}
+										flowType={flows.flowType}
+										flowState={flows.flowState}
+										saveFlow={flows.saveFlow}
+									></CanvasComponent>}
+									{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
+										<UserInterfaceViewEditor 
+										renderHtmlNode={renderHtmlNode}
+										flowrunnerConnector={flowrunnerConnector}
+										getNodeInstance={getNodeInstance} /></Suspense>}
+									<FooterToolbar></FooterToolbar>	
+								</Suspense>
 							</>
 						}
 					</>;
@@ -317,7 +359,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider) => {
 				.catch(err => {
 					console.error(err);
 				});																	
-			});
+			//});
 		} else
 		if (applicationMode === ApplicationMode.UI) {
 			import('./components/userinterface-view').then((module) => {

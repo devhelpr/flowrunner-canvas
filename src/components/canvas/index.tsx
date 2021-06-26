@@ -31,12 +31,20 @@ import * as uuid from 'uuid';
 
 import fetch from 'cross-fetch';
 
+import { FlowState } from '../../use-flows';
+
 const uuidV4 = uuid.v4;
 
 export interface CanvasProps {
 
 	canvasToolbarsubject : Subject<string>;
 	
+	flow : any[];
+	flowId? : number | string;
+	flowState : FlowState;
+	flowType : string;
+	saveFlow : (flowId?) => void;
+
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
@@ -70,7 +78,7 @@ export const Canvas = (props: CanvasProps) => {
 	const [connectionY, setConnectionY] = useState(0);
 	const [updateNodeTouchedState, setUpdateNodeTouchedState] = useState(true);
 
-	const flow = useFlowStore();
+	const flowStore = useFlowStore();
 	const canvasMode = useCanvasModeStateStore();
 	const selectedNode = useSelectedNodeStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
@@ -83,7 +91,7 @@ export const Canvas = (props: CanvasProps) => {
 	let canvasWrapper = useRef(null);
 	let htmlWrapper = useRef(null);
 	let layer = useRef(null);
-	let flowIsLoading = useRef(false);
+	let flowIsLoading = useRef(true);
 	let flowIsFittedStageForSingleNode = useRef(false);
 
 	let shapeRefs = useRef([] as any);
@@ -139,7 +147,7 @@ export const Canvas = (props: CanvasProps) => {
 			(layer.current as any).listening(true);
 			(layer.current as any).batchDraw();
 		}
-	}, [flow.flow]);
+	}, [flowStore.flow]);
 
 	const wheelEvent = (e , touchPosition? : any) => {
 		if (wheelTimeout.current) {
@@ -341,7 +349,7 @@ export const Canvas = (props: CanvasProps) => {
 						values,
 						columns: columnCount,
 						rows: rowCount
-					}, flow.flow);
+					}, flowStore.flow);
 
 					let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
 
@@ -380,7 +388,7 @@ export const Canvas = (props: CanvasProps) => {
 						y: newNode.y
 					});
 
-					flow.addFlowNode(newNode);
+					flowStore.addFlowNode(newNode);
 				}				
 			}
 		}
@@ -453,7 +461,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		nodeStateList.current = [];
 		nodeStateCount.current = 0;
-	}, [flow.flow]);
+	}, [flowStore.flow]);
 
 	const nodeStateObserver = (nodeName: string, nodeState : string, _touchedNodes : any) => {
 		if (!updateNodeTouchedState) {
@@ -591,7 +599,9 @@ export const Canvas = (props: CanvasProps) => {
 	}, []);
 
 
-	useLayoutEffect(() => {
+	useEffect(() => {
+		console.log("RENDER ORDER 4");
+		//(flowIsLoading as any).current = true;
 		let subscription;
 		if (props.canvasToolbarsubject) {
 			
@@ -601,6 +611,7 @@ export const Canvas = (props: CanvasProps) => {
 						return;
 					}
 					if (message == "loadFlow") {
+						console.log("RENDER ORDER 3");
 						(flowIsLoading as any).current = true;
 						console.log("loadflow setCanvasOpacity 0");
 						setCanvasOpacity(0);
@@ -624,7 +635,7 @@ export const Canvas = (props: CanvasProps) => {
 				subscription.unsubscribe();
 			}
 		}
-	}, [flow.flow])
+	}, [])
 
 	const updateTouchedNodes = () => {
 		// DONT UPDATE STATE HERE!!!
@@ -656,7 +667,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		const startPerf = performance.now();
 		console.log("START recalculateStartEndpoints");
-		flow.flow.map((node, index) => {
+		flowStore.flow.map((node, index) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
 				if (shapeRef && (shapeRef as any)) {						
@@ -713,7 +724,7 @@ export const Canvas = (props: CanvasProps) => {
 		const startPerf = performance.now();
 		flowHashMap.current = {};
 
-		flow.flow.map((node, index) => {
+		flowStore.flow.map((node, index) => {
 			if (node.shapeType !== 'Line') {
 				const nodeMap = flowHashMap.current[node.name];
 				if (nodeMap) {
@@ -759,10 +770,17 @@ export const Canvas = (props: CanvasProps) => {
 
 		window.addEventListener("resize", updateDimensions);
 		const startPerf = performance.now();
-		if (flow && flow.flow.length > 0) {
+		if (props.flow && props.flow.length > 0) {
 						
 
-			if (flowIsLoading && flowIsLoading.current) {
+			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
+				setCanvasOpacity(0);
+				(flowIsLoading as any).current = true;
+			} else
+			if (props.flowState == FlowState.loaded && (flowIsLoading as any).current) {
+				if (canvasOpacity == 0) {
+					setCanvasOpacity(1);
+				}
 				(flowIsLoading as any).current = false;
 				flowIsFittedStageForSingleNode.current = true;
 
@@ -776,7 +794,7 @@ export const Canvas = (props: CanvasProps) => {
 				
 				createFlowHashMap();
 
-				flow.flow.map((node, index) => {					
+				flowStore.flow.map((node, index) => {					
 
 					if (node.x && node.y) {						
 						setPosition(node.name , {
@@ -819,9 +837,9 @@ export const Canvas = (props: CanvasProps) => {
 
 				console.log("flow canvas initialize time - recalculateStartEndpoints", (performance.now() - perfstart) , "ms");
 				
-			} else {
+			} else if (props.flowState == FlowState.loaded && !(flowIsLoading as any).current) {
 
-				if (flow.flow.length == 1) {
+				if (flowStore.flow.length == 1) {
 					if (!flowIsFittedStageForSingleNode.current) {
 						fitStage(undefined, false, false);
 						flowIsFittedStageForSingleNode.current = true;
@@ -837,7 +855,7 @@ export const Canvas = (props: CanvasProps) => {
 			touchedNodesStore.setNodesTouched(touchedNodesLocal.current);
 			
 			let disabledUpdateTouchedState = false;
-			flow.flow.map((node, index) => {
+			flowStore.flow.map((node, index) => {
 				if (node.taskType === "TimerTask" || 
 					(node.taskType == "DebugTask" && 
 						node.visualizer == "animatedgridcanvas")) {
@@ -850,7 +868,7 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 				setUpdateNodeTouchedState(true);
 			}			
-		} else if (flow && flow.flow.length == 0) {
+		} else if (flowStore && flowStore.flow.length == 0) {
 			flowIsFittedStageForSingleNode.current = false;
 		}	
 				
@@ -869,7 +887,7 @@ export const Canvas = (props: CanvasProps) => {
 			//(refs.canvasWrapper as any).removeEventListener('wheel', wheelEvent);
 			
 		}
-	}, [flow.flow]);
+	}, [props.flowState, flowStore.flow]);
 
 	useLayoutEffect(() => {
 
@@ -911,7 +929,7 @@ export const Canvas = (props: CanvasProps) => {
 		const unselectedNodeOpacity = 0.15;
 //console.log("setNewPositionForNode" , performance.now());
 		if (!linesOnly) {
-			flow.flow.map((flowNode) => {
+			flowStore.flow.map((flowNode) => {
 				if (flowNode.name !== node.name) {
 					// node is not selected or handled by this setNewPositionForNode call
 					if (shapeRefs.current[flowNode.name]) {
@@ -1033,7 +1051,7 @@ export const Canvas = (props: CanvasProps) => {
 
 			
 		*/
-		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flow.flow, node, flowHashMap.current);
+		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flowStore.flow, node, flowHashMap.current);
 		let lines = {};
 		if (startLines) {			
 			startLines.map((lineNode) => {				
@@ -1048,7 +1066,7 @@ export const Canvas = (props: CanvasProps) => {
 				})
 				let endNode = endNodes[0];
 				*/
-				let endNode = flow.flow[flowHashMap.current[lineNode.endshapeid].index];
+				let endNode = flowStore.flow[flowHashMap.current[lineNode.endshapeid].index];
 				if (endNode) {
 					const positionNode = getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
@@ -1086,7 +1104,7 @@ export const Canvas = (props: CanvasProps) => {
 			})
 		}
 
-		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flow.flow, node, flowHashMap.current);
+		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flowStore.flow, node, flowHashMap.current);
 		if (endLines) {
 			
 			endLines.map((lineNode) => {
@@ -1104,7 +1122,7 @@ export const Canvas = (props: CanvasProps) => {
 				})
 				let startNode = startNodes[0];
 				*/
-				let startNode = flow.flow[flowHashMap.current[lineNode.startshapeid].index];	
+				let startNode = flowStore.flow[flowHashMap.current[lineNode.startshapeid].index];	
 				//console.log("startNode" , startNode, lineNode.startshapeid, lineNode, endLines);	
 				if (startNode) {
 					const positionNode = getPosition(startNode.name) || startNode;
@@ -1156,13 +1174,18 @@ export const Canvas = (props: CanvasProps) => {
 			// possible "performance"-dropper
 			selectedNode.selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
+			if (props.flowrunnerConnector.hasStorageProvider) {
+				props.saveFlow();
+				//flowStore.storeFlowNode({...node,x:newPosition.x,y:newPosition.y}, node.name);
+				
+			}
 		}
 	}
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
-		let newNode = getNewNode({...node}, flow.flow);
-		console.log("newnode", newNode.name, flow.flow);
+		let newNode = getNewNode({...node}, flowStore.flow);
+		console.log("newnode", newNode.name, flowStore.flow);
 		newNode.x = newNode.x + 100;
 		newNode.y = newNode.y + 100;
 		
@@ -1171,7 +1194,7 @@ export const Canvas = (props: CanvasProps) => {
 			y: newNode.y
 		});
 
-		flow.addFlowNode(newNode);
+		flowStore.addFlowNode(newNode);
 		return false;
 	}
 
@@ -1374,7 +1397,7 @@ export const Canvas = (props: CanvasProps) => {
 			yend: connection.yend
 		});
 
-		flow.addConnection(connection);
+		flowStore.addConnection(connection);
 		canvasMode.setConnectiongNodeCanvasMode(false);
 	}
 
@@ -1925,7 +1948,7 @@ export const Canvas = (props: CanvasProps) => {
 			if (connectionNodeFollowFlow.current == ThumbFollowFlow.unhappyFlow) {
 				(connection as any).followflow = "onfailure";
 			}
-			flow.addConnection(connection);
+			flowStore.addConnection(connection);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
 
@@ -2144,7 +2167,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance !== undefined) {
 
-				flow.flow.map((shape, index) => {
+				flowStore.flow.map((shape, index) => {
 					if (node !== undefined) {
 						if (node.id !== shape.id) {
 							return;
@@ -2173,7 +2196,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							
 
 							if (props.getNodeInstance) {
-								const instance = props.getNodeInstance(shape, props.flowrunnerConnector, flow.flow, taskSettings);
+								const instance = props.getNodeInstance(shape, props.flowrunnerConnector, flowStore.flow, taskSettings);
 								if (instance) {
 									if (instance.getWidth && instance.getHeight) {
 										width = instance.getWidth(shape);
@@ -2247,7 +2270,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					}
 				});
 			
-				if (flow.flow.length > 0 &&
+				if (flowStore.flow.length > 0 &&
 					xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
 					let scale = 1;
 					
@@ -2263,7 +2286,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							realStageHeight = 600;
 						}
 
-						if (flow.flow.length === 1) { 
+						if (flowStore.flow.length === 1) { 
 							scale = 1;
 						} else {
 							if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
@@ -2291,9 +2314,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							x: 0 ,
 							y: 0 
 						};											
-						
-						newPos.x = 64 + (-(xMin)*scale) + (stageInstance.getWidth())/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-(yMin + 64)*scale) + (stageInstance.getHeight() - 64)/2 - ((flowHeight*scale))/2 ;	
+						let stageWidth = stageInstance.getWidth() || stageContainerElement.clientWidth;
+						let stageHeight = stageInstance.getHeight() || stageContainerElement.clientHeight;
+						newPos.x = 64 + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
+						newPos.y = (-(yMin)*scale) + (stageHeight)/2 - ((flowHeight*scale))/2 ;	
 						 
 						stageInstance.position(newPos);
 						if (!!doBatchdraw) {
@@ -2330,11 +2354,11 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				}
 			}
 		}
-	}, [flow.flow]);
+	}, [flowStore.flow]);
 
 	useEffect(() => {
-		console.log("useEffect", flow.flowId, performance.now());
-	}, [flow.flow]);
+		console.log("useEffect", flowStore.flowId, performance.now());
+	}, [flowStore.flow]);
 
 	const clickStage = (event) => {
 		if (isConnectingNodesByDraggingLocal.current) {
@@ -2396,7 +2420,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						x: ((position.x - (stageInstance).x()) / scaleFactor), 
 						y: ((position.y - (stageInstance).y()) / scaleFactor),
 						...presetValues
-					}, flow.flow);
+					}, flowStore.flow);
 
 					const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
@@ -2437,7 +2461,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						x: newNode.x,
 						y: newNode.y
 					});
-					flow.addFlowNode(newNode);
+					flowStore.addFlowNode(newNode);
 				}				
 			}
 		}
@@ -2451,7 +2475,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 
 	const getNodeByName = (nodeName) => {
-		const nodes = flow.flow.filter((node, index) => {
+		const nodes = flowStore.flow.filter((node, index) => {
 			return node.name === nodeName;
 		});
 		if (nodes.length > 0) {
@@ -2461,7 +2485,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 
 	const getNodeByVariableName = (nodeName) => {
-		const nodes = flow.flow.filter((node, index) => {
+		const nodes = flowStore.flow.filter((node, index) => {
 			return node.variableName === nodeName && node.taskType;// && node.taskType.indexOf("Type") >= 0;
 		});
 		if (nodes.length > 0) {
@@ -2477,7 +2501,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 		try {
 			let connections : any[] = [];
-			flow.flow.map((node, index) => {
+			flowStore.flow.map((node, index) => {
 				if (node.shapeType !== "Line" ) {
 					const nodeJson = JSON.stringify(node);
 					let nodeMatches  = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
@@ -2681,7 +2705,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						x: (position.x - (_stage).x()) / scaleFactor, 
 						y: (position.y - (_stage).y()) / scaleFactor,
 						...presetValues
-					},flow.flow);
+					},flowStore.flow);
 
 					//const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
@@ -2721,7 +2745,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						x: newNode.x,
 						y: newNode.y
 					});
-					flow.addFlowNode(newNode);
+					flowStore.addFlowNode(newNode);
 				}				
 			}
 		} else {
@@ -2801,7 +2825,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 
 	const onStoreFlowNode = (node : any , orgNodeName : string) => {
-		flow.storeFlowNode(node, orgNodeName);
+		flowStore.storeFlowNode(node, orgNodeName);
 	}
 
 	const canvasHasSelectedNode : boolean = !!selectedNode && !!selectedNode.node;	
@@ -2809,8 +2833,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	const connections = canvasMode.showDependencies ? getDependentConnections() : [];
 	let nodesConnectedToSelectedNode : any = {};
 	const flowMemo = useMemo(() => {
-		return flow.flow
-	}, [flow.flow]);
+		return flowStore.flow
+	}, [flowStore.flow]);
 
 	console.log("CANVAS RENDER" , performance.now());
 
@@ -2903,7 +2927,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								flow={flowMemo}
 								taskType={node.taskType}
 								node={node}			
-								flowHash={flow.flowHashmap}
+								flowHash={flowStore.flowHashmap}
 								shapeRefs={shapeRefs as any}
 								
 								positions={getPosition}
@@ -3175,7 +3199,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							let height = undefined;
 
 							if (props.getNodeInstance) {
-								const instance = props.getNodeInstance(node, props.flowrunnerConnector, flow.flow, settings);
+								const instance = props.getNodeInstance(node, props.flowrunnerConnector, flowStore.flow, settings);
 								if (instance) {
 									if (instance.getWidth && instance.getHeight) {
 										width = instance.getWidth(node);
@@ -3232,8 +3256,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		</div>
 		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
 		<Flow 
-			flow={flow.flow}
-			flowId={flow.flowId}
+			flow={flowStore.flow}
+			flowId={flowStore.flowId}
 			flowrunnerConnector={props.flowrunnerConnector} />							
 	</>;
 }

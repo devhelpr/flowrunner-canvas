@@ -35,7 +35,8 @@ const handleStorageProvider = config => (set, get, api) =>
       }
 
       if (storageProvider) {
-        storageProvider.storeFlowPackage(get());
+        let flowState = get();
+        storageProvider.saveFlow(flowState.flowId, flowState.flow);
       }
     },
     get,
