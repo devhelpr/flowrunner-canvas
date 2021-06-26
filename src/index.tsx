@@ -46,7 +46,7 @@ export interface IFlowrunnerCanvasProps {
 /*
 	TODO : 
 
-		whats the gray arrow?
+		- improve gulpfile : fast path using esbuild and publish path using awesome-typescript-loader
 
 */
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {

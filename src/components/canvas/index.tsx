@@ -83,7 +83,7 @@ export const Canvas = (props: CanvasProps) => {
 	const selectedNode = useSelectedNodeStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 	
-	let flowHashMap = useRef({} as any);
+	//let flowHashMap = useRef({} as any);
 
 	//let positions = useRef({} as any);
 
@@ -718,54 +718,7 @@ export const Canvas = (props: CanvasProps) => {
 				stageInstance.batchDraw();
 			}
 		}		
-	}
-
-	const createFlowHashMap = () => {
-
-		const startPerf = performance.now();
-		flowHashMap.current = {};
-
-		flowStore.flow.map((node, index) => {
-			if (node.shapeType !== 'Line') {
-				const nodeMap = flowHashMap.current[node.name];
-				if (nodeMap) {
-					nodeMap.index = index;
-					flowHashMap.current[node.name] = nodeMap;
-				} else {
-					flowHashMap.current[node.name] = {
-						index: index,
-						start: [] as number[],
-						end: [] as number[]
-					}
-				}
-			} else {
-				const startNode = flowHashMap.current[node.startshapeid];
-				if (startNode) {
-					startNode.start.push(index);
-				} else {
-					flowHashMap.current[node.startshapeid] = {
-						index: -1,
-						start: [index] as number[],
-						end: [] as number[]
-					}
-				}
-
-				const endNode = flowHashMap.current[node.endshapeid];
-				if (endNode) {
-					endNode.end.push(index);
-				} else {
-					flowHashMap.current[node.endshapeid] = {
-						index: -1,
-						start: [] as number[],
-						end: [index] as number[]
-					}
-				}
-			}
-		});
-		console.log("createFlowHashMap", performance.now() - startPerf);
-
-		//console.log("flowHashMap", flowHashMap.current);
-	}
+	}	
 
 	useLayoutEffect(() => {
 
@@ -799,8 +752,6 @@ export const Canvas = (props: CanvasProps) => {
 				console.log("flow canvas initialize time - clearPositions", (performance.now() - perfstart) + "ms");
 				perfstart = performance.now();
 				
-				createFlowHashMap();
-
 				flowStore.flow.map((node, index) => {					
 
 					if (node.x && node.y) {						
@@ -853,8 +804,6 @@ export const Canvas = (props: CanvasProps) => {
 					}
 				}				
 				
-				createFlowHashMap();
-
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 				recalculateStartEndpoints(false);
 
@@ -1064,7 +1013,7 @@ export const Canvas = (props: CanvasProps) => {
 
 			
 		*/
-		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flowStore.flow, node, flowHashMap.current);
+		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flowStore.flow, node, flowStore.flowHashmap);
 		let lines = {};
 		if (startLines) {			
 			startLines.map((lineNode) => {				
@@ -1079,7 +1028,7 @@ export const Canvas = (props: CanvasProps) => {
 				})
 				let endNode = endNodes[0];
 				*/
-				let endNode = flowStore.flow[flowHashMap.current[lineNode.endshapeid].index];
+				let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
 				if (endNode) {
 					const positionNode = getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
@@ -1117,7 +1066,7 @@ export const Canvas = (props: CanvasProps) => {
 			})
 		}
 
-		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flowStore.flow, node, flowHashMap.current);
+		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flowStore.flow, node, flowStore.flowHashmap);
 		if (endLines) {
 			
 			endLines.map((lineNode) => {
@@ -1135,7 +1084,7 @@ export const Canvas = (props: CanvasProps) => {
 				})
 				let startNode = startNodes[0];
 				*/
-				let startNode = flowStore.flow[flowHashMap.current[lineNode.startshapeid].index];	
+				let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];	
 				//console.log("startNode" , startNode, lineNode.startshapeid, lineNode, endLines);	
 				if (startNode) {
 					const positionNode = getPosition(startNode.name) || startNode;

@@ -238,10 +238,10 @@ export class FlowToCanvas {
     if (flow === undefined || startNode === undefined || flowHashMap == undefined) {
       return false;
     }
-    const startConnection = flowHashMap[startNode.name];
+    const startConnection = flowHashMap.get(startNode.name);
     if (startConnection) {
       let nodes: any[] = [];
-      flowHashMap[flow[startConnection.index].name].start.map(startIndex => {
+      flowHashMap.get(flow[startConnection.index].name).start.map(startIndex => {
         let connection = flow[startIndex];
         if (connection) {
           nodes.push(connection);
@@ -261,10 +261,10 @@ export class FlowToCanvas {
       return false;
     }
 
-    const endConnection = flowHashMap[endNode.name];
+    const endConnection = flowHashMap.get(endNode.name);
     if (endConnection) {
       let nodes: any[] = [];
-      flowHashMap[flow[endConnection.index].name].end.map(endIndex => {
+      flowHashMap.get(flow[endConnection.index].name).end.map(endIndex => {
         let connection = flow[endIndex];
         if (connection) {
           nodes.push(connection);

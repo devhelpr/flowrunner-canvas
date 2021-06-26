@@ -84,7 +84,7 @@ function buildTypescript() {
         output: {
           path: path.join(__dirname, "lib"),
           pathinfo: false,
-          filename:'[name].bundle.js',
+          filename:'[name].js',
           chunkFilename: "[name].canvas.chunk.js",
           publicPath: "/",
           chunkLoadingGlobal: 'flowcanvaswebpackJsonpPlugin'
