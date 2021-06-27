@@ -1,10 +1,10 @@
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
-let defaultFlow  = "";
-let additionalTasks : any[];
+let defaultFlow = '';
+let additionalTasks: any[];
 
 function exampleFlow() {
-  if (defaultFlow !== "") {
+  if (defaultFlow !== '') {
     return defaultFlow;
   }
 
@@ -292,7 +292,6 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   isUI: false,
 };
 
-
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   storeFlowPackage: storeFlowPackage,
   getFlowPackage: getFlowPackage,
@@ -308,5 +307,5 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   addFlow: (name, flow) => {},
   isUI: false,
   setDefaultFlow: setDefaultFlow,
-  setAdditionalTasks: setAdditionalTasks
+  setAdditionalTasks: setAdditionalTasks,
 };
