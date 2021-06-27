@@ -23,7 +23,7 @@ import { setCustomConfig } from './config';
 import { getWorker } from './flow-worker';
 import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
-import { flowrunnerStorageProvider } from './flow-localstorage-provider';
+import { flowrunnerStorageProvider , configurableFlowrunnerStorageProvider} from './flow-localstorage-provider';
 
 import { useFlows } from './use-flows';
 
@@ -38,6 +38,7 @@ const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ C
 (window as any).react = React;
 
 export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
+export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
 
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
@@ -46,10 +47,9 @@ export interface IFlowrunnerCanvasProps {
 /*
 	TODO : 
 
-		- fixen rode lijntjes in codesanbox .. waarom kunnen typedefs niet gevonden worden?
-		   .. switchen naar tsdx en splitting in project zelf doen met webpack !?
-
-		- removing circular dependencies : flow-worker en form-node
+		- fix red squigly lines in codesandbox .. why can't TS typedefs be found?
+			- in locale CRA this doesn't happen
+		- remove circular dependencies : flow-worker and form-node
 */
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {

@@ -10,4 +10,6 @@ export interface IStorageProvider {
   setSelectedFlow: (flowId: string) => void;
   getSelectedFlow: () => string;
   isUI: boolean;
+  setDefaultFlow? : (flowPackage: string) => void;
+  setAdditionalTasks? : (tasks: any[]) => void;
 }

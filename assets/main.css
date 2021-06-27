@@ -347,6 +347,10 @@ img {
     left: 0;
 }
 
+.html-plugin-node--animatedgridcanvashtml-plugin-node__h-100 {
+	padding: 10px;
+}
+
 .html-plugin-node__grid-edit {
 	-webkit-box-pack: start;
 	    -ms-flex-pack: start;

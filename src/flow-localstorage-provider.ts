@@ -1,6 +1,13 @@
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
+let defaultFlow  = "";
+let additionalTasks : any[];
+
 function exampleFlow() {
+  if (defaultFlow !== "") {
+    return defaultFlow;
+  }
+
   return `{
     "flow": [{
       "id": "DebugTask",
@@ -190,6 +197,10 @@ function getTasks() {
     fullName: 'FormTask',
     flowType: 'playground',
   });
+
+  if (additionalTasks) {
+    tasks.push(...additionalTasks);
+  }
   return tasks;
 }
 
@@ -257,6 +268,14 @@ function getFlow(flowId: string) {
   return JSON.parse(exampleFlow());
 }
 
+function setDefaultFlow(flowPackage: string) {
+  defaultFlow = flowPackage;
+}
+
+function setAdditionalTasks(tasks: any[]) {
+  additionalTasks = tasks;
+}
+
 export const flowrunnerStorageProvider: IStorageProvider = {
   storeFlowPackage: storeFlowPackage,
   getFlowPackage: getFlowPackage,
@@ -271,4 +290,23 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   },
   addFlow: (name, flow) => {},
   isUI: false,
+};
+
+
+export const configurableFlowrunnerStorageProvider: IStorageProvider = {
+  storeFlowPackage: storeFlowPackage,
+  getFlowPackage: getFlowPackage,
+  getFlows: getFlows,
+  getFlow: getFlow,
+  saveFlow: saveFlow,
+  setSelectedFlow: setSelectedFlow,
+  getSelectedFlow: getSelectedFlow,
+  getTasks: getTasks,
+  getApiProxyUrl: () => {
+    return '';
+  },
+  addFlow: (name, flow) => {},
+  isUI: false,
+  setDefaultFlow: setDefaultFlow,
+  setAdditionalTasks: setAdditionalTasks
 };
