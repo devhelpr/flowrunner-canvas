@@ -1,4 +1,4 @@
-DONOT USE except for experiments! Still in active development
+DON'T USE except for experiments! Still in active development
 
 # What is Flowrunner-canvas?
 
@@ -7,15 +7,55 @@ When used standalone it can be used without writing code, but it is extendable i
 
 Flowrunner-canvas is a visual editor for creating flows that can be run with the @devhelpr/flowrunner npm package. It runs within your dev environment in the browser, locally on a dev machine,
 
-Flowrunner-canvas uses Nodejs express to add some basic http services to read and store the flows on the location where you specify it to be stored. 
+Flowrunner-canvas can use Nodejs express to add some basic http services to read and store the flows on the location where you specify it to be stored. But this is not a requirement, it can also use a custom storage provider, and a localstorage provider is provided.
 
 The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but you can add plugins depending on your needs.
+
+[Codesandbox](https://codesandbox.io/s/flowrunner-canvas-wljy9)
 
 # The simplest way to start playing with flowrunner-canvas
 
 - clone this github repo
 - yarn install
 - npx gulp
+
+# Using create-react-app
+
+- npx create-react-app flow-app --template typescript
+- cd flow-app
+- yarn add @devhelpr/flowrunner-canvas@latest
+- replace the code in src/App.tsx with:
+
+```
+import {
+  FlowrunnerCanvas,
+  flowrunnerLocalStorageProvider
+} from "@devhelpr/flowrunner-canvas";
+
+import "@devhelpr/flowrunner-canvas/assets/fira_code.css";
+import "@devhelpr/flowrunner-canvas/assets/bootstrap.min.css";
+import "@devhelpr/flowrunner-canvas/assets/react-draft-wysiwyg.css";
+import "@devhelpr/flowrunner-canvas/assets/main.css";
+
+export default () => {
+  return (
+    <FlowrunnerCanvas
+      flowStorageProvider={flowrunnerLocalStorageProvider}
+    ></FlowrunnerCanvas>
+  );
+}
+```
+
+- yarn start
+
+This starts a flowrunner-canvas editors which stores its flow locally
+
+# Ways to use flowrunner-canvas
+
+- as a playground to prototype applications
+- together with the layout editor, build an application with it
+- as a flow editor for other applications like a backend app with
+	its own flowrunner
 
 # How to use Flowrunner-canvas in your own project directly with Node.js
 
@@ -39,7 +79,7 @@ startFlowStudioServer.start('./assets/flow.json');
 
 flow.json 
 
-with contents an empty aray : []
+with contents an empty array : []
 
 (you can place this file in another location, in that case change the location in the flowrunner-canvas.js file)
 
@@ -86,8 +126,6 @@ Requirements :
     }
 - wasm extension should be allowed on your webserver
 
-
-
 # Publish and build instruction in case you want to contribute to flowrunner-canvas itself
 
 - npx gulp 
@@ -97,3 +135,6 @@ Requirements :
 - npm version [new version number]
 - npm publish
 
+# Esbuild experimental builder
+
+npx gulp esbuild
