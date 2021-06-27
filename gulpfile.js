@@ -7,8 +7,8 @@ var startFlowStudioServer = require('./server/startFlowStudioServer');
 var named = require('vinyl-named'),   
     path = require("path"),
     definePlugin = require('webpack').DefinePlugin,
-    webpackIgnorePlugin = require('webpack').IgnorePlugin,
-    cleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
+    webpackIgnorePlugin = require('webpack').IgnorePlugin;
+    //cleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
 
@@ -74,7 +74,23 @@ var tsProject = ts.createProject('tsconfig.json');
                         runtimeChunk: 'single',
 
 */
-function buildTypescript() {
+function buildTypescript(devbuild) {
+  let loader = {
+    test: /\.tsx?$/,
+    loader: 'awesome-typescript-loader',
+    exclude: /node_modules/ 
+  }
+
+  if (devbuild) {
+    loader = {
+      test: /\.tsx?$/,
+      loader: 'esbuild-loader',
+      options: {
+        loader: 'tsx',  
+        target: 'esnext'
+      }
+    }
+  }
 
   const gulpwebpack = require('webpack-stream');
   var task = gulp.src(['src/index.tsx','src/ui.tsx'])
@@ -87,7 +103,8 @@ function buildTypescript() {
           filename:'[name].js',
           chunkFilename: "[name].canvas.chunk.js",
           publicPath: "/",
-          chunkLoadingGlobal: 'flowcanvaswebpackJsonpPlugin'
+          chunkLoadingGlobal: 'flowcanvaswebpackJsonpPlugin',
+          clean: true
         },
         experiments: {
           syncWebAssembly: true
@@ -132,12 +149,7 @@ function buildTypescript() {
                 },
               ],
             },            
-            {
-              test: /\.tsx?$/,
-              loader: 'awesome-typescript-loader',
-              exclude: /node_modules/              
-            }
-                   
+            loader                   
           ]
         },
         resolve:
@@ -152,7 +164,7 @@ function buildTypescript() {
           new webpack.DefinePlugin({
             'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
           }),
-          new cleanPlugin(),
+          //new cleanPlugin(),
           /*new WasmPackPlugin({
             crateDirectory: __dirname + "/rust", 
           }),*/
@@ -286,12 +298,22 @@ gulp.task('postcss', () => {
 });
 
 gulp.task('build', function() { return buildTypescript() } );
+gulp.task('builddev', function() { return buildTypescript(true) } );
 gulp.task('build-plugins', function() { return buildPluginTypescript() } );
 gulp.task('default', gulp.series('build', 'build-plugins','postcss', 'startFlowServer', function () {
   
   console.log("WATCHING...");
   
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
+  gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
+  gulp.watch('styles/*.pcss', gulp.series('postcss'));
+}));
+
+gulp.task('esbuild', gulp.series('builddev', 'build-plugins','postcss', 'startFlowServer', function () {
+  
+  console.log("WATCHING...");
+  
+  gulp.watch('src/**/*.{ts,tsx}', gulp.series('builddev'));
   gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
   gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));

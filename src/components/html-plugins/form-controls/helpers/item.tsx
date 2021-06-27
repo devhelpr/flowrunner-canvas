@@ -1,6 +1,6 @@
-
-import React, {forwardRef} from 'react';
-​import { FormNodeHtmlPlugin } from '../../form-node';
+import React from 'react';
+import {forwardRef} from 'react';
+import { FormNodeHtmlPlugin } from '../../form-node';
 import { onFocus } from './focus';
 
 export interface ItemProps {
