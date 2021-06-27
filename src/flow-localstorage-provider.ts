@@ -17,17 +17,6 @@ function exampleFlow() {
       "decimalSeparator": ",",
       "afterLabel": ""
     }, {
-      "name": "connection-7b295792-eed8-4316-a562-84bd2d9f5606",
-      "taskType": "connection",
-      "shapeType": "Line",
-      "startshapeid": "AssignTask",
-      "endshapeid": "DebugTask",
-      "xstart": 283.6746023460453,
-      "ystart": 575.8035178774392,
-      "xend": 879.7005148086968,
-      "yend": 374.27396264530074,
-      "thumbPosition": 0
-    }, {
       "id": "FormTask",
       "x": 41.41221093055174,
       "y": 328.23075055847556,
@@ -81,30 +70,18 @@ function exampleFlow() {
       "thumbPosition": 0
     }, {
       "id": "DebugTask1",
-      "x": 630.3220057562881,
-      "y": 794.241688537996,
+      "x": 1129.1488151297847,
+      "y": 902.0867810989434,
       "shapeType": "Rect",
       "name": "DebugTask1",
       "taskType": "DebugTask",
       "htmlPlugin": "debugNode",
       "visualizer": "text",
-      "propertyName": "radiobuttonExample",
+      "propertyName": "text",
       "format": "toFixed",
       "fixed": 2,
       "decimalSeparator": ",",
       "afterLabel": ""
-    }, {
-      "name": "connection-145ae7c6-7d0d-4db3-b152-83c384600476",
-      "taskType": "connection",
-      "shapeType": "Line",
-      "startshapeid": "IfConditionTask",
-      "endshapeid": "DebugTask1",
-      "xstart": 512.0281903363405,
-      "ystart": 445.9962303873352,
-      "xend": 497.32200575628815,
-      "yend": 721.241688537996,
-      "thumbPosition": 2,
-      "followflow": "onfailure"
     }, {
       "name": "ExpressionTask",
       "id": "ExpressionTask",
@@ -112,7 +89,7 @@ function exampleFlow() {
       "shapeType": "Rect",
       "x": 770.2693022623774,
       "y": 230.0589199850804,
-      "expression": "value1 + value2",
+      "expression": "value1 * value2",
       "assignToProperty": "output",
       "forceNumeric": true,
       "htmlPlugin": "formNode",
@@ -140,6 +117,39 @@ function exampleFlow() {
       "xend": 1064.5626930952271,
       "yend": 359.5504263215948,
       "thumbPosition": 0
+    }, {
+      "name": "AssignTask",
+      "id": "AssignTask",
+      "taskType": "AssignTask",
+      "shapeType": "Rect",
+      "x": 576.9339773382222,
+      "y": 905.1561766548424,
+      "assignToProperty": "text",
+      "value": "Hello Flow",
+      "htmlPlugin": "formNode"
+    }, {
+      "name": "connection-79ee92bf-c1ec-4967-9be3-790f5ebef2d6",
+      "taskType": "connection",
+      "shapeType": "Line",
+      "startshapeid": "IfConditionTask",
+      "endshapeid": "AssignTask",
+      "xstart": 512.0281903363405,
+      "ystart": 445.9962303873352,
+      "xend": 418.93397733822223,
+      "yend": 825.1561766548424,
+      "thumbPosition": 2,
+      "followflow": "onfailure"
+    }, {
+      "name": "connection-d007a5c3-baf3-4861-a961-5513cb0228aa",
+      "taskType": "connection",
+      "shapeType": "Line",
+      "startshapeid": "AssignTask",
+      "endshapeid": "DebugTask1",
+      "xstart": 726.9339773382222,
+      "ystart": 825.1561766548424,
+      "xend": 996.1488151297847,
+      "yend": 829.0867810989434,
+      "thumbPosition": 0
     }],
     "name": "flow",
     "id": "flow",
@@ -156,23 +166,8 @@ function getTasks() {
     flowType: 'playground',
   });
   tasks.push({
-    className: 'ClearTask',
-    fullName: 'ClearTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'InjectIntoPayloadTask',
-    fullName: 'InjectIntoPayloadTask',
-    flowType: 'playground',
-  });
-  tasks.push({
     className: 'IfConditionTask',
     fullName: 'IfConditionTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'PreviewTask',
-    fullName: 'PreviewTask',
     flowType: 'playground',
   });
   tasks.push({
@@ -186,109 +181,8 @@ function getTasks() {
     flowType: 'playground',
   });
   tasks.push({
-    className: 'RandomTask',
-    fullName: 'RandomTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'TimerTask',
-    fullName: 'TimerTask',
-    flowType: 'playground',
-  });
-  tasks.push({
     className: 'ExpressionTask',
     fullName: 'ExpressionTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'OutputValueTask',
-    fullName: 'OutputValueTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'ConditionalTriggerTask',
-    fullName: 'ConditionalTriggerTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'MapPayloadTask',
-    fullName: 'MapPayloadTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'InputTask',
-    fullName: 'InputTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'ListTask',
-    fullName: 'ListTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'MatrixTask',
-    fullName: 'MatrixTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'GridEditTask',
-    fullName: 'GridEditTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'DataGridTask',
-    fullName: 'DataGridTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'SearchDataGridTask',
-    fullName: 'SearchDataGridTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'FilterDataGridTask',
-    fullName: 'FilterDataGridTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'TransformTask',
-    fullName: 'TransformTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'SortTask',
-    fullName: 'SortTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'DeepAssignTask',
-    fullName: 'DeepAssignTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'ExtractUniqueTask',
-    fullName: 'ExtractUniqueTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'FilterTask',
-    fullName: 'FilterTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'CountTask',
-    fullName: 'CountTask',
-    flowType: 'playground',
-  });
-  tasks.push({
-    className: 'CustomCodeTask',
-    fullName: 'CustomCodeTask',
-    flowType: 'playground',
-  });
-
-  tasks.push({
-    className: 'ScreenTask',
-    fullName: 'ScreenTask',
     flowType: 'playground',
   });
   tasks.push({

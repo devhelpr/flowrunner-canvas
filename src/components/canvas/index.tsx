@@ -2246,8 +2246,11 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
 					if (stageContainerElement !== null) {
-
-						let realStageWidth = stageContainerElement.clientWidth - 128;
+						let subtractWidth = 128;
+						if (stageContainerElement.clientWidth < 1024) {
+							subtractWidth = 0;
+						}
+						let realStageWidth = stageContainerElement.clientWidth - subtractWidth;
 						let realStageHeight = stageContainerElement.clientHeight - 64;
 						if (realStageHeight < 500) {
 							realStageHeight = 600;
@@ -2255,6 +2258,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 						if (flowStore.flow.length === 1) { 
 							scale = 1;
+							if (stageContainerElement.clientWidth < 1024) {
+								scale = 0.5;
+							}
 						} else {
 							if (flowWidth !== 0) { // && flowWidth > realStageWidth) {
 								scale = realStageWidth / flowWidth;
@@ -2280,10 +2286,16 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						const newPos = {
 							x: 0 ,
 							y: 0 
-						};											
+						};					
+						let offsetX = 64;												
 						let stageWidth = stageInstance.getWidth() || stageContainerElement.clientWidth;
 						let stageHeight = stageInstance.getHeight() || stageContainerElement.clientHeight;
-						newPos.x = 64 + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
+
+						if (stageWidth < 1024) {
+							offsetX = 0;
+						}
+
+						newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
 						newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;	
 						 
 						stageInstance.position(newPos);
@@ -2307,6 +2319,14 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						y: 0 
 					};
 					let scale = 1;
+
+					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
+					if (stageContainerElement !== null) {
+						if (stageContainerElement.clientWidth < 1024) {
+							scale = 0.5;
+						}
+					}
+
 					stageInstance.position(newPos);
 					if (!!doBatchdraw) {
 						stageInstance.batchDraw();
