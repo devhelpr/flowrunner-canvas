@@ -313,7 +313,7 @@ gulp.task('esbuild', gulp.series('builddev', 'build-plugins','postcss', 'startFl
   
   console.log("WATCHING...");
   
-  gulp.watch('src/**/*.{ts,tsx}', gulp.series('builddev'));
+  gulp.watch('src/**/*.{ts,tsx}',function() { return buildTypescript(true) });
   gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
   gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));

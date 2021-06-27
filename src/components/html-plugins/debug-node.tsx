@@ -48,6 +48,7 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 	const receivedPayloads = useRef([] as any[]);
 
 	useEffect(() => {
+		unmounted.current = false;
 		//console.log("registerFlowNodeObserver", props.node.name, observableId);
 		props.flowrunnerConnector.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		if (props.node.visibilityCondition && 
@@ -197,9 +198,10 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 	
 	if (receivedPayload.length == 0) {
 		visualizer = <div style={{		
-			backgroundColor: "#f2f2f2"
+			backgroundColor: "#ffffff"
 		}}></div>;
 	}
+	console.log("debugnode", props.node && props.node.name, expressionTree);
 	
 	if (props.node.visualizer == "children") {
 		const childrenWithProps = Children.map(props.children, child => {
@@ -262,7 +264,7 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 	return <>
 		{!visible && expressionTree && 
 			props.flowrunnerConnector.flowView != "uiview" && <div className="html-plugin-node__visibility fas fa-eye-slash"></div>}
-		<div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + props.node.visualizer + " " + additionalCssClass} style={{		
+		<div className={"html-plugin-node html-plugin-node--wrap html-plugin-node--" + props.node.visualizer + additionalCssClass} style={{		
 			backgroundColor: "white"
 		}}>{visualizer}			
 		</div>

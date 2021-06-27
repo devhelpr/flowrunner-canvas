@@ -1270,7 +1270,7 @@ textarea.form-control {
 	display: flex;
 }
 
-
+.canvas-controller__scroll-container [data-task="DebugTask"][data-visualizer="default"].untouched .html-plugin-node,
 [data-task="DebugTask"][data-visualizer="number"].untouched .html-plugin-node {
 	display: -webkit-box;
 	display: -ms-flexbox;

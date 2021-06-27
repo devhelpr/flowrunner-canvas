@@ -633,8 +633,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					} else {
 						data = {...props.node, ...receivedPayload, ...values};
 					}
-					console.log("visibilityCondition", metaInfo.visibilityCondition, data);
 					const result = executeExpressionTree(expression, data);
+					console.log("visibilityCondition", metaInfo.visibilityCondition, data, result, expression);
 					if (!result) {
 						return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
 					}								
