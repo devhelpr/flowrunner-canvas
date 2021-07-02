@@ -47,12 +47,13 @@ export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
 export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
 export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
 
-export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) => {
+export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
 		pluginRegistry[FlowTaskPluginClassName] = {
 			VisualizationComponent: VisualizationComponent,
 			FlowTaskPlugin: FlowTaskPlugin,
-			FlowTaskPluginClassName: FlowTaskPluginClassName
+			FlowTaskPluginClassName: FlowTaskPluginClassName,
+			flowType: flowType || "playground"
 		}
 		console.log(pluginRegistry);
 

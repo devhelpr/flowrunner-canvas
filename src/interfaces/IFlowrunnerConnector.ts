@@ -42,6 +42,7 @@ export interface IFlowrunnerConnector {
 
   setPluginRegistry: (pluginRegistry: any) => void;
   getPluginRegistry: () => any;
+  getTasksFromPluginRegistry: () => any[];
 
   pauseFlowrunner: () => void;
 

@@ -81,6 +81,12 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   registerOnReceiveFlowNodeExecuteResult = (onReceiveFlowNodeExecuteResult: any) => {};
 
   runTests = (flowId: string) => {};
+
+
+  getTasksFromPluginRegistry = () => {
+    return [];
+  }
+
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -434,6 +440,22 @@ export class FlowConnector implements IFlowrunnerConnector {
   getPluginRegistry = () => {
     return this.pluginRegistry;
   };
+
+  getTasksFromPluginRegistry = () => {
+
+    if (!this.pluginRegistry) {
+      return [];
+    }
+
+    return this.pluginRegistry.map((plugin) => {
+      return {
+        className: plugin.FlowTaskPluginClassName,
+        fullName: plugin.FlowTaskPluginClassName, 
+        flowType: plugin.flowType || "playground"
+      };
+    });
+    
+  }
 
   pauseFlowrunner = () => {
     if (this.worker) {

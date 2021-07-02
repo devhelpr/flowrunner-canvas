@@ -63,7 +63,7 @@ export const Taskbar = (props: TaskbarProps) => {
 
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			let tasks : any[] = props.flowrunnerConnector.storageProvider?.getTasks() || [];
-			setupTasks(tasks);
+			setupTasks([...tasks, ...props.flowrunnerConnector.getTasksFromPluginRegistry()]);
 			return;
 		}
 
@@ -75,7 +75,7 @@ export const Taskbar = (props: TaskbarProps) => {
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			setupTasks(metaDataInfo);			
+			setupTasks([...metaDataInfo,...props.flowrunnerConnector.getTasksFromPluginRegistry()]);			
 		})
 		.catch(err => {
 			console.error(err);
