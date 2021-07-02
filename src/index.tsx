@@ -31,6 +31,9 @@ import {
 
 import { useFlows } from './use-flows';
 
+let flowRunnerConnectorInstance : IFlowrunnerConnector;
+let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
+
 const UserInterfaceViewEditor = React.lazy(() => import('./components/userinterface-view-editor').then(({ UserInterfaceViewEditor }) => ({ default: UserInterfaceViewEditor })));
 const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ Canvas }) => ({ default: Canvas })));
 
@@ -41,9 +44,35 @@ const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ C
 //
 (window as any).react = React;
 
+let pluginRegistry : any = {};
+
 export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
 export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
 export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
+
+export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) => {
+	if (flowRunnerConnectorInstance) {
+		pluginRegistry[FlowTaskPluginClassName] = {
+			VisualizationComponent: VisualizationComponent,
+			FlowTaskPlugin: FlowTaskPlugin,
+			FlowTaskPluginClassName: FlowTaskPluginClassName
+		}
+		console.log(pluginRegistry);
+
+		setCustomConfig(FlowTaskPluginClassName, {
+			shapeType: 'Html',
+			hasUI : true,
+			presetValues : {
+				htmlPlugin: FlowTaskPluginClassName
+			}
+		})
+		flowRunnerConnectorInstance.setPluginRegistry(pluginRegistry);
+	}
+}
+
+export const addRegisterFunction = (registerFunction : () => void) => {
+	flowRunnerCanvasPluginRegisterFunctions.push(registerFunction);
+}
 
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
@@ -76,7 +105,8 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 	flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
 	flowrunnerConnector.current.storageProvider = storageProvider;
-	
+	flowRunnerConnectorInstance = flowrunnerConnector.current;
+
 	const flows = useFlows(flowrunnerConnector.current);
 	
 	useEffect(() => {
@@ -101,7 +131,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				command: 'init'
 			});
 	
-			let pluginRegistry = {};
+			
 			setPluginRegistry(pluginRegistry);			
 
 			const onDestroyAndRecreateWorker = () => {
@@ -204,7 +234,6 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 			command: 'init'
 		});
 
-		let pluginRegistry = {};
 		setPluginRegistry(pluginRegistry);
 
 		const root = document.getElementById('flowstudio-root');
@@ -326,8 +355,8 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					</>;
 				}				
 					
-				if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
-					(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+				if (flowRunnerCanvasPluginRegisterFunctions) {
+					flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
 						registerFunction();
 						return true;
 					});
@@ -385,8 +414,8 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					></UserInterfaceView>;
 				};
 					
-					if ((window as any).flowRunnerCanvasPluginRegisterFunctions) {
-						(window as any).flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+					if (flowRunnerCanvasPluginRegisterFunctions) {
+						flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
 							registerFunction();
 							return true;
 						});
@@ -397,7 +426,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					(ReactDOM as any).render(<App></App>, root);												
 			});
 		}
-
+		/*
 		function registerFlowRunnerCanvasPlugin(name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) {
 			pluginRegistry[FlowTaskPluginClassName] = {
 				VisualizationComponent: VisualizationComponent,
@@ -416,6 +445,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
 		}
 		(window as any).registerFlowRunnerCanvasPlugin = registerFlowRunnerCanvasPlugin;
+		*/
 
 	});
 }
