@@ -12,4 +12,5 @@ export interface IStorageProvider {
   isUI: boolean;
   setDefaultFlow?: (flowPackage: string) => void;
   setAdditionalTasks?: (tasks: any[]) => void;
+  isReadOnly: boolean;
 }

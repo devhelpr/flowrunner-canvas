@@ -13,6 +13,8 @@ The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but y
 
 [Codesandbox](https://codesandbox.io/s/flowrunner-canvas-wljy9)
 
+[Codesandbox wasm-tixy](https://codesandbox.io/s/flowrunner-canvas-wasm-example-p68pz)
+
 # The simplest way to start playing with flowrunner-canvas
 
 - clone this github repo

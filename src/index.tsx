@@ -23,7 +23,11 @@ import { setCustomConfig } from './config';
 import { getWorker } from './flow-worker';
 import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
-import { flowrunnerStorageProvider , configurableFlowrunnerStorageProvider} from './flow-localstorage-provider';
+import { 
+	flowrunnerStorageProvider , 
+	configurableFlowrunnerStorageProvider, 
+	readOnlyFlowrunnerStorageProvider
+} from './flow-localstorage-provider';
 
 import { useFlows } from './use-flows';
 
@@ -39,6 +43,7 @@ const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ C
 
 export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
 export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
+export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
 
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;

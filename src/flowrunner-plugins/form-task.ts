@@ -35,6 +35,11 @@ export class FormTask extends ObservableTask {
             }
 
             values[metaInfo.fieldName] = currentValue;
+          } else {
+            if (metaInfo.defaultValue) {
+              values[metaInfo.fieldName] = metaInfo.defaultValue;
+              currentValue = metaInfo.defaultValue;
+            }
           }
         }
 

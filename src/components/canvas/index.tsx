@@ -2118,8 +2118,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				"scale(" + (stageScale) + "," + (stageScale) + ") ";						
 		}
 
-		console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
-
+		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
 		
 	}
 

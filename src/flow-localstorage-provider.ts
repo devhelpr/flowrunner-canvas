@@ -183,11 +183,6 @@ function getTasks() {
     flowType: 'playground',
   });
   tasks.push({
-    className: 'SliderTask',
-    fullName: 'SliderTask',
-    flowType: 'playground',
-  });
-  tasks.push({
     className: 'ExpressionTask',
     fullName: 'ExpressionTask',
     flowType: 'playground',
@@ -233,7 +228,7 @@ function getFlowPackage() {
   if (packageAsString) {
     return JSON.parse(packageAsString);
   }
-  return JSON.parse(exampleFlow());
+  return JSON.parse(getDefaultFlow());
   /*
   return {
     dummy: '',
@@ -245,11 +240,7 @@ function getFlowPackage() {
   */
 }
 
-function getFlows() {
-  var flowsAsString = localStorage.getItem('flows');
-  if (flowsAsString) {
-    return JSON.parse(flowsAsString);
-  }
+function getDefaultFlows() {
   return [
     {
       fileName: 'flow.json',
@@ -259,13 +250,23 @@ function getFlows() {
     },
   ];
 }
+function getFlows() {
+  var flowsAsString = localStorage.getItem('flows');
+  if (flowsAsString) {
+    return JSON.parse(flowsAsString);
+  }
+  return getDefaultFlows();
+}
 
+function getDefaultFlow() {
+  return exampleFlow();
+}
 function getFlow(flowId: string) {
   var flowAsString = localStorage.getItem('flow-' + flowId);
   if (flowAsString) {
     return JSON.parse(flowAsString);
   }
-  return JSON.parse(exampleFlow());
+  return JSON.parse(getDefaultFlow());
 }
 
 function setDefaultFlow(flowPackage: string) {
@@ -290,6 +291,7 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   },
   addFlow: (name, flow) => {},
   isUI: false,
+  isReadOnly: false
 };
 
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
@@ -308,4 +310,56 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
+  isReadOnly: false
+};
+
+const isReadOnly = true;
+
+export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
+  storeFlowPackage: storeFlowPackage,
+  getFlowPackage: () => {
+    if (isReadOnly) {
+      return JSON.parse(getDefaultFlow());
+    }
+    return getFlowPackage();
+  },
+  getFlows: () => {
+    if (isReadOnly) {
+      return getDefaultFlows();
+    }
+    return getFlows();
+  },
+  getFlow: (flowId) => {
+    if (isReadOnly) {
+      return JSON.parse(getDefaultFlow());
+    }
+    return getFlow(flowId);
+  },
+  saveFlow: (flowId, flow) => {
+    if (isReadOnly) {
+      return;
+    }
+    saveFlow(flowId, flow);
+  },
+  setSelectedFlow: (flowId) => {
+    if (isReadOnly) {
+      return;
+    }
+    setSelectedFlow(flowId);
+  },
+  getSelectedFlow: () => {
+    if (isReadOnly) {
+      return 'flow';;
+    }
+    return getSelectedFlow();
+  },
+  getTasks: getTasks,
+  getApiProxyUrl: () => {
+    return '';
+  },
+  addFlow: (name, flow) => {},
+  isUI: false,
+  setDefaultFlow: setDefaultFlow,
+  setAdditionalTasks: setAdditionalTasks,
+  isReadOnly: isReadOnly
 };

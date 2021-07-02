@@ -656,6 +656,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						inputValue = values[metaInfo.fieldName];
 					} else {
 						inputValue = props.node[metaInfo.fieldName] || "";
+						if (!inputValue) {
+							if (metaInfo.defaultValue) {
+								inputValue = metaInfo.defaultValue;
+							}
+						}
 					}
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
@@ -708,8 +713,20 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						</React.Fragment>
 					}	
 
+					let inputValue = "";
+					if (values[metaInfo.fieldName] !== undefined) {
+						inputValue = values[metaInfo.fieldName];
+					} else {
+						inputValue = props.node[metaInfo.fieldName] || "";
+						if (!inputValue) {
+							if (metaInfo.defaultValue) {
+								inputValue = metaInfo.defaultValue;
+							}
+						}
+					}
+
 					return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{
-						value: values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || "",
+						value: inputValue,
 						onChange: onReceiveValue,
 						node: props.node,
 						fieldName: metaInfo.fieldName,

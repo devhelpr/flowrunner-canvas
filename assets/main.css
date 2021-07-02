@@ -1251,12 +1251,8 @@ textarea.form-control {
 	display: none;
 }
 
-[data-task="DebugTask"][data-visualizer="animatedgridcanvas"] {
-	max-width: calc(100% + 20px);
-}
-
-[data-task="DebugTask"][data-visualizer="animatedgridcanvas"] {
-	max-width: calc(100%);
+.canvas-controller__scroll-container [data-task="DebugTask"][data-visualizer="animatedgridcanvas"] {
+	max-width: none;
 }
 
 .ui-view-layout__container [data-task="DebugTask"][data-visualizer="animatedgridcanvas"] canvas {
