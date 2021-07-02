@@ -291,7 +291,7 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   },
   addFlow: (name, flow) => {},
   isUI: false,
-  isReadOnly: false
+  isReadOnly: false,
 };
 
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
@@ -310,7 +310,7 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
-  isReadOnly: false
+  isReadOnly: false,
 };
 
 const isReadOnly = true;
@@ -329,7 +329,7 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
     }
     return getFlows();
   },
-  getFlow: (flowId) => {
+  getFlow: flowId => {
     if (isReadOnly) {
       return JSON.parse(getDefaultFlow());
     }
@@ -341,7 +341,7 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
     }
     saveFlow(flowId, flow);
   },
-  setSelectedFlow: (flowId) => {
+  setSelectedFlow: flowId => {
     if (isReadOnly) {
       return;
     }
@@ -349,7 +349,7 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
   },
   getSelectedFlow: () => {
     if (isReadOnly) {
-      return 'flow';;
+      return 'flow';
     }
     return getSelectedFlow();
   },
@@ -361,5 +361,5 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
-  isReadOnly: isReadOnly
+  isReadOnly: isReadOnly,
 };

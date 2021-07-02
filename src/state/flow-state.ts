@@ -159,33 +159,32 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
       ),
     deleteNode: (node: any) =>
       set(state => {
-          let index = -1;
-          /*draftState.flow.map((draftNode, mapIndex) => {
+        let index = -1;
+        /*draftState.flow.map((draftNode, mapIndex) => {
             if (draftNode.name === node.name) {
               index = mapIndex;
             }
           });
           */
-          let flow = state.flow.filter((draftNode) => {
-            if (draftNode.name === node.name) {
-              return false;
-            }
-            if (draftNode.startshapeid === node.name ||
-              draftNode.endshapeid === node.name) {
-                return false;
-            }
-            return true;
-          });
-          //if (index >= 0) {
-          //  draftState.flow.splice(index, 1);
-          //  draftState.flowHashmap = FlowToCanvas.createFlowHashMap(draftState.flow);
-          // }
+        let flow = state.flow.filter(draftNode => {
+          if (draftNode.name === node.name) {
+            return false;
+          }
+          if (draftNode.startshapeid === node.name || draftNode.endshapeid === node.name) {
+            return false;
+          }
+          return true;
+        });
+        //if (index >= 0) {
+        //  draftState.flow.splice(index, 1);
+        //  draftState.flowHashmap = FlowToCanvas.createFlowHashMap(draftState.flow);
+        // }
 
-          return {
-            flowHashmap: FlowToCanvas.createFlowHashMap(flow),
-            flow: flow,
-          };
-        }),    
+        return {
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          flow: flow,
+        };
+      }),
   };
 };
 
