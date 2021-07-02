@@ -870,6 +870,9 @@ const taskTypeConfig: any = {
               label: 'Required field',
             },
             {
+              fieldName: 'defaultValue'
+            },
+            {
               visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
               fieldName: 'options',
               fieldType: 'objectList',
