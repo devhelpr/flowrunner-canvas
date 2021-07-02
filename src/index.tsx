@@ -3,17 +3,14 @@ import { useState, useEffect,useRef } from 'react';
 import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import fetch from 'cross-fetch';
-
-import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { Taskbar } from './components/Taskbar';
-//import { UIControlsBar} from './components/ui-controls-bar';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
@@ -131,6 +128,13 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				command: 'init'
 			});
 	
+			if (flowRunnerCanvasPluginRegisterFunctions) {
+				flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+					registerFunction();
+					return true;
+				});
+			}
+			flowrunnerConnector.current.setPluginRegistry(pluginRegistry);
 			
 			setPluginRegistry(pluginRegistry);			
 
@@ -261,6 +265,8 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 		} else {
 			flowrunnerConnector = new EmptyFlowConnector();
 		}
+		flowRunnerConnectorInstance = flowrunnerConnector;
+
 		flowrunnerConnector.hasStorageProvider = hasStorageProvider;
 		flowrunnerConnector.storageProvider = storageProvider;
 
