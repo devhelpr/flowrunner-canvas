@@ -444,7 +444,8 @@ export class FlowConnector implements IFlowrunnerConnector {
       return [];
     }
 
-    return this.pluginRegistry.map(plugin => {
+    return Object.keys(this.pluginRegistry).map(pluginName => {
+      let plugin = this.pluginRegistry[pluginName];
       return {
         className: plugin.FlowTaskPluginClassName,
         fullName: plugin.FlowTaskPluginClassName,
