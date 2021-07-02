@@ -223,9 +223,17 @@ function start(flowFileName, taskPlugins, options) {
 
 		app.set('views', path.join(__dirname, '../views'));
 		app.set('view engine', 'ejs');
-		app.use(express.static(path.join(__dirname, '../lib')));
+
+		if (!options || (!!options && !options.removeLibStaticRoute)) {
+			app.use(express.static(path.join(__dirname, '../lib')));
+		}
+		
 		app.use(express.static(path.join(__dirname, '../assets')));
 		app.use(express.static(path.join(__dirname, '../rust')));
+		
+		if (!!options && options.assetsPath) {
+			app.use(express.static(options.assetsPath));
+		}
 
 		if (!!options && options.mediaUrl && options.mediaPath) {
 			app.use(options.mediaUrl, express.static(options.mediaPath));
