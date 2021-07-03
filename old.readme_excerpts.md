@@ -2,6 +2,10 @@ The below description doesn't work anymore
 .. you currently need webpack to build it first
 .. TODO : when publishing the component also publish a directly usable version
 
+previously webpack was configured to export an index.BUNDLE.js and
+now it is index.js which gets overwritten by the tsc build
+
+
 # How to use Flowrunner-canvas in your own project directly with Node.js
 
 The following instructions assume yarn/node.js.

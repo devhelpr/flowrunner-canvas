@@ -27,6 +27,7 @@ import {
 } from './flow-localstorage-provider';
 
 import { useFlows } from './use-flows';
+import { registerPlugins } from './external-plugins';
 
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
@@ -74,6 +75,7 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
+	developmentMode? : boolean;
 }
 
 /*
@@ -105,6 +107,9 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	flowrunnerConnector.current.storageProvider = storageProvider;
 	flowRunnerConnectorInstance = flowrunnerConnector.current;
 
+	if (!!props.developmentMode) {
+		registerPlugins(registerFlowRunnerCanvasPlugin);
+	}
 	const flows = useFlows(flowrunnerConnector.current);
 	
 	useEffect(() => {
@@ -208,7 +213,9 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 	
 	if (!!doLocalStorageFlowEditorOnly) {
 		const root = document.getElementById('flowstudio-root');
-		(ReactDOM as any).render(<FlowrunnerCanvas flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
+		(ReactDOM as any).render(<FlowrunnerCanvas 
+			developmentMode={true}
+			flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
 		return;
 	}
 

@@ -98,7 +98,7 @@ function buildTypescript(devbuild) {
       .pipe(gulpwebpack({
         mode:"development",
         output: {
-          path: path.join(__dirname, "lib"),
+          path: path.join(__dirname, "bundle"),
           pathinfo: false,
           filename:'[name].js',
           chunkFilename: "[name].canvas.chunk.js",
@@ -175,78 +175,9 @@ function buildTypescript(devbuild) {
         ]        
       }, webpack));
   
-  return task.pipe(gulp.dest('./lib'));
+  return task.pipe(gulp.dest('./bundle'));
 };
 
-
-function buildPluginTypescript() {
-
-  const gulpwebpack = require('webpack-stream');
-  var task = gulp.src('src-plugins/index.tsx')
-      .pipe(named())
-      .pipe(gulpwebpack({
-        mode:"development",
-        output: {
-          path: path.join(__dirname, "assets"),
-          pathinfo: false,
-          filename:'[name].plugin.bundle.js',
-          chunkFilename: "[name].plugin.chunk.js",
-          publicPath: "/",
-          chunkLoadingGlobal: 'webpackJsonpPlugin'
-        } ,
-        optimization: {
-          splitChunks: {
-            cacheGroups: {
-              react: {
-                test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-                name: 'react',
-                chunks: 'all',
-              }
-            }
-          }
-        },
-        module: {
-          rules: [
-            {
-              test: /\.(png|jp(e*)g|svg|gif)$/,
-              use: [
-                {
-                  loader: 'file-loader',
-                  options: {
-                    name: 'images/[hash]-[name].[ext]',
-                  },
-                },
-              ],
-            },
-            {
-              test: /\.tsx?$/,
-              loader: "ts-loader",
-              options: {
-                transpileOnly: true,
-                experimentalWatchApi: true,
-              },
-              exclude: /(node_modules|bower_components)/ 
-            }           
-          ]
-        },
-        resolve:
-        {
-          extensions: [".ts", ".tsx", ".js", ".json"],
-          alias: {
-            
-          },
-          
-        },
-        plugins:[
-          new webpackIgnorePlugin({
-            resourceRegExp: /^\.\/locale$/,
-            contextRegExp: /moment$/
-          })
-        ]        
-      }, webpack));
-  
-  return task.pipe(gulp.dest('./assets'));
-};
 
 gulp.task('startFlowServer', function(cb) {
   // ['./data/stored-flow.json','./data/test-flow.json','./data/flow.json']
@@ -299,21 +230,18 @@ gulp.task('postcss', () => {
 
 gulp.task('build', function() { return buildTypescript() } );
 gulp.task('builddev', function() { return buildTypescript(true) } );
-gulp.task('build-plugins', function() { return buildPluginTypescript() } );
-gulp.task('default', gulp.series('build', 'build-plugins','postcss', 'startFlowServer', function () {
+gulp.task('default', gulp.series('build', 'postcss', 'startFlowServer', function () {
   
   console.log("WATCHING...");
   
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
-  gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
   gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));
 
-gulp.task('esbuild', gulp.series('builddev', 'build-plugins','postcss', 'startFlowServer', function () {
+gulp.task('esbuild', gulp.series('builddev', 'postcss', 'startFlowServer', function () {
   
   console.log("WATCHING...");
   
   gulp.watch('src/**/*.{ts,tsx}',function() { return buildTypescript(true) });
-  gulp.watch('src-plugins/**/*.{ts,tsx}', buildPluginTypescript);
   gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));

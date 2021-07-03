@@ -310,24 +310,30 @@ export class InputTask extends FlowTask {
 
 let flowPluginNodes = {};
 
-const FlowPluginWrapperTask = pluginName => {
+const FlowPluginWrapperTask = (pluginName, pluginClass : any) => {
   class FlowPluginWrapperTaskInternal extends FlowTask {
     public execute(node: any, services: any) {
       if (node.observable) {
         new Promise((resolve, reject) => {
           const executeId = uuidV4();
           //console.log("FlowPluginWrapperTaskInternal", pluginName, node.name, executeId, node.payload);
+          /*
           flowPluginNodes[node.name] = {
             resolve,
             executeId,
           };
+          */
           const payload = { ...node.payload, executeId: executeId };
-          ctx.postMessage('external', {
+          /*ctx.postMessage('external', {
             command: 'ExecuteFlowPlugin',
             payload: payload,
             nodeName: node.name,
             pluginName: pluginName,
-          });
+          });*/
+          const pluginInstance = new pluginClass();
+          let result = pluginInstance.execute({ payload: payload },
+            undefined);
+          resolve(result);
         }).then(payload => {
           //console.log("payload FlowPluginWrapperTask", node, payload);
           node.observable.next({
@@ -744,7 +750,7 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
 };
 
 let currentFlowId: string = '';
-const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: boolean = true, flowId: string) => {
+const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: boolean = true, flowId: string) => {
   let isSameFlow: boolean = false;
 
   console.log('startFlow', flowId, currentFlowId);
@@ -787,34 +793,16 @@ const startFlow = (flowPackage: any, pluginRegistry: string[], autoStartNodes: b
     registerTasks(flow);
 
     if (pluginRegistry) {
-      pluginRegistry.map(pluginName => {
-        console.log('pluginName', pluginName);
-        flow.registerTask(pluginName, FlowPluginWrapperTask(pluginName));
+      pluginRegistry.map((plugin : any) => {
+        console.log('pluginName', plugin.FlowTaskPluginClassName);
+        
+        flow.registerTask(plugin.FlowTaskPluginClassName, FlowPluginWrapperTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin));
+        //flow.registerTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin);
+      
       });
     }
   }
-  /*
   
-  ... TODO : send pluginRegistry as serializable data .. not classes/instances etc
-  ... TODO : use special "Task" which :
-      - has a promise
-      - postmessage to main thread
-      - execute task on main thread
-      - post result to worker
-      - worker sends payload to resolve method from promise
-  
-  console.log("pluginRegistry in worker", (window as any).pluginRegistry);
-
-  if ((window as any).pluginRegistry) {
-    
-    for (var key of Object.keys((window as any).pluginRegistry)) {
-      const plugin = (window as any).pluginRegistry[key];
-      if (plugin && plugin.FlowTaskPlugin) {
-        flow.registerTask(key, plugin.FlowTaskPlugin);
-      }
-    }
-  }
-  */
   if (!isSameFlow) {
     flow.registerMiddleware(onExecuteNode);
   }

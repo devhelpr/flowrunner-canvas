@@ -225,7 +225,7 @@ function start(flowFileName, taskPlugins, options) {
 		app.set('view engine', 'ejs');
 
 		if (!options || (!!options && !options.removeLibStaticRoute)) {
-			app.use(express.static(path.join(__dirname, '../lib')));
+			app.use(express.static(path.join(__dirname, '../bundle')));
 		}
 		
 		app.use(express.static(path.join(__dirname, '../assets')));

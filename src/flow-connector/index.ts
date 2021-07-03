@@ -368,24 +368,24 @@ export class FlowConnector implements IFlowrunnerConnector {
       this.nodeExecutions = [];
       this.nodeExecutionsByNode = {};
 
-      let pluginRegistryTaskNames: string[] = [];
+      let pluginRegistryTasks: string[] = [];
       for (var pluginName of Object.keys(this.pluginRegistry)) {
         let plugin: any = this.pluginRegistry[pluginName];
-        pluginRegistryTaskNames.push(plugin.FlowTaskPluginClassName);
+        pluginRegistryTasks.push(plugin);
       }
       if (this.flowType == 'playground') {
         this.worker.postMessage('worker', {
           command: 'pushFlowToFlowrunner',
           flow: flowToFlowRunner,
           flowId: flowId,
-          pluginRegistry: pluginRegistryTaskNames,
+          pluginRegistry: pluginRegistryTasks,
           autoStartNodes: autoStartNodes,
         });
       } else {
         this.worker.postMessage('worker', {
           command: 'pushFlowToFlowrunner',
           flow: [],
-          pluginRegistry: pluginRegistryTaskNames,
+          pluginRegistry: pluginRegistryTasks,
           autoStartNodes: autoStartNodes,
         });
       }
