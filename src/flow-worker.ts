@@ -310,7 +310,7 @@ export class InputTask extends FlowTask {
 
 let flowPluginNodes = {};
 
-const FlowPluginWrapperTask = (pluginName, pluginClass : any) => {
+const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
   class FlowPluginWrapperTaskInternal extends FlowTask {
     public execute(node: any, services: any) {
       if (node.observable) {
@@ -331,8 +331,7 @@ const FlowPluginWrapperTask = (pluginName, pluginClass : any) => {
             pluginName: pluginName,
           });*/
           const pluginInstance = new pluginClass();
-          let result = pluginInstance.execute({ payload: payload },
-            undefined);
+          let result = pluginInstance.execute({ payload: payload }, undefined);
           resolve(result);
         }).then(payload => {
           //console.log("payload FlowPluginWrapperTask", node, payload);
@@ -793,16 +792,18 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
     registerTasks(flow);
 
     if (pluginRegistry) {
-      pluginRegistry.map((plugin : any) => {
+      pluginRegistry.map((plugin: any) => {
         console.log('pluginName', plugin.FlowTaskPluginClassName);
-        
-        flow.registerTask(plugin.FlowTaskPluginClassName, FlowPluginWrapperTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin));
+
+        flow.registerTask(
+          plugin.FlowTaskPluginClassName,
+          FlowPluginWrapperTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin),
+        );
         //flow.registerTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin);
-      
       });
     }
   }
-  
+
   if (!isSameFlow) {
     flow.registerMiddleware(onExecuteNode);
   }
