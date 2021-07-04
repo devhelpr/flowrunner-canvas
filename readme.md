@@ -15,6 +15,13 @@ The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but y
 
 [Codesandbox wasm-tixy](https://codesandbox.io/s/flowrunner-canvas-wasm-example-p68pz)
 
+# Ways to use flowrunner-canvas
+
+- as a playground to prototype applications
+- together with the layout editor, build an application with it
+- as a flow editor for other applications like a backend app with
+	its own flowrunner
+  
 # The simplest way to start playing with flowrunner-canvas
 
 - clone this github repo
@@ -50,14 +57,39 @@ export default () => {
 
 - yarn start
 
-This starts a flowrunner-canvas editors which stores its flow locally
+This starts a flowrunner-canvas editor which stores its flow locally in the localStorage
 
-# Ways to use flowrunner-canvas
+# How to use Flowrunner-canvas in your own project directly with Node.js
 
-- as a playground to prototype applications
-- together with the layout editor, build an application with it
-- as a flow editor for other applications like a backend app with
-	its own flowrunner
+The following instructions assume yarn/node.js.
+
+- yarn init
+- yarn add @devhelpr/flowrunner-canvas --dev
+- mkdir assets
+
+- add dev server via node.js:
+
+add the following to a new file 'flowrunner-canvas.js' in the root of your project :
+
+```
+let startFlowStudioServer = require('@devhelpr/flowrunner-canvas/server/startFlowStudioServer');
+
+startFlowStudioServer.start('./assets/flow.json');
+```
+
+- add default flow file in assets directory :
+
+flow.json 
+
+with contents an empty array : []
+
+(you can place this file in another location, in that case change the location in the flowrunner-canvas.js file)
+
+- start flowrunner-canvas server via NodeJs directly:
+
+node flowrunner-canvas.js
+
+- in your local browser (chrome is preferred) visit localhost:4000 to start the flowrunner-canvas webapp
 
 # Publish and build instruction in case you want to contribute to flowrunner-canvas itself
 

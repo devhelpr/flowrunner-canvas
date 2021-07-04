@@ -6,37 +6,7 @@ previously webpack was configured to export an index.BUNDLE.js and
 now it is index.js which gets overwritten by the tsc build
 
 
-# How to use Flowrunner-canvas in your own project directly with Node.js
 
-The following instructions assume yarn/node.js.
-
-- add flowrunner-canvas as dev dependency:
-
-yarn add @devhelpr/flowrunner-canvas --dev
-
-- add dev server via node.js:
-
-add the following to a new file 'flowrunner-canvas.js' in the root of your project :
-
-```
-let startFlowStudioServer = require('@devhelpr/flowrunner-canvas/server/startFlowStudioServer');
-
-startFlowStudioServer.start('./assets/flow.json');
-```
-
-- add default flow file in assets directory :
-
-flow.json 
-
-with contents an empty array : []
-
-(you can place this file in another location, in that case change the location in the flowrunner-canvas.js file)
-
-- start flowrunner-canvas server via NodeJs directly:
-
-node flowrunner-canvas.js
-
-- in your local browser (chrome is preferred) visit localhost:4000 to start the flowrunner-canvas webapp
 
 
 # How to use Flowrunner-canvas in your own project directly with Gulp
