@@ -2787,6 +2787,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				position.x = ((event.clientX - (stageInstance).x()) / scaleFactor);
 				position.y = ((event.clientY - (stageInstance).y()) / scaleFactor);
 
+				const minDistanceForAutoConnect = 750;
 				let minDistance = -1;
 				let closestNode : any;
 				let orientationIsLeft = false;
@@ -2813,15 +2814,19 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						const distanceRight = getDistance(position,rightPosition);
 
 						if (minDistance == -1 || distanceLeft < minDistance) {
-							minDistance = distanceLeft;
-							closestNode = node;
-							orientationIsLeft = false;							
+							if (distanceLeft < minDistanceForAutoConnect) {
+								minDistance = distanceLeft;
+								closestNode = node;
+								orientationIsLeft = false;
+							}							
 						}
 						if (node.shapeType !== "Diamond") {
 							if (minDistance == -1 || distanceRight < minDistance) {
-								minDistance = distanceRight;
-								closestNode = node;
-								orientationIsLeft = true;
+								if (distanceRight < minDistanceForAutoConnect) {
+									minDistance = distanceRight;
+									closestNode = node;
+									orientationIsLeft = true;
+								}
 							}
 						}
 					}
@@ -2872,6 +2877,12 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								lineStartPosition.x, lineStartPosition.y]});
 						}
 						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 1});
+						stageInstance.batchDraw();
+					}
+				} else {
+					const lineRef = shapeRefs.current[connectionForDraggingName];
+					if (lineRef) {
+						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 						stageInstance.batchDraw();
 					}
 				}

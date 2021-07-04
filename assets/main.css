@@ -456,6 +456,9 @@ img {
 
 [data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node {
 	/*white-space: normal;*/
+	
+	white-space: normal;
+    word-break: break-word;
 }
 
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
