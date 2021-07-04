@@ -533,7 +533,7 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit connection</a>
 								}
-								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
+								{false && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={connectNode} className={"mx-2 btn " + (canvasMode.isConnectingNodes ? "btn-light" : "btn-outline-light")}>Connect</a>
 								}
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 

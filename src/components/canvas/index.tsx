@@ -95,6 +95,7 @@ export const Canvas = (props: CanvasProps) => {
 	let flowIsFittedStageForSingleNode = useRef(false);
 	let closestNodeWhenAddingNewNode = useRef(undefined);
 	let orientationClosestNodeWhenAddingNewNode = useRef(false);
+	let nodeOrientationClosestNodeWhenAddingNewNode = useRef(ThumbPositionRelativeToNode.default);
 
 	let shapeRefs = useRef([] as any);
 	const connectionForDraggingName = "_connection-dragging";
@@ -2746,8 +2747,20 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								ThumbPositionRelativeToNode.default);								
 							
 						} else {
-							connection = getNewConnection(newNode, closestNode, props.getNodeInstance, false,
-								ThumbPositionRelativeToNode.default);
+							if (nodeOrientationClosestNodeWhenAddingNewNode.current === ThumbPositionRelativeToNode.default) {
+								connection = getNewConnection(newNode, closestNode, props.getNodeInstance, false,
+									ThumbPositionRelativeToNode.default);
+							} else {
+								connection = getNewConnection(closestNode, newNode, props.getNodeInstance, false,
+									nodeOrientationClosestNodeWhenAddingNewNode.current);
+
+								if (nodeOrientationClosestNodeWhenAddingNewNode.current == ThumbPositionRelativeToNode.top) {
+									(connection as any).followflow = "onsuccess";
+								} else {
+									(connection as any).followflow = "onfailure";
+								}
+								(connection as any).thumbPosition = nodeOrientationClosestNodeWhenAddingNewNode.current;	
+							}
 						}
 
 						setPosition(connection.name, {
@@ -2791,7 +2804,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				let minDistance = -1;
 				let closestNode : any;
 				let orientationIsLeft = false;
+				let nodeOrientation = ThumbPositionRelativeToNode.default;
 				closestNodeWhenAddingNewNode.current = undefined;
+				nodeOrientationClosestNodeWhenAddingNewNode.current = nodeOrientation;
 
 				flowStore.flow.forEach((node) => {
 					if (node.shapeType !== 'Line') {
@@ -2810,6 +2825,24 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 						}, undefined, props.getNodeInstance);
 
+						let distanceTop = -1;
+						let distanceBottom = -1;
+						if (node.shapeType === "Diamond") {
+							const topPosition = FlowToCanvas.getStartPointForLine(node,{
+								x: nodePosition.x,
+								y: nodePosition.y
+	
+							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.top);
+
+							const bottomosition = FlowToCanvas.getStartPointForLine(node,{
+								x: nodePosition.x,
+								y: nodePosition.y
+	
+							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
+
+							distanceTop = getDistance(position,topPosition);
+							distanceBottom = getDistance(position,bottomosition);
+						}
 						const distanceLeft = getDistance(position,leftPosition);
 						const distanceRight = getDistance(position,rightPosition);
 
@@ -2818,23 +2851,46 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								minDistance = distanceLeft;
 								closestNode = node;
 								orientationIsLeft = false;
+								nodeOrientation = ThumbPositionRelativeToNode.default;
 							}							
 						}
+
+						if (distanceTop >= 0 && (minDistance == -1 || distanceTop < minDistance)) {
+							if (distanceTop < minDistanceForAutoConnect) {
+								minDistance = distanceTop;
+								closestNode = node;
+								orientationIsLeft = false;
+								nodeOrientation = ThumbPositionRelativeToNode.top;
+							}							
+						}
+
+						if (distanceBottom >= 0 && (minDistance == -1 || distanceBottom < minDistance)) {
+							if (distanceBottom < minDistanceForAutoConnect) {
+								minDistance = distanceBottom;
+								closestNode = node;
+								orientationIsLeft = false;
+								nodeOrientation = ThumbPositionRelativeToNode.bottom;
+							}							
+						}
+
+
 						if (node.shapeType !== "Diamond") {
 							if (minDistance == -1 || distanceRight < minDistance) {
 								if (distanceRight < minDistanceForAutoConnect) {
 									minDistance = distanceRight;
 									closestNode = node;
 									orientationIsLeft = true;
+									nodeOrientation = ThumbPositionRelativeToNode.default;
 								}
 							}
-						}
+						} 
 					}
 				});
 
 				if (closestNode) {
 					closestNodeWhenAddingNewNode.current = closestNode;
 					orientationClosestNodeWhenAddingNewNode.current = orientationIsLeft;
+					nodeOrientationClosestNodeWhenAddingNewNode.current = nodeOrientation;
 					const lineRef = shapeRefs.current[connectionForDraggingName];
 					if (lineRef) {
 						let thumbPosition = ThumbPositionRelativeToNode.default;
@@ -2842,6 +2898,23 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 						const nodePosition = getPosition(closestNode.name);
 
+						if (closestNode.shapeType === "Diamond" && nodeOrientation !== ThumbPositionRelativeToNode.default) {
+							lineStartPosition = FlowToCanvas.getStartPointForLine(closestNode,{
+								x: nodePosition.x,
+								y: nodePosition.y
+
+							}, undefined, props.getNodeInstance, nodeOrientation);
+
+							let controlPoints = calculateLineControlPoints(
+								lineStartPosition.x, lineStartPosition.y, 
+								position.x, position.y,
+								nodeOrientation);
+								
+							lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points: [lineStartPosition.x, lineStartPosition.y,
+								controlPoints.controlPointx1, controlPoints.controlPointy1,
+								controlPoints.controlPointx2, controlPoints.controlPointy2,
+								position.x, position.y]});
+						} else
 						if (orientationIsLeft) {
 
 							lineStartPosition = FlowToCanvas.getStartPointForLine(closestNode,{
@@ -2853,7 +2926,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							let controlPoints = calculateLineControlPoints(
 								lineStartPosition.x, lineStartPosition.y, 
 								position.x, position.y,
-								ThumbPositionRelativeToNode.default,);
+								ThumbPositionRelativeToNode.default);
 								
 							lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points: [lineStartPosition.x, lineStartPosition.y,
 								controlPoints.controlPointx1, controlPoints.controlPointy1,
