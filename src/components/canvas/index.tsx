@@ -1618,7 +1618,7 @@ export const Canvas = (props: CanvasProps) => {
 					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
 					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
 
-					let newDistance = Math.sqrt( x*x + y*y );
+					let newDistance = Math.sqrt( x*x + y*y ) * 0.75;
 					
 					
 					wheelEvent(

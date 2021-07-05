@@ -333,9 +333,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					return <>
 						{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 							<>
-								<Suspense fallback={<div>Loading...</div>}>
-									{editorMode == "canvas" && <Taskbar flowrunnerConnector={flowrunnerConnector}></Taskbar>}
-									
+								<Suspense fallback={<div>Loading...</div>}>									
 									{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
 										flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
