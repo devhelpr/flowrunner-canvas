@@ -846,6 +846,11 @@ textarea.form-control {
     vertical-align: middle;
 }
 
+.taskbar {
+	-ms-touch-action: pan-y;
+	    touch-action: pan-y;
+}
+
 @media only screen and (max-width: 1023px) {
 
 	.taskbar {
@@ -865,6 +870,10 @@ textarea.form-control {
 		    -ms-flex-direction: row;
 		        flex-direction: row;
 		overflow-x: scroll;
+
+		-ms-touch-action: pan-x;
+
+		    touch-action: pan-x;
 	}
 
 	.taskbar__task {
@@ -1376,11 +1385,14 @@ textarea.form-control {
 
 }
 
-
 .taskbar-draggable {
 	width: 100%;
 	border: 0 none transparent;
 	opacity: 1 !important;
+	padding: 0 !important;
+	-ms-touch-action: none;
+	    touch-action: none;
+	outline: none !important;
 }
 
 .taskbar__task-dragging {

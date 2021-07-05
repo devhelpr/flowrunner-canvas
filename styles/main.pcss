@@ -712,6 +712,10 @@ textarea.form-control {
     vertical-align: middle;
 }
 
+.taskbar {
+	touch-action: pan-y;
+}
+
 @media only screen and (max-width: 1023px) {
 
 	.taskbar {
@@ -724,6 +728,8 @@ textarea.form-control {
 		height: 56px;
 		flex-direction: row;
 		overflow-x: scroll;
+
+		touch-action: pan-x;
 	}
 
 	.taskbar__task {
@@ -1197,11 +1203,13 @@ textarea.form-control {
 
 }
 
-
 .taskbar-draggable {
 	width: 100%;
 	border: 0 none transparent;
 	opacity: 1 !important;
+	padding: 0 !important;
+	touch-action: none;
+	outline: none !important;
 }
 
 .taskbar__task-dragging {
