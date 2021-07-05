@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import { Draggable } from './draggable';
 import fetch from 'cross-fetch';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
-import { string } from 'prop-types';
+import { DragginTask} from '../../dragging-task';
+
 
 export interface TaskbarProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -145,23 +147,23 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	const renderRect = (className, taskMetaData) => {
-		
+		let html5DragAndDrop = false;
 		const shapeType = FlowToCanvas.getShapeType("Rect", className, false);
 
 		if (shapeType == "Circle") {			
-			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>				
+			return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>				
 				<div className="taskbar__taskname">{className}</div>
 			</div>;
 		}
 
 		if (shapeType == "Ellipse") {			
-			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>	
+			return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>	
 				<div className="taskbar__taskname">{className}</div>			
 			</div>;
 		}
 
 		if (shapeType == "Diamond") {									
-			return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>				
+			return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>				
 				<div className="taskbar__taskname">{className}</div>
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 					<polygon points="8,2,14,8,8,14,2,8"  className="taskbar__task-circle"  />
@@ -169,7 +171,7 @@ export const Taskbar = (props: TaskbarProps) => {
 			</div>;	
 		}	
 
-		return <div className="taskbar__task" title={className} data-task={className}  draggable={true} onDragStart={onDragStart}>
+		return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>
 			<div className="taskbar__taskname">{className}</div>
 			{taskMetaData.icon && <span className={"taskbar__task-icon fas " +  taskMetaData.icon}></span>}			
 		</div>;
@@ -179,9 +181,9 @@ export const Taskbar = (props: TaskbarProps) => {
 		<div className="taskbar">
 			{menuMode == TaskMenuMode.tasks ?
 				<>{metaDataInfo.map((taskMetaData : any, index) => {
-					return <React.Fragment key={index}>					
-						{renderRect(taskMetaData.className, taskMetaData)}
-					</React.Fragment>
+					return <Draggable id={taskMetaData.className} key={taskMetaData.className}>
+							{renderRect(taskMetaData.className, taskMetaData)}
+						</Draggable>					
 				})}</> : 
 				<>{modules.map((module, index) => {
 						return <button key={"module-" + index} onClick={(event) => onShowModule(module, event)} className="btn btn-outline-primary w-100 mb-2">{module.name}</button>

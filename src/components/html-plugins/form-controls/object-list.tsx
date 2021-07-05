@@ -50,13 +50,26 @@ const uuidV4 = uuid.v4;
 		form-node should be editable using an object-list
 */
 
+function forceIdsOnItems(list : any[], metaInfo) {
+	if (list) {
+		return list.map((valueItem) => {
+			if (metaInfo.idProperty && !valueItem[metaInfo.idProperty ]) {
+				valueItem[metaInfo.idProperty] = uuidV4(); 
+			}
+			return valueItem;
+		});
+	}
+	return [];
+}
+
 export const ObjectList = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
 	const [activeId, setActiveId] = useState("");
 	const [ isAdding , setAdding] = useState(false);
 	const [ newValue, setNewValue ] = useState({});
 	const [ editIndex , setEditIndex] = useState(-1);
-	let formControl = useFormControlFromCode(props.value || [], metaInfo, props.onChange);
+	let formControl = useFormControlFromCode(forceIdsOnItems((props.value as unknown as any[]) || [], metaInfo), 
+		metaInfo, props.onChange);
 	
 	const defaultDropAnimationConfig: DropAnimation = {
 		...defaultDropAnimation,
@@ -90,13 +103,34 @@ export const ObjectList = (props: IFormControlProps) => {
 	const addItem = (event) => {
 		event.preventDefault();
 		
-		setAdding(true);
+		//setAdding(true);
+
+		let newList = [...formControl.value];
+		if (props.fieldDefinition && props.fieldDefinition.idProperty &&
+			!newValue[props.fieldDefinition.idProperty]) {
+			
+			newValue[props.fieldDefinition.idProperty] = uuidV4();
+			
+			/*
+			// if no id is assigned.. then control cannot be added
+			// .. because this causes DnD to crash (the sorting component)
+			
+			if ( props.fieldDefinition.autoId !== "none") {
+				newValue[props.fieldDefinition.idProperty] = uuidV4();
+			}
+			*/
+		}
+		newList.push(newValue);
+		formControl.handleChangeByValue(newList);		
 
 		return false;
 	}
 
 	const onAppendValue = (event) => {
 		event.preventDefault();
+
+		// OBSOLETE
+		// TODO : REMOVE
 
 		let newList = [...formControl.value];
 		if (props.fieldDefinition && props.fieldDefinition.idProperty &&
@@ -469,10 +503,6 @@ export const ObjectList = (props: IFormControlProps) => {
 						onSetValue={onAddNodeKeyValue}
 						datasources={props.datasources}
 					></FormNodeHtmlPlugin>
-					<div className="form-control__object-list-node-controls">
-						<button onFocus={onFocus} onClick={onAppendValue} className="btn btn-primary mr-2">Add</button>
-						<button onFocus={onFocus} onClick={onCloseAppendValue} className="btn btn-outline-primary">Close</button>
-					</div>
 				</div> :
 				<div>
 					<a href="#" onFocus={onFocus} onClick={addItem} className="fas fa-plus-circle"></a>
@@ -480,3 +510,10 @@ export const ObjectList = (props: IFormControlProps) => {
 			}
 	</div>;
 }
+
+/*
+					<div className="form-control__object-list-node-controls">
+						<button onFocus={onFocus} onClick={onAppendValue} className="btn btn-primary mr-2">Add</button>
+						<button onFocus={onFocus} onClick={onCloseAppendValue} className="btn btn-outline-primary">Close</button>
+					</div>
+*/

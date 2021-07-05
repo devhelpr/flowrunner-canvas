@@ -3,6 +3,9 @@ import { useState, useEffect,useRef } from 'react';
 import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
+
+import { DndContext, DragOverlay } from '@dnd-kit/core';
+
 import { Subject } from 'rxjs';
 
 import fetch from 'cross-fetch';
@@ -29,6 +32,7 @@ import {
 import { useFlows } from './use-flows';
 import { registerPlugins } from './external-plugins';
 
+import { DragginTask} from './dragging-task';
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
 
@@ -89,6 +93,8 @@ export interface IFlowrunnerCanvasProps {
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 	const [renderFlowCanvas , setRenderFlowCanvas] = useState(false);
+	const [activeId, setActiveId] = useState(undefined as string | undefined);
+	
 	const flowrunnerConnector = useRef(new FlowConnector());
 	const canvasToolbarsubject = useRef(undefined as any);
 	const renderHtmlNode = useRef(undefined as any);
@@ -170,7 +176,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		return () => {
 
 		}
-	}, []);	
+	}, []);		
 
 	if (!renderFlowCanvas || !flowrunnerConnector.current) {
 		return <></>;
@@ -178,33 +184,34 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	
 	return <>
 		<Suspense fallback={<div>Loading...</div>}>
-			<Taskbar flowrunnerConnector={flowrunnerConnector.current}></Taskbar>
-			<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
-			<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
-					hasRunningFlowRunner={true}
-					isFlowEditorOnly={true}
+				<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
+				<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
+						hasRunningFlowRunner={true}
+						isFlowEditorOnly={true}
+						flowrunnerConnector={flowrunnerConnector.current}
+						flow={flows.flow}
+						flowId={flows.flowId}
+						flows={flows.flows}
+						flowType={flows.flowType}
+						flowState={flows.flowState}
+						getFlows={flows.getFlows}
+						loadFlow={flows.loadFlow}
+						saveFlow={flows.saveFlow}
+						onGetFlows={flows.onGetFlows}
+				></Toolbar>
+								
+				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current} 
+					renderHtmlNode={renderHtmlNode.current}
 					flowrunnerConnector={flowrunnerConnector.current}
+					getNodeInstance={getNodeInstance.current}
 					flow={flows.flow}
 					flowId={flows.flowId}
-					flows={flows.flows}
 					flowType={flows.flowType}
 					flowState={flows.flowState}
-					getFlows={flows.getFlows}
-					loadFlow={flows.loadFlow}
 					saveFlow={flows.saveFlow}
-					onGetFlows={flows.onGetFlows}
-			></Toolbar>
-							
-			<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current} 
-				renderHtmlNode={renderHtmlNode.current}
-				flowrunnerConnector={flowrunnerConnector.current}
-				getNodeInstance={getNodeInstance.current}
-				flow={flows.flow}
-				flowId={flows.flowId}
-				flowType={flows.flowType}
-				flowState={flows.flowState}
-				saveFlow={flows.saveFlow}
-			></CanvasComponent>
+				></CanvasComponent>
+				
+	
 		</Suspense>		
 	</>;
 }

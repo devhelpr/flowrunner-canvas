@@ -574,7 +574,7 @@ img {
     background: #f8f8f8;
     left: 0;
 	height: calc(100vh - 127px);
-	height: calc(100vh - 1px);
+	height: calc(100vh - 72px);
 	padding: 5px;
 	z-index: 10000;
 	
@@ -1377,3 +1377,17 @@ textarea.form-control {
 }
 
 
+.taskbar-draggable {
+	width: 100%;
+	border: 0 none transparent;
+	opacity: 1 !important;
+}
+
+.taskbar__task-dragging {
+	z-index: 20000;
+}
+
+.taskbar__task-dragging .taskbar__task {
+	border-color: #808080;
+	background: #f2f2f2;
+}

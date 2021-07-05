@@ -708,6 +708,7 @@ const taskTypeConfig: any = {
         fieldName: 'formFlows',
         fieldType: 'objectList',
         idProperty: 'formName',
+        autoId: 'none',
         metaInfo: [
           {
             fieldName: 'formName',
@@ -816,15 +817,18 @@ const taskTypeConfig: any = {
           fieldName: 'metaInfo',
           fieldType: 'objectList',
           label: 'Form controls',
-          idProperty: 'fieldName',
+          idProperty: 'fieldId',
+          autoId: 'none',
           metaInfo: [
             {
               fieldName: 'fieldName',
               fieldType: 'text',
+              required: true,
             },
             {
               fieldName: 'fieldType',
               fieldType: 'select',
+              required: true,
               options: [
                 {
                   value: 'text',
@@ -877,11 +881,13 @@ const taskTypeConfig: any = {
               fieldName: 'options',
               fieldType: 'objectList',
               label: 'Options',
-              idProperty: 'value',
+              idProperty: 'radioButtonId',
+              autoId: 'none',
               metaInfo: [
                 {
                   fieldName: 'value',
                   fieldType: 'text',
+                  required: true,
                 },
                 {
                   fieldName: 'label',
