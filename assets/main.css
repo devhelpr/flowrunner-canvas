@@ -925,12 +925,13 @@ textarea.form-control {
 		        flex: 1 1 auto;
 		width: auto;
 		padding-left: 0;
+		margin-top: 13px;
 	}
 
 	.taskbar__ribbon::before {
 		content: "";
 		display: block;
-		height: 8px;
+		height: 12px;
 		width: auto;
 		position: fixed;
 		top: 74px;
