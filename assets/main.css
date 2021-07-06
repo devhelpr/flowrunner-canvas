@@ -847,13 +847,13 @@ textarea.form-control {
 }
 
 .taskbar {
-	-ms-touch-action: none;
-	    touch-action: none;
+	-ms-touch-action: auto;
+	    touch-action: auto;
 }
 
 .taskbar__ribbon {
-	-ms-touch-action: none;
-	    touch-action: none;
+	-ms-touch-action: auto;
+	    touch-action: auto;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -907,9 +907,9 @@ textarea.form-control {
 		        flex-direction: row;
 		overflow-x: scroll;
 
-		-ms-touch-action: none;
+		-ms-touch-action: auto;
 
-		    touch-action: none;
+		    touch-action: auto;
 	}
 
     .taskbar__ribbon {
