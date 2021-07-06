@@ -11,6 +11,7 @@ import { DragginTask} from '../../dragging-task';
 
 export interface TaskbarProps {
 	flowrunnerConnector : IFlowrunnerConnector;
+	isDragging: boolean;
 }
 
 export interface TaskbarState {
@@ -178,13 +179,13 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	return <>
-		<div className="taskbar">
+		<div className="taskbar" style={{pointerEvents: props.isDragging?"none":"auto"}}>
 			{menuMode == TaskMenuMode.tasks ?
-				<>{metaDataInfo.map((taskMetaData : any, index) => {
+				<div className="taskbar__ribbon">{metaDataInfo.map((taskMetaData : any, index) => {
 					return <Draggable id={taskMetaData.className} key={taskMetaData.className}>
 							{renderRect(taskMetaData.className, taskMetaData)}
 						</Draggable>					
-				})}</> : 
+				})}</div> : 
 				<>{modules.map((module, index) => {
 						return <button key={"module-" + index} onClick={(event) => onShowModule(module, event)} className="btn btn-outline-primary w-100 mb-2">{module.name}</button>
 					})}

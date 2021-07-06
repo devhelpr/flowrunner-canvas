@@ -713,7 +713,32 @@ textarea.form-control {
 }
 
 .taskbar {
+	touch-action: none;
+}
+
+.taskbar__ribbon {
+	touch-action: none;
+	display: flex;
+	flex-direction: column;		
+	flex: 1 1 100%;
+	width: 100%;
+	padding-left: 10px;
+}
+
+.taskbar__ribbon::before {
+	content: "";
+	display: block;
+	width: 8px;
+	position: fixed;
+	top: 75px;
+	bottom: 5px;
+	left: 2px;
+	background-image: linear-gradient(0deg, #ffffff 20%, #999999 20%, #999999 50%, #ffffff 50%, #ffffff 70%, #999999 70%, #999999 100%);
+	background-size: 10.00px 10.00px;
+	border: 1px #999999 solid;
+	border-radius: 4px;
 	touch-action: pan-y;
+	filter: drop-shadow(-4px 4px 6px #808080);
 }
 
 @media only screen and (max-width: 1023px) {
@@ -729,6 +754,29 @@ textarea.form-control {
 		flex-direction: row;
 		overflow-x: scroll;
 
+		touch-action: none;
+	}
+
+    .taskbar__ribbon {
+		display: flex;
+		flex-direction: row;		
+		flex: 1 1 auto;
+		width: auto;
+		padding-left: 0;
+	}
+
+	.taskbar__ribbon::before {
+		content: "";
+		display: block;
+		height: 8px;
+		width: auto;
+		position: fixed;
+		top: 74px;
+		left: 2px;
+		right: 2px;
+		background-image: linear-gradient(90deg, #ffffff 20%, #999999 20%, #999999 50%, #ffffff 50%, #ffffff 70%, #999999 70%, #999999 100%);
+		background-size: 10.00px 10.00px;
+		border-radius: 4px;
 		touch-action: pan-x;
 	}
 

@@ -1618,7 +1618,7 @@ export const Canvas = (props: CanvasProps) => {
 					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
 					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
 
-					let newDistance = Math.sqrt( x*x + y*y ) * 0.75;
+					let newDistance = Math.sqrt( x*x + y*y );
 					
 					
 					wheelEvent(
@@ -3055,7 +3055,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 
 	const handleDragStart = (event) => {
-		setActiveId(event.active.id);
+		setActiveId(event.active.id);		
 	}
 	  
 	const handleDragEnd= (event) => {
@@ -3087,17 +3087,16 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}, [flowStore.flow]);
 
 	console.log("CANVAS RENDER" , performance.now());
-/*
-onDragOver={onAllowDrop}
-			onDrop={onDropTask}
-*/
+
 	return <>		
 		<DndContext 
 		   	modifiers={[restrictToWindowEdges]}
 			onDragStart={handleDragStart} 
 			onDragMove={handleDragMove}
 			onDragEnd={handleDragEnd}>
-			<Taskbar flowrunnerConnector={props.flowrunnerConnector}></Taskbar>	
+			<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
+				isDragging={activeId !== undefined}
+			></Taskbar>	
 			<DragOverlay className="taskbar__task-dragging"
 				zIndex={20000}
 				dropAnimation={null}
