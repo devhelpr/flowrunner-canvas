@@ -3,6 +3,14 @@
 	        box-sizing: border-box;
 }
 
+html {
+	height: -webkit-fill-available;
+}
+
+body {
+	min-height: -webkit-fill-available;
+}
+
 body, html {
 	height: 100vh;
 	max-height: 100vh;
