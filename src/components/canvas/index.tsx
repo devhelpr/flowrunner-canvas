@@ -1413,6 +1413,9 @@ export const Canvas = (props: CanvasProps) => {
 		touchNodeGroup.current = undefined;
 		if (event.currentTarget && mouseDragging.current) {
 			setNewPositionForNode(node, shapeRefs.current[node.name], undefined, true, false, true);
+		} else {
+			selectedNode.selectNode(node.name, node);
+			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
 		(touchNode.current as any) = undefined;
 		mouseDragging.current = false;
@@ -1640,6 +1643,13 @@ export const Canvas = (props: CanvasProps) => {
 
 	const onStageTouchEnd = (event) => {
 		isPinching.current = false;
+		if (!mouseDragging.current) {
+			if (touchNode.current && touchNodeGroup.current) {
+				selectedNode.selectNode((touchNode.current as any).name, touchNode.current as any);
+				canvasMode.setConnectiongNodeCanvasMode(false);
+			}
+		}
+
 	}
 
 	const cancelDragStage = () => {
@@ -1700,6 +1710,7 @@ export const Canvas = (props: CanvasProps) => {
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
 		if (event.currentTarget) {
+			mouseDragging.current = true;
 			setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.touches.length > 0 ? {
 				x: event.evt.touches[0].screenX,
 				y: event.evt.touches[0].screenY
@@ -1735,11 +1746,18 @@ export const Canvas = (props: CanvasProps) => {
 		event.evt.cancelBubble = true;
 		
 		if (event.currentTarget) {
-			setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.changedTouches.length > 0 ? {
-				x: event.evt.changedTouches[0].screenX,
-				y: event.evt.changedTouches[0].screenY
-			} : undefined, false, false, true);
+			if (mouseDragging.current) {
+				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.changedTouches.length > 0 ? {
+					x: event.evt.changedTouches[0].screenX,
+					y: event.evt.changedTouches[0].screenY
+				} : undefined, false, false, true);
+			} else {
+				selectedNode.selectNode(node.name, node);
+				canvasMode.setConnectiongNodeCanvasMode(false);
+			} 
 		}
+
+		mouseDragging.current = false;
 		return false;
 	}
 

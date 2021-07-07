@@ -910,6 +910,8 @@ textarea.form-control {
 		-ms-touch-action: auto;
 
 		    touch-action: auto;
+		overflow-y: hidden;
+		overscroll-behavior-y: none;
 	}
 
     .taskbar__ribbon {
@@ -926,6 +928,7 @@ textarea.form-control {
 		width: auto;
 		padding-left: 0;
 		margin-top: 13px;
+		overscroll-behavior-y: none;	
 	}
 
 	.taskbar__ribbon::before {
@@ -942,7 +945,7 @@ textarea.form-control {
 		background-size: 10.00px 10.00px;
 		border-radius: 4px;
 		-ms-touch-action: pan-x;
-		    touch-action: pan-x;
+		    touch-action: pan-x;		
 	}
 
 	.taskbar__task {
