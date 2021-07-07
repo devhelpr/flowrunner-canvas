@@ -3,20 +3,20 @@
 	        box-sizing: border-box;
 }
 
-html {
-	height: -webkit-fill-available;
-}
-
-body {
-	min-height: -webkit-fill-available;
-}
-
 body, html {
 	height: 100vh;
 	max-height: 100vh;
 	min-height: 100vh;
 	overflow: hidden;
     overscroll-behavior-x: none;
+}
+
+html {
+	height: -webkit-fill-available;
+}
+
+body {
+	min-height: -webkit-fill-available;
 }
 
 img {
@@ -583,7 +583,7 @@ img {
     background: #f8f8f8;
     left: 0;
 	height: calc(100vh - 127px);
-	height: calc(100vh - 72px);
+	height: calc(100% - 72px);
 	padding: 5px;
 	z-index: 10000;
 	
@@ -1249,7 +1249,7 @@ textarea.form-control {
 }
 
 #flowstudio-root {
-	min-height: 100vh;
+	min-height: 100%;
 	overflow: hidden;
 }
 
