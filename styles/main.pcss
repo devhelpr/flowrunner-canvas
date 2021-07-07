@@ -27,7 +27,7 @@ img {
 	left: 0;
 	top: 0;
 	width: 100vw;
-	height: 100vh;
+	height: 100%;
 	z-index: 100000;
 	background: #f2f2f2;
 	opacity: 1;
@@ -79,7 +79,7 @@ img {
 .stage-container {
 	overflow: hidden;
 	height: 100%;
-	height: 100vh;
+	height: 100%;
 }
 
 .konvajs-content {
@@ -105,7 +105,7 @@ img {
 	transform: translate3d(0, 0, 0);
 }
 .stage-container.konvajs-content {
-	min-height: 100vh !important;
+	min-height: 100% !important;
 }
 .canvas-controller {
 	width:100%;
@@ -120,8 +120,7 @@ img {
 	transition: opacity .15s ease-in-out;
 	position: relative;
 	z-index: 1;
-	height: calc(100vh - 128px);
-	height: calc(100vh);
+	height: calc(100%);
 }
 
 
@@ -130,7 +129,7 @@ img {
 	left: 0;
 	top: 0;
 	width:100%;
-	height:calc(100vh);
+	height:calc(100%);
 	z-index: 2;
 	pointer-events: none;
 	
@@ -499,7 +498,6 @@ img {
 	width: 128px;
     background: #f8f8f8;
     left: 0;
-	height: calc(100vh - 127px);
 	height: calc(100% - 72px);
 	padding: 5px;
 	z-index: 10000;
@@ -566,7 +564,7 @@ img {
     width: 150px;
     background: #000000;
     right: 0;
-    height: calc(100vh - 127px);
+    height: calc(100% - 127px);
 	z-index: 10000;
 	
 	display: flex;
