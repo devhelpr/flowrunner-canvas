@@ -1425,6 +1425,7 @@ export const Canvas = (props: CanvasProps) => {
 	const onStageMouseEnd = (event) => {
 
 		if (isPinching.current) {
+			isPinching.current = false;
 			return;			
 		}
 
@@ -1522,6 +1523,7 @@ export const Canvas = (props: CanvasProps) => {
 
 	
 	const onStageTouchStart = (event) => {
+		isPinching.current = false;
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
 			return false;
@@ -3153,6 +3155,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						onTouchEnd={onStageMouseEnd}
 						onMouseLeave={onStageMouseLeave}
 						onMouseUp={onStageMouseEnd}
+						onTap={clickStage}
 						className="stage-container">
 						<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
 							<Rect x={0} y={0} width={1024} height={750}></Rect>
