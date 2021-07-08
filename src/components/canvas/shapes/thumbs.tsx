@@ -90,6 +90,9 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 		onMouseMove={props.onMouseConnectionEndMove}
 		onMouseUp={props.onMouseConnectionEndEnd}
 		onMouseLeave={props.onMouseConnectionEndLeave}
+		onTouchStart={props.onMouseConnectionEndStart}
+		onTouchMove={props.onMouseConnectionEndMove}
+		onTouchEnd={props.onMouseConnectionEndEnd}
 		width={12}
 		height={12}
 		transformsEnabled={"position"}
