@@ -3323,8 +3323,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 										onDragEnd={(event) => onDragEnd(node, event)}
 										onDragMove={(event) => onDragMove( node, event)}
 										onTouchStart={(event) => onTouchStart(node, event)}
-										onTouchEnd={(event) => onTouchEnd( node, event)}
-										onTouchMove={(event) => onTouchMove(node, event)}
+										onTouchEnd={(event) => onMouseEnd( node, event)}
+										onTouchMove={(event) => onMouseMove(node, event)}
 										onClickShape={(event) => onClickShape(node, event)}
 										onMouseStart={(event) => onMouseStart(node, event)}
 										onMouseMove={(event) => onMouseMove(node, event)}
