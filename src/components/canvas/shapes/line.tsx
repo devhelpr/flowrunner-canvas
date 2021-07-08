@@ -298,6 +298,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			onMouseOver={props.onMouseOver}
 			onMouseOut={props.onMouseOut}
 			onClick={props.onClickLine}
+			onTap={props.onClickLine}
 		>
 		</KonvaLine>		
 	</Group>

@@ -3150,7 +3150,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						onTouchStart={onStageTouchStart}
 						onTouchMove={onStageTouchMove}
 						onMouseMove={onStageTouchMove}
-						onTouchEnd={onStageTouchEnd}
+						onTouchEnd={onStageMouseEnd}
 						onMouseLeave={onStageMouseLeave}
 						onMouseUp={onStageMouseEnd}
 						className="stage-container">
