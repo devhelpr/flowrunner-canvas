@@ -703,11 +703,11 @@ export const Canvas = (props: CanvasProps) => {
 
 						let x = parseFloat(element.getAttribute("data-x") || "");
 						let y = parseFloat(element.getAttribute("data-y") || "");
-						let top = 0;
-						let minHeight = parseFloat(element.getAttribute("data-height") || "");
+						//let top = 0;
+						//let minHeight = parseFloat(element.getAttribute("data-height") || "");
 
-						const clientElementHeight = element.clientHeight;
-						let diffHeight = clientElementHeight - minHeight;
+						//const clientElementHeight = element.clientHeight;
+						//let diffHeight = clientElementHeight - minHeight;
 
 						if (node && element.getAttribute("data-node") == node.name) {
 							//if (position.x && !isNaN(stageX.current)) {
@@ -722,11 +722,13 @@ export const Canvas = (props: CanvasProps) => {
 						}
 
 						const nodeName = element.getAttribute("data-node") || "";
-						(element as any).style.transform = 						
-							"translate(" + (stageX.current  + x * stageScale.current) + "px," + 
-								(stageY.current + top + y * stageScale.current) + "px) "+
+						/*(element as any).style.transform = 						
+							"translate(" + (stageX.current  - x * stageScale.current) + "px," + 
+								(stageY.current - y * stageScale.current) + "px) "+
 							"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ";	
-							
+						*/
+						setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);
+
 						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw , true);
 					}
 				}
@@ -2039,7 +2041,6 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				saveEditorState(stageInstance.scale().x, stageInstance.x(), stageInstance.y())
 				stageX.current = stageInstance.x();
 				stageY.current = stageInstance.y();
 				stageScale.current = stageInstance.scale().x;
@@ -2047,80 +2048,6 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 			}
 		}
-	}
-
-	const loadEditorState = () => {
-		fetch('/get-editor-state', {
-			method: "GET",
-			headers: {
-			  "Content-Type": "application/json"
-			}
-		  })
-		.then(res => {
-			if (res.status >= 400) {
-				throw new Error("Bad response from server get-editor-state");
-			}
-			return res.json();
-		})
-		.then(editorState => {
-			if (!editorState.reset && editorState && editorState.x && editorState.y && editorState.scale) {
-				if (stage && stage.current) {
-					let stageInstance = (stage.current as any).getStage();
-					if (stage) {
-
-						const newPos = {
-							x: editorState.x,
-							y: editorState.y
-						};
-						stageInstance.scale({ x: editorState.scale, y: editorState.scale });
-						stageInstance.position(newPos);
-						stageInstance.batchDraw();
-
-						stageX.current = newPos.x;
-						stageY.current = newPos.y;
-						stageScale.current = editorState.scale;
-
-						setHtmlElementsPositionAndScale(editorState.x, editorState.y, editorState.scale);
-					}
-				}
-			} else {
-				fitStage();
-			}
-		})
-		.catch(err => {
-			console.error(err);
-		});
-	}
-
-	const saveEditorState = (scale, x ,y) => {
-		if (props.flowrunnerConnector.hasStorageProvider) {
-			return;
-		}
-		return;
-		fetch('/save-editor-state', {
-			method: "POST",
-			body: JSON.stringify({state:{
-					scale: scale,
-					x: x,
-					y: y
-				}
-			}),
-			headers: {
-			  "Content-Type": "application/json"
-			}
-		  })
-		.then(res => {
-			if (res.status >= 400) {
-				throw new Error("Bad response from server");
-			}
-			return res.json();
-		})
-		.then(status => {
-			//console.log(status);
-		})
-		.catch(err => {
-			console.error(err);
-		});
 	}
 
 	const setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {
@@ -2132,11 +2059,11 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		for (var element of elements) {
 			let x = parseFloat(element.getAttribute("data-x") || "");
 			let y = parseFloat(element.getAttribute("data-y") || "");
-			let top = 0;
-			let minHeight = parseFloat(element.getAttribute("data-height") || "");
+			//let top = 0;
+			//let minHeight = parseFloat(element.getAttribute("data-height") || "");
 
 			const clientElementHeight = element.clientHeight;
-			let diffHeight = clientElementHeight - minHeight;
+			//let diffHeight = clientElementHeight - minHeight;
 
 			if (node && element.getAttribute("data-node") == node.name) {
 				if (newX && !isNaN(newX)) {
@@ -2151,14 +2078,22 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			}
 
 			const nodeName = element.getAttribute("data-node") || "";
-			(element as any).style.transform = 						
-				"translate(" + (stageX  + x * stageScale) + "px," + 
-					(stageY + top + y * stageScale) + "px) "+
-				"scale(" + (stageScale) + "," + (stageScale) + ") ";						
+			setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);				
 		}
+
+		// see also recalculateStartEndpoints
 
 		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
 		
+	}
+
+	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
+		(element as any).style.transform = 						
+			"translate(" + (stageX  + x*stageScale) + "px," + 
+				(stageY  + y*stageScale) + "px) "+
+			"scale(" + (stageScale) + "," + (stageScale) + ") "
+			
+			;
 	}
 
 	const fitStage = useCallback((node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean) => {
@@ -2711,6 +2646,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		
 		selectedNode.selectNode("", undefined);
 		canvasMode.setConnectiongNodeCanvasMode(false);
+
 		
 		if (taskClassName && taskClassName !== "") {
 			if (!canvasMode.isConnectingNodes) {
@@ -2725,7 +2661,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						presetValues = shapeSetting.presetValues;
 					}
 
-					
+					let element	 = document.querySelector(".taskbar__task-dragging");					
+
 					let newNode = getNewNode({
 						name: taskClassName,
 						id: taskClassName,
@@ -2735,10 +2672,23 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						y: (position.y - (_stage).y()) / scaleFactor,
 						...presetValues
 					},flowStore.flow);
-
-					//const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
+						
+					const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
 					let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
+					if (shapeType == "Html" && element) {
+						let rect = element.getBoundingClientRect();
+						if (props.getNodeInstance) {
+							const left = Math.round((rect.left + rect.right)/2);
+							let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
+							if (result && result.getWidth) {
+								console.log("addTaskToCanvas", result.getWidth(newNode)/2);
+								newNode.x = (left - (_stage).x()) / scaleFactor;
+								newNode.y = (rect.top - (_stage).y()) / scaleFactor;
+								newNode.x -= result.getWidth(newNode)/2;
+							}
+						}
+					}
 
 					let centerXCorrection = 0;
 					let centerYCorrection = 0;
@@ -3501,7 +3451,12 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 									}
 								}
 
-								let top = (-(height || node.height || 250)/2);
+								//let top = (-(height || node.height || 250)/2);
+								/*
+									left: (-(width || node.width || 250)/2)+"px",
+									top: (top)+"px",
+
+								*/
 								return <div key={"html" + index}
 									style={{transform: "translate(" + (stageX.current  + position.x * stageScale.current) + "px," + 
 											(stageY.current +  (position.y) * stageScale.current) + "px) " +
@@ -3509,8 +3464,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 											width: (width || node.width || 250)+"px",
 											minHeight: (height || node.height || 250)+"px",
 											height:(height || node.height || 250)+"px",
-											left: (-(width || node.width || 250)/2)+"px",
-											top: (top)+"px",
+											top: 0+ "px",
+											left: 0 +"px",
 											opacity: (!canvasHasSelectedNode || (selectedNode && selectedNode.node.name === node.name)) ? 1 : 1 //0.5 										 
 										}}
 									id={node.name}

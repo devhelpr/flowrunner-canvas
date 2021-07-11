@@ -151,6 +151,16 @@ export class FlowToCanvas {
             : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
       };
 
+      result = {
+        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
+        y:
+          newPosition.y -
+          (isEvent
+            ? -32 + -4 - 32 - 8 
+            : -8 + -4 - 32 - 8),
+      };
+
+
       return result;
     } else if (shapeType == 'Circle') {
       return {
@@ -206,9 +216,13 @@ export class FlowToCanvas {
           height = nodeInstance.getHeight(endShape);
         }
       }
-      const endpoint = {
+      let endpoint = {
         x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2 - 8,
         y: newPosition.y - (height || endShape.height || ShapeMeasures.htmlHeight) / 2 + 40 + 12,
+      };
+      endpoint = {
+        x: newPosition.x - 8,
+        y: newPosition.y + 40 + 12,
       };
       return endpoint;
     } else if (shapeType == 'Circle') {

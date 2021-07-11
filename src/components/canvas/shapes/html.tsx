@@ -99,8 +99,8 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 			onMouseOver={props.onMouseOver}
 			onMouseOut={props.onMouseOut}				
 			><KonvaRect			
-				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
-				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
+				x={0}
+				y={0}
 				strokeWidth={0}
 				cornerRadius={settings.cornerRadius}
 				width={width || props.node.width || ShapeMeasures.htmlWidth}
@@ -114,6 +114,9 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 });
 
 /*
+
+x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
+				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2)}
 
 <Text x={(((width || props.node.width || ShapeMeasures.htmlWidth)/2) + 10) + 12}
 					y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + (index * 10) + 28}

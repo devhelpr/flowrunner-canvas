@@ -164,6 +164,8 @@ img {
 	position: absolute;
 	border-radius: 10px;
 	will-change: transform;
+	-webkit-transform-origin: top left;
+	        transform-origin: top left;
 }
 
 .canvas__html-shape-thumb-start {
