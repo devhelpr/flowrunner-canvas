@@ -153,13 +153,8 @@ export class FlowToCanvas {
 
       result = {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
-        y:
-          newPosition.y -
-          (isEvent
-            ? -32 + -4 - 32 - 8 
-            : -8 + -4 - 32 - 8),
+        y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 : -8 + -4 - 32 - 8),
       };
-
 
       return result;
     } else if (shapeType == 'Circle') {
