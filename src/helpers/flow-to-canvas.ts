@@ -141,6 +141,7 @@ export class FlowToCanvas {
           height = nodeInstance.getHeight(startShape);
         }
       }
+      /*
       let result = {
         //(isEvent ? 18 - 8 : 0)
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
@@ -150,13 +151,14 @@ export class FlowToCanvas {
             ? -32 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
             : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
       };
+      */
 
-      result = {
+      return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
         y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 : -8 + -4 - 32 - 8),
       };
 
-      return result;
+      //return result;
     } else if (shapeType == 'Circle') {
       return {
         x: newPosition.x + ShapeMeasures.circleSize,
@@ -202,6 +204,7 @@ export class FlowToCanvas {
     );
 
     if (shapeType == 'Html') {
+      /*
       let width = undefined;
       let height = undefined;
       if (getNodeInstance && endShape) {
@@ -211,15 +214,17 @@ export class FlowToCanvas {
           height = nodeInstance.getHeight(endShape);
         }
       }
+      
       let endpoint = {
         x: newPosition.x - (width || endShape.width || ShapeMeasures.htmlWidth) / 2 - 8,
         y: newPosition.y - (height || endShape.height || ShapeMeasures.htmlHeight) / 2 + 40 + 12,
       };
-      endpoint = {
+      */
+      return {
         x: newPosition.x - 8,
         y: newPosition.y + 40 + 12,
       };
-      return endpoint;
+      //return endpoint;
     } else if (shapeType == 'Circle') {
       return {
         x: newPosition.x,
