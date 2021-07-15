@@ -780,6 +780,7 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
 
   if (!isSameFlow || !flow) {
     flow = new FlowEventRunner();
+    /*
     flow.registerTask('PreviewTask', PreviewTask);
     flow.registerTask('InputTask', InputTask);
     flow.registerTask('TimerTask', TimerTask);
@@ -788,7 +789,7 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
     flow.registerTask('ApiProxyTask', ApiProxyTask);
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
-
+    */
     registerTasks(flow);
 
     if (pluginRegistry) {

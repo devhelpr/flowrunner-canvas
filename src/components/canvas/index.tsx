@@ -2161,10 +2161,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							}
 
 							// subWidth needed here ... html nodes start at x-width/2
-							subtractWidth = (width || shape.width || 250) / 2;
-							subtractHeight = (height || shape.height || 250) / 2
-							addWidth = (width || shape.width || 250) / 2;
-							addHeight = (height || shape.height || 250) /2;
+							subtractWidth = 0;//(width || shape.width || 250);
+							subtractHeight = 0;//(height || shape.height || 250);
+							addWidth = (width || shape.width || 250);
+							addHeight = (height || shape.height || 250);
 						} else {
 							addWidth = 100;
 							addHeight = 50;
@@ -2216,8 +2216,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					
 					let flowWidth = Math.abs(xMax-xMin) ;//+ 200;
 					let flowHeight = Math.abs(yMax-yMin) ;//+ 200;
-
-					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
+					
+					// .canvas-controller__scroll-container
+					const stageContainerElement = document.querySelector("body");
 					if (stageContainerElement !== null) {
 						let subtractWidth = 128;
 						if (stageContainerElement.clientWidth < 1024) {
@@ -2685,7 +2686,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								console.log("addTaskToCanvas", result.getWidth(newNode)/2);
 								newNode.x = (left - (_stage).x()) / scaleFactor;
 								newNode.y = (rect.top - (_stage).y()) / scaleFactor;
-								newNode.x -= result.getWidth(newNode)/2;
+								newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
 							}
 						}
 					}

@@ -50,16 +50,15 @@ export const Taskbar = (props: TaskbarProps) => {
 			}
 			return 0;
 		});
-		
-		setMetaDataInfo(taskPluginsSortedList.filter((task) => { 
-				return task.flowType == canvasMode.flowType; 
-			}).map((task) => {
-					const taskSettings = FlowToCanvas.getTaskSettings(task.className);
-					return {...task, 
-						icon : taskSettings.icon || task.icon || ""
-					};
-				})
-			);
+		const tasks = taskPluginsSortedList.filter((task) => { 
+			return task.flowType == canvasMode.flowType; 
+		}).map((task) => {
+			const taskSettings = FlowToCanvas.getTaskSettings(task.className);
+			return {...task, 
+				icon : taskSettings.icon || task.icon || ""
+			};
+		});
+		setMetaDataInfo(tasks);
 	}
 
 	const loadTasks = () => {

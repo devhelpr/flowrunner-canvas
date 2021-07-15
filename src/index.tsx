@@ -4,8 +4,6 @@ import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
 
-import { DndContext, DragOverlay } from '@dnd-kit/core';
-
 import { Subject } from 'rxjs';
 
 import fetch from 'cross-fetch';
@@ -13,7 +11,6 @@ import fetch from 'cross-fetch';
 import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
-import { Taskbar } from './components/Taskbar';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
@@ -32,7 +29,8 @@ import {
 import { useFlows } from './use-flows';
 import { registerPlugins } from './external-plugins';
 
-import { DragginTask} from './dragging-task';
+import { ErrorBoundary } from './helpers/error';
+
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
 
@@ -184,6 +182,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	
 	return <>
 		<Suspense fallback={<div>Loading...</div>}>
+			<ErrorBoundary>
 				<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
 				<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
 						hasRunningFlowRunner={true}
@@ -210,8 +209,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					flowState={flows.flowState}
 					saveFlow={flows.saveFlow}
 				></CanvasComponent>
-				
-	
+			</ErrorBoundary>	
 		</Suspense>		
 	</>;
 }
@@ -333,41 +331,43 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					return <>
 						{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
 							<>
-								<Suspense fallback={<div>Loading...</div>}>									
-									{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
-										flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+								<Suspense fallback={<div>Loading...</div>}>
+									<ErrorBoundary>									
+										{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+											flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
-									<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
-										hasRunningFlowRunner={!!hasRunningFlowRunner}
-										flowrunnerConnector={flowrunnerConnector}
-										onEditorMode={onEditorMode}
-										flow={flows.flow}
-										flowId={flows.flowId}
-										flows={flows.flows}
-										flowType={flows.flowType}
-										flowState={flows.flowState}
-										getFlows={flows.getFlows}
-										loadFlow={flows.loadFlow}
-										saveFlow={flows.saveFlow}
-										onGetFlows={flows.onGetFlows}
-										></Toolbar>
-									{editorMode == "canvas" &&
-									<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
-										renderHtmlNode={renderHtmlNode}
-										flowrunnerConnector={flowrunnerConnector}
-										getNodeInstance={getNodeInstance}
-										flow={flows.flow}
-										flowId={flows.flowId}
-										flowType={flows.flowType}
-										flowState={flows.flowState}
-										saveFlow={flows.saveFlow}
-									></CanvasComponent>}
-									{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
-										<UserInterfaceViewEditor 
-										renderHtmlNode={renderHtmlNode}
-										flowrunnerConnector={flowrunnerConnector}
-										getNodeInstance={getNodeInstance} /></Suspense>}
-									<FooterToolbar></FooterToolbar>	
+										<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
+											hasRunningFlowRunner={!!hasRunningFlowRunner}
+											flowrunnerConnector={flowrunnerConnector}
+											onEditorMode={onEditorMode}
+											flow={flows.flow}
+											flowId={flows.flowId}
+											flows={flows.flows}
+											flowType={flows.flowType}
+											flowState={flows.flowState}
+											getFlows={flows.getFlows}
+											loadFlow={flows.loadFlow}
+											saveFlow={flows.saveFlow}
+											onGetFlows={flows.onGetFlows}
+											></Toolbar>
+										{editorMode == "canvas" &&
+										<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
+											renderHtmlNode={renderHtmlNode}
+											flowrunnerConnector={flowrunnerConnector}
+											getNodeInstance={getNodeInstance}
+											flow={flows.flow}
+											flowId={flows.flowId}
+											flowType={flows.flowType}
+											flowState={flows.flowState}
+											saveFlow={flows.saveFlow}
+										></CanvasComponent>}
+										{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
+											<UserInterfaceViewEditor 
+											renderHtmlNode={renderHtmlNode}
+											flowrunnerConnector={flowrunnerConnector}
+											getNodeInstance={getNodeInstance} /></Suspense>}
+										<FooterToolbar></FooterToolbar>
+									</ErrorBoundary>		
 								</Suspense>
 							</>
 						}
@@ -426,23 +426,25 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 				flowrunnerConnector.flowView = "uiview";
 
 				const App = (props) => {
-					return <UserInterfaceView 						
-						renderHtmlNode={renderHtmlNode}
-						flowrunnerConnector={flowrunnerConnector}
-						getNodeInstance={getNodeInstance}
-					></UserInterfaceView>;
+					return <ErrorBoundary>
+							<UserInterfaceView 						
+							renderHtmlNode={renderHtmlNode}
+							flowrunnerConnector={flowrunnerConnector}
+							getNodeInstance={getNodeInstance}
+						></UserInterfaceView>
+					</ErrorBoundary>;
 				};
 					
-					if (flowRunnerCanvasPluginRegisterFunctions) {
-						flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
-							registerFunction();
-							return true;
-						});
-					}
-					flowrunnerConnector.setPluginRegistry(pluginRegistry);
+				if (flowRunnerCanvasPluginRegisterFunctions) {
+					flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+						registerFunction();
+						return true;
+					});
+				}
+				flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
-					console.log("pluginRegistry", pluginRegistry);
-					(ReactDOM as any).render(<App></App>, root);												
+				console.log("pluginRegistry", pluginRegistry);
+				(ReactDOM as any).render(<App></App>, root);												
 			});
 		}
 		/*
