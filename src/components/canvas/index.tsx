@@ -857,9 +857,11 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			}
 		}	
-				
-		let stageInstance = (stage.current as any).getStage();
-		stageInstance.batchDraw();
+		
+		if (stage && stage.current) {
+			const stageInstance = (stage.current as any).getStage();		
+			stageInstance.batchDraw();
+		}
 		updateTouchedNodes();	
 
 		console.log("uselayouteffect flow", performance.now() - startPerf);
@@ -1151,8 +1153,10 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		
 		if (!!doDraw) {
-			let stageInstance = (stage.current as any).getStage();
-			stageInstance.batchDraw();
+			if (stage && stage.current) {
+				let stageInstance = (stage.current as any).getStage();
+				stageInstance.batchDraw();
+			}
 			updateTouchedNodes();
 		}
 
@@ -1918,9 +1922,10 @@ export const Canvas = (props: CanvasProps) => {
 
 		dragTime.current = undefined;
 		setNewPositionForNode(node, shapeRefs.current[node.name]);
-
-		let stageInstance = (stage.current as any).getStage();
-		stageInstance.batchDraw();
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			stageInstance.batchDraw();
+		}
 		updateTouchedNodes();
 
 		// event.currentTarget points to the "Group" in the actual shape component
@@ -2636,134 +2641,136 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 	const addTaskToCanvas = (taskClassName : string) => {
 		//const taskClassName = event.target.getAttribute("data-task");
-		let _stage = (stage.current as any).getStage();
+		if (stage && stage.current) {
+			let _stage = (stage.current as any).getStage();
 
-		_stage.setPointersPositions(event);
-	
-		//let data = event.dataTransfer.getData("text");
-		//event.target.appendChild(document.getElementById(data));
-
-		const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;	
+			_stage.setPointersPositions(event);
 		
-		selectedNode.selectNode("", undefined);
-		canvasMode.setConnectiongNodeCanvasMode(false);
+			//let data = event.dataTransfer.getData("text");
+			//event.target.appendChild(document.getElementById(data));
 
-		
-		if (taskClassName && taskClassName !== "") {
-			if (!canvasMode.isConnectingNodes) {
-				if (stage && stage.current) {
-					let stageInstance = (stage.current as any).getStage();
-					const position = (stageInstance as any).getPointerPosition();
-					const scaleFactor = (stageInstance as any).scaleX();
-					const taskType = taskClassName;
-					let presetValues = {};
-					const shapeSetting = getTaskConfigForTask(taskType);
-					if (shapeSetting && shapeSetting.presetValues) {
-						presetValues = shapeSetting.presetValues;
-					}
+			const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;	
+			
+			selectedNode.selectNode("", undefined);
+			canvasMode.setConnectiongNodeCanvasMode(false);
 
-					let element	 = document.querySelector(".taskbar__task-dragging");					
-
-					let newNode = getNewNode({
-						name: taskClassName,
-						id: taskClassName,
-						taskType: taskType,
-						shapeType: taskClassName == "IfConditionTask" ? "Diamond" : "Rect", 
-						x: (position.x - (_stage).x()) / scaleFactor, 
-						y: (position.y - (_stage).y()) / scaleFactor,
-						...presetValues
-					},flowStore.flow);
-						
-					const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
-
-					let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
-					if (shapeType == "Html" && element) {
-						let rect = element.getBoundingClientRect();
-						if (props.getNodeInstance) {
-							const left = Math.round((rect.left + rect.right)/2);
-							let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
-							if (result && result.getWidth) {
-								console.log("addTaskToCanvas", result.getWidth(newNode)/2);
-								newNode.x = (left - (_stage).x()) / scaleFactor;
-								newNode.y = (rect.top - (_stage).y()) / scaleFactor;
-								newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
-							}
+			
+			if (taskClassName && taskClassName !== "") {
+				if (!canvasMode.isConnectingNodes) {
+					if (stage && stage.current) {
+						let stageInstance = (stage.current as any).getStage();
+						const position = (stageInstance as any).getPointerPosition();
+						const scaleFactor = (stageInstance as any).scaleX();
+						const taskType = taskClassName;
+						let presetValues = {};
+						const shapeSetting = getTaskConfigForTask(taskType);
+						if (shapeSetting && shapeSetting.presetValues) {
+							presetValues = shapeSetting.presetValues;
 						}
-					}
 
-					let centerXCorrection = 0;
-					let centerYCorrection = 0;
-					
-					if (shapeType == "Rect" || shapeType == "Ellipse") {
-						centerXCorrection = ShapeMeasures.rectWidht / 2;
-						centerYCorrection = ShapeMeasures.rectHeight / 2;
-					} else
-					if (shapeType == "Circle") {
-						centerXCorrection = ShapeMeasures.circleSize / 2;
-						centerYCorrection = ShapeMeasures.circleSize / 2;
-					} else
-					if (shapeType == "Diamond") {
-						centerXCorrection = ShapeMeasures.diamondSize / 2;
-						centerYCorrection = ShapeMeasures.diamondSize / 2;
-					}
+						let element	 = document.querySelector(".taskbar__task-dragging");					
 
-					newNode.x = newNode.x - centerXCorrection;
-					newNode.y = newNode.y - centerYCorrection;
-					
-					const lineRef = shapeRefs.current[connectionForDraggingName];
-					if (lineRef && lineRef) {
-						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
-						if (stage && stage.current) {
-							let stageInstance = (stage.current as any).getStage();
-							if (stageInstance !== undefined) {
-								stageInstance.batchDraw();
-							}
-						}
-					}
-					
-					setPosition(newNode.name, {
-						x: newNode.x,
-						y: newNode.y
-					});
-					flowStore.addFlowNode(newNode);
-
-					let closestNode = closestNodeWhenAddingNewNode.current as any;
-					if (closestNode) {		
-					    let connection;			
-						const orientationIsLeft = orientationClosestNodeWhenAddingNewNode.current;
-						if (orientationIsLeft && closestNode.shapeType !== "Diamond")  {							
-							connection = getNewConnection(closestNode, newNode, props.getNodeInstance, false,
-								ThumbPositionRelativeToNode.default);								
+						let newNode = getNewNode({
+							name: taskClassName,
+							id: taskClassName,
+							taskType: taskType,
+							shapeType: taskClassName == "IfConditionTask" ? "Diamond" : "Rect", 
+							x: (position.x - (_stage).x()) / scaleFactor, 
+							y: (position.y - (_stage).y()) / scaleFactor,
+							...presetValues
+						},flowStore.flow);
 							
-						} else {
-							if (nodeOrientationClosestNodeWhenAddingNewNode.current === ThumbPositionRelativeToNode.default) {
-								connection = getNewConnection(newNode, closestNode, props.getNodeInstance, false,
-									ThumbPositionRelativeToNode.default);
-							} else {
-								connection = getNewConnection(closestNode, newNode, props.getNodeInstance, false,
-									nodeOrientationClosestNodeWhenAddingNewNode.current);
+						const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
-								if (nodeOrientationClosestNodeWhenAddingNewNode.current == ThumbPositionRelativeToNode.top) {
-									(connection as any).followflow = "onsuccess";
-								} else {
-									(connection as any).followflow = "onfailure";
+						let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
+						if (shapeType == "Html" && element) {
+							let rect = element.getBoundingClientRect();
+							if (props.getNodeInstance) {
+								const left = Math.round((rect.left + rect.right)/2);
+								let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
+								if (result && result.getWidth) {
+									console.log("addTaskToCanvas", result.getWidth(newNode)/2);
+									newNode.x = (left - (_stage).x()) / scaleFactor;
+									newNode.y = (rect.top - (_stage).y()) / scaleFactor;
+									newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
 								}
-								(connection as any).thumbPosition = nodeOrientationClosestNodeWhenAddingNewNode.current;	
 							}
 						}
 
-						setPosition(connection.name, {
-							xstart: connection.xstart,
-							ystart: connection.ystart,
-							xend: connection.xend,
-							yend: connection.yend
+						let centerXCorrection = 0;
+						let centerYCorrection = 0;
+						
+						if (shapeType == "Rect" || shapeType == "Ellipse") {
+							centerXCorrection = ShapeMeasures.rectWidht / 2;
+							centerYCorrection = ShapeMeasures.rectHeight / 2;
+						} else
+						if (shapeType == "Circle") {
+							centerXCorrection = ShapeMeasures.circleSize / 2;
+							centerYCorrection = ShapeMeasures.circleSize / 2;
+						} else
+						if (shapeType == "Diamond") {
+							centerXCorrection = ShapeMeasures.diamondSize / 2;
+							centerYCorrection = ShapeMeasures.diamondSize / 2;
+						}
+
+						newNode.x = newNode.x - centerXCorrection;
+						newNode.y = newNode.y - centerYCorrection;
+						
+						const lineRef = shapeRefs.current[connectionForDraggingName];
+						if (lineRef && lineRef) {
+							lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
+							if (stage && stage.current) {
+								let stageInstance = (stage.current as any).getStage();
+								if (stageInstance !== undefined) {
+									stageInstance.batchDraw();
+								}
+							}
+						}
+						
+						setPosition(newNode.name, {
+							x: newNode.x,
+							y: newNode.y
 						});
-						flowStore.addConnection(connection);
-					}
-				}				
+						flowStore.addFlowNode(newNode);
+
+						let closestNode = closestNodeWhenAddingNewNode.current as any;
+						if (closestNode) {		
+							let connection;			
+							const orientationIsLeft = orientationClosestNodeWhenAddingNewNode.current;
+							if (orientationIsLeft && closestNode.shapeType !== "Diamond")  {							
+								connection = getNewConnection(closestNode, newNode, props.getNodeInstance, false,
+									ThumbPositionRelativeToNode.default);								
+								
+							} else {
+								if (nodeOrientationClosestNodeWhenAddingNewNode.current === ThumbPositionRelativeToNode.default) {
+									connection = getNewConnection(newNode, closestNode, props.getNodeInstance, false,
+										ThumbPositionRelativeToNode.default);
+								} else {
+									connection = getNewConnection(closestNode, newNode, props.getNodeInstance, false,
+										nodeOrientationClosestNodeWhenAddingNewNode.current);
+
+									if (nodeOrientationClosestNodeWhenAddingNewNode.current == ThumbPositionRelativeToNode.top) {
+										(connection as any).followflow = "onsuccess";
+									} else {
+										(connection as any).followflow = "onfailure";
+									}
+									(connection as any).thumbPosition = nodeOrientationClosestNodeWhenAddingNewNode.current;	
+								}
+							}
+
+							setPosition(connection.name, {
+								xstart: connection.xstart,
+								ystart: connection.ystart,
+								xend: connection.xend,
+								yend: connection.yend
+							});
+							flowStore.addConnection(connection);
+						}
+					}				
+				}
+			} else {
+				alert("select task!!");
 			}
-		} else {
-			alert("select task!!");
 		}
 
 		return false;
