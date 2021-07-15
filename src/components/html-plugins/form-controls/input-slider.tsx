@@ -24,7 +24,7 @@ export const InputSlider = (props: IFormControlProps) => {
 				name={metaInfo.fieldName} 
 				min={Number(metaInfo.min) || 0}
 				max={Number(metaInfo.max) || 100} 					
-				value={formControl.value || 0} 
+				value={parseInt(formControl.value) || 0} 
 				onChange={onChange}
 				onFocus={onFocus} 
 			/>			

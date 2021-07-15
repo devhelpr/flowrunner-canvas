@@ -127,8 +127,8 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 		</>}
 		{props.shapeType === "Html" && <>
 			<KonvaRect
-				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2) - 16}
-				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 36}
+				x={16}
+				y={36}
 				strokeWidth={0}
 				stroke="#808080"
 				cornerRadius={settings.cornerRadius}
@@ -142,8 +142,8 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				listening={true}				
 				></KonvaRect>
 			<KonvaCircle
-				x={-((width || props.node.width || ShapeMeasures.htmlWidth)/2)}
-				y={-((height || props.node.height || ShapeMeasures.htmlHeight)/2) + 52}
+				x={0}
+				y={52}
 				radius={12}
 				listening={false}
 				transformsEnabled={"position"}
