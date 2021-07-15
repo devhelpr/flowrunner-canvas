@@ -3068,20 +3068,18 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}, [flowStore.flow]);
 
 	console.log("CANVAS RENDER" , performance.now());
-
-	return <>
-		<ErrorBoundary>
-			<DndContext 
+/*
+<DndContext 
 			    id={"canvas-dndcontext"}
 				modifiers={[restrictToWindowEdges]}
 				onDragStart={handleDragStart} 
 				onDragMove={handleDragMove}
 				onDragEnd={handleDragEnd}>
 				<ErrorBoundary>
-					<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
-						isDragging={activeId !== undefined}
-					></Taskbar>	
-					<DragOverlay className="taskbar__task-dragging"
+
+	tussen taskbar en div:
+
+				<DragOverlay className="taskbar__task-dragging"
 						zIndex={20000}
 						dropAnimation={null}
 					>				
@@ -3091,6 +3089,14 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								listeners={{}}
 							/> : null}
 					</DragOverlay>
+*/
+	return <>
+		<ErrorBoundary>
+			
+					<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
+						isDragging={activeId !== undefined}
+					></Taskbar>	
+					
 					<div 
 						key={"stage-layer-wrapper-" + canvasKey} 
 						ref={ref => ((canvasWrapper as any).current = ref)} 
@@ -3516,8 +3522,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							}
 						</div>
 					</div>
-				</ErrorBoundary>
-			</DndContext>
+				
 		</ErrorBoundary>
 		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
 		<Flow 
@@ -3526,3 +3531,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			flowrunnerConnector={props.flowrunnerConnector} />							
 	</>;
 }
+
+/*
+	</ErrorBoundary>
+			</DndContext>
+*/
