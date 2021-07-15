@@ -373,6 +373,7 @@ export const ObjectList = (props: IFormControlProps) => {
 				<table>
 					<tbody>
 						<DndContext 
+							id={node.name + "_" + metaInfo.fieldName + "_dndcontext"}
 							layoutMeasuring={{strategy: LayoutMeasuringStrategy.Always}}
 							sensors={sensors}
 							collisionDetection={closestCorners}
@@ -436,6 +437,7 @@ export const ObjectList = (props: IFormControlProps) => {
 					</tbody>
 				</table>
 			: <DndContext 
+				id={node.name + "_" + metaInfo.fieldName + "_dndcontext2"}
 				sensors={sensors}
 				collisionDetection={closestCorners}
 				onDragStart={handleDragStart}
