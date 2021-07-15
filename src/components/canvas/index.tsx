@@ -467,9 +467,11 @@ export const Canvas = (props: CanvasProps) => {
 					nodesStateLocal.current[touchNodeId] != "") {
 					nodesStateLocal.current[touchNodeId] = "";
 					const shapeRef = shapeRefs.current[touchNodeId];
-					shapeRef.modifyShape(ModifyShapeEnum.SetState , {
-						state: ShapeStateEnum.Default
-					});
+					if (shapeRef) {
+						shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+							state: ShapeStateEnum.Default
+						});
+					}
 				}
 			}
 		});
@@ -954,9 +956,10 @@ export const Canvas = (props: CanvasProps) => {
 			if (shapeRefs.current[node.name]) {
 				if ((shapeRefs.current[node.name] as any)) {
 					let currentGroup = (shapeRefs.current[node.name] as any);
-					currentGroup.modifyShape(ModifyShapeEnum.SetXY, newPosition);					
-					currentGroup.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-				
+					if (currentGroup) {
+						currentGroup.modifyShape(ModifyShapeEnum.SetXY, newPosition);					
+						currentGroup.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+					}
 					const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
 
 					let currentGroupThumbs = shapeRefs.current["thumb_" + node.name] as any;
@@ -1063,7 +1066,7 @@ export const Canvas = (props: CanvasProps) => {
 					}, node, props.getNodeInstance);
 
 					const lineRef = shapeRefs.current[lineNode.name];
-					if (lineRef && (lineRef as any)) {
+					if (lineRef) {
 
 						let controlPoints = calculateLineControlPoints(
 							newStartPosition.x, newStartPosition.y, 
@@ -1078,7 +1081,7 @@ export const Canvas = (props: CanvasProps) => {
 						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
 					}
 					const endNodeRef = shapeRefs.current[lineNode.endshapeid] as any;
-					if (endNodeRef && endNodeRef) {					
+					if (endNodeRef) {					
 						endNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
 					}
 
@@ -1125,7 +1128,7 @@ export const Canvas = (props: CanvasProps) => {
 					}
 
 					const lineRef = shapeRefs.current[lineNode.name] as any;
-					if (lineRef && lineRef) {
+					if (lineRef) {
 
 						let controlPoints = calculateLineControlPoints(
 							newStartPosition.x, newStartPosition.y, 
@@ -1145,7 +1148,7 @@ export const Canvas = (props: CanvasProps) => {
 					});
 
 					const startNodeRef = shapeRefs.current[lineNode.startshapeid] as any;
-					if (startNodeRef && startNodeRef) {
+					if (startNodeRef) {
 						startNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
 					}					
 				}
@@ -1366,7 +1369,7 @@ export const Canvas = (props: CanvasProps) => {
 		touchNodeGroup.current = undefined;
 
 		const lineRef = shapeRefs.current[connectionForDraggingName];
-		if (lineRef && lineRef) {
+		if (lineRef) {
 			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 		}
 
@@ -1458,7 +1461,7 @@ export const Canvas = (props: CanvasProps) => {
 				document.body.classList.remove("mouse--moving");
 
 				const lineRef = shapeRefs.current[connectionForDraggingName];
-				if (lineRef && lineRef) {
+				if (lineRef) {
 					lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});				
 				}
 		
@@ -1477,7 +1480,7 @@ export const Canvas = (props: CanvasProps) => {
 		event.evt.cancelBubble = true;
 		
 		const lineRef = shapeRefs.current[connectionForDraggingName];
-		if (lineRef && lineRef) {
+		if (lineRef) {
 			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
@@ -1578,7 +1581,7 @@ export const Canvas = (props: CanvasProps) => {
 					newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
 					
 					const lineRef = shapeRefs.current[connectionForDraggingName];
-					if (lineRef && lineRef) {
+					if (lineRef) {
 	
 						let controlPoints = calculateLineControlPoints(
 							connectionXStart.current, connectionYStart.current, 
@@ -2344,7 +2347,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 			document.body.classList.remove("mouse--moving");
 
 			const lineRef = shapeRefs.current[connectionForDraggingName];
-			if (lineRef && (lineRef as any)) {
+			if (lineRef) {
 				lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 				if (stage && stage.current) {
 					let stageInstance = (stage.current as any).getStage();
@@ -2413,7 +2416,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					newNode.y = newNode.y - centerYCorrection;
 					 															
 					const lineRef = shapeRefs.current[connectionForDraggingName];
-					if (lineRef && lineRef) {						
+					if (lineRef) {						
 						lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 						if (stage && stage.current) {
 							let stageInstance = (stage.current as any).getStage();
@@ -2717,7 +2720,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						newNode.y = newNode.y - centerYCorrection;
 						
 						const lineRef = shapeRefs.current[connectionForDraggingName];
-						if (lineRef && lineRef) {
+						if (lineRef) {
 							lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 							if (stage && stage.current) {
 								let stageInstance = (stage.current as any).getStage();
