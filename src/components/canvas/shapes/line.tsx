@@ -271,7 +271,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			tension={0}
 			bezier={true}
 			perfectDrawEnabled={false}
-			strokeHitEnabled={false}
+			hitStrokeWidth={0}
 			noMouseEvents={true}
 		>
 		</KonvaLine>
