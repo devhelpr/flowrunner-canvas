@@ -3495,7 +3495,6 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 											data-visualizer={node.visualizer || "default"}
 											data-x={position.x} 
 											data-y={position.y}
-											data-top={top}
 											data-height={(height || node.height || 250)}									 
 											className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState}>
 												<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
