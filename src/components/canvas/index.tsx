@@ -3091,7 +3091,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					</DragOverlay>
 */
 	return <>
-		<ErrorBoundary>
+		
 			
 					<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
 						isDragging={activeId !== undefined}
@@ -3108,7 +3108,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						onKeyDown={onInput}
 						onKeyUp={onKeyUp}																	
 						>
-						
+						<ErrorBoundary>
 						<div ref={setNodeRef} style={droppableStyle}>
 							<Stage					
 								onClick={clickStage}					
@@ -3440,7 +3440,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								</Layer>
 							</Stage>
 						</div>				
-						
+						</ErrorBoundary>
 						<div ref={ref => ((htmlWrapper as any).current = ref)} 
 							className="canvas__html-elements">
 							
@@ -3523,7 +3523,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						</div>
 					</div>
 				
-		</ErrorBoundary>
+		
 		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
 		<Flow 
 			flow={flowStore.flow}
