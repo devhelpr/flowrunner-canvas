@@ -3091,142 +3091,90 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					</DragOverlay>
 */
 	return <>
+		<DndContext 
+			id={"canvas-dndcontext"}
+			modifiers={[restrictToWindowEdges]}
+			onDragStart={handleDragStart} 
+			onDragMove={handleDragMove}
+			onDragEnd={handleDragEnd}>			
 		
-			
-					<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
-						isDragging={activeId !== undefined}
-					></Taskbar>	
+				<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
+					isDragging={activeId !== undefined}
+				></Taskbar>	
+				<DragOverlay className="taskbar__task-dragging"
+					zIndex={20000}
+					dropAnimation={null}
+				>				
+						{activeId ? <DragginTask id={activeId} 
+							style={{}}											
+							children={{}}		
+							listeners={{}}
+						/> : null}
+				</DragOverlay>
+				<div 
+					key={"stage-layer-wrapper-" + canvasKey} 
+					ref={ref => ((canvasWrapper as any).current = ref)} 
+					style={{opacity: canvasOpacity}} 
+					className="canvas-controller__scroll-container"
 					
-					<div 
-						key={"stage-layer-wrapper-" + canvasKey} 
-						ref={ref => ((canvasWrapper as any).current = ref)} 
-						style={{opacity: canvasOpacity}} 
-						className="canvas-controller__scroll-container"
-						
-						tabIndex={0} 
-						onInput={onInput}
-						onKeyDown={onInput}
-						onKeyUp={onKeyUp}																	
-						>
-						<ErrorBoundary>
-						<div ref={setNodeRef} style={droppableStyle}>
-							<Stage					
-								onClick={clickStage}					
-								draggable={true}
-								pixelRatio={1} 
-								width={stageWidth}
-								height={stageHeight }
-								ref={ref => ((stage as any).current = ref)}
-								onDragMove={onDragStageMove}
-								onDragEnd={onDragStageEnd}
-								onTouchStart={onStageTouchStart}
-								onTouchMove={onStageTouchMove}
-								onMouseMove={onStageTouchMove}
-								onTouchEnd={onStageMouseEnd}
-								onMouseLeave={onStageMouseLeave}
-								onMouseUp={onStageMouseEnd}
-								onTap={clickStage}
-								className="stage-container">
-								<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
-									<Rect x={0} y={0} width={1024} height={750}></Rect>
-									{connections.length > 0 && connections.map((node, index) => {
+					tabIndex={0} 
+					onInput={onInput}
+					onKeyDown={onInput}
+					onKeyUp={onKeyUp}																	
+					>
+					<ErrorBoundary>
+					<div ref={setNodeRef} style={droppableStyle}>
+						<Stage					
+							onClick={clickStage}					
+							draggable={true}
+							pixelRatio={1} 
+							width={stageWidth}
+							height={stageHeight }
+							ref={ref => ((stage as any).current = ref)}
+							onDragMove={onDragStageMove}
+							onDragEnd={onDragStageEnd}
+							onTouchStart={onStageTouchStart}
+							onTouchMove={onStageTouchMove}
+							onMouseMove={onStageTouchMove}
+							onTouchEnd={onStageMouseEnd}
+							onMouseLeave={onStageMouseLeave}
+							onMouseUp={onStageMouseEnd}
+							onTap={clickStage}
+							className="stage-container">
+							<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
+								<Rect x={0} y={0} width={1024} height={750}></Rect>
+								{connections.length > 0 && connections.map((node, index) => {
 
-										if (canvasHasSelectedNode &&  selectedNode &&  selectedNode.node) {
-											if (node.startshapeid === selectedNode.node.name) {
-												nodesConnectedToSelectedNode[node.endshapeid] = true;
-											}
-
-											if (node.endshapeid === selectedNode.node.name) {
-												nodesConnectedToSelectedNode[node.startshapeid] = true;
-											}								
+									if (canvasHasSelectedNode &&  selectedNode &&  selectedNode.node) {
+										if (node.startshapeid === selectedNode.node.name) {
+											nodesConnectedToSelectedNode[node.endshapeid] = true;
 										}
-										return <Shapes.Line key={"cn-node-" + index}
-												onMouseOver={(event) => onMouseOver(node, event)}
-												onMouseOut={(event) => onMouseOut()}
-												onClickLine={(event) => onClickLine(node, event)}
-												isSelected={false}
-												isAltColor={true}									
-												canvasHasSelectedNode={canvasHasSelectedNode}
-												isConnectionWithVariable={node.isConnectionWithVariable}
-												xstart={node.xstart} 
-												ystart={node.ystart}									
-												xend={node.xend} 
-												yend={node.yend}
-												selectedNodeName={canvasHasSelectedNode ? selectedNode.node.name : ""}
-												startNodeName={node.startshapeid}
-												endNodeName={node.endshapeid}
-												noMouseEvents={true}	
-												></Shapes.Line>})
+
+										if (node.endshapeid === selectedNode.node.name) {
+											nodesConnectedToSelectedNode[node.startshapeid] = true;
+										}								
 									}
-									{flowMemo.map((node, index) => {
-										if (node.shapeType !== "Line") {
+									return <Shapes.Line key={"cn-node-" + index}
+											onMouseOver={(event) => onMouseOver(node, event)}
+											onMouseOut={(event) => onMouseOut()}
+											onClickLine={(event) => onClickLine(node, event)}
+											isSelected={false}
+											isAltColor={true}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											isConnectionWithVariable={node.isConnectionWithVariable}
+											xstart={node.xstart} 
+											ystart={node.ystart}									
+											xend={node.xend} 
+											yend={node.yend}
+											selectedNodeName={canvasHasSelectedNode ? selectedNode.node.name : ""}
+											startNodeName={node.startshapeid}
+											endNodeName={node.endshapeid}
+											noMouseEvents={true}	
+											></Shapes.Line>})
+								}
+								{flowMemo.map((node, index) => {
+									if (node.shapeType !== "Line") {
 
-											let position = getPosition(node.name);
-											if (!position) {
-												if (node.shapeType !== "Line") {
-													
-													setPosition(node.name, {
-														x: node.x,
-														y: node.y
-													});
-												} else {
-													
-													setPosition(node.name, {
-														xstart: node.xstart,
-														ystart: node.ystart,
-														xend: node.xend,
-														yend: node.yend
-													});
-												}  
-												position = getPosition(node.name);
-											}
-											return <LinesForShape key={"node-linshahe-"+index} 
-												x={position.x} 
-												y={position.y} 
-												name={node.name}
-												flow={flowMemo}
-												taskType={node.taskType}
-												node={node}			
-												flowHash={flowStore.flowHashmap}
-												shapeRefs={shapeRefs as any}
-												
-												positions={getPosition}
-												canvasHasSelectedNode={canvasHasSelectedNode}
-												
-												nodeState={""}
-												selectedNode={selectedNode}
-												onLineMouseOver={onMouseOver}
-												onLineMouseOut={onMouseOut}
-												onClickLine={onClickLine}
-											
-												onClickSetup={undefined}
-												onMouseOver={(event) => onMouseOver(node, event)}
-												onMouseOut={onMouseOut}
-												onDragStart={(event) => onDragStart(node, event)}
-												onDragEnd={(event) => onDragEnd(node, event)}
-												onDragMove={(event) => onDragMove( node, event)}
-												onTouchStart={(event) => onTouchStart(node, event)}
-												onTouchEnd={(event) => onTouchEnd( node, event)}
-												onTouchMove={(event) => onTouchMove(node, event)}
-												onClickShape={(event) => onClickShape(node, event)}
-												onMouseStart={(event) => onMouseStart(node, event)}
-												onMouseMove={(event) => onMouseMove(node, event)}
-												onMouseEnd={(event) => onMouseEnd(node, event)}
-												onMouseLeave={(event) => onMouseLeave(node, event)}
-												isSelected={selectedNode && selectedNode.node.name === node.name}
-												isConnectedToSelectedNode={false}
-												getNodeInstance={props.getNodeInstance}
-												touchedNodes={touchedNodesStore.nodesTouched}
-											></LinesForShape>
-										}
-										return null;
-									})}
-
-									{flowMemo.map((node, index) => {
-										let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
-										const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-
-										const Shape = Shapes[shapeType];
 										let position = getPosition(node.name);
 										if (!position) {
 											if (node.shapeType !== "Line") {
@@ -3246,292 +3194,354 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 											}  
 											position = getPosition(node.name);
 										}
-
-										if (node.shapeType !== "Line" && Shape) {
-
-											let nodeState = "";
+										return <LinesForShape key={"node-linshahe-"+index} 
+											x={position.x} 
+											y={position.y} 
+											name={node.name}
+											flow={flowMemo}
+											taskType={node.taskType}
+											node={node}			
+											flowHash={flowStore.flowHashmap}
+											shapeRefs={shapeRefs as any}
 											
-											nodeState = nodesStateLocal.current[node.name] || "";
-												
-											let isConnectedToSelectedNode = selectedNode && nodesConnectedToSelectedNode[node.name] === true;
-											if (selectedNode && 
-												selectedNode.node && 
-												(selectedNode.node as any).shapeType === "Line") {
-
-												if ((selectedNode.node as any).startshapeid === node.name) {
-													isConnectedToSelectedNode = true;
-												}
-
-												if ((selectedNode.node as any).endshapeid === node.name) {
-													isConnectedToSelectedNode = true;
-												}								
-											}
+											positions={getPosition}
+											canvasHasSelectedNode={canvasHasSelectedNode}
 											
-											return <React.Fragment key={"node-fragment-" + index} ><Shape key={"node-"+index} 
-												x={position.x} 
-												y={position.y} 
-												name={node.name}
-												flow={flowMemo}
-												taskType={node.taskType}
-												node={node}																	
-												ref={ref => (shapeRefs.current[node.name] = ref)}
-												shapeRefs={shapeRefs}
-												positions={getPosition}
-												canvasHasSelectedNode={canvasHasSelectedNode}
-												
-												nodeState={nodeState}
-												selectedNode={selectedNode}
-												onLineMouseOver={onMouseOver}
-												onLineMouseOut={onMouseOut}
-												onClickLine={onClickLine}
-											
-
-												onClickSetup={(event) => onClickSetup( node, settings,event)}
-												onMouseOver={(event) => onMouseOver(node, event)}
-												onMouseOut={onMouseOut}
-												onDragStart={(event) => onDragStart(node, event)}
-												onDragEnd={(event) => onDragEnd(node, event)}
-												onDragMove={(event) => onDragMove( node, event)}
-												onTouchStart={(event) => onTouchStart(node, event)}
-												onTouchEnd={(event) => onMouseEnd( node, event)}
-												onTouchMove={(event) => onMouseMove(node, event)}
-												onClickShape={(event) => onClickShape(node, event)}
-												onMouseStart={(event) => onMouseStart(node, event)}
-												onMouseMove={(event) => onMouseMove(node, event)}
-												onMouseEnd={(event) => onMouseEnd(node, event)}
-												onMouseLeave={(event) => onMouseLeave(node, event)}
-												isSelected={selectedNode && selectedNode.node.name === node.name}
-												isConnectedToSelectedNode={isConnectedToSelectedNode}
-												getNodeInstance={props.getNodeInstance}
-												touchedNodes={touchedNodesStore.nodesTouched}
-											></Shape>
-											{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <Thumbs
-												key={"node-thumb-" + index} 
-												position={FlowToCanvas.getThumbEndPosition(shapeType, position)}
-												name={node.name}
-												taskType={node.taskType}
-												shapeType={shapeType}
-												node={node}																	
-												ref={ref => (shapeRefs.current["thumb_" + node.name] = ref)} 									
-												isSelected={selectedNode && selectedNode.node.name === node.name}
-												isConnectedToSelectedNode={isConnectedToSelectedNode}									
-												canvasHasSelectedNode={canvasHasSelectedNode}
-
-												onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event)}
-												onMouseConnectionEndOut={(event) => onMouseConnectionEndOut(node,false,event)}
-												onMouseConnectionEndStart={(event) => onMouseConnectionEndStart(node,false,event)}
-												onMouseConnectionEndMove={(event) => onMouseConnectionEndMove(node,false,event)}
-												onMouseConnectionEndEnd={(event) => onMouseConnectionEndEnd(node,false,event)}
-												onMouseConnectionEndLeave={(event) => onMouseConnectionEndLeave(node,false,event)}
-												getNodeInstance={props.getNodeInstance}
-											></Thumbs>}
-											{(shapeType === "Rect" || shapeType === "Html") && <ThumbsStart
-												key={"node-thumbstart-" + index} 
-												position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0)}
-												name={node.name}
-												taskType={node.taskType}
-												shapeType={shapeType}
-												node={node}																	
-												ref={ref => (shapeRefs.current["thumbstart_" + node.name] = ref)} 									
-												isSelected={selectedNode && selectedNode.node.name === node.name}
-												isConnectedToSelectedNode={isConnectedToSelectedNode}									
-												canvasHasSelectedNode={canvasHasSelectedNode}
-												
-												onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
-												onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
-												onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.default,event)}
-												onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
-												onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.default,event)}
-
-												getNodeInstance={props.getNodeInstance}										
-											></ThumbsStart>}
-											{(shapeType === "Diamond") && <ThumbsStart
-												key={"node-thumbstart-diamond-top-" + index} 
-												position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0, ThumbPositionRelativeToNode.top)}
-												name={node.name}
-												taskType={node.taskType}
-												shapeType={shapeType}
-												node={node}																	
-												ref={ref => (shapeRefs.current["thumbstarttop_" + node.name] = ref)} 									
-												isSelected={selectedNode && selectedNode.node.name === node.name}
-												isConnectedToSelectedNode={isConnectedToSelectedNode}									
-												canvasHasSelectedNode={canvasHasSelectedNode}
-												followFlow={ThumbFollowFlow.happyFlow}
-												thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
-												onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
-												onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
-												onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",
-													ThumbFollowFlow.happyFlow, ThumbPositionRelativeToNode.top,event)}
-												onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
-												onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.top,event)}
-
-												getNodeInstance={props.getNodeInstance}										
-											></ThumbsStart>}
-											{(shapeType === "Diamond") && <ThumbsStart
-												key={"node-thumbstart-diamond-bottom-" + index} 
-												position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0, ThumbPositionRelativeToNode.bottom)}
-												name={node.name}
-												taskType={node.taskType}
-												shapeType={shapeType}
-												node={node}																	
-												ref={ref => (shapeRefs.current["thumbstartbottom_" + node.name] = ref)} 									
-												isSelected={selectedNode && selectedNode.node.name === node.name}
-												isConnectedToSelectedNode={isConnectedToSelectedNode}									
-												canvasHasSelectedNode={canvasHasSelectedNode}
-												followFlow={ThumbFollowFlow.unhappyFlow}
-												thumbPositionRelativeToNode={ThumbPositionRelativeToNode.bottom}
-												onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
-												onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
-												onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",
-													ThumbFollowFlow.unhappyFlow, ThumbPositionRelativeToNode.bottom,event)}
-												onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
-												onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.bottom,event)}
-
-												getNodeInstance={props.getNodeInstance}										
-											></ThumbsStart>}
-											{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && settings.events && settings.events.map((event ,eventIndex) => {
-												return <ThumbsStart
-													key={"node-thumbstart-" + index + "-" + eventIndex} 
-													position={FlowToCanvas.getThumbStartPosition(shapeType, position, eventIndex + 1)}
-													name={node.name}
-													taskType={node.taskType}
-													shapeType={shapeType}
-													node={node}																	
-													ref={ref => (shapeRefs.current["thumbstartevent_" + node.name + eventIndex] = ref)} 									
-													isSelected={selectedNode && selectedNode.node.name === node.name}
-													isConnectedToSelectedNode={isConnectedToSelectedNode}									
-													canvasHasSelectedNode={canvasHasSelectedNode}
-
-													onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,eventIndex,event)}
-													onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,eventIndex,event)}
-													onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,eventIndex, event.eventName,
-														ThumbFollowFlow.event, ThumbPositionRelativeToNode.default,event)}
-													onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,eventIndex,event)}
-													onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,eventIndex,ThumbPositionRelativeToNode.default,event)}
-
-													getNodeInstance={props.getNodeInstance}										
-											></ThumbsStart>
-											})}
-											
-											</React.Fragment>;
-										}
-										return null;
-									})}
-									<Shapes.Line 
-										ref={ref => (shapeRefs.current[connectionForDraggingName] = ref)}
-										onMouseOver={undefined}
-										onMouseOut={undefined}
-										onClickLine={undefined}
-										isSelected={false}
-										isAltColor={true}									
-										canvasHasSelectedNode={canvasHasSelectedNode}
-										isConnectionWithVariable={false}
-										xstart={connectionX} 
-										ystart={connectionY}									
-										xend={connectionX} 
-										yend={connectionY}
-										selectedNodeName={""}
-										startNodeName={""}
-										endNodeName={""}
-										opacity={0}	
-										noMouseEvents={true}
-										isNodeConnectorHelper={true}
-									></Shapes.Line>
-								</Layer>
-							</Stage>
-						</div>				
-						</ErrorBoundary>
-						<div ref={ref => ((htmlWrapper as any).current = ref)} 
-							className="canvas__html-elements">
-							
-							{flowMemo.map((node, index) => {
-									let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-									const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-									const Shape = Shapes[shapeType];
-									
-									if (shapeType === "Html" && Shape) {
+											nodeState={""}
+											selectedNode={selectedNode}
+											onLineMouseOver={onMouseOver}
+											onLineMouseOut={onMouseOut}
+											onClickLine={onClickLine}
 										
-										const nodeClone = {...node};
-										const position = getPosition(node.name) || node;
-										let nodeState = (nodesStateLocal.current[node.name] || "") == "error" ? " has-error" : "";
-
-										const isSelected = selectedNode && selectedNode.node.name === node.name;
-										nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
-										
-										let width = undefined;
-										let height = undefined;
-
-										if (props.getNodeInstance) {
-											const instance = props.getNodeInstance(node, props.flowrunnerConnector, flowStore.flow, settings);
-											if (instance) {
-												if (instance.getWidth && instance.getHeight) {
-													width = instance.getWidth(node);
-													height = instance.getHeight(node);
-												}
-											}
-										}
-
-										//let top = (-(height || node.height || 250)/2);
-										/*
-											left: (-(width || node.width || 250)/2)+"px",
-											top: (top)+"px",
-
-										*/
-										return <div key={"html" + index}
-											style={{transform: "translate(" + (stageX.current  + position.x * stageScale.current) + "px," + 
-													(stageY.current +  (position.y) * stageScale.current) + "px) " +
-													"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ",
-													width: (width || node.width || 250) + "px",
-													minHeight: (height || node.height || 250) + "px",
-													height: (height || node.height || 250) + "px",
-													top: "0px",
-													left: "0px",
-													opacity: (!canvasHasSelectedNode || (selectedNode && selectedNode.node.name === node.name)) ? 1 : 1 //0.5 										 
-												}}
-											id={node.name}
-											data-node={node.name}
-											data-task={node.taskType}
-											data-html-plugin={nodeClone.htmlPlugin}
-											data-visualizer={node.visualizer || "default"}
-											data-x={position.x} 
-											data-y={position.y}
-											data-height={(height || node.height || 250)}									 
-											className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState}>
-												<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
-													<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>
-													<a href="#" onClick={(event) => onCloneNode(node, event)}
-														onFocus={onFocus}
-														className="canvas__html-shape-bar-icon far fa-clone"></a>									
-													{!!settings.hasConfigMenu && <a href="#"
-														onFocus={onFocus} 
-														onClick={(event) => onShowNodeSettings(node, settings, event)} 
-														className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
-												<div className="canvas__html-shape-body">
-												{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, flowMemo, settings)}</div>
-												<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
-												<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}></div>
-												{settings.events && settings.events.map((event ,eventIndex) => {
-													return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + index + "-" + eventIndex}></div>
-												})}
-												</div>;						
+											onClickSetup={undefined}
+											onMouseOver={(event) => onMouseOver(node, event)}
+											onMouseOut={onMouseOut}
+											onDragStart={(event) => onDragStart(node, event)}
+											onDragEnd={(event) => onDragEnd(node, event)}
+											onDragMove={(event) => onDragMove( node, event)}
+											onTouchStart={(event) => onTouchStart(node, event)}
+											onTouchEnd={(event) => onTouchEnd( node, event)}
+											onTouchMove={(event) => onTouchMove(node, event)}
+											onClickShape={(event) => onClickShape(node, event)}
+											onMouseStart={(event) => onMouseStart(node, event)}
+											onMouseMove={(event) => onMouseMove(node, event)}
+											onMouseEnd={(event) => onMouseEnd(node, event)}
+											onMouseLeave={(event) => onMouseLeave(node, event)}
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={false}
+											getNodeInstance={props.getNodeInstance}
+											touchedNodes={touchedNodesStore.nodesTouched}
+										></LinesForShape>
 									}
-									return <React.Fragment key={"html" + index}></React.Fragment>;
+									return null;
+								})}
+
+								{flowMemo.map((node, index) => {
+									let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);							
+									const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+
+									const Shape = Shapes[shapeType];
+									let position = getPosition(node.name);
+									if (!position) {
+										if (node.shapeType !== "Line") {
+											
+											setPosition(node.name, {
+												x: node.x,
+												y: node.y
+											});
+										} else {
+											
+											setPosition(node.name, {
+												xstart: node.xstart,
+												ystart: node.ystart,
+												xend: node.xend,
+												yend: node.yend
+											});
+										}  
+										position = getPosition(node.name);
+									}
+
+									if (node.shapeType !== "Line" && Shape) {
+
+										let nodeState = "";
+										
+										nodeState = nodesStateLocal.current[node.name] || "";
+											
+										let isConnectedToSelectedNode = selectedNode && nodesConnectedToSelectedNode[node.name] === true;
+										if (selectedNode && 
+											selectedNode.node && 
+											(selectedNode.node as any).shapeType === "Line") {
+
+											if ((selectedNode.node as any).startshapeid === node.name) {
+												isConnectedToSelectedNode = true;
+											}
+
+											if ((selectedNode.node as any).endshapeid === node.name) {
+												isConnectedToSelectedNode = true;
+											}								
+										}
+										
+										return <React.Fragment key={"node-fragment-" + index} ><Shape key={"node-"+index} 
+											x={position.x} 
+											y={position.y} 
+											name={node.name}
+											flow={flowMemo}
+											taskType={node.taskType}
+											node={node}																	
+											ref={ref => (shapeRefs.current[node.name] = ref)}
+											shapeRefs={shapeRefs}
+											positions={getPosition}
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											
+											nodeState={nodeState}
+											selectedNode={selectedNode}
+											onLineMouseOver={onMouseOver}
+											onLineMouseOut={onMouseOut}
+											onClickLine={onClickLine}
+										
+
+											onClickSetup={(event) => onClickSetup( node, settings,event)}
+											onMouseOver={(event) => onMouseOver(node, event)}
+											onMouseOut={onMouseOut}
+											onDragStart={(event) => onDragStart(node, event)}
+											onDragEnd={(event) => onDragEnd(node, event)}
+											onDragMove={(event) => onDragMove( node, event)}
+											onTouchStart={(event) => onTouchStart(node, event)}
+											onTouchEnd={(event) => onMouseEnd( node, event)}
+											onTouchMove={(event) => onMouseMove(node, event)}
+											onClickShape={(event) => onClickShape(node, event)}
+											onMouseStart={(event) => onMouseStart(node, event)}
+											onMouseMove={(event) => onMouseMove(node, event)}
+											onMouseEnd={(event) => onMouseEnd(node, event)}
+											onMouseLeave={(event) => onMouseLeave(node, event)}
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}
+											getNodeInstance={props.getNodeInstance}
+											touchedNodes={touchedNodesStore.nodesTouched}
+										></Shape>
+										{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && <Thumbs
+											key={"node-thumb-" + index} 
+											position={FlowToCanvas.getThumbEndPosition(shapeType, position)}
+											name={node.name}
+											taskType={node.taskType}
+											shapeType={shapeType}
+											node={node}																	
+											ref={ref => (shapeRefs.current["thumb_" + node.name] = ref)} 									
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+
+											onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event)}
+											onMouseConnectionEndOut={(event) => onMouseConnectionEndOut(node,false,event)}
+											onMouseConnectionEndStart={(event) => onMouseConnectionEndStart(node,false,event)}
+											onMouseConnectionEndMove={(event) => onMouseConnectionEndMove(node,false,event)}
+											onMouseConnectionEndEnd={(event) => onMouseConnectionEndEnd(node,false,event)}
+											onMouseConnectionEndLeave={(event) => onMouseConnectionEndLeave(node,false,event)}
+											getNodeInstance={props.getNodeInstance}
+										></Thumbs>}
+										{(shapeType === "Rect" || shapeType === "Html") && <ThumbsStart
+											key={"node-thumbstart-" + index} 
+											position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0)}
+											name={node.name}
+											taskType={node.taskType}
+											shapeType={shapeType}
+											node={node}																	
+											ref={ref => (shapeRefs.current["thumbstart_" + node.name] = ref)} 									
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											
+											onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
+											onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
+											onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.default,event)}
+											onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
+											onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.default,event)}
+
+											getNodeInstance={props.getNodeInstance}										
+										></ThumbsStart>}
+										{(shapeType === "Diamond") && <ThumbsStart
+											key={"node-thumbstart-diamond-top-" + index} 
+											position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0, ThumbPositionRelativeToNode.top)}
+											name={node.name}
+											taskType={node.taskType}
+											shapeType={shapeType}
+											node={node}																	
+											ref={ref => (shapeRefs.current["thumbstarttop_" + node.name] = ref)} 									
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											followFlow={ThumbFollowFlow.happyFlow}
+											thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
+											onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
+											onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
+											onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",
+												ThumbFollowFlow.happyFlow, ThumbPositionRelativeToNode.top,event)}
+											onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
+											onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.top,event)}
+
+											getNodeInstance={props.getNodeInstance}										
+										></ThumbsStart>}
+										{(shapeType === "Diamond") && <ThumbsStart
+											key={"node-thumbstart-diamond-bottom-" + index} 
+											position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0, ThumbPositionRelativeToNode.bottom)}
+											name={node.name}
+											taskType={node.taskType}
+											shapeType={shapeType}
+											node={node}																	
+											ref={ref => (shapeRefs.current["thumbstartbottom_" + node.name] = ref)} 									
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											followFlow={ThumbFollowFlow.unhappyFlow}
+											thumbPositionRelativeToNode={ThumbPositionRelativeToNode.bottom}
+											onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
+											onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
+											onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",
+												ThumbFollowFlow.unhappyFlow, ThumbPositionRelativeToNode.bottom,event)}
+											onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
+											onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.bottom,event)}
+
+											getNodeInstance={props.getNodeInstance}										
+										></ThumbsStart>}
+										{(shapeType === "Rect" || shapeType === "Diamond" || shapeType === "Html") && settings.events && settings.events.map((event ,eventIndex) => {
+											return <ThumbsStart
+												key={"node-thumbstart-" + index + "-" + eventIndex} 
+												position={FlowToCanvas.getThumbStartPosition(shapeType, position, eventIndex + 1)}
+												name={node.name}
+												taskType={node.taskType}
+												shapeType={shapeType}
+												node={node}																	
+												ref={ref => (shapeRefs.current["thumbstartevent_" + node.name + eventIndex] = ref)} 									
+												isSelected={selectedNode && selectedNode.node.name === node.name}
+												isConnectedToSelectedNode={isConnectedToSelectedNode}									
+												canvasHasSelectedNode={canvasHasSelectedNode}
+
+												onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,eventIndex,event)}
+												onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,eventIndex,event)}
+												onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,eventIndex, event.eventName,
+													ThumbFollowFlow.event, ThumbPositionRelativeToNode.default,event)}
+												onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,eventIndex,event)}
+												onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,eventIndex,ThumbPositionRelativeToNode.default,event)}
+
+												getNodeInstance={props.getNodeInstance}										
+										></ThumbsStart>
+										})}
+										
+										</React.Fragment>;
+									}
+									return null;
+								})}
+								<Shapes.Line 
+									ref={ref => (shapeRefs.current[connectionForDraggingName] = ref)}
+									onMouseOver={undefined}
+									onMouseOut={undefined}
+									onClickLine={undefined}
+									isSelected={false}
+									isAltColor={true}									
+									canvasHasSelectedNode={canvasHasSelectedNode}
+									isConnectionWithVariable={false}
+									xstart={connectionX} 
+									ystart={connectionY}									
+									xend={connectionX} 
+									yend={connectionY}
+									selectedNodeName={""}
+									startNodeName={""}
+									endNodeName={""}
+									opacity={0}	
+									noMouseEvents={true}
+									isNodeConnectorHelper={true}
+								></Shapes.Line>
+							</Layer>
+						</Stage>
+					</div>				
+					</ErrorBoundary>
+					<div ref={ref => ((htmlWrapper as any).current = ref)} 
+						className="canvas__html-elements">
+						
+						{flowMemo.map((node, index) => {
+								let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+								const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+								const Shape = Shapes[shapeType];
+								
+								if (shapeType === "Html" && Shape) {
 									
-								})
-							}
-						</div>
+									const nodeClone = {...node};
+									const position = getPosition(node.name) || node;
+									let nodeState = (nodesStateLocal.current[node.name] || "") == "error" ? " has-error" : "";
+
+									const isSelected = selectedNode && selectedNode.node.name === node.name;
+									nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
+									
+									let width = undefined;
+									let height = undefined;
+
+									if (props.getNodeInstance) {
+										const instance = props.getNodeInstance(node, props.flowrunnerConnector, flowStore.flow, settings);
+										if (instance) {
+											if (instance.getWidth && instance.getHeight) {
+												width = instance.getWidth(node);
+												height = instance.getHeight(node);
+											}
+										}
+									}
+
+									//let top = (-(height || node.height || 250)/2);
+									/*
+										left: (-(width || node.width || 250)/2)+"px",
+										top: (top)+"px",
+
+									*/
+									return <div key={"html" + index}
+										style={{transform: "translate(" + (stageX.current  + position.x * stageScale.current) + "px," + 
+												(stageY.current +  (position.y) * stageScale.current) + "px) " +
+												"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ",
+												width: (width || node.width || 250) + "px",
+												minHeight: (height || node.height || 250) + "px",
+												height: (height || node.height || 250) + "px",
+												top: "0px",
+												left: "0px",
+												opacity: (!canvasHasSelectedNode || (selectedNode && selectedNode.node.name === node.name)) ? 1 : 1 //0.5 										 
+											}}
+										id={node.name}
+										data-node={node.name}
+										data-task={node.taskType}
+										data-html-plugin={nodeClone.htmlPlugin}
+										data-visualizer={node.visualizer || "default"}
+										data-x={position.x} 
+										data-y={position.y}
+										data-height={(height || node.height || 250)}									 
+										className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState}>
+											<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
+												<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>
+												<a href="#" onClick={(event) => onCloneNode(node, event)}
+													onFocus={onFocus}
+													className="canvas__html-shape-bar-icon far fa-clone"></a>									
+												{!!settings.hasConfigMenu && <a href="#"
+													onFocus={onFocus} 
+													onClick={(event) => onShowNodeSettings(node, settings, event)} 
+													className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
+											<div className="canvas__html-shape-body">
+											{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, flowMemo, settings)}</div>
+											<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
+											<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}></div>
+											{settings.events && settings.events.map((event ,eventIndex) => {
+												return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + index + "-" + eventIndex}></div>
+											})}
+											</div>;						
+								}
+								return <React.Fragment key={"html" + index}></React.Fragment>;
+								
+							})
+						}
 					</div>
-				
+				</div>
+		</DndContext>		
 		
 		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
 		<Flow 
 			flow={flowStore.flow}
 			flowId={flowStore.flowId}
-			flowrunnerConnector={props.flowrunnerConnector} />							
+			flowrunnerConnector={props.flowrunnerConnector} />
+									
 	</>;
 }
-
-/*
-	</ErrorBoundary>
-			</DndContext>
-*/
