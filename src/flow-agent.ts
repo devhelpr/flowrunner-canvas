@@ -12,7 +12,7 @@ export class FlowAgent implements IFlowAgent {
       listener({ eventName: eventName, data: message }, this);
     });
   };
-  addEventListener = (eventName: string, callback: (event: any, worker: IFlowAgent) => void) => {
+  addEventListener = (eventName: string, callback: (event: any, flowAgent: IFlowAgent) => void) => {
     if (!this.eventListeners[eventName]) {
       this.eventListeners[eventName] = [];
     }
@@ -23,12 +23,9 @@ export class FlowAgent implements IFlowAgent {
   };
 }
 
-//let ctx: FlowWorker = new FlowWorker();
 export const getFlowAgent: GetFlowAgentFunction = () => {
   const flowWorkerContext = new FlowAgent();
-  flowWorkerContext.addEventListener('worker', onWorkerMessage);
-
-  //ctx = flowWorkerContext;
+  flowWorkerContext.addEventListener('worker', onFlowAgentMessage);
 
   return flowWorkerContext;
 };
@@ -552,7 +549,7 @@ export class MapPayloadTask extends FlowTask {
   }
 }
 
-const onWorkerMessage = (event, worker: IFlowAgent) => {
+const onFlowAgentMessage = (event, worker: IFlowAgent) => {
   // event.data contains event message data
   //console.log("event from flow", event);
   if (event && event.data) {

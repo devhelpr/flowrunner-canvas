@@ -28,6 +28,7 @@ import {
 
 import { useFlows } from './use-flows';
 import { registerPlugins } from './external-plugins';
+import { IFlowAgent } from './interfaces/IFlowAgent';
 
 import { ErrorBoundary } from './helpers/error';
 
@@ -78,6 +79,7 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
 	developmentMode? : boolean;
+	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;
 }
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
@@ -125,8 +127,11 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				options.initialStoreState = storageProvider?.getFlowPackage();
 			}
 	 
-			let worker = getFlowAgent();
-			worker.postMessage("worker", {
+			let flowAgent = getFlowAgent();
+			if (props.onMessageFromFlow) {
+				flowAgent.addEventListener("external", props.onMessageFromFlow);
+			}
+			flowAgent.postMessage("worker", {
 				command: 'init'
 			});
 	
@@ -142,20 +147,23 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 			const onDestroyAndRecreateWorker = () => {
 				console.log("onDestroyAndRecreateWorker handling");
-				if (worker) {
-					worker.terminate();
+				if (flowAgent) {
+					flowAgent.terminate();
 				}
-				worker = getFlowAgent();
-				worker.postMessage("worker", {
+				flowAgent = getFlowAgent();
+				if (props.onMessageFromFlow) {
+					flowAgent.addEventListener("external", props.onMessageFromFlow);
+				}
+				flowAgent.postMessage("worker", {
 					command: 'init'
 				});
 				if (flowrunnerConnector.current) {
-					flowrunnerConnector.current.registerWorker(worker);
+					flowrunnerConnector.current.registerWorker(flowAgent);
 				}
 			}
 
 			if (flowrunnerConnector.current) {	
-				flowrunnerConnector.current.registerWorker(worker);
+				flowrunnerConnector.current.registerWorker(flowAgent);
 				flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
 				flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
 				console.log("RENDER ORDER 1");

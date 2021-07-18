@@ -138,7 +138,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     console.log('WORKER ERROR!!!', error);
   };
 
-  onMessage = (event: any) => {
+  onMessage = (event: any, flowAgent: IFlowAgent) => {
     //console.log("event from worker", event);
     if (event && event.data) {
       if (event.data.command == 'ExecuteFlowNodeResult') {
