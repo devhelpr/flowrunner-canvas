@@ -621,11 +621,10 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, []);
 
-	const onResize = (event) => {
+	const onResize = useCallback((event) => {
 		updateDimensions();
 		fitStage(undefined,true,true);
-	}
-
+	}, [flowStore.flow]);
 
 	useEffect(() => {
 		console.log("RENDER ORDER 4");
