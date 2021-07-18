@@ -1,5 +1,5 @@
 import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/IFlowrunnerConnector';
-import { IWorker } from '../interfaces/IWorker';
+import { IFlowAgent } from '../interfaces/IFlowAgent';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 
 export class EmptyFlowConnector implements IFlowrunnerConnector {
@@ -15,7 +15,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
     return [];
   }
 
-  registerWorker(worker: IWorker) {}
+  registerWorker(worker: IFlowAgent) {}
 
   onMessage = (event: any) => {};
 
@@ -91,7 +91,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   storageProvider: IStorageProvider | undefined = undefined;
   hasStorageProvider = false;
 
-  worker?: IWorker = undefined;
+  worker?: IFlowAgent = undefined;
   observables: any[] = [];
 
   nodeExecutions: any[] = [];
@@ -121,7 +121,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     return [];
   }
 
-  registerWorker(worker: IWorker) {
+  registerWorker(worker: IFlowAgent) {
     this.worker = worker;
     worker.postMessage('worker', { a: 1 });
     console.log('registerWorker');

@@ -12,7 +12,7 @@ export class PrototypeTask extends FlowTask {
           this.input = node.input;
           getWebassembly(node.input, 256, 256)
             .then(data => {
-              console.log('getWebassembly initial get'); // waarom komt ie hier 256  keer? 16x16 hmmm
+              //console.log('getWebassembly initial get'); 
               this.wasm = data;
               if (data && (data as any).mainFunction) {
                 const payload = { ...node.payload };

@@ -17,7 +17,7 @@ import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerC
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
-import { getWorker } from './flow-worker';
+import { getFlowAgent } from './flow-agent';
 import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
 import { 
@@ -80,14 +80,6 @@ export interface IFlowrunnerCanvasProps {
 	developmentMode? : boolean;
 }
 
-/*
-	TODO : 
-
-		- fix red squigly lines in codesandbox .. why can't TS typedefs be found?
-			- in locale CRA this doesn't happen
-		- remove circular dependencies : flow-worker and form-node
-*/
-
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 	const [renderFlowCanvas , setRenderFlowCanvas] = useState(false);
@@ -133,7 +125,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				options.initialStoreState = storageProvider?.getFlowPackage();
 			}
 	 
-			let worker = getWorker();
+			let worker = getFlowAgent();
 			worker.postMessage("worker", {
 				command: 'init'
 			});
@@ -153,7 +145,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				if (worker) {
 					worker.terminate();
 				}
-				worker = getWorker();
+				worker = getFlowAgent();
 				worker.postMessage("worker", {
 					command: 'init'
 				});
@@ -246,7 +238,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
  
-		let worker = getWorker();
+		let worker = getFlowAgent();
 		worker.postMessage("worker", {
 			command: 'init'
 		});
@@ -264,7 +256,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 			if (worker) {
 				worker.terminate();
 			}
-			worker = getWorker();
+			worker = getFlowAgent();
 			worker.postMessage("worker", {
 				command: 'init'
 			});

@@ -87,7 +87,7 @@ export const testRunner = (flowId, flowRunner: FlowEventRunner, workerContext) =
       .then(res => {
         if (res.status >= 400) {
           //throw new Error('Run-tests : Bad response from server (' + flowId + ')');
-          workerContext.postMessage('worker', {
+          workerContext.postMessage('external', {
             command: 'TestRunnerResults',
             notFound: true,
           });
@@ -113,7 +113,7 @@ export const testRunner = (flowId, flowRunner: FlowEventRunner, workerContext) =
                   test = tests[loop];
                   performTest();
                 } else {
-                  workerContext.postMessage('worker', {
+                  workerContext.postMessage('external', {
                     command: 'TestRunnerResults',
                     results,
                   });

@@ -1,13 +1,18 @@
-import { IWorker } from './interfaces/IWorker';
+import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 
-export class FlowWorker implements IWorker {
+import { IFlowAgent, GetFlowAgentFunction } from './interfaces/IFlowAgent';
+
+export class FlowAgent implements IFlowAgent {
   eventListeners: any = {};
+  flow?: FlowEventRunner = undefined;
+  observables = {};
+
   postMessage = (eventName, message: any) => {
     (this.eventListeners[eventName] || []).map(listener => {
-      listener({ eventName: eventName, data: message });
+      listener({ eventName: eventName, data: message }, this);
     });
   };
-  addEventListener = (eventName: string, callback: (event: any) => void) => {
+  addEventListener = (eventName: string, callback: (event: any, worker: IFlowAgent) => void) => {
     if (!this.eventListeners[eventName]) {
       this.eventListeners[eventName] = [];
     }
@@ -18,14 +23,16 @@ export class FlowWorker implements IWorker {
   };
 }
 
-let ctx: FlowWorker = new FlowWorker();
-export const getWorker = () => {
-  ctx = new FlowWorker();
-  ctx.addEventListener('worker', onWorkerMessage);
-  return ctx;
+//let ctx: FlowWorker = new FlowWorker();
+export const getFlowAgent : GetFlowAgentFunction = () => {
+  const flowWorkerContext = new FlowAgent();
+  flowWorkerContext.addEventListener('worker', onWorkerMessage);
+
+  //ctx = flowWorkerContext;
+
+  return flowWorkerContext;
 };
 
-import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 import fetch from 'cross-fetch';
@@ -128,21 +135,6 @@ registerExpressionFunction('vlookup', (a: number, ...args: number[]) => {
 
   return 0;
 });
-
-let webAssembly;
-
-//import('./wasm').then((wasmWasm) => {
-//
-//});
-
-/*
-import ("../rust/pkg/index_bg.wasm").then(wasm => {
-  console.log("WASM", wasm);
-});
-*/
-
-let flow: FlowEventRunner;
-let observables = {};
 
 export class PreviewTask extends FlowTask {
   public execute(node: any, services: any) {
@@ -371,6 +363,7 @@ export class TimerTask extends FlowTask {
   isExecuting: boolean = false;
   clearTimeout: any = undefined;
   node: any = undefined;
+  flow: any;
 
   constructor() {
     super();
@@ -393,7 +386,7 @@ export class TimerTask extends FlowTask {
       }
 
       if (this.node.executeNode) {
-        flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
+        this.flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
           this.isExecuting = false;
           if (!!this.isBeingKilled) {
             return;
@@ -401,7 +394,7 @@ export class TimerTask extends FlowTask {
           this.clearTimeout = setTimeout(this.timer, this.node.interval);
         });
       } else {
-        flow.triggerEventOnNode(this.node.name, 'onTimer', this.node.payload || {}).then(() => {
+        this.flow.triggerEventOnNode(this.node.name, 'onTimer', this.node.payload || {}).then(() => {
           this.isExecuting = false;
           if (!!this.isBeingKilled) {
             return;
@@ -426,6 +419,8 @@ export class TimerTask extends FlowTask {
   public execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
+    this.flow = services.workerContext.flow;
+
     //console.log('timer execute', node);
     if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
@@ -557,7 +552,7 @@ export class MapPayloadTask extends FlowTask {
   }
 }
 
-const onWorkerMessage = event => {
+const onWorkerMessage = (event , worker: IFlowAgent) => {
   // event.data contains event message data
   //console.log("event from flow", event);
   if (event && event.data) {
@@ -607,16 +602,16 @@ const onWorkerMessage = event => {
       });
       */
     } else if (command == 'executeFlowNode' && data.nodeName) {
-      if (!flow) {
+      if (!worker.flow) {
         return;
       }
       const sendMessageOnResolve = !!data.sendMessageOnResolve;
       let payload = { ...data.payload };
-      flow
+      worker.flow
         .executeNode(data.nodeName, payload || {})
         .then(result => {
           if (sendMessageOnResolve) {
-            ctx.postMessage('external', {
+            worker.postMessage('external', {
               command: 'ExecuteFlowNodeResult',
               result: result,
               payload: { ...(result as any) },
@@ -626,7 +621,7 @@ const onWorkerMessage = event => {
         .catch(error => {
           console.log('executeNode failed', error);
           if (sendMessageOnResolve) {
-            ctx.postMessage('external', {
+            worker.postMessage('external', {
               command: 'ExecuteFlowNodeResult',
               result: false,
               payload: undefined,
@@ -639,13 +634,13 @@ const onWorkerMessage = event => {
         return;
       }
 
-      if (!flow) {
+      if (!worker.flow) {
         return;
       }
-      flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value, data.additionalValues || {});
+      worker.flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value, data.additionalValues || {});
       //console.log('modifyFlowNode', data);
       if (data.executeNode !== undefined && data.executeNode !== '') {
-        flow
+        worker.flow
           .retriggerNode(data.executeNode)
           .then(result => {
             //console.log('result after modifyFlowNode executeNode', result);
@@ -656,11 +651,11 @@ const onWorkerMessage = event => {
       }
 
       if (data.triggerEvent !== undefined && data.triggerEvent !== '') {
-        if (!flow) {
+        if (!worker.flow) {
           return;
         }
 
-        flow
+        worker.flow
           .triggerEventOnNode(data.nodeName, data.triggerEvent, {})
           .then(result => {
             //console.log('result after modifyFlowNode executeNode', result);
@@ -671,18 +666,18 @@ const onWorkerMessage = event => {
       }
     } else if (command == 'pushFlowToFlowrunner') {
       //console.log("pushFlowToFlowrunner", data);
-      startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes, data.flowId);
+      startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes, data.flowId, worker);
     } else if (command == 'registerFlowNodeObserver') {
-      if (observables[data.nodeName]) {
-        (observables[data.nodeName] as any).unsubscribe();
-        observables[data.nodeName] = undefined;
+      if (worker.observables[data.nodeName]) {
+        (worker.observables[data.nodeName] as any).unsubscribe();
+        worker.observables[data.nodeName] = undefined;
       }
 
-      if (!flow) {
+      if (!worker.flow) {
         return;
       }
 
-      const observable = flow.getObservableNode(data.nodeName);
+      const observable = worker.flow.getObservableNode(data.nodeName);
       //console.log("registerFlowNodeObserver", data.nodeName, observable);
       if (observable) {
         let nodeName = data.nodeName;
@@ -692,14 +687,14 @@ const onWorkerMessage = event => {
           },
           next: (payload: any) => {
             //console.log("command SendObservableNodePayload", payload);
-            ctx.postMessage('external', {
+            worker.postMessage('external', {
               command: 'SendObservableNodePayload',
               payload: payload.payload,
               nodeName: payload.nodeName,
             });
           },
         });
-        observables[data.nodeName] = subscribtion;
+        worker.observables[data.nodeName] = subscribtion;
       }
     } else if (command == 'ResultFlowPlugin') {
       // send payload to resolve method from promise in FlowPluginTask?
@@ -711,45 +706,41 @@ const onWorkerMessage = event => {
         payload = null;
       }
     } else if (command == 'PauseFlowrunner') {
-      if (!flow) {
+      if (!worker.flow) {
         return;
       }
-      flow.pauseFlowrunner();
+      worker.flow.pauseFlowrunner();
     } else if (command == 'ResumeFlowrunner') {
-      if (!flow) {
+      if (!worker.flow) {
         return;
       }
-      flow.resumeFlowrunner();
+      worker.flow.resumeFlowrunner();
     } else if (command == 'runTests') {
-      if (!flow) {
+      if (!worker.flow) {
         return;
       }
-      testRunner(data.flowId, flow, ctx);
+      testRunner(data.flowId, worker.flow, worker);
     }
 
     data = null;
   }
 };
 
-let lastDate = new Date();
 
-const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
-  //if (dateTime >= lastDate) {
-  lastDate = dateTime;
-  ctx.postMessage('external', {
+const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any, worker: IFlowAgent) => {
+  worker.postMessage('external', {
     command: 'SendNodeExecution',
     result: result,
     dateTime: dateTime,
     payload: { ...payload, nodeExecutionId: uuidV4() },
     name: id,
     nodeType: nodeType,
-    touchedNodes: flow.getTouchedNodes(),
+    touchedNodes: worker.flow?.getTouchedNodes(),
   });
-  //}
 };
 
 let currentFlowId: string = '';
-const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: boolean = true, flowId: string) => {
+const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: boolean = true, flowId: string, worker: IFlowAgent) => {
   let isSameFlow: boolean = false;
 
   console.log('startFlow', flowId, currentFlowId);
@@ -759,11 +750,11 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
 
   currentFlowId = flowId;
 
-  if (flow !== undefined) {
-    for (var key of Object.keys(observables)) {
-      observables[key].unsubscribe();
+  if (worker.flow !== undefined) {
+    for (var key of Object.keys(worker.observables)) {
+      worker.observables[key].unsubscribe();
     }
-    observables = {};
+    worker.observables = {};
 
     for (var timer of Object.keys(timers)) {
       clearInterval(timers[timer]);
@@ -771,15 +762,15 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
     timers = {};
     console.log('before destroyflow', flowId, currentFlowId, isSameFlow);
 
-    flow.destroyFlow();
+    worker.flow.destroyFlow();
 
     if (!isSameFlow) {
-      (flow as any) = undefined;
+      (worker.flow as any) = undefined;
     }
   }
 
-  if (!isSameFlow || !flow) {
-    flow = new FlowEventRunner();
+  if (!isSameFlow || !worker.flow) {
+    worker.flow = new FlowEventRunner();
     /*
     flow.registerTask('PreviewTask', PreviewTask);
     flow.registerTask('InputTask', InputTask);
@@ -790,13 +781,13 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
     */
-    registerTasks(flow);
+    registerTasks(worker.flow);
 
     if (pluginRegistry) {
       pluginRegistry.map((plugin: any) => {
         console.log('pluginName', plugin.FlowTaskPluginClassName);
 
-        flow.registerTask(
+        worker.flow?.registerTask(
           plugin.FlowTaskPluginClassName,
           FlowPluginWrapperTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin),
         );
@@ -806,23 +797,25 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
   }
 
   if (!isSameFlow) {
-    flow.registerMiddleware(onExecuteNode);
+    worker.flow.registerMiddleware((result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
+      return onExecuteNode(result, id, title, nodeType,payload,dateTime, worker);
+    });
   }
   let services = {
-    flowEventRunner: flow,
+    flowEventRunner: worker.flow,
     pluginClasses: {},
     logMessage: (arg1, arg2) => {
       //console.log(arg1, arg2);
     },
     registerModel: (modelName: string, definition: any) => {},
     getWebAssembly: () => {
-      return webAssembly;
+      return undefined;
     },
-    workerContext: ctx,
+    workerContext: worker,
   };
   let value: boolean = false;
   let perfstart = performance.now();
-  flow
+  worker.flow
     .start(flowPackage, services, true, !!autoStartNodes, isSameFlow)
     .then((services: any) => {
       /*
@@ -835,27 +828,29 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
         return webAssembly;
       }
       */
-      for (var key of Object.keys(observables)) {
-        const observable = flow.getObservableNode(key);
+      services.getWorker = getFlowAgent;
+
+      for (var key of Object.keys(worker.observables)) {
+        const observable = worker.flow?.getObservableNode(key);
         if (observable) {
           console.log('subscribe observable after start', key);
           let subscribtion = observable.subscribe({
             next: (payload: any) => {
               console.log('SendObservableNodePayload in worker', payload, key);
-              ctx.postMessage('external', {
+              worker.postMessage('external', {
                 command: 'SendObservableNodePayload',
                 payload: { ...(payload || {}) },
                 nodeName: key,
               });
             },
           });
-          observables[key] = subscribtion;
+          worker.observables[key] = subscribtion;
         }
       }
 
       console.log('RegisterFlowNodeObservers after start, init time:', performance.now() - perfstart + 'ms');
 
-      ctx.postMessage('external', {
+      worker.postMessage('external', {
         command: 'RegisterFlowNodeObservers',
         payload: {},
       });
@@ -866,7 +861,7 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
     });
 };
 
-ctx.addEventListener('worker', onWorkerMessage);
+//ctx.addEventListener('worker', onWorkerMessage);
 
 console.log('flowrunner web-worker started');
 

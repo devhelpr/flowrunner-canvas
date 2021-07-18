@@ -11,7 +11,7 @@ import { IStorageProvider } from './interfaces/IStorageProvider';
 import { setCustomConfig } from './config';
 import { renderHtmlNode, getNodeInstance , setPluginRegistry } from './render-html-node';
 import { UserInterfaceView } from './components/userinterface-view';
-import { getWorker } from './flow-worker';
+import { getFlowAgent } from './flow-agent';
 
 import { FlowStorageProviderService} from './services/FlowStorageProviderService';
 
@@ -40,8 +40,7 @@ export const UIView = (props: IUIViewProps) => {
 			options.initialStoreState = storageProvider?.getFlowPackage();
 		}
 
-		let worker = getWorker();
-		//worker = new Worker(new URL("./flow-worker", import.meta.url));
+		let worker = getFlowAgent();
 		worker.postMessage("worker", {
 			command: 'init'
 		});
@@ -58,10 +57,8 @@ export const UIView = (props: IUIViewProps) => {
 			console.log("onDestroyAndRecreateWorker handling");
 			if (worker) {
 				worker.terminate();
-				//worker = null;
 			}
-			//worker = new Worker(new URL("./flow-worker", import.meta.url));
-			worker = getWorker();
+			worker = getFlowAgent();
 			worker.postMessage("worker", {
 				command: 'init'
 			});

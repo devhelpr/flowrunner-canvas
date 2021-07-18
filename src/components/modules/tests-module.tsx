@@ -7,7 +7,8 @@ import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { useFlowStore} from '../../state/flow-state';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { getWorker } from '../../flow-worker';
+import { getFlowAgent } from '../../flow-agent';
+import { IFlowAgent } from '../../interfaces/IFlowAgent';
 
 export interface ModulesPopupProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -24,8 +25,7 @@ export const TestsModule = (props: ModulesPopupProps) => {
 	// TODO : setup modules folder and components so that TestRunner has its own file and other modules as well
 
 	useEffect(() => {
-		//(workerRef.current as any) = new Worker(new URL("../../flow-worker", import.meta.url));
-		(workerRef.current as any) = getWorker();
+		(workerRef.current as any) = getFlowAgent();
 		(workerRef.current as any).postMessage("worker", {
 			command: 'init'
 		});
@@ -40,7 +40,7 @@ export const TestsModule = (props: ModulesPopupProps) => {
 		}
 	}, []);
 
-	const onMessage = useCallback((message) => {
+	const onMessage = useCallback((message, worker : IFlowAgent) => {
 		console.log("Modules onMessage", message);
 		/*
 			message.
