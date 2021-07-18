@@ -24,7 +24,7 @@ export class FlowAgent implements IFlowAgent {
 }
 
 //let ctx: FlowWorker = new FlowWorker();
-export const getFlowAgent : GetFlowAgentFunction = () => {
+export const getFlowAgent: GetFlowAgentFunction = () => {
   const flowWorkerContext = new FlowAgent();
   flowWorkerContext.addEventListener('worker', onWorkerMessage);
 
@@ -552,7 +552,7 @@ export class MapPayloadTask extends FlowTask {
   }
 }
 
-const onWorkerMessage = (event , worker: IFlowAgent) => {
+const onWorkerMessage = (event, worker: IFlowAgent) => {
   // event.data contains event message data
   //console.log("event from flow", event);
   if (event && event.data) {
@@ -726,8 +726,15 @@ const onWorkerMessage = (event , worker: IFlowAgent) => {
   }
 };
 
-
-const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any, worker: IFlowAgent) => {
+const onExecuteNode = (
+  result: any,
+  id: any,
+  title: any,
+  nodeType: any,
+  payload: any,
+  dateTime: any,
+  worker: IFlowAgent,
+) => {
   worker.postMessage('external', {
     command: 'SendNodeExecution',
     result: result,
@@ -740,7 +747,13 @@ const onExecuteNode = (result: any, id: any, title: any, nodeType: any, payload:
 };
 
 let currentFlowId: string = '';
-const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: boolean = true, flowId: string, worker: IFlowAgent) => {
+const startFlow = (
+  flowPackage: any,
+  pluginRegistry: any[],
+  autoStartNodes: boolean = true,
+  flowId: string,
+  worker: IFlowAgent,
+) => {
   let isSameFlow: boolean = false;
 
   console.log('startFlow', flowId, currentFlowId);
@@ -798,7 +811,7 @@ const startFlow = (flowPackage: any, pluginRegistry: any[], autoStartNodes: bool
 
   if (!isSameFlow) {
     worker.flow.registerMiddleware((result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
-      return onExecuteNode(result, id, title, nodeType,payload,dateTime, worker);
+      return onExecuteNode(result, id, title, nodeType, payload, dateTime, worker);
     });
   }
   let services = {
