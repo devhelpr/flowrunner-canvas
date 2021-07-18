@@ -110,6 +110,7 @@ export const Canvas = (props: CanvasProps) => {
 	let nodeOrientationClosestNodeWhenAddingNewNode = useRef(ThumbPositionRelativeToNode.default);
 
 	let shapeRefs = useRef([] as any);
+	let elementRefs = useRef([] as any);
 	const connectionForDraggingName = "_connection-dragging";
 
 	let oldwheeltime = useRef(0);
@@ -166,7 +167,8 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [flowStore.flow]);
 
-	const wheelEvent = (e , touchPosition? : any) => {
+	const wheelEvent = useCallback((e , touchPosition? : any) => {
+		
 		if (wheelTimeout.current) {
 			clearTimeout(wheelTimeout.current as any);
 			(wheelTimeout.current as any) = undefined;
@@ -256,7 +258,7 @@ export const Canvas = (props: CanvasProps) => {
 			oldwheeltime.current = performance.now();
 		}
 		return false;
-	}
+	}, [flowStore.flow]);
 
 	const updateDimensions = () => {
 		console.log("updateDimensions");		
@@ -428,7 +430,8 @@ export const Canvas = (props: CanvasProps) => {
 	const nodeStateTimeoutCallback = useCallback(() => {
 		nodeStateList.current.map((nodeState) => {
 			let nodeStateClass = nodeState.nodeState == "error" ? "has-error" : "";
-			const element = document.getElementById(nodeState.nodeName);
+			//const element = document.getElementById(nodeState.nodeName);
+			const element = elementRefs.current[nodeState.nodeName];
 			if (element) {
 				element.classList.remove("has-error");
 				if (nodeStateClass != "") {
@@ -455,7 +458,8 @@ export const Canvas = (props: CanvasProps) => {
 			if (lineRef && lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
 				return;
 			}
-			const element = document.getElementById(touchNodeId);
+			//const element = document.getElementById(touchNodeId);
+			const element = elementRefs.current[touchNodeId];
 			if (element) {
 				if (touchedNodesLocal.current[touchNodeId] === true) {
 					element.classList.remove("untouched");
@@ -688,7 +692,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}
 	
-	const recalculateStartEndpoints = (doBatchdraw : boolean) => {
+	const recalculateStartEndpoints = useCallback((doBatchdraw : boolean) => {
 
 		const startPerf = performance.now();
 		console.log("START recalculateStartEndpoints");
@@ -696,7 +700,8 @@ export const Canvas = (props: CanvasProps) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
 				if (shapeRef && (shapeRef as any)) {						
-					let element = document.getElementById(node.name);
+					//let element = document.getElementById(node.name);
+					let element = elementRefs.current[node.name];
 					if (element) {
 						const position = getPosition(node.name) || {x:node.x,y:node.y};
 						//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,
@@ -744,12 +749,16 @@ export const Canvas = (props: CanvasProps) => {
 				stageInstance.batchDraw();
 			}
 		}		
-	}	
+	}, [flowStore.flow]);	
 
 	useLayoutEffect(() => {
 
 		window.addEventListener("resize", onResize);
-		
+		if (canvasWrapper && canvasWrapper.current) {
+			(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
+			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
+		}
+
 		const lineRef = shapeRefs.current[connectionForDraggingName];
 		if (lineRef && lineRef) {
 			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
@@ -875,29 +884,24 @@ export const Canvas = (props: CanvasProps) => {
 
 			window.removeEventListener("resize", onResize);
 			//(refs.canvasWrapper as any).removeEventListener('wheel', wheelEvent);
-			
-		}
-	}, [props.flowState, flowStore.flow]);
-
-	useLayoutEffect(() => {
-
-		console.log("CANVAS useLayoutEffect3" , performance.now());
-
-		updateDimensions();			
-
-		if (canvasWrapper && canvasWrapper.current) {
-			(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
-			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
-		}
-
-		updateTouchedNodes();
-		return () => {
 			if (canvasWrapper && canvasWrapper.current) {
 				(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
 			}
 		}
-	}, [canvasKey]);
+	}, [props.flowState, flowStore.flow]);
 
+	/*
+	useLayoutEffect(() => {
+
+		console.log("CANVAS useLayoutEffect3" , performance.now());
+
+		//updateDimensions();			
+		//updateTouchedNodes();
+		return () => {
+		}
+	}, [canvasKey]);
+	*/
+	
 	useLayoutEffect(() => {	
 		console.log("CANVAS useLayoutEffect2" , performance.now());
 		updateTouchedNodes();
@@ -915,7 +919,7 @@ export const Canvas = (props: CanvasProps) => {
 		connectionY
 	]);
 	
-	const setNewPositionForNode = (node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
+	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
 //console.log("setNewPositionForNode" , performance.now());
 		if (!linesOnly) {
@@ -928,7 +932,8 @@ export const Canvas = (props: CanvasProps) => {
 							//shape.modifyShape(ModifyShapeEnum.SetOpacity,{opacity:unselectedNodeOpacity});					
 						}				
 					}
-					const element = document.getElementById(flowNode.name);
+					//const element = document.getElementById(flowNode.name);
+					const element = elementRefs.current[flowNode.name];
 					if (element) {
 						element.style.opacity = "1"//;"0.5";
 					} 
@@ -1008,7 +1013,8 @@ export const Canvas = (props: CanvasProps) => {
 						}
 					});
 					*/
-					const element = document.getElementById(node.name);
+					//const element = document.getElementById(node.name);
+					const element = elementRefs.current[node.name];
 					if (element) {
 						element.style.opacity = "1";
 					} 
@@ -1173,7 +1179,7 @@ export const Canvas = (props: CanvasProps) => {
 				
 			}
 		}
-	}
+	}, [flowStore.flow]);
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
@@ -1987,7 +1993,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		return false;
 	}
 
-	const onDragStageMove = (event) => {
+	const onDragStageMove = useCallback((event) => {
 
 		if (isPinching.current) {
 			return;			
@@ -2023,9 +2029,9 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);						
 			}
 		}
-	}
+	}, [flowStore.flow]);
 
-	const onDragStageEnd = (event) => {
+	const onDragStageEnd = useCallback((event) => {
 
 		if (isPinching.current) {
 			return;			
@@ -2056,44 +2062,43 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 			}
 		}
-	}
+	}, [flowStore.flow]);
 
-	const setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {
-		
-		let nodeElements = document.querySelectorAll(".canvas__html-shape");
-		const elements = Array.from(nodeElements);
-		const startPerf = performance.now();
+	const setHtmlElementsPositionAndScale = useCallback(
+		(stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
 
-		for (var element of elements) {
-			let x = parseFloat(element.getAttribute("data-x") || "");
-			let y = parseFloat(element.getAttribute("data-y") || "");
-			//let top = 0;
-			//let minHeight = parseFloat(element.getAttribute("data-height") || "");
+		flowStore.flow.map((flowNode) => {	
+			if (flowNode.shapeType !== "Line") {
+				const element = elementRefs.current[flowNode.name];
+				if (element) {
+					let x = parseFloat(element.getAttribute("data-x") || "");
+					let y = parseFloat(element.getAttribute("data-y") || "");
 
-			const clientElementHeight = element.clientHeight;
-			//let diffHeight = clientElementHeight - minHeight;
+					const clientElementHeight = element.clientHeight;
 
-			if (node && element.getAttribute("data-node") == node.name) {
-				if (newX && !isNaN(newX)) {
-					x = newX;
-				}
-				if (newY && !isNaN(newY)) {
-					y = newY;
-				}				
+					if (node && element.getAttribute("data-node") == node.name) {
+						if (newX && !isNaN(newX)) {
+							x = newX;
+						}
+						if (newY && !isNaN(newY)) {
+							y = newY;
+						}				
 
-				element.setAttribute("data-x", x.toString()); 
-				element.setAttribute("data-y", y.toString());
-			}
+						element.setAttribute("data-x", x.toString()); 
+						element.setAttribute("data-y", y.toString());
+					}
 
-			const nodeName = element.getAttribute("data-node") || "";
-			setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);				
-		}
+					const nodeName = element.getAttribute("data-node") || "";
+					setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);	
+				}	
+			}		
+		});
 
 		// see also recalculateStartEndpoints
 
 		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
 		
-	}
+	}, [flowStore.flow]);
 
 	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
 		(element as any).style.transform = 						
@@ -3509,7 +3514,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 										data-visualizer={node.visualizer || "default"}
 										data-x={position.x} 
 										data-y={position.y}
-										data-height={(height || node.height || 250)}									 
+										data-height={(height || node.height || 250)}
+										ref={ref => (elementRefs.current[node.name] = ref)}									 
 										className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState}>
 											<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
 												<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>
