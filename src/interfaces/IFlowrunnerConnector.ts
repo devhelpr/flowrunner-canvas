@@ -62,7 +62,6 @@ export interface IFlowrunnerConnector {
 
   runTests: (flowId: string) => void;
   registerWorker: (worker: IFlowAgent) => void;
-
 }
 
 export interface IExecutionEvent {
