@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect,useRef } from 'react';
+import { useState, useEffect,useRef, useCallback, useMemo } from 'react';
 import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
@@ -76,21 +76,24 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 	flowRunnerCanvasPluginRegisterFunctions.push(registerFunction);
 }
 
+export { IFlowrunnerConnector };
+
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
 	developmentMode? : boolean;
+	flowrunnerConnector? : IFlowrunnerConnector;
 	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;
 }
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 	const [renderFlowCanvas , setRenderFlowCanvas] = useState(false);
-	const [activeId, setActiveId] = useState(undefined as string | undefined);
 	
-	const flowrunnerConnector = useRef(new FlowConnector());
+	const flowrunnerConnector = useRef((props.flowrunnerConnector || new FlowConnector()) as IFlowrunnerConnector);
 	const canvasToolbarsubject = useRef(undefined as any);
 	const renderHtmlNode = useRef(undefined as any);
 	const getNodeInstance = useRef(undefined as any);
+	const flowAgent = useRef(undefined as any);
 
 	let hasStorageProvider = false;
 
@@ -127,11 +130,11 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				options.initialStoreState = storageProvider?.getFlowPackage();
 			}
 	 
-			let flowAgent = getFlowAgent();
+			flowAgent.current = getFlowAgent();
 			if (props.onMessageFromFlow) {
-				flowAgent.addEventListener("external", props.onMessageFromFlow);
+				flowAgent.current.addEventListener("external", props.onMessageFromFlow);
 			}
-			flowAgent.postMessage("worker", {
+			flowAgent.current.postMessage("worker", {
 				command: 'init'
 			});
 	
@@ -148,22 +151,23 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			const onDestroyAndRecreateWorker = () => {
 				console.log("onDestroyAndRecreateWorker handling");
 				if (flowAgent) {
-					flowAgent.terminate();
+					flowAgent.current.removeEventListener("external", props.onMessageFromFlow);
+					flowAgent.current.terminate();
 				}
-				flowAgent = getFlowAgent();
+				flowAgent.current = getFlowAgent();
 				if (props.onMessageFromFlow) {
-					flowAgent.addEventListener("external", props.onMessageFromFlow);
+					flowAgent.current.addEventListener("external", props.onMessageFromFlow);
 				}
-				flowAgent.postMessage("worker", {
+				flowAgent.current.postMessage("worker", {
 					command: 'init'
 				});
 				if (flowrunnerConnector.current) {
-					flowrunnerConnector.current.registerWorker(flowAgent);
+					flowrunnerConnector.current.registerWorker(flowAgent.current);
 				}
 			}
 
 			if (flowrunnerConnector.current) {	
-				flowrunnerConnector.current.registerWorker(flowAgent);
+				flowrunnerConnector.current.registerWorker(flowAgent.current);
 				flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
 				flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
 				console.log("RENDER ORDER 1");
@@ -172,7 +176,10 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		});
 
 		return () => {
-
+			if (props.onMessageFromFlow && flowAgent) {
+				flowAgent.current.removeEventListener("external", props.onMessageFromFlow);
+				flowAgent.current.addEventListener("external", props.onMessageFromFlow);
+			}
 		}
 	}, []);		
 
@@ -214,13 +221,73 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	</>;
 }
 
+
+const TestApp = () => {
+	const [debugList , setDebugList] = useState([] as string[]);
+	const onMessageFromFlow = useCallback((event: any, flowAgent : any) => {
+	  if (event && event.data) {
+		if (event.data.command === 'RegisterFlowNodeObservers') {
+			return;
+		}
+		console.log("onMessageFromFlow", event.data.command);
+		
+		if (event.data.command === 'SendNodeExecution') {
+
+			//if (this.
+			setDebugList(state => [...state,event.data.command + "-" + event.data.name]);
+		}
+	  }
+	}, []);
+  
+	const flowMemoized = useMemo(() => <FlowrunnerCanvas
+		developmentMode={true}
+		flowStorageProvider={flowrunnerLocalStorageProvider}
+		onMessageFromFlow={onMessageFromFlow}
+		flowrunnerConnector={new FlowConnector()}
+	></FlowrunnerCanvas>, [flowrunnerLocalStorageProvider]);
+	
+	return (
+	  <div className="row no-gutters h-100">
+		<div className="col-12 col-md-6 h-100">
+		  	{flowMemoized}
+		</div>
+		<div className="col-12 col-md-6 h-100" 
+			style={{
+				overflow:"hidden",
+				maxHeight:"100vh",
+				overflowY:"scroll"
+			}}>
+			<div className="overflow-visible">
+				{debugList.map((debugItem, index) => {
+					return <div key={index}>{debugItem}</div>;
+				})}
+		  </div>
+		</div>
+	  </div>
+	);
+  }
+  /*
+  return (
+	  <FlowrunnerCanvas
+		flowStorageProvider={flowrunnerLocalStorageProvider} 
+		onMessageFromFlow={onMessageFromFlow}     
+	  ></FlowrunnerCanvas>
+	);
+  }
+  */
+
 export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStorageFlowEditorOnly? : boolean) => {
 	
 	if (!!doLocalStorageFlowEditorOnly) {
 		const root = document.getElementById('flowstudio-root');
+
+		
+		//(ReactDOM as any).render(<TestApp></TestApp>, root);
+
 		(ReactDOM as any).render(<FlowrunnerCanvas 
 			developmentMode={true}
 			flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
+		
 		return;
 	}
 

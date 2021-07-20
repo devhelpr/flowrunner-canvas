@@ -2230,16 +2230,17 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 					let flowHeight = Math.abs(yMax-yMin) ;//+ 200;
 
 					// .canvas-controller__scroll-container
-					const stageContainerElement = document.querySelector("body");
-					if (stageContainerElement !== null) {
+					const stageContainerElement = document.querySelector("body .canvas-controller__scroll-container");
+					const bodyElement = document.querySelector("body");
+					if (stageContainerElement !== null && bodyElement !== null) {
 						let subtractWidth = 128;
 						if (stageContainerElement.clientWidth < 1024) {
 							subtractWidth = 0;
 						}
 						let realStageWidth = stageContainerElement.clientWidth - subtractWidth;
-						let realStageHeight = stageContainerElement.clientHeight - 64;
+						let realStageHeight = bodyElement.clientHeight - 64;
 						if (realStageHeight < 500) {
-							realStageHeight = 600;
+							//realStageHeight = 600;
 						}
 
 						if (flowStore.flow.length === 1) { 
@@ -2274,8 +2275,10 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							y: 0 
 						};					
 						let offsetX = 64;												
-						let stageWidth = stageInstance.getWidth() || stageContainerElement.clientWidth;
-						let stageHeight = stageInstance.getHeight() || stageContainerElement.clientHeight;
+						//let stageWidth = stageInstance.getWidth() || stageContainerElement.clientWidth;
+						//let stageHeight = stageInstance.getHeight() || stageContainerElement.clientHeight;
+						let stageWidth = stageContainerElement.clientWidth;
+						let stageHeight = bodyElement.clientHeight;
 
 						if (stageWidth < 1024) {
 							offsetX = 0;
@@ -2297,7 +2300,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						}
 						setCanvasOpacity(1);
 
-						console.log("fitStage realStageHeight flowHeight yMin yMax", realStageHeight, flowHeight, yMin, yMax);
+						console.log("fitStage realStageWidth realStageHeight flowHeight yMin yMax stageWidth stageHeight", realStageWidth, realStageHeight, flowHeight, yMin, yMax, stageWidth, stageHeight);
 					}
 				} else {
 					const newPos = {

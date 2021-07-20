@@ -10,6 +10,8 @@ const ExpressionTask = require('./plugins/expression-task');
 const HtmlViewTask = require('./plugins/html-view-task');
 const fileUpload = require('express-fileupload');
 
+let mediaStorage = "";
+
 const replaceValues = (content, payload) => {
 	let resultContent = content;
 	let matches = resultContent.match(/{.+?}/g);
@@ -236,6 +238,7 @@ function start(flowFileName, taskPlugins, options) {
 		}
 
 		if (!!options && options.mediaUrl && options.mediaPath) {
+			mediaStorage = options.mediaPath;
 			app.use(options.mediaUrl, express.static(options.mediaPath));
 		}
 		
@@ -955,20 +958,32 @@ function start(flowFileName, taskPlugins, options) {
 			console.log("api media", req.files);
 			let media = req.files.image;
             try {
-            	media.mv('./media/' + media.name);
+            	media.mv('./media/' + media.name, function(err) {
+					if (err) {
+						return res.status(500).send(err);
+					}
+
+					if (mediaStorage) {	
+						console.log("copy media to", mediaStorage);			
+						fs.copyFileSync('./media/' + media.name, mediaStorage + '/' + media.name);
+					}
+					
+					res.send({
+						status: true,
+						message: 'File is uploaded',
+						data: {
+							name: media.name,
+							mimetype: media.mimetype,
+							size: media.size
+						}
+					});
+				});
+				
 			} catch (err) {
 				console.log("api media error", err);
 			}
             //send response
-            res.send({
-                status: true,
-                message: 'File is uploaded',
-                data: {
-                    name: media.name,
-                    mimetype: media.mimetype,
-                    size: media.size
-                }
-            });
+            
 		});	
 
 		app.listen(port, () => console.log(`FlowCanvas web-app listening on port ${port}!`));

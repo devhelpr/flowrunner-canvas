@@ -18,6 +18,19 @@ export class FlowAgent implements IFlowAgent {
     }
     this.eventListeners[eventName].push(callback);
   };
+  removeEventListener = (eventName: string, callback: (event: any, flowAgent: IFlowAgent) => void) => {
+    if (this.eventListeners[eventName]) {
+      let resultIndex = -1;
+      this.eventListeners[eventName].forEach((event, index) => {
+        if (event === callback) {
+          resultIndex = index;
+        }
+      });
+      if (resultIndex >= 0) {
+        this.eventListeners[eventName].splice(resultIndex, 1);
+      }
+    }
+  };
   terminate = () => {
     this.eventListeners = {};
   };

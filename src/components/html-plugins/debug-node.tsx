@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Suspense } from 'react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { Children, isValidElement, cloneElement } from 'react';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
@@ -109,7 +109,7 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 	}
 
 	
-	const receivePayloadFromNode = (payload : any) => {
+	const receivePayloadFromNode = useCallback((payload : any) => {
 		//console.log("receivePayloadFromNode", payload, props.node);
 		if (unmounted.current) {
 			return;
@@ -164,9 +164,7 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 		}
 
 		return;
-	}
-
-	
+	}, [props.flow, props.node]);
 
 	let visualizer = <></>;
 	let additionalCssClass = "";

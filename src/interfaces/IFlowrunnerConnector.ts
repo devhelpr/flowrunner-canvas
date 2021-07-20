@@ -1,4 +1,5 @@
 import { IStorageProvider } from './IStorageProvider';
+import { IFlowAgent } from './IFlowAgent';
 
 export enum ApplicationMode {
   Canvas = 0,
@@ -60,6 +61,8 @@ export interface IFlowrunnerConnector {
   registerOnReceiveFlowNodeExecuteResult: (onReceiveFlowNodeExecuteResult: any) => void;
 
   runTests: (flowId: string) => void;
+  registerWorker: (worker: IFlowAgent) => void;
+
 }
 
 export interface IExecutionEvent {
