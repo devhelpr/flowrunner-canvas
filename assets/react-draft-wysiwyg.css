@@ -856,7 +856,7 @@
   user-select: none;
 }
 .public-DraftStyleDefault-block {
-  margin: 1em 0;
+  margin: 0;
 }
 .rdw-editor-wrapper:focus {
   outline: none;
