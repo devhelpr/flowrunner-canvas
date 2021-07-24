@@ -77,6 +77,10 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 }
 
 export { IFlowrunnerConnector };
+export { IFlowAgent };
+export { IStorageProvider };
+export { FlowConnector };
+export { ApplicationMode };
 
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
