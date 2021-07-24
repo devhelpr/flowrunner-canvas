@@ -13,7 +13,7 @@ import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/IFlowrunnerConnector';
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
@@ -76,6 +76,7 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 	flowRunnerCanvasPluginRegisterFunctions.push(registerFunction);
 }
 
+export { IExecutionEvent };
 export { IFlowrunnerConnector };
 export { IFlowAgent };
 export { IStorageProvider };
