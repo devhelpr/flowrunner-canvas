@@ -83,6 +83,8 @@ export { IStorageProvider };
 export { FlowConnector };
 export { ApplicationMode };
 
+export { setCustomConfig };
+
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
 	developmentMode? : boolean;
