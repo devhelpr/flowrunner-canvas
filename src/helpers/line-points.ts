@@ -7,6 +7,7 @@ export const calculateLineControlPoints = (
   xend,
   yend,
   startPositionRelativeToNode?: ThumbPositionRelativeToNode,
+  endPositionRelativeToNode?: ThumbPositionRelativeToNode
 ) => {
   let controlPointx1;
   let controlPointy1;
@@ -41,7 +42,12 @@ export const calculateLineControlPoints = (
   /*if (this.props.shape.inputSnap == "top") {
 		controlPointx2 = xEnd;
 		controlPointy2 = yEnd-(distance); 
-	} else */ {
+	} else */ 
+  
+  if (endPositionRelativeToNode == ThumbPositionRelativeToNode.top) {
+    controlPointx2 = xend;
+    controlPointy2 = yend-(distance);
+  } else {
     controlPointx2 = xend - distance - xadjust;
     controlPointy2 = yend + yadjust;
   }

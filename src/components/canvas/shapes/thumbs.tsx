@@ -7,7 +7,7 @@ const KonvaRect = Konva.Rect;
 const KonvaCircle = Konva.Circle;
 
 import { Group, Text } from 'react-konva';
-import { ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
+import { ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbPositionRelativeToNode} from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 
@@ -73,13 +73,23 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
 			if (instance && instance.getWidth && instance.getHeight) {
 				setWidth(instance.getWidth(props.node));
-				setHeight(instance.getHeight(props.node));
+				let bodyElement = document.querySelector("#" + props.name + " .html-plugin-node");
+				let element = document.querySelector("#" + props.name + " .canvas__html-shape-thumb-startbottom") as HTMLElement;
+				if (!bodyElement) {
+					bodyElement = document.querySelector("#" + props.name + " .canvas__html-shape-body");
+				}
+				if (element && bodyElement) {
+					setHeight(instance.getHeight(bodyElement.clientHeight + 20));					
+				} else {
+					setHeight(instance.getHeight(props.node));
+				}
+			
 			}
 		}
 	}, [props.isSelected, props.isConnectedToSelectedNode, props.node]);
 	
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
-
+	
 	return <><Group
 		ref={groupRef}
 		x={props.position.x}
@@ -127,8 +137,12 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 		</>}
 		{props.shapeType === "Html" && <>
 			<KonvaRect
-				x={16}
-				y={36}
+				x={props.shapeType === "Html" &&
+					props.thumbPositionRelativeToNode === ThumbPositionRelativeToNode.top ? 
+					((width || props.node.width || ShapeMeasures.htmlWidth)/2) - 12 : 
+					-16}
+				y={props.shapeType === "Html" &&
+					props.thumbPositionRelativeToNode === ThumbPositionRelativeToNode.top ? -16 : 40}
 				strokeWidth={0}
 				stroke="#808080"
 				cornerRadius={settings.cornerRadius}
@@ -141,43 +155,24 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				name={"connectiontionend"}
 				listening={true}				
 				></KonvaRect>
-			<KonvaCircle
-				x={0}
-				y={52}
-				radius={12}
-				listening={false}
-				transformsEnabled={"position"}
-				opacity={0}
-			></KonvaCircle>					
+							
 		</>}			
 	</Group>
 	</>
 })
 
 /*
-<KonvaRect
-				x={-4}
-				y={8}
-				strokeWidth={2}
-				stroke="#808080"
-				cornerRadius={settings.cornerRadius}
-				width={8}
-				height={8}
-				fill="#808080"
-				opacity={1}  
-				perfectDrawEnabled={false}
-				name={"connectiontionend"}
-				listening={true}
-				
-				></KonvaRect>	
-			<KonvaRect
-				x={-2 -4}
-				y={- 2 + 8}
-				strokeWidth={2}
-				stroke="#e2e2e2"
-				cornerRadius={settings.cornerRadius}
-				width={12}
-				height={12}					
-				opacity={1}  
-			perfectDrawEnabled={false}></KonvaRect>
+<KonvaCircle
+				x={props.shapeType === "Html" &&
+					props.thumbPositionRelativeToNode === ThumbPositionRelativeToNode.top ? 
+					((width || props.node.width || ShapeMeasures.htmlWidth)/2) + 6 : 
+					0}
+				y={props.shapeType === "Html" &&
+					props.thumbPositionRelativeToNode === ThumbPositionRelativeToNode.top ? 0 : 52}
+				radius={12}
+				listening={false}
+				transformsEnabled={"position"}
+				fill="#00ff00"
+				opacity={1}
+			></KonvaCircle>	
 */

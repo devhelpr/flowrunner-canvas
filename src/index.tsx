@@ -289,12 +289,12 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 		const root = document.getElementById('flowstudio-root');
 
 		
-		//(ReactDOM as any).render(<TestApp></TestApp>, root);
-
+		(ReactDOM as any).render(<TestApp></TestApp>, root);
+		/*
 		(ReactDOM as any).render(<FlowrunnerCanvas 
 			developmentMode={true}
 			flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
-		
+		*/
 		return;
 	}
 

@@ -195,11 +195,12 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 	}
 	
 	if (receivedPayload.length == 0) {
+		additionalCssClass = "html-plugin-node__h-100";
 		visualizer = <div style={{		
 			backgroundColor: "#ffffff"
 		}}></div>;
 	}
-	console.log("debugnode", props.node && props.node.name, expressionTree);
+	//console.log("debugnode", props.node && props.node.name, expressionTree);
 	
 	if (props.node.visualizer == "children") {
 		const childrenWithProps = Children.map(props.children, child => {

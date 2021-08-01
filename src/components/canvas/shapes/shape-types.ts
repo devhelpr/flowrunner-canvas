@@ -120,6 +120,7 @@ export interface LineTypeProps {
   touchedNodes?: any;
   name?: string;
   thumbPosition?: ThumbPositionRelativeToNode;
+  thumbEndPosition?: ThumbPositionRelativeToNode;
   isNodeConnectorHelper?: boolean;
 }
 

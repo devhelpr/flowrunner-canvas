@@ -48,7 +48,9 @@ export class DebugNodeHtmlPluginInfo {
 			const visualizerInfo = new AnimatedGridCanvasInfo();
 			return visualizerInfo.getWidth(node);
 		}
-		return;
+		const visualizerInfo = new GenericDebugNodeHtmlPluginInfo();
+		return visualizerInfo.getWidth(node);
+		//return;
 	}
 
 	getHeight(node) {
@@ -64,7 +66,9 @@ export class DebugNodeHtmlPluginInfo {
 			const visualizerInfo = new AnimatedGridCanvasInfo();
 			return visualizerInfo.getHeight(node);
 		} 
-		return;
+		const visualizerInfo = new GenericDebugNodeHtmlPluginInfo();
+		return visualizerInfo.getHeight(node);
+		//return;
 	}
 }
 
@@ -75,5 +79,15 @@ export class GridEditNodeHtmlPluginInfo {
 
 	getHeight(node) {
 		return (((node && node.rows) || 8) * 16) + (3 * 16) + 4 + 150;
+	}
+}
+
+export class GenericDebugNodeHtmlPluginInfo {
+	getWidth(node) {
+		return (node.width || 250) + 20 + 80;
+	}
+
+	getHeight(node) {
+		return (node.height || 250) + (3 * 16) + 4;
 	}
 }

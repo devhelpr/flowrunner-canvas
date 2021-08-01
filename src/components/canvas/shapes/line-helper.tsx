@@ -54,7 +54,8 @@ export const LineHelper = (props : ILineHelperProps) => {
 	const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 		x: positionNode.x,
 		y: positionNode.y
-	}, endNode, props.getNodeInstance);
+	}, endNode, props.getNodeInstance,
+		props.lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 
 	// 
 	// 
@@ -81,7 +82,8 @@ export const LineHelper = (props : ILineHelperProps) => {
 		noMouseEvents={false}	
 		touchedNodes={props.touchedNodes}
 		name={props.lineNode.name}
-		thumbPosition={props.lineNode.thumbPosition || ThumbPositionRelativeToNode.default}											
+		thumbPosition={props.lineNode.thumbPosition || ThumbPositionRelativeToNode.default}
+		thumbEndPosition={props.lineNode.thumbEndPosition || ThumbPositionRelativeToNode.default}											
 	></Line>;
 }
 

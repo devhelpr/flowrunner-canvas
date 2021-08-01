@@ -133,7 +133,7 @@ export class FlowToCanvas {
 
     if (shapeType == 'Html') {
       let width = undefined;
-      let height = undefined;
+      let height : number | undefined = undefined;
       if (getNodeInstance && startShape) {
         const nodeInstance = getNodeInstance(startShape, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
@@ -152,6 +152,24 @@ export class FlowToCanvas {
             : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
       };
       */
+
+      if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.bottom) {
+
+        let bodyElement = document.querySelector("#" + startShape.name + " .html-plugin-node");
+				let element = document.querySelector("#" + startShape.name + " .canvas__html-shape-thumb-startbottom") as HTMLElement;
+				if (!bodyElement) {
+					bodyElement = document.querySelector("#" + startShape.name + " .canvas__html-shape-body");
+				}
+        height = height || startShape.height || ShapeMeasures.htmlHeight;
+				if (element && bodyElement) {
+					height = bodyElement.clientHeight + 20;
+        }
+
+        return {
+          x: newPosition.x + ((width || startShape.width || ShapeMeasures.htmlWidth) / 2),
+          y: newPosition.y + height + 4,
+        };
+      }
 
       return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
@@ -194,7 +212,12 @@ export class FlowToCanvas {
     }
   }
 
-  static getEndPointForLine(endShape, newPosition, nodeParameterThatIsNotUsed?: any, getNodeInstance?: any) {
+  static getEndPointForLine(
+    endShape, 
+    newPosition, 
+    nodeParameterThatIsNotUsed?: any, 
+    getNodeInstance?: any, 
+    thumbPositionRelativeToNode?: ThumbPositionRelativeToNode) {
     const taskSettings = FlowToCanvas.getTaskSettings(endShape.taskType);
     const shapeType = FlowToCanvas.getShapeTypeUsingSettings(
       endShape.shapeType,
@@ -220,6 +243,23 @@ export class FlowToCanvas {
         y: newPosition.y - (height || endShape.height || ShapeMeasures.htmlHeight) / 2 + 40 + 12,
       };
       */
+
+      let width = undefined;
+      let height = undefined;
+      if (getNodeInstance && endShape) {
+        const nodeInstance = getNodeInstance(endShape, undefined, undefined, taskSettings);
+        if (nodeInstance && nodeInstance.getWidth) {
+          width = nodeInstance.getWidth(endShape);
+          height = nodeInstance.getHeight(endShape);
+        }
+      }
+
+      if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.top) {
+        return {
+          x: newPosition.x + ((width || endShape.width || ShapeMeasures.htmlWidth) / 2),
+          y: newPosition.y - 12,
+        };
+      }
       return {
         x: newPosition.x - 8,
         y: newPosition.y + 40 + 12,
@@ -324,7 +364,10 @@ export class FlowToCanvas {
     return resultShapeType;
   }
 
-  static getThumbEndPosition(shapeType: string, position: any) {
+  static getThumbEndPosition(shapeType: string, position: any,
+      offset?,
+      positionRelativeToNode?: ThumbPositionRelativeToNode,
+    ) {
     if (shapeType == 'Diamond') {
       return {
         x: position.x,
@@ -338,6 +381,17 @@ export class FlowToCanvas {
         y: position.y + ShapeMeasures.rectHeight / 2 - 12,
       };
     }
+
+    /*
+    if (shapeType == 'Html') {
+      if (positionRelativeToNode === ThumbPositionRelativeToNode.top) {
+        return {
+          x: position.x + 100,
+          y: position.y - 12,
+        };
+      }
+    }
+    */
 
     return {
       x: position.x,
@@ -374,7 +428,18 @@ export class FlowToCanvas {
         x: position.x,
         y: position.y + ShapeMeasures.rectHeight / 2 + offset * 24 - 12,
       };
+    }    
+
+    /*if (shapeType == 'Html') {
+      if (positionRelativeToNode === ThumbPositionRelativeToNode.bottom) {
+        return {
+          x: position.x + 100,
+          y: position.y - 12,
+        };
+      }
     }
+    */
+
     return {
       x: position.x,
       y: position.y + offset * 24,

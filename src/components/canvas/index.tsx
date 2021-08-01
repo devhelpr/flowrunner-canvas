@@ -261,7 +261,6 @@ export const Canvas = (props: CanvasProps) => {
 	}, [flowStore.flow]);
 
 	const updateDimensions = () => {
-		console.log("updateDimensions");		
 		const stageContainerElement = document.querySelector(".stage-container");
 		const bodyElement = document.querySelector("body");
 		if (stageContainerElement !== null && bodyElement !== null) {
@@ -627,7 +626,6 @@ export const Canvas = (props: CanvasProps) => {
 	}, [flowStore.flow]);
 
 	useEffect(() => {
-		console.log("RENDER ORDER 4");
 		//(flowIsLoading as any).current = true;
 		let subscription;
 		if (props.canvasToolbarsubject) {
@@ -638,13 +636,10 @@ export const Canvas = (props: CanvasProps) => {
 						return;
 					}
 					if (message == "loadFlow") {
-						console.log("RENDER ORDER 3");
 						(flowIsLoading as any).current = true;
-						console.log("loadflow setCanvasOpacity 0");
 						setCanvasOpacity(0);
 					} else
 					if (message == "fitStage") {
-						console.log("before fitstage", flowStore.flow);
 						fitStage(undefined, true, true);
 						setCanvasOpacity(1);	
 					} else 
@@ -694,7 +689,6 @@ export const Canvas = (props: CanvasProps) => {
 	const recalculateStartEndpoints = useCallback((doBatchdraw : boolean) => {
 
 		const startPerf = performance.now();
-		console.log("START recalculateStartEndpoints");
 		flowStore.flow.map((node, index) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
@@ -740,7 +734,6 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			}
 		});
-		console.log("recalculateStartEndpoints", performance.now() - startPerf);
 
 		if (!!doBatchdraw && stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -778,12 +771,10 @@ export const Canvas = (props: CanvasProps) => {
 				(flowIsLoading as any).current = false;
 				flowIsFittedStageForSingleNode.current = true;
 
-				console.log("FLOW CANVAS INITIALIZE TIME - START" , performance.now());
 				let perfstart = performance.now();
 
 				clearPositions();
 
-				console.log("flow canvas initialize time - clearPositions", (performance.now() - perfstart) + "ms");
 				perfstart = performance.now();
 				
 				flowStore.flow.map((node, index) => {					
@@ -804,7 +795,6 @@ export const Canvas = (props: CanvasProps) => {
 					}
 				});
 
-				console.log("flow canvas initialize time - setPositions", (performance.now() - perfstart) + "ms");
 				perfstart = performance.now();
 				
 				nodesStateLocal.current = {};
@@ -821,13 +811,9 @@ export const Canvas = (props: CanvasProps) => {
 					}
 				}				
 
-				console.log("flow canvas initialize time - setHtmlElementsPositionAndScale PRE", (performance.now() - perfstart), "ms");
 
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
-				console.log("flow canvas initialize time - setHtmlElementsPositionAndScale", (performance.now() - perfstart) , "ms");
 				recalculateStartEndpoints(false);
-
-				console.log("flow canvas initialize time - recalculateStartEndpoints", (performance.now() - perfstart) , "ms");
 				
 			} else if (props.flowState == FlowState.loaded && !(flowIsLoading as any).current) {
 
@@ -874,8 +860,6 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		updateTouchedNodes();	
 
-		console.log("uselayouteffect flow", performance.now() - startPerf);
-
 		return () => {
 			//props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 
@@ -902,7 +886,6 @@ export const Canvas = (props: CanvasProps) => {
 	*/
 	
 	useLayoutEffect(() => {	
-		console.log("CANVAS useLayoutEffect2" , performance.now());
 		updateTouchedNodes();
 	}, [
 		canvasMode,
@@ -920,7 +903,6 @@ export const Canvas = (props: CanvasProps) => {
 	
 	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
-//console.log("setNewPositionForNode" , performance.now());
 		if (!linesOnly) {
 			flowStore.flow.map((flowNode) => {
 				if (flowNode.name !== node.name) {
@@ -949,11 +931,13 @@ export const Canvas = (props: CanvasProps) => {
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
-					var touchPos = stageInstance.getPointerPosition();
-					const scaleFactor = (stageInstance as any).scaleX();
+					let touchPos = stageInstance.getPointerPosition();
+					if (touchPos) {
+						const scaleFactor = (stageInstance as any).scaleX();
 
-					newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
-					newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
+						newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
+						newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
+					}
 				}
 			}
 
@@ -973,6 +957,13 @@ export const Canvas = (props: CanvasProps) => {
 						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
 						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
 	
+					}
+
+					currentGroupThumbs = shapeRefs.current["thumbtop_" + node.name] as any;
+					if (currentGroupThumbs) {
+						const thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition, 0 , ThumbPositionRelativeToNode.top);
+						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
+						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});						
 					}
 
 					currentGroupThumbs = (shapeRefs.current["thumbstart_" + node.name] as any);
@@ -1066,9 +1057,11 @@ export const Canvas = (props: CanvasProps) => {
 				if (endNode) {
 					const positionNode = getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-						x: positionNode.x,
-						y: positionNode.y
-					}, node, props.getNodeInstance);
+							x: positionNode.x,
+							y: positionNode.y
+						}, node, props.getNodeInstance,
+						lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
+					);
 
 					const lineRef = shapeRefs.current[lineNode.name];
 					if (lineRef) {
@@ -1076,8 +1069,9 @@ export const Canvas = (props: CanvasProps) => {
 						let controlPoints = calculateLineControlPoints(
 							newStartPosition.x, newStartPosition.y, 
 							newEndPosition.x, newEndPosition.y,
-							lineNode.thumbPosition as ThumbPositionRelativeToNode
-							);				
+							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
+						);				
 
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
@@ -1104,7 +1098,10 @@ export const Canvas = (props: CanvasProps) => {
 		if (endLines) {
 			
 			endLines.map((lineNode) => {
-				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, props.getNodeInstance);
+				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, 
+					props.getNodeInstance,
+					lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
+				);
 
 				const positionLine = getPosition(lineNode.name) || lineNode;
 				let startPos = {
@@ -1138,7 +1135,8 @@ export const Canvas = (props: CanvasProps) => {
 						let controlPoints = calculateLineControlPoints(
 							newStartPosition.x, newStartPosition.y, 
 							newEndPosition.x, newEndPosition.y,
-							lineNode.thumbPosition as ThumbPositionRelativeToNode);
+							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
@@ -1183,7 +1181,6 @@ export const Canvas = (props: CanvasProps) => {
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
 		let newNode = getNewNode({...node}, flowStore.flow);
-		console.log("newnode", newNode.name, flowStore.flow);
 		newNode.x = newNode.x + 100;
 		newNode.y = newNode.y + 100;
 		
@@ -1336,7 +1333,7 @@ export const Canvas = (props: CanvasProps) => {
 		return false;
 	}
 
-	const connectConnectionToNode = (node) => {
+	const connectConnectionToNode = (node, thumbPositionRelativeToNode?) => {
 		let eventHelper : any = undefined;
 		if (connectionNodeEventName !== undefined &&
 			connectionNodeEventName.current !== "" && 
@@ -1356,11 +1353,14 @@ export const Canvas = (props: CanvasProps) => {
 		if (connectionNodeFollowFlow.current == ThumbFollowFlow.unhappyFlow) {
 			(connection as any).followflow = "onfailure";
 		}
+
+		if (thumbPositionRelativeToNode !== undefined) {
+			(connection as any).thumbEndPosition = thumbPositionRelativeToNode;
+		}
 		 
 		if (connectionNodeEventName.current !== "" && 
 			!isNaN(connectionNodeEvent.current as number)) {
 			(connection as any).event = connectionNodeEventName.current; // this is an object not a string!!
-			console.log("connectionNodeEventName is object or string?", connectionNodeEventName);
 		}
 		touching.current = false
 		isConnectingNodesByDraggingLocal.current = false;
@@ -1480,7 +1480,6 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onStageMouseLeave = (event) => {
-		console.log("onStageMouseLeave");
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
 		
@@ -1555,8 +1554,6 @@ export const Canvas = (props: CanvasProps) => {
 						y: (event.evt.touches[0].screenY + event.evt.touches[1].screenY)/2
 					};
 					
-					console.log("touch pinching", pinchStartPosition.current);
-
 					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
 					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
 					 
@@ -1652,8 +1649,6 @@ export const Canvas = (props: CanvasProps) => {
 				
 				return false;
 			}
-
-			//console.log("moving", event.evt.touches && event.evt.touches.length > 0 ? event.evt.touches[0] : undefined);
 		}
 	}
 
@@ -1855,11 +1850,19 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}
 
-	const onMouseConnectionEndOver = (node, nodeEvent, event) => {
+	const onMouseConnectionEndOver = (node, nodeEvent, event, thumbPositionRelativeToNode? : ThumbPositionRelativeToNode) => {
 		if (node.notSelectable) {
 			return false;
 		}
-		document.body.style.cursor = 'pointer';	
+		document.body.style.cursor = 'pointer';
+
+		/*if (thumbPositionRelativeToNode)	{
+			connectionNodeThumbPositionRelativeToEndNode.current = thumbPositionRelativeToNode;
+		} else {
+			connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.default;
+		}
+
+		*/
 	}
 
 	const onMouseConnectionEndOut = (node, nodeEvent, event) => {
@@ -1884,7 +1887,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}
 
-	const onMouseConnectionEndEnd = (node, nodeEvent,event) => {
+	const onMouseConnectionEndEnd = (node, nodeEvent,event, thumbPositionRelativeToNode?) => {
 		if (!!canvasMode.isConnectingNodes) {
 			return false;
 		}
@@ -1892,7 +1895,7 @@ export const Canvas = (props: CanvasProps) => {
 			return;
 		}
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
-			connectConnectionToNode(node);
+			connectConnectionToNode(node, thumbPositionRelativeToNode);
 		}
 	}
 
@@ -1988,7 +1991,6 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		canvasMode.setConnectiongNodeCanvasMode(false);
 		selectedNode.selectNode(node.name, node);
-console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		return false;
 	}
 
@@ -2333,7 +2335,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}, [flowStore.flow]);
 
 	useEffect(() => {
-		console.log("useEffect", flowStore.flowId, performance.now());
+		//console.log("useEffect", flowStore.flowId, performance.now());
 	}, [flowStore.flow]);
 
 	const clickStage = (event) => {
@@ -2392,7 +2394,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 						name: canvasMode.selectedTask,
 						id: canvasMode.selectedTask,
 						taskType: taskType,
-						shapeType: canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : "Rect", 
+						shapeType: canvasMode.selectedTask == "IfConditionTask" ? "Diamond" : (shapeSetting.shapeType ? shapeSetting.shapeType : "Rect"), 
 						x: ((position.x - (stageInstance).x()) / scaleFactor), 
 						y: ((position.y - (stageInstance).y()) / scaleFactor),
 						...presetValues
@@ -2684,7 +2686,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 							name: taskClassName,
 							id: taskClassName,
 							taskType: taskType,
-							shapeType: taskClassName == "IfConditionTask" ? "Diamond" : "Rect", 
+							shapeType: taskClassName == "IfConditionTask" ? "Diamond" : (shapeSetting.shapeType ? shapeSetting.shapeType : "Rect"), 
 							x: (position.x - (_stage).x()) / scaleFactor, 
 							y: (position.y - (_stage).y()) / scaleFactor,
 							...presetValues
@@ -2699,7 +2701,7 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 								const left = Math.round((rect.left + rect.right)/2);
 								let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
 								if (result && result.getWidth) {
-									console.log("addTaskToCanvas", result.getWidth(newNode)/2);
+									//console.log("addTaskToCanvas", result.getWidth(newNode)/2);
 									newNode.x = (left - (_stage).x()) / scaleFactor;
 									newNode.y = (rect.top - (_stage).y()) / scaleFactor;
 									newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
@@ -3047,7 +3049,6 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 	  
 	const handleDragEnd= (event) => {
-		console.log("handleDragEnd", event);
 		if (activeId) {
 			addTaskToCanvas(activeId);
 		}
@@ -3055,7 +3056,6 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 	}
 
 	const handleDragMove = (event) => {
-		console.log("handleDragMove", event);
 		let element	 = document.querySelector(".taskbar__task-dragging");
 		if (element) {
 			let rect = element.getBoundingClientRect();
@@ -3074,7 +3074,6 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 		return flowStore.flow
 	}, [flowStore.flow]);
 
-	console.log("CANVAS RENDER" , performance.now());
 /*
 <DndContext 
 			    id={"canvas-dndcontext"}
@@ -3366,6 +3365,49 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 
 											getNodeInstance={props.getNodeInstance}										
 										></ThumbsStart>}
+										{(shapeType === "Html") && <ThumbsStart
+											key={"node-thumbstartbottom-" + index} 
+											position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0)}
+											name={node.name}
+											taskType={node.taskType}
+											shapeType={shapeType}
+											node={node}																	
+											ref={ref => (shapeRefs.current["thumbstartbottom_" + node.name] = ref)} 									
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											thumbPositionRelativeToNode={ThumbPositionRelativeToNode.bottom}
+
+											onMouseConnectionStartOver={(event) => onMouseConnectionStartOver(node,false,event)}
+											onMouseConnectionStartOut={(event) => onMouseConnectionStartOut(node,false,event)}
+											onMouseConnectionStartStart={(event) => onMouseConnectionStartStart(node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.bottom,event)}
+											onMouseConnectionStartMove={(event) => onMouseConnectionStartMove(node,false,event)}
+											onMouseConnectionStartEnd={(event) => onMouseConnectionStartEnd(node,false,ThumbPositionRelativeToNode.default,event)}
+
+											getNodeInstance={props.getNodeInstance}										
+										></ThumbsStart>}
+										{(shapeType === "Html") && <Thumbs
+											key={"node-thumbend-html-top-" + index} 
+											position={FlowToCanvas.getThumbEndPosition(shapeType, position, 0, ThumbPositionRelativeToNode.top)}
+											name={node.name}
+											taskType={node.taskType}
+											shapeType={shapeType}
+											node={node}																	
+											ref={ref => (shapeRefs.current["thumbtop_" + node.name] = ref)} 									
+											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isConnectedToSelectedNode={isConnectedToSelectedNode}									
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
+
+											onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event)}
+											onMouseConnectionEndOut={(event) => onMouseConnectionEndOut(node,false,event)}
+											onMouseConnectionEndStart={(event) => onMouseConnectionEndStart(node,false,event)}
+											onMouseConnectionEndMove={(event) => onMouseConnectionEndMove(node,false,event)}
+											onMouseConnectionEndEnd={(event) => onMouseConnectionEndEnd(node,false,event, ThumbPositionRelativeToNode.top)}
+											onMouseConnectionEndLeave={(event) => onMouseConnectionEndLeave(node,false,event)}
+
+											getNodeInstance={props.getNodeInstance}										
+										></Thumbs>}
 										{(shapeType === "Diamond") && <ThumbsStart
 											key={"node-thumbstart-diamond-top-" + index} 
 											position={FlowToCanvas.getThumbStartPosition(shapeType, position, 0, ThumbPositionRelativeToNode.top)}
@@ -3531,6 +3573,8 @@ console.log("onclickline", selectedNode.node, !!selectedNode.node.name);
 											<div className="canvas__html-shape-body">
 											{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, flowMemo, settings)}</div>
 											<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
+											<div className={"canvas__html-shape-thumb-startbottom"}></div>
+											<div className={"canvas__html-shape-thumb-endtop"}></div>
 											<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}></div>
 											{settings.events && settings.events.map((event ,eventIndex) => {
 												return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + index + "-" + eventIndex}></div>

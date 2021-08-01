@@ -9,10 +9,14 @@ body, html {
 	min-height: 100vh;
 	overflow: hidden;
     overscroll-behavior-x: none;
+}
 
-	height: -webkit-fill-available;
-	max-height: -webkit-fill-available;
-	min-height: -webkit-fill-available;
+@supports (-webkit-touch-callout: none) {
+	body, html {
+		height: -webkit-fill-available;
+		max-height: -webkit-fill-available;
+		min-height: -webkit-fill-available;
+	}
 }
 
 img {
@@ -206,6 +210,43 @@ img {
 	background: transparent;
 }
 
+.canvas__html-shape-thumb-startbottom {
+	width: 16px;
+    height: 16px;
+    background: transparent;
+    position: absolute;
+    left: calc(50% - 8px);
+    bottom: 0;
+	z-index: 2;
+	pointer-events: none;
+	cursor: pointer;
+
+	width: 0px;
+    height: 0px;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+	border-right: 12px solid #c2c2c2;
+	
+	width: 16px;
+    height: 16px;
+	border-radius: 50%;
+	border: 2px #000000 solid;
+	background: #ffffff;
+}
+.canvas__html-shape-thumb-startbottom::before {
+	content: "";
+    position: absolute;
+    top: -4px;
+	z-index: 2;
+	
+	width: 20px;
+    height: 20px;
+	border-radius: 50%;
+	right: -4px;
+	border: 2px #e2e2e2 solid;
+	background: transparent;
+}
+
 .canvas__html-shape-thumb-end {
 	width: 16px;
     height: 16px;
@@ -232,6 +273,45 @@ img {
 }
 
 .canvas__html-shape-thumb-end::before {
+	content: "";
+    position: absolute;
+    top: -4px;
+	z-index: 2;
+	
+	width: 20px;
+    height: 20px;
+	border-radius: 50%;
+	right: -4px;
+	border: 2px #e2e2e2 solid;
+	background: transparent;
+}
+
+
+.canvas__html-shape-thumb-endtop {
+	width: 16px;
+    height: 16px;
+    background: transparent;
+    position: absolute;
+	left: calc(50% - 8px);
+    top: -8px;
+	z-index: 2;
+	pointer-events: none;
+	cursor: pointer;
+
+	width: 0px;
+    height: 0px;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+	border-left: 12px solid #c2c2c2;
+	
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	border: 2px #000000 solid;
+	background: #ffffff;
+}
+
+.canvas__html-shape-thumb-endtop::before {
 	content: "";
     position: absolute;
     top: -4px;
