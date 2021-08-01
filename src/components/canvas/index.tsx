@@ -185,7 +185,7 @@ export const Canvas = (props: CanvasProps) => {
 			(layer.current as any).listening(false);
 		}
 
-		//(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 25);
+		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 60);
 		
 		if (e.preventDefault) {
 			e.preventDefault();
@@ -253,10 +253,11 @@ export const Canvas = (props: CanvasProps) => {
 				setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
 
 				console.log("WheelEvent performance setHtmlElementsPositionAndScale", performance.now() - startPerf);
-				if (layer && layer.current) {
+				/*if (layer && layer.current) {
 					(layer.current as any).listening(true);
 					(layer.current as any).batchDraw();
 				}
+				*/
 			}
 			oldwheeltime.current = performance.now();
 		}
