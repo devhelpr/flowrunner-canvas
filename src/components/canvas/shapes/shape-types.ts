@@ -56,6 +56,7 @@ export enum ThumbPositionRelativeToNode {
   top,
   bottom,
   left,
+  right
 }
 
 export enum ThumbFollowFlow {

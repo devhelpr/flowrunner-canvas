@@ -272,6 +272,7 @@ const taskTypeConfig: any = {
   },
   ConditionalTriggerTask: {
     shapeType: 'Diamond',
+    altThumbPositions: 1,
     presetValues: {
       propertyName: '',
       minValue: -1,
