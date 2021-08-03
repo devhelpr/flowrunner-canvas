@@ -143,6 +143,7 @@ export const Canvas = (props: CanvasProps) => {
 	let connectionNodeEvent = useRef((false) as (boolean | number));
 	let connectionNodeEventName = useRef("");
 	let connectionNodeThumbPositionRelativeToNode = useRef(ThumbPositionRelativeToNode.default);
+	let connectionNodeThumbPositionRelativeToEndNode = useRef(ThumbPositionRelativeToNode.default);
 	let connectionNodeFollowFlow = useRef(ThumbFollowFlow.default);
 
 	let shiftDown = useRef(false);
@@ -1266,6 +1267,16 @@ export const Canvas = (props: CanvasProps) => {
 			return false;
 		}
         document.body.style.cursor = 'pointer';
+
+		
+		const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+		if (node.shapeType === "Diamond" && settings.altThumbPositions === 1) {
+			connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.top;
+		} else 
+		if (node.shapeType === "Diamond" && !settings.altThumbPositions) {
+			connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.default;
+		}
+		
 	}
 	
 	const onMouseOut = () => {
@@ -1371,6 +1382,8 @@ export const Canvas = (props: CanvasProps) => {
 		const connection = getNewConnection(touchNode.current, node, props.getNodeInstance, eventHelper,
 			connectionNodeThumbPositionRelativeToNode.current);
 		
+		
+
 		(connection as any).thumbPosition = connectionNodeThumbPositionRelativeToNode.current;
 
 		if (connectionNodeFollowFlow.current == ThumbFollowFlow.happyFlow) {
@@ -1383,7 +1396,12 @@ export const Canvas = (props: CanvasProps) => {
 		if (thumbPositionRelativeToNode !== undefined) {
 			(connection as any).thumbEndPosition = thumbPositionRelativeToNode;
 		}
-		 
+		
+		const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+		if (node.shapeType === "Diamond" && settings.altThumbPositions === 1) {
+			(connection as any).thumbEndPosition = ThumbPositionRelativeToNode.top;
+		} 
+
 		if (connectionNodeEventName.current !== "" && 
 			!isNaN(connectionNodeEvent.current as number)) {
 			(connection as any).event = connectionNodeEventName.current; // this is an object not a string!!
@@ -1614,7 +1632,8 @@ export const Canvas = (props: CanvasProps) => {
 						let controlPoints = calculateLineControlPoints(
 							connectionXStart.current, connectionYStart.current, 
 							newPosition.x, newPosition.y,
-							connectionNodeThumbPositionRelativeToNode.current as ThumbPositionRelativeToNode);
+							connectionNodeThumbPositionRelativeToNode.current as ThumbPositionRelativeToNode,
+							connectionNodeThumbPositionRelativeToEndNode.current as ThumbPositionRelativeToNode);
 							
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points: [connectionXStart.current, connectionYStart.current,
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
@@ -1828,6 +1847,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		connectionNodeFollowFlow.current = followFlow;
 		connectionNodeThumbPositionRelativeToNode.current = thumbPositionRelativeToNode;
+		connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.default;
 
 		document.body.classList.add("connecting-nodes");
 
@@ -1882,13 +1902,13 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		document.body.style.cursor = 'pointer';
 
-		/*if (thumbPositionRelativeToNode)	{
+		if (thumbPositionRelativeToNode)	{
 			connectionNodeThumbPositionRelativeToEndNode.current = thumbPositionRelativeToNode;
 		} else {
 			connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.default;
 		}
 
-		*/
+		
 	}
 
 	const onMouseConnectionEndOut = (node, nodeEvent, event) => {
@@ -3384,7 +3404,7 @@ export const Canvas = (props: CanvasProps) => {
 											canvasHasSelectedNode={canvasHasSelectedNode}
 											thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
 
-											onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event)}
+											onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event, ThumbPositionRelativeToNode.top)}
 											onMouseConnectionEndOut={(event) => onMouseConnectionEndOut(node,false,event)}
 											onMouseConnectionEndStart={(event) => onMouseConnectionEndStart(node,false,event)}
 											onMouseConnectionEndMove={(event) => onMouseConnectionEndMove(node,false,event)}
@@ -3446,7 +3466,7 @@ export const Canvas = (props: CanvasProps) => {
 											canvasHasSelectedNode={canvasHasSelectedNode}
 											thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
 
-											onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event)}
+											onMouseConnectionEndOver={(event) => onMouseConnectionEndOver(node,false,event,ThumbPositionRelativeToNode.top)}
 											onMouseConnectionEndOut={(event) => onMouseConnectionEndOut(node,false,event)}
 											onMouseConnectionEndStart={(event) => onMouseConnectionEndStart(node,false,event)}
 											onMouseConnectionEndMove={(event) => onMouseConnectionEndMove(node,false,event)}
