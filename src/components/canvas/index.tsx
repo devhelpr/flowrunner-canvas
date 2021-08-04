@@ -605,11 +605,6 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	useLayoutEffect(() => {
-		/*if (canvasWrapper && canvasWrapper.current) {
-			(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
-			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
-		}
-		*/
 		window.addEventListener("resize", onResize);
 		window.addEventListener("scroll", cancelScroll);
 		document.addEventListener('paste', onPaste);
@@ -624,10 +619,6 @@ export const Canvas = (props: CanvasProps) => {
 			props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 			window.removeEventListener("resize", onResize);
 			window.removeEventListener("scroll", cancelScroll);
-			/*if (canvasWrapper && canvasWrapper.current) {
-				(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
-			}
-			*/
 		}
 	}, []);
 
@@ -757,11 +748,6 @@ export const Canvas = (props: CanvasProps) => {
 	useLayoutEffect(() => {
 
 		window.addEventListener("resize", onResize);
-		/*if (canvasWrapper && canvasWrapper.current) {
-			(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
-			(canvasWrapper.current as any).addEventListener('wheel', wheelEvent);
-		}
-		*/
 
 		const lineRef = shapeRefs.current[connectionForDraggingName];
 		if (lineRef && lineRef) {
@@ -878,26 +864,8 @@ export const Canvas = (props: CanvasProps) => {
 			document.removeEventListener('paste', onPaste);
 
 			window.removeEventListener("resize", onResize);
-			/*console.log("REMOVEEVENTLISTENER WHEELEVENT PRE");
-			if (canvasWrapper && canvasWrapper.current) {
-				console.log("REMOVEEVENTLISTENER WHEELEVENT");
-				(canvasWrapper.current as any).removeEventListener('wheel', wheelEvent);
-			}
-			*/
 		}
 	}, [props.flowState, flowStore.flow]);
-
-	/*
-	useLayoutEffect(() => {
-
-		console.log("CANVAS useLayoutEffect3" , performance.now());
-
-		//updateDimensions();			
-		//updateTouchedNodes();
-		return () => {
-		}
-	}, [canvasKey]);
-	*/
 	
 	useLayoutEffect(() => {	
 		updateTouchedNodes();
