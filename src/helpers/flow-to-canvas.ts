@@ -192,7 +192,7 @@ export class FlowToCanvas {
         };
       } else if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.right) {
         return {
-          x: newPosition.x + ShapeMeasures.diamondSize / 2,
+          x: newPosition.x + ShapeMeasures.diamondSize,
           y: newPosition.y + ShapeMeasures.diamondSize / 2,
         };
       } else if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.top) {
