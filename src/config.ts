@@ -27,7 +27,7 @@ const taskTypeConfig: any = {
     ...variableAttached,
   },
   AssignTask: {
-    _background: "background-blue",
+    _background: 'background-blue',
     icon: 'fa-cube',
     shapeType: 'Html',
     htmlPlugin: 'formNode',

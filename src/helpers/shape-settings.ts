@@ -15,7 +15,7 @@ export interface IShapeSettings {
   icon?: string;
   uiComponent?: string;
   altThumbPositions?: number;
-  background? : string;
+  background?: string;
 }
 
 export class ShapeSettings {
