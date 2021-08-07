@@ -1441,7 +1441,8 @@ export const Canvas = (props: CanvasProps) => {
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {			
 			connectConnectionToNode(node);
 			return false;
-		}
+		}	
+		
 		document.body.classList.remove("mouse--moving");
 
 		event.evt.preventDefault();
@@ -1453,6 +1454,8 @@ export const Canvas = (props: CanvasProps) => {
 		if (!!canvasMode.isConnectingNodes) {
 			return false;
 		}
+		
+		console.log("ONMOUSEND", node);
 
 		touching.current = false;
 		dragTime.current = undefined;
@@ -1476,10 +1479,17 @@ export const Canvas = (props: CanvasProps) => {
 			return;			
 		}
 
+		console.log("ONSTAGEMOUSEEND", touching.current, isConnectingNodesByDraggingLocal.current);
+
 		if (touching.current || isConnectingNodesByDraggingLocal.current) {
 			cancelDragStage();
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
+
+				if (!isConnectingNodesByDraggingLocal.current && mouseDragging.current && touchNode.current) {
+					
+					setNewPositionForNode(touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
+				}
 
 				dragTime.current = undefined;
 				touching.current = false;
@@ -1781,7 +1791,7 @@ export const Canvas = (props: CanvasProps) => {
 		if (touchNodeGroup.current != event.currentTarget) {
 			return false;
 		}
-
+console.log("ONTOUCHEND");
 		touching.current = false;
 		dragTime.current = undefined;
 		(touchNode.current as any) = undefined;
