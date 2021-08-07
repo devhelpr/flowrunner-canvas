@@ -188,9 +188,11 @@ export const Canvas = (props: CanvasProps) => {
 
 		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 60);
 		
+		/*
 		if (e.preventDefault) {
 			e.preventDefault();
 		}
+		*/
 		
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -233,7 +235,7 @@ export const Canvas = (props: CanvasProps) => {
 				const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 				const startPerf = performance.now();
 				stageInstance.scale({ x: newScale, y: newScale });
-				console.log("WheelEvent performance", performance.now() - startPerf);
+				//console.log("WheelEvent performance", performance.now() - startPerf);
 				const newPos = {
 					x: -(mousePointTo.x - xPos / newScale) * newScale,
 					y: -(mousePointTo.y - yPos / newScale) * newScale
@@ -253,7 +255,8 @@ export const Canvas = (props: CanvasProps) => {
 
 				setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
 
-				console.log("WheelEvent performance setHtmlElementsPositionAndScale", performance.now() - startPerf);
+				//console.log("WheelEvent performance setHtmlElementsPositionAndScale", performance.now() - startPerf);
+				
 				/*if (layer && layer.current) {
 					(layer.current as any).listening(true);
 					(layer.current as any).batchDraw();
@@ -908,6 +911,9 @@ export const Canvas = (props: CanvasProps) => {
 		const y = resultXY ? resultXY.y : 0;
 		let newPosition = position || {x:x, y:y};
 				
+		let gridSize = 50;
+		newPosition.x = newPosition.x - (newPosition.x % gridSize);
+		newPosition.y = newPosition.y - (newPosition.y % gridSize);
 
 		if (newPosition && !linesOnly) {
 			if (stage && stage.current) {
@@ -919,9 +925,15 @@ export const Canvas = (props: CanvasProps) => {
 
 						newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
 						newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
+
+						newPosition.x = newPosition.x - (newPosition.x % gridSize);
+						newPosition.y = newPosition.y - (newPosition.y % gridSize);
+				
 					}
 				}
 			}
+
+			
 
 			if (shapeRefs.current[node.name]) {
 				if ((shapeRefs.current[node.name] as any)) {

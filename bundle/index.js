@@ -1269,7 +1269,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"ShapeMeasures\": () => (/* binding */ ShapeMeasures)\n/* harmony export */ });\nclass ShapeMeasures {\n}\nShapeMeasures.circleSize = 80;\nShapeMeasures.diamondSize = 160;\nShapeMeasures.rectWidht = 160;\nShapeMeasures.rectHeight = 80;\nShapeMeasures.htmlWidth = 250;\nShapeMeasures.htmlHeight = 250;\n\n\n//# sourceURL=webpack://@devhelpr/flowrunner-canvas/./src/helpers/shape-measures.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"ShapeMeasures\": () => (/* binding */ ShapeMeasures)\n/* harmony export */ });\nclass ShapeMeasures {\n}\nShapeMeasures.circleSize = 100;\nShapeMeasures.diamondSize = 200;\nShapeMeasures.rectWidht = 200;\nShapeMeasures.rectHeight = 100;\nShapeMeasures.htmlWidth = 250;\nShapeMeasures.htmlHeight = 250;\n\n\n//# sourceURL=webpack://@devhelpr/flowrunner-canvas/./src/helpers/shape-measures.ts?");
 
 /***/ }),
 

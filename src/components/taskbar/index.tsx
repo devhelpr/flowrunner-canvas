@@ -165,9 +165,10 @@ export const Taskbar = (props: TaskbarProps) => {
 		if (shapeType == "Diamond") {									
 			return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>				
 				<div className="taskbar__taskname">{className}</div>
-				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-					<polygon points="8,2,14,8,8,14,2,8"  className="taskbar__task-circle"  />
-				</svg>							
+				{taskMetaData.icon ? <span className={"taskbar__task-icon fas " +  taskMetaData.icon}></span> :
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+						<polygon points="8,2,14,8,8,14,2,8"  className="taskbar__task-circle"  />
+					</svg>}							
 			</div>;	
 		}	
 

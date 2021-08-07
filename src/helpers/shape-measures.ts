@@ -1,8 +1,8 @@
 export class ShapeMeasures {
-  static circleSize = 80;
-  static diamondSize = 160;
-  static rectWidht = 160;
-  static rectHeight = 80;
+  static circleSize = 100;
+  static diamondSize = 200;
+  static rectWidht = 200;
+  static rectHeight = 100;
   static htmlWidth = 250;
   static htmlHeight = 250;
 }
