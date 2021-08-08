@@ -1117,7 +1117,7 @@ const taskTypeConfig: any = {
   },
   SendJsonTask: {
     shapeType: 'Rect',
-    background:'background-green',
+    background: 'background-green',
     presetValues: {},
   },
   RouteEndpointTask: {
