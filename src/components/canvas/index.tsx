@@ -12,7 +12,6 @@ import { ShapeSettings } from '../../helpers/shape-settings';
 import { Subject } from 'rxjs';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { DragginTask} from '../../dragging-task';
-
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { ShapeMeasures } from '../../helpers/shape-measures';
 import { ModifyShapeEnum, ShapeStateEnum } from './shapes/shape-types';
@@ -41,6 +40,8 @@ import {
 } from '@dnd-kit/modifiers';
 
 import { ErrorBoundary } from '../../helpers/error';
+
+import * as Konva from "konva"
 
 const uuidV4 = uuid.v4;
 
@@ -148,6 +149,8 @@ export const Canvas = (props: CanvasProps) => {
 
 	let shiftDown = useRef(false);
 	let ctrlDown = useRef(false);
+
+	let animationScript = useRef(undefined as any);
 
 	const droppableStyle = { color: isOver ? 'green' : undefined};
 
@@ -632,6 +635,7 @@ export const Canvas = (props: CanvasProps) => {
 
 	useEffect(() => {
 		//(flowIsLoading as any).current = true;
+		
 		let subscription;
 		if (props.canvasToolbarsubject) {
 			
@@ -658,7 +662,7 @@ export const Canvas = (props: CanvasProps) => {
 			});
 			
 		}
-		return () => {
+		return () => {			
 			if (subscription) {
 				subscription.unsubscribe();
 			}
@@ -885,6 +889,15 @@ export const Canvas = (props: CanvasProps) => {
 		connectionX,
 		connectionY
 	]);
+
+	useEffect(() => {
+		
+
+
+		return () => {
+			//stopAnimation = true;		
+		}
+	}, [flowStore.flow])
 	
 	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
@@ -2155,7 +2168,7 @@ console.log("ONTOUCHEND");
 			;
 	}
 
-	const fitStage = useCallback((node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean) => {
+	const fitStage = useCallback((node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean, doAnimate? : boolean) => {
 		let xMin;
 		let yMin;
 		let xMax;
@@ -2346,8 +2359,93 @@ console.log("ONTOUCHEND");
 							setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
 						}
 						setCanvasOpacity(1);
+						console.log("fitStage position", newPos.x, newPos.y, scale);
+						console.log("fitStage flowWidth flowHeight xMin yMin stageWidth stageHeight", flowWidth, flowHeight, xMin, yMin, stageWidth, stageHeight);
 
-						console.log("fitStage realStageWidth realStageHeight flowHeight yMin yMax stageWidth stageHeight", realStageWidth, realStageHeight, flowHeight, yMin, yMax, stageWidth, stageHeight);
+
+						let stopAnimation = false;
+
+						if (window.localStorage && !!doAnimate) {
+							let as = localStorage.getItem('animation') || "";
+							animationScript.current = undefined;
+							if (as) {
+								animationScript.current = JSON.parse(as);				
+							}
+							console.log("ANIMATION", animationScript.current);
+							let stageInstance = (stage.current as any).getStage();
+							if (animationScript.current) {
+								let nodesToAnimate = animationScript.current.nodes;
+								if (animationScript.current.zoom && stageInstance) {
+									stageScale.current = animationScript.current.zoom;
+									scale = stageScale.current;
+									// 
+									newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
+									newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;
+									stageInstance.position(newPos);
+									stageX.current = newPos.x;
+									stageY.current = newPos.y;									
+
+									stageInstance.scale({ x: animationScript.current.zoom, y: animationScript.current.zoom });
+									stageInstance.batchDraw();
+
+									setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+
+								}
+								animationScript.current.loop = 0;
+								if (animationScript.current.loop < nodesToAnimate.length) {
+									let position = getPosition(nodesToAnimate[animationScript.current.loop]);
+
+									
+									if (stageInstance && position) {
+										
+										//let offsetX = newPos.x;//stageX.current;
+										//let offsetY = newPos.y;//stageY.current;
+				console.log("ANIMATION STEP", position.x * stageScale.current, position.y * stageScale.current);
+										const triggerAnimation = () => {
+
+											newPos.x = offsetX + (-position.x*scale) + (stageWidth)/2 - (150*scale);
+											newPos.y = (-position.y*scale) + (stageHeight + 64)/2 - (150*scale);;
+
+											stageInstance.to({												
+												x:  newPos.x,
+												y:  newPos.y,
+												duration : animationScript.current.duration || 3,
+												easing: Konva.default.Easings.EaseInOut,
+												onUpdate: () => {
+													stageX.current = stageInstance.x();
+													stageY.current = stageInstance.y();
+													stageScale.current = stageInstance.scale().x;
+									
+													setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+												},
+												onFinish: () => {
+													if (!stopAnimation) {
+														animationScript.current.loop++;
+														if (animationScript.current.loop < nodesToAnimate.length) {
+															position = getPosition(nodesToAnimate[animationScript.current.loop]);
+															if (position) {
+
+																console.log(`ANIMATION STEP ${animationScript.current.loop}`, position.x * stageScale.current, position.y * stageScale.current);
+																triggerAnimation();
+															}
+														}
+													}
+												},
+											});
+										}
+										triggerAnimation();
+									}
+								}
+				/*
+								circle.to({
+				x : 50,
+				duration : 0.5,
+				onUpdate: () => console.log('props updated'),
+				onFinish: () => console.log('finished'),
+				});
+				*/
+							}
+						}
 					}
 				} else {
 					const newPos = {
@@ -2380,7 +2478,7 @@ console.log("ONTOUCHEND");
 	}, [flowStore.flow]);
 
 	useEffect(() => {
-		//console.log("useEffect", flowStore.flowId, performance.now());
+		console.log("useEffect AFTER fitstage", flowStore.flowId, performance.now());
 	}, [flowStore.flow]);
 
 	const clickStage = (event) => {
@@ -3037,14 +3135,15 @@ console.log("ONTOUCHEND");
 		
 		console.log("oninput", event);
 
-		/*if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
+		if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
 			if (selectedNode && selectedNode.node) {
 				event.preventDefault();
-				fitStage(selectedNode.node, true);
+				//fitStage(selectedNode.node, true);
+				fitStage(undefined, false, false, true);
 				return false;
 			}
 			return true;
-		}*/
+		}
 
 		if (event.keyCode == shiftKey) {
 			shiftDown.current = true;

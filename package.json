@@ -50,6 +50,7 @@
     "ejs": "^2.6.2",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
+    "gsap": "^3.7.1",
     "html-to-draftjs": "^1.5.0",
     "immer": "^8.0.1",
     "jexl": "^2.2.2",
