@@ -27,7 +27,7 @@ const taskTypeConfig: any = {
     ...variableAttached,
   },
   AssignTask: {
-    _background: 'background-blue',
+    _background: 'background-yellow',
     icon: 'fa-cube',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
@@ -141,6 +141,7 @@ const taskTypeConfig: any = {
     shapeType: 'Circle',
   },
   FunctionCallTask: {
+    background: 'background-yellow',
     cornerRadius: 10,
     shapeType: 'Html',
     htmlPlugin: 'formNode',
