@@ -2365,30 +2365,55 @@ console.log("ONTOUCHEND");
 
 						let stopAnimation = false;
 
+						/*
+							- no auto draw
+							- scale ook animeren
+							- timeout voor delay?
+							- in aparte method zetten
+								xMin en flowwidth etc als useRef opslaan
+
+							- pointerlock api gebruiken om geen cursor te tonen
+							- waarom springt ie naar herstart terug naar begin? .. vanwege de hele fitStage functionaliteit
+						*/
+
 						if (window.localStorage && !!doAnimate) {
 							let as = localStorage.getItem('animation') || "";
 							animationScript.current = undefined;
 							if (as) {
 								animationScript.current = JSON.parse(as);				
 							}
+							let canvas : any = document.querySelector("canvas");
+							if (canvas) {
+								canvas.requestPointerLock();
+							}
 							console.log("ANIMATION", animationScript.current);
 							let stageInstance = (stage.current as any).getStage();
 							if (animationScript.current) {
 								let nodesToAnimate = animationScript.current.nodes;
 								if (animationScript.current.zoom && stageInstance) {
-									stageScale.current = animationScript.current.zoom;
-									scale = stageScale.current;
+									//stageScale.current = animationScript.current.zoom;
+									scale = animationScript.current.zoom;
 									// 
-									newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
+
+
+									stageInstance.autoDrawEnabled = false;
+									
+									/*newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
 									newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;
+
+
 									stageInstance.position(newPos);
 									stageX.current = newPos.x;
 									stageY.current = newPos.y;									
 
 									stageInstance.scale({ x: animationScript.current.zoom, y: animationScript.current.zoom });
-									stageInstance.batchDraw();
-
-									setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+									stageInstance.draw();
+									*/
+									if (layer && layer.current) {
+										(layer.current as any).listening(false);
+										(layer.current as any).batchDraw();
+									}
+									//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 
 								}
 								animationScript.current.loop = 0;
@@ -2397,7 +2422,7 @@ console.log("ONTOUCHEND");
 
 									
 									if (stageInstance && position) {
-										
+										let zoom = animationScript.current.zoom;
 										//let offsetX = newPos.x;//stageX.current;
 										//let offsetY = newPos.y;//stageY.current;
 				console.log("ANIMATION STEP", position.x * stageScale.current, position.y * stageScale.current);
@@ -2409,14 +2434,18 @@ console.log("ONTOUCHEND");
 											stageInstance.to({												
 												x:  newPos.x,
 												y:  newPos.y,
+												scaleX : zoom,
+												scaleY: zoom,
 												duration : animationScript.current.duration || 3,
 												easing: Konva.default.Easings.EaseInOut,
 												onUpdate: () => {
 													stageX.current = stageInstance.x();
 													stageY.current = stageInstance.y();
 													stageScale.current = stageInstance.scale().x;
-									
+
 													setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+
+													stageInstance.draw();
 												},
 												onFinish: () => {
 													if (!stopAnimation) {
@@ -2428,6 +2457,14 @@ console.log("ONTOUCHEND");
 																console.log(`ANIMATION STEP ${animationScript.current.loop}`, position.x * stageScale.current, position.y * stageScale.current);
 																triggerAnimation();
 															}
+														} else {
+															stageInstance.autoDrawEnabled = true;
+															if (layer && layer.current) {
+																(layer.current as any).listening(true);
+																(layer.current as any).batchDraw();																
+															}
+
+															document.exitPointerLock();
 														}
 													}
 												},

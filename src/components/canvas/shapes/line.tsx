@@ -274,6 +274,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			perfectDrawEnabled={false}
 			hitStrokeWidth={0}
 			noMouseEvents={true}
+			shadowForStrokeEnabled={false}
 		>
 		</KonvaLine>
 		<KonvaLine
@@ -300,6 +301,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			onMouseOut={props.onMouseOut}
 			onClick={props.onClickLine}
 			onTap={props.onClickLine}
+			shadowForStrokeEnabled={false}
 		>
 		</KonvaLine>		
 	</Group>
