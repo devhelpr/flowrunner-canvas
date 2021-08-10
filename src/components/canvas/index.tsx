@@ -2430,7 +2430,6 @@ console.log("ONTOUCHEND");
 
 											newPos.x = offsetX + (-position.x*scale) + (stageWidth)/2 - (150*scale);
 											newPos.y = (-position.y*scale) + (stageHeight + 64)/2 - (150*scale);;
-
 											stageInstance.to({												
 												x:  newPos.x,
 												y:  newPos.y,
@@ -2442,10 +2441,9 @@ console.log("ONTOUCHEND");
 													stageX.current = stageInstance.x();
 													stageY.current = stageInstance.y();
 													stageScale.current = stageInstance.scale().x;
-
+													
+													stageInstance.draw();														
 													setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
-
-													stageInstance.draw();
 												},
 												onFinish: () => {
 													if (!stopAnimation) {
@@ -2459,6 +2457,7 @@ console.log("ONTOUCHEND");
 															}
 														} else {
 															stageInstance.autoDrawEnabled = true;
+
 															if (layer && layer.current) {
 																(layer.current as any).listening(true);
 																(layer.current as any).batchDraw();																
