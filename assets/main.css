@@ -152,6 +152,17 @@ img {
 	height:calc(100%);
 	z-index: 2;
 	pointer-events: none;
+	-webkit-transform-origin: top left;
+	        transform-origin: top left;
+	-webkit-transform: translateZ(0);
+	        transform: translateZ(0);
+	-webkit-backface-visibility: hidden;
+	        backface-visibility: hidden;
+	-webkit-perspective: 1px;
+	        perspective: 1px;
+	-webkit-transform: translate3d(0, 0, 0);
+	        transform: translate3d(0, 0, 0);
+	will-change: transform;
 }
 
 .composite {

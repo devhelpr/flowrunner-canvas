@@ -736,13 +736,16 @@ export const Canvas = (props: CanvasProps) => {
 								(stageY.current - y * stageScale.current) + "px) "+
 							"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ";	
 						*/
-						setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);
+						setHtmlElementStyle(element, 0, 0, 1, x, y);
+						//setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);
 
 						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw , true);
 					}
 				}
 			}
 		});
+
+		setHtmlGlobalScale(stageX.current, stageY.current, stageScale.current);
 
 		if (!!doBatchdraw && stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -2148,7 +2151,8 @@ console.log("ONTOUCHEND");
 					}
 
 					const nodeName = element.getAttribute("data-node") || "";
-					setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);	
+					setHtmlElementStyle(element, 0, 0, 1, x, y);	
+					//setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);	
 				}	
 			}		
 		});
@@ -2156,8 +2160,18 @@ console.log("ONTOUCHEND");
 		// see also recalculateStartEndpoints
 
 		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
-		
+		setHtmlGlobalScale(stageX, stageY, stageScale);
 	}, [flowStore.flow]);
+
+	//htmlWrapper
+	const setHtmlGlobalScale = useCallback((stageX, stageY, stageScale) => {
+		if (htmlWrapper && htmlWrapper.current) {
+			(htmlWrapper.current as any).style.transform = 						
+			"translate(" + (stageX ) + "px," + (stageY) + "px) "+
+			"scale(" + (stageScale) + "," + (stageScale) + ") "
+			;
+		}
+	}, [flowStore.flow])
 
 	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
 		(element as any).style.transform = 						
@@ -2444,7 +2458,8 @@ console.log("ONTOUCHEND");
 													stageScale.current = stageInstance.scale().x;
 													
 													stageInstance.draw();														
-													setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+													//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+													setHtmlGlobalScale(stageX.current, stageY.current, stageScale.current);
 												},
 												onFinish: () => {
 													if (!stopAnimation) {
@@ -3719,6 +3734,9 @@ console.log("ONTOUCHEND");
 					</div>				
 					</ErrorBoundary>
 					<div ref={ref => ((htmlWrapper as any).current = ref)} 
+						style={{transform: 
+							"translate(" + (stageX ) + "px," + (stageY) + "px) "+
+							"scale(" + (stageScale) + "," + (stageScale) + ") "}}
 						className="canvas__html-elements">
 						
 						{flowMemo.map((node, index) => {
@@ -3755,9 +3773,9 @@ console.log("ONTOUCHEND");
 
 									*/
 									return <div key={"html" + index}
-										style={{transform: "translate(" + (stageX.current  + position.x * stageScale.current) + "px," + 
-												(stageY.current +  (position.y) * stageScale.current) + "px) " +
-												"scale(" + (stageScale.current) + "," + (stageScale.current) + ") ",
+										style={{transform: "translate(" + (position.x) + "px," + 
+												( (position.y) ) + "px) " +
+												"scale(" + (1) + "," + (1) + ") ",
 												width: (width || node.width || 250) + "px",
 												minHeight: (height || node.height || 250) + "px",
 												height: (height || node.height || 250) + "px",
