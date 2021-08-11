@@ -743,7 +743,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						selected: (selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)
+						selected: (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)
 					})}</React.Fragment>
 				}
 				return null;

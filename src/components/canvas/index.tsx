@@ -256,8 +256,8 @@ export const Canvas = (props: CanvasProps) => {
 				stageY.current = newPos.y;
 				stageScale.current = newScale;
 
-				setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
-
+				//setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
+				setHtmlGlobalScale(newPos.x, newPos.y, newScale);
 				//console.log("WheelEvent performance setHtmlElementsPositionAndScale", performance.now() - startPerf);
 				
 				/*if (layer && layer.current) {

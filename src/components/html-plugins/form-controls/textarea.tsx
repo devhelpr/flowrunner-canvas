@@ -72,6 +72,7 @@ export const Textarea = (props: IFormControlProps) => {
 				className="form-control"
 				name={metaInfo.fieldName} 							
 				value={formControl.value} 
+				disabled={!props.selected}
 				onChange={onChange}
 				onFocus={onFocus}
 				readOnly={!props.selected}

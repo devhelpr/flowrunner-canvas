@@ -150,8 +150,11 @@ img {
 .canvas__html-shape {
 	position: absolute;
 	border-radius: 10px;
-	will-change: transform;
 	transform-origin: top left;
+}
+
+.canvas__html-shape.composite-hint {
+	will-change: transform;
 	perspective: 1px;
 }
 

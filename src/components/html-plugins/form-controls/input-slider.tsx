@@ -27,6 +27,7 @@ export const InputSlider = (props: IFormControlProps) => {
 				value={parseInt(formControl.value) || 0} 
 				onChange={onChange}
 				onFocus={onFocus} 
+				disabled={!props.selected}
 			/>			
 	</div>;
 }
