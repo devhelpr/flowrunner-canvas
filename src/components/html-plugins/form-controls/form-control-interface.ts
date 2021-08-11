@@ -10,4 +10,5 @@ export interface IFormControlProps {
   payload?: any;
   isInFlowEditor: boolean;
   fieldDefinition?: any;
+  selected?: boolean;
 }

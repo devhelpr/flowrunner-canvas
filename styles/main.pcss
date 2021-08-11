@@ -8,11 +8,6 @@ body, html {
 	min-height: 100vh;
 	overflow: hidden;
     overscroll-behavior-x: none;
-
-	transform: translateZ(0);
-	backface-visibility: hidden;
-	perspective: 1px;
-	transform: translate3d(0, 0, 0);
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -95,7 +90,7 @@ img {
 	background: #e2e2e2;
 }
 
-.stage-container {
+.not.stage-container {
 
 	transform: translateZ(0);
 	backface-visibility: hidden;
@@ -103,7 +98,7 @@ img {
 	transform: translate3d(0, 0, 0);
 }
 .stage-container canvas,
-.stage-container .konvajs-content{
+.not.stage-container .konvajs-content{
 	transform: translateZ(0);
 	backface-visibility: hidden;
 	perspective: 1000;
@@ -137,7 +132,9 @@ img {
 	height:calc(100%);
 	z-index: 2;
 	pointer-events: none;
-	
+}
+
+.composite {
 	transform: translateZ(0);
 	backface-visibility: hidden;
 	perspective: 1px;

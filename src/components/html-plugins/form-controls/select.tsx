@@ -72,6 +72,7 @@ export const Select = (props: IFormControlProps) => {
 		<div className="input-group mb-1">
 			<select className="form-control" required={props.metaInfo && !!props.metaInfo.required} 
 				value={formControl.value} 
+				disabled={!props.selected}
 				onFocus={onFocus}
 				onChange={formControl.onChange} >
 				{showDefaultOption === true && <option value="" disabled>Select value</option>}

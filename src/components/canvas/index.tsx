@@ -2397,7 +2397,8 @@ console.log("ONTOUCHEND");
 
 
 									stageInstance.autoDrawEnabled = false;
-									
+									Konva.default.autoDrawEnabled = false;
+
 									/*newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
 									newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;
 
@@ -2457,6 +2458,7 @@ console.log("ONTOUCHEND");
 															}
 														} else {
 															stageInstance.autoDrawEnabled = true;
+															Konva.default.autoDrawEnabled = true;
 
 															if (layer && layer.current) {
 																(layer.current as any).listening(true);
@@ -3772,7 +3774,9 @@ console.log("ONTOUCHEND");
 										data-y={position.y}
 										data-height={(height || node.height || 250)}
 										ref={ref => (elementRefs.current[node.name] = ref)}									 
-										className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState + (settings.background ? " " + settings.background : "")}>
+										className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState + 
+											(settings.background ? " " + settings.background : "") + 
+											(isSelected ? " canvas__html-shap--selected" :"")}>
 											<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
 												<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>
 												<a href="#" onClick={(event) => onCloneNode(node, event)}

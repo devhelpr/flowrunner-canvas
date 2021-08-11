@@ -10,6 +10,8 @@ import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressio
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useSelectedNodeStore} from '../../state/selected-node-state';
+
 import { onFocus } from './form-controls/helpers/focus';
 
 import { PresetManager } from './components/preset-manager';
@@ -125,7 +127,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	//const [storeFlowNode] = useFlowStore();
 	const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
 	const canvasMode = useCanvasModeStateStore();
-	
+	const selectedNode = useSelectedNodeStore();
+
 	const observableId = useRef(uuidV4());
 
 	const unmounted = useRef(false);
@@ -607,7 +610,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 	}
 
-	const renderFields = () => {
+	const renderFields = useCallback(() => {
 
 		let metaInfo : any[] = [];
 		if (!!props.isNodeSettingsUI) {
@@ -676,7 +679,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 										accept={metaInfo.acceptFiles || ""}
 										id={"input-" + props.node.name + "-" +metaInfo.fieldName}
 										data-index={index}
-										disabled={!!canvasMode?.isFlowrunnerPaused}													 
+										disabled={!!canvasMode?.isFlowrunnerPaused || 
+											(!selectedNode || 
+												(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) 
+											}													 
 									/>			
 								</div>
 								{errors[metaInfo.fieldName] && <div className="text-danger">{errors[metaInfo.fieldName]}</div>}
@@ -736,7 +742,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						datasources: props.datasources,
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
-						fieldDefinition: metaInfo
+						fieldDefinition: metaInfo,
+						selected: (selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)
 					})}</React.Fragment>
 				}
 				return null;
@@ -744,7 +751,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
 				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
-	};
+	}, [selectedNode.node]);
 
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"

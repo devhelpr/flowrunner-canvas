@@ -9,16 +9,6 @@ body, html {
 	min-height: 100vh;
 	overflow: hidden;
     overscroll-behavior-x: none;
-
-	-webkit-transform: translateZ(0);
-
-	        transform: translateZ(0);
-	-webkit-backface-visibility: hidden;
-	        backface-visibility: hidden;
-	-webkit-perspective: 1px;
-	        perspective: 1px;
-	-webkit-transform: translate3d(0, 0, 0);
-	        transform: translate3d(0, 0, 0);
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -110,7 +100,7 @@ img {
 	background: #e2e2e2;
 }
 
-.stage-container {
+.not.stage-container {
 
 	-webkit-transform: translateZ(0);
 
@@ -123,7 +113,7 @@ img {
 	        transform: translate3d(0, 0, 0);
 }
 .stage-container canvas,
-.stage-container .konvajs-content{
+.not.stage-container .konvajs-content{
 	-webkit-transform: translateZ(0);
 	        transform: translateZ(0);
 	-webkit-backface-visibility: hidden;
@@ -162,9 +152,10 @@ img {
 	height:calc(100%);
 	z-index: 2;
 	pointer-events: none;
-	
+}
+
+.composite {
 	-webkit-transform: translateZ(0);
-	
 	        transform: translateZ(0);
 	-webkit-backface-visibility: hidden;
 	        backface-visibility: hidden;

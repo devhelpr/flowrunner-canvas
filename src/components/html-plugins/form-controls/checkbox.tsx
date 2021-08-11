@@ -30,7 +30,9 @@ export const CheckBox = (props: IFormControlProps) => {
 				name={metaInfo.fieldName} 
 				onChange={onClick} 
 				onFocus={onFocus}
-				checked={formControl.value === true}></input>
+				checked={formControl.value === true}
+				disabled={!props.selected}
+				></input>
 			<label 
 				className="form-check-label"
 				htmlFor={node.name + "-" + metaInfo.fieldName+"-checkbox"}>{metaInfo.label || metaInfo.fieldName || node.name}{!!metaInfo.required && " *"}</label>

@@ -74,6 +74,7 @@ export const Textarea = (props: IFormControlProps) => {
 				value={formControl.value} 
 				onChange={onChange}
 				onFocus={onFocus}
+				readOnly={!props.selected}
 				rows={props.node.rows || metaInfo.rows || 3}
 				ref={ref => ((textAreaRef as any).current = ref)} 
 			></textarea>
