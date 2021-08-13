@@ -187,7 +187,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	useEffect(() => {
 
 		setNode({...props.node});
-		//console.log("FORM-NODE use-effect", props.node.name, performance.now());
+		console.log("FORM-NODE use-effect", props.node.name, props.node);
 		if (props.flowrunnerConnector) {
 			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		}

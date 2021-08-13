@@ -171,7 +171,7 @@ export const Canvas = (props: CanvasProps) => {
 			(layer.current as any).listening(true);
 			(layer.current as any).batchDraw();
 		}
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const wheelEvent = useCallback((e , touchPosition? : any) => {
 		
@@ -271,7 +271,7 @@ export const Canvas = (props: CanvasProps) => {
 			oldwheeltime.current = performance.now();
 		}
 		return false;
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const updateDimensions = () => {
 		const stageContainerElement = document.querySelector(".stage-container");
@@ -496,7 +496,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		nodeStateList.current = [];
 		nodeStateCount.current = 0;
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const nodeStateObserver = (nodeName: string, nodeState : string, _touchedNodes : any) => {
 		if (!updateNodeTouchedState) {
@@ -633,7 +633,7 @@ export const Canvas = (props: CanvasProps) => {
 	const onResize = useCallback((event) => {
 		updateDimensions();
 		fitStage(undefined,true,true);
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	useEffect(() => {
 		//(flowIsLoading as any).current = true;
@@ -669,7 +669,7 @@ export const Canvas = (props: CanvasProps) => {
 				subscription.unsubscribe();
 			}
 		}
-	}, [flowStore.flow])
+	}, [flowStore.flow, selectedNode.node])
 
 	const updateTouchedNodes = () => {
 		// DONT UPDATE STATE HERE!!!
@@ -755,7 +755,7 @@ export const Canvas = (props: CanvasProps) => {
 				stageInstance.batchDraw();
 			}
 		}		
-	}, [flowStore.flow]);	
+	}, [flowStore.flow, selectedNode.node]);	
 
 	useLayoutEffect(() => {
 
@@ -767,6 +767,9 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		const startPerf = performance.now();
+
+		selectedNode.selectNode("", undefined);
+
 		if (props.flow && props.flow.length > 0) {
 						
 
@@ -902,7 +905,7 @@ export const Canvas = (props: CanvasProps) => {
 		return () => {
 			//stopAnimation = true;		
 		}
-	}, [flowStore.flow])
+	}, [flowStore.flow, selectedNode.node])
 	
 	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
@@ -1210,7 +1213,7 @@ export const Canvas = (props: CanvasProps) => {
 				
 			}
 		}
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
@@ -2093,7 +2096,7 @@ console.log("ONTOUCHEND");
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);						
 			}
 		}
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const onDragStageEnd = useCallback((event) => {
 
@@ -2126,7 +2129,7 @@ console.log("ONTOUCHEND");
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 			}
 		}
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const setHtmlElementsPositionAndScale = useCallback(
 		(stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
@@ -2163,7 +2166,7 @@ console.log("ONTOUCHEND");
 
 		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
 		setHtmlGlobalScale(stageX, stageY, stageScale);
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	//htmlWrapper
 	const setHtmlGlobalScale = useCallback((stageX, stageY, stageScale) => {
@@ -2173,7 +2176,7 @@ console.log("ONTOUCHEND");
 			"scale(" + (stageScale) + "," + (stageScale) + ") "
 			;
 		}
-	}, [flowStore.flow])
+	}, [flowStore.flow, selectedNode.node])
 
 	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
 		(element as any).style.transform = 						
@@ -2449,10 +2452,10 @@ console.log("ONTOUCHEND");
 										//let offsetY = newPos.y;//stageY.current;
 				console.log("ANIMATION STEP", position.x * stageScale.current, position.y * stageScale.current);
 										const triggerAnimation = () => {
-
+											let isDrawing = false;
 											newPos.x = offsetX + (-position.x*scale) + (stageWidth)/2 - (150*scale);
 											newPos.y = (-position.y*scale) + (stageHeight + 64)/2 - (150*scale);;
-											animateTo(stageInstance, {												
+											let tween = animateTo(stageInstance, {												
 												x:  newPos.x,
 												y:  newPos.y,
 												scaleX : zoom,
@@ -2460,6 +2463,10 @@ console.log("ONTOUCHEND");
 												duration : animationScript.current.duration || 3,
 												easing: Konva.default.Easings.EaseInOut,
 												onUpdate: () => {
+													if (isDrawing) {
+														return false;
+													}
+													isDrawing = true;
 													stageX.current = stageInstance.x();
 													stageY.current = stageInstance.y();
 													stageScale.current = stageInstance.scale().x;
@@ -2467,9 +2474,11 @@ console.log("ONTOUCHEND");
 													stageInstance.draw();														
 													//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 													setHtmlGlobalScale(stageX.current, stageY.current, stageScale.current);
+													isDrawing = false;
 													return false;
 												},
 												onFinish: () => {
+													tween.destroy();
 													if (!stopAnimation) {
 														animationScript.current.loop++;
 														if (animationScript.current.loop < nodesToAnimate.length) {
@@ -2537,11 +2546,11 @@ console.log("ONTOUCHEND");
 				}
 			}
 		}
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	useEffect(() => {
 		console.log("useEffect AFTER fitstage", flowStore.flowId, performance.now());
-	}, [flowStore.flow]);
+	}, [flowStore.flow, selectedNode.node]);
 
 	const clickStage = (event) => {
 		if (isConnectingNodesByDraggingLocal.current) {
@@ -3278,8 +3287,7 @@ console.log("ONTOUCHEND");
 	let nodesConnectedToSelectedNode : any = {};
 	const flowMemo = useMemo(() => {
 		return flowStore.flow
-	}, [flowStore.flow]);
-
+	}, [flowStore.flow, selectedNode.node]);
 /*
 <DndContext 
 			    id={"canvas-dndcontext"}

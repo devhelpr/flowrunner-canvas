@@ -947,6 +947,9 @@ textarea.form-control {
 textarea.form-control {
 	white-space: nowrap;
 }
+textarea.form-control:disabled {
+	white-space: pre;
+}
 
 .debug-info__debug-info-content {
 	font-family: 'Fira Code';
