@@ -172,6 +172,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				keepRatio={true}
 				x={Math.round((ShapeMeasures.diamondSize / 2) - ShapeMeasures.diamondSize / 16)}
 				y={16}
+				transformsEnabled={"position"}
 				onClick={props.onClickSetup} 
 			/>}
 		</Group>

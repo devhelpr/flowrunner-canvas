@@ -118,10 +118,11 @@ img {
 	        transform: translateZ(0);
 	-webkit-backface-visibility: hidden;
 	        backface-visibility: hidden;
-	-webkit-perspective: 1000;
-	        perspective: 1000;
+	-webkit-perspective: 1px;
+	        perspective: 1px;
 	-webkit-transform: translate3d(0, 0, 0);
 	        transform: translate3d(0, 0, 0);
+	will-change: transform;
 }
 .stage-container.konvajs-content {
 	min-height: 100% !important;
@@ -181,6 +182,8 @@ img {
 	border-radius: 10px;
 	-webkit-transform-origin: top left;
 	        transform-origin: top left;
+	-webkit-perspective: 1px;
+	        perspective: 1px;
 }
 
 .canvas__html-shape.composite-hint {

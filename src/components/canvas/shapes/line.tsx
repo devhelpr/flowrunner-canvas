@@ -252,7 +252,9 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 */
 
 // props.opacity !== undefined ? props.opacity : opacity
-	return <Group listening={!props.noMouseEvents}>
+	return <Group listening={!props.noMouseEvents}
+		transformsEnabled={"position"}
+	>
 		<KonvaLine
 		 	ref={bgLineRef} 
 			points={[props.xstart, props.ystart,

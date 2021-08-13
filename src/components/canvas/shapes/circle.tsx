@@ -84,6 +84,7 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 			onMouseOut={props.onMouseOut}
 			onMouseLeave={props.onMouseLeave}
 			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
+			transformsEnabled={"position"}
 			>
 			<KonvaCircle 
 				x={ShapeMeasures.circleSize/2}
@@ -94,6 +95,7 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 				width={ShapeMeasures.circleSize}
 				height={ShapeMeasures.circleSize}
 				fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor} 
+				transformsEnabled={"position"}
 				perfectDrawEnabled={false}>
 			</KonvaCircle>
 			<Text
@@ -109,6 +111,7 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 				fontSize={18}
 				ellipsis={true}
 				fill={settings.textColor}
+				transformsEnabled={"position"}
 				perfectDrawEnabled={true}>
 			</Text>
 		</Group>			

@@ -165,6 +165,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				height={Math.round(ShapeMeasures.rectWidht / 4)}			
 				keepRatio={true}
 				listening={false}
+				transformsEnabled={"position"}
 				x={Math.round((ShapeMeasures.rectWidht / 2) - (ShapeMeasures.rectWidht / 8))}
 				y={8} 
 			/>}

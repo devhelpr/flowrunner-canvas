@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} from 'react';
-import { Stage, Layer , Rect } from 'react-konva';
+import { Stage, Layer , Rect, Group } from 'react-konva';
 import { Shapes } from './shapes';
 import { LinesForShape } from './shapes/lines-for-shape';
 import { Thumbs }  from './shapes/thumbs';
@@ -42,6 +42,7 @@ import {
 import { ErrorBoundary } from '../../helpers/error';
 
 import * as Konva from "konva"
+import { animateTo } from "./konva/Tween";
 
 const uuidV4 = uuid.v4;
 
@@ -104,6 +105,7 @@ export const Canvas = (props: CanvasProps) => {
 	let canvasWrapper = useRef(null);
 	let htmlWrapper = useRef(null);
 	let layer = useRef(null);
+	let stageGroup = useRef(null);
 	let flowIsLoading = useRef(true);
 	let flowIsFittedStageForSingleNode = useRef(false);
 	let closestNodeWhenAddingNewNode = useRef(undefined);
@@ -2437,6 +2439,11 @@ console.log("ONTOUCHEND");
 
 									
 									if (stageInstance && position) {
+
+										if (stageGroup && stageGroup.current) {
+											(stageGroup.current as any).cache();
+										}
+
 										let zoom = animationScript.current.zoom;
 										//let offsetX = newPos.x;//stageX.current;
 										//let offsetY = newPos.y;//stageY.current;
@@ -2445,7 +2452,7 @@ console.log("ONTOUCHEND");
 
 											newPos.x = offsetX + (-position.x*scale) + (stageWidth)/2 - (150*scale);
 											newPos.y = (-position.y*scale) + (stageHeight + 64)/2 - (150*scale);;
-											stageInstance.to({												
+											animateTo(stageInstance, {												
 												x:  newPos.x,
 												y:  newPos.y,
 												scaleX : zoom,
@@ -2460,6 +2467,7 @@ console.log("ONTOUCHEND");
 													stageInstance.draw();														
 													//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 													setHtmlGlobalScale(stageX.current, stageY.current, stageScale.current);
+													return false;
 												},
 												onFinish: () => {
 													if (!stopAnimation) {
@@ -2474,8 +2482,9 @@ console.log("ONTOUCHEND");
 														} else {
 															stageInstance.autoDrawEnabled = true;
 															Konva.default.autoDrawEnabled = true;
-
 															if (layer && layer.current) {
+																(stageGroup.current as any).clearCache();
+
 																(layer.current as any).listening(true);
 																(layer.current as any).batchDraw();																
 															}
@@ -3346,6 +3355,7 @@ console.log("ONTOUCHEND");
 							onTap={clickStage}
 							className="stage-container">
 							<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
+								<Group ref={ref => ((stageGroup as any).current = ref)}>
 								<Rect x={0} y={0} width={1024} height={750}></Rect>
 								{connections.length > 0 && connections.map((node, index) => {
 
@@ -3729,7 +3739,7 @@ console.log("ONTOUCHEND");
 									noMouseEvents={true}
 									isNodeConnectorHelper={true}
 								></Shapes.Line>
-							</Layer>
+							</Group></Layer>
 						</Stage>
 					</div>				
 					</ErrorBoundary>

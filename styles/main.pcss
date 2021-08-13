@@ -101,8 +101,9 @@ img {
 .not.stage-container .konvajs-content{
 	transform: translateZ(0);
 	backface-visibility: hidden;
-	perspective: 1000;
+	perspective: 1px;
 	transform: translate3d(0, 0, 0);
+	will-change: transform;
 }
 .stage-container.konvajs-content {
 	min-height: 100% !important;
@@ -151,6 +152,7 @@ img {
 	position: absolute;
 	border-radius: 10px;
 	transform-origin: top left;
+	perspective: 1px;
 }
 
 .canvas__html-shape.composite-hint {

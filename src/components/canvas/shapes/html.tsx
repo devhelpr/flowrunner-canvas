@@ -107,6 +107,7 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				height={(height || props.node.height || ShapeMeasures.htmlHeight)+5}
 				fill="#000000"
 				opacity={0}  
+				transformsEnabled={"position"}
 				perfectDrawEnabled={false}></KonvaRect>		
 		</Group>
 		
