@@ -7,7 +7,7 @@ var blacklist = {
     easing: 1,
     onFinish: 1,
     yoyo: 1,
-    onUpdate: 1
+    onUpdate: 1,
   },
   PAUSED = 1,
   PLAYING = 2,
@@ -236,7 +236,7 @@ export class Tween {
     this.reset();
     (this as any).onFinish = config.onFinish;
     (this as any).onReset = config.onReset;
-    (this as any).onUpdate = config.onUpdate;    
+    (this as any).onUpdate = config.onUpdate;
   }
   _addAttr(key, end) {
     let node = this.node,
@@ -442,7 +442,7 @@ export class Tween {
 Tween.attrs = {};
 Tween.tweens = {};
 
-export const animateTo = function(node, params) : Tween {
+export const animateTo = function(node, params): Tween {
   var onFinish = params.onFinish;
   params.node = node;
   params.onFinish = function() {
