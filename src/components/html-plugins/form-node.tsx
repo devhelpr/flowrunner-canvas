@@ -239,7 +239,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [flow]);
 	*/
 	
-	const receivePayloadFromNode = (payload : any) => {
+	const receivePayloadFromNode = useCallback((payload : any) => {
 		const maxPayloads = 1;
 		if (unmounted.current) {
 			return;
@@ -310,10 +310,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setReceivedPayload(payload);
 		}
 		return;
-	};
+	}, [props.taskSettings]);
 
 	
-	const onSubmit = (event: any) => {
+	const onSubmit = useCallback((event: any) => {
 		event.preventDefault();
 		//		
 		//	 debugNode doesn't get triggered after pushFlow...
@@ -360,9 +360,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setErrors(updatedErrors);
 		}
 		return false;
-	};
+	}, [props.taskSettings, props.node]);
 
-	const setValueHelper = (fieldName, value, metaInfo) => {
+	const setValueHelper = useCallback((fieldName, value, metaInfo) => {
 		if (props.node && fieldName) {	
 			let updatedErrors = {...errors};
 			if (updatedErrors[fieldName]) {
@@ -431,7 +431,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	};
+	}, [props.taskSettings, props.node]);
 
 	
 	const onChange = (fieldName, fieldType, metaInfo, event: any) => {
@@ -460,7 +460,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		return false;
 	};
 
-	const setValueViaOnReceive = (newValue, metaInfo) => {
+	const setValueViaOnReceive = useCallback((newValue, metaInfo) => {
 		if (props.node && metaInfo.fieldName) {	
 			let _errors = {...errors};
 			if (_errors[metaInfo.fieldName]) {
@@ -526,7 +526,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}
+	}, [props.taskSettings, props.node]);
 
 	const onReceiveValue = (value, metaInfo) => {
 
@@ -573,7 +573,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 	}
 
-	const onGetData = () => {			
+	const onGetData = useCallback(() => {			
 		let data = {...props.node,...node,...values};
 		delete data.x;
 		delete data.y;
@@ -583,9 +583,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		delete data.shapeType;
 		delete data.taskType;
 		return data;
-	}
+	}, [props.node]);
 
-	const onSetData = (data) => {
+	const onSetData = useCallback((data) => {
 
 		setValues(data);
 		const updatedNode = {
@@ -608,10 +608,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				data
 			);
 		}
-	}
+	}, [props.node]);
 
 	const renderFields = useCallback(() => {
 
+		if (!props.taskSettings) {
+			return <></>;
+		}
+		
 		let metaInfo : any[] = [];
 		if (!!props.isNodeSettingsUI) {
 			metaInfo = props.taskSettings.configMenu.fields
@@ -758,7 +762,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
 				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
-	}, [selectedNode.node, props.taskSettings,props.node]);
+	}, [selectedNode.node, props.taskSettings,props.node, props.datasources]);
 
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"
