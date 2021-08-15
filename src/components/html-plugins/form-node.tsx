@@ -669,21 +669,28 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 							<div className="form-group">						
 								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
 								<div className="input-group mb-1">
-									<input
-										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}
-										onFocus={onFocus}
-										key={"index" + index}
-										type={fieldType === "fileupload" ? "file" : fieldType}
-										className="form-control"
-										value={inputValue}
-										accept={metaInfo.acceptFiles || ""}
-										id={"input-" + props.node.name + "-" +metaInfo.fieldName}
-										data-index={index}
-										disabled={!!canvasMode?.isFlowrunnerPaused || 
-											(!selectedNode || 
-												(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) 
-											}													 
-									/>			
+									{!!props.taskSettings.showNotSelectedAsLabels &&
+										(!selectedNode || 
+											(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) ?
+											<label key={"index-label-" + index} className="static-control"
+												id={"label-" + props.node.name + "-" +metaInfo.fieldName}
+											>{inputValue}</label> :										
+											<input
+												onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}
+												onFocus={onFocus}
+												key={"index" + index}
+												type={fieldType === "fileupload" ? "file" : fieldType}
+												className="form-control"
+												value={inputValue}
+												accept={metaInfo.acceptFiles || ""}
+												id={"input-" + props.node.name + "-" +metaInfo.fieldName}
+												data-index={index}
+												disabled={!!canvasMode?.isFlowrunnerPaused || 
+													(!selectedNode || 
+														(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) 
+													}													 
+											/>
+									}			
 								</div>
 								{errors[metaInfo.fieldName] && <div className="text-danger">{errors[metaInfo.fieldName]}</div>}
 							</div>
@@ -751,7 +758,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
 				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
-	}, [selectedNode.node]);
+	}, [selectedNode.node, props.taskSettings,props.node]);
 
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"

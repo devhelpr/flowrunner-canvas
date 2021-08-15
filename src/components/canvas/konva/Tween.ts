@@ -99,7 +99,7 @@ class TweenEngine {
         this.reset();
       }
     } else {
-      this._time = t;
+      this._time = Math.floor(t);
       this.update();
     }
   }

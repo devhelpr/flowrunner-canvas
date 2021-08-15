@@ -219,6 +219,7 @@ const taskTypeConfig: any = {
       forceNumeric: true,
     },
     htmlPlugin: 'formNode',
+    showNotSelectedAsLabels: true,
     metaInfo: [
       {
         fieldName: 'expression',
