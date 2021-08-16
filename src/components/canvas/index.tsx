@@ -768,14 +768,15 @@ export const Canvas = (props: CanvasProps) => {
 
 		const startPerf = performance.now();
 
-		selectedNode.selectNode("", undefined);
-
 		if (props.flow && props.flow.length > 0) {
 						
-
 			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
 				setCanvasOpacity(0);
 				(flowIsLoading as any).current = true;
+
+				selectedNode.selectNode("", undefined);
+				console.log(`selectedNode.selectNode("", undefined)`);
+				
 			} else
 			if (props.flowState == FlowState.loaded && (flowIsLoading as any).current) {
 				if (canvasOpacity == 0) {

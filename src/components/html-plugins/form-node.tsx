@@ -310,7 +310,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setReceivedPayload(payload);
 		}
 		return;
-	}, [props.taskSettings]);
+	}, [props.taskSettings, props.node]);
 
 	
 	const onSubmit = useCallback((event: any) => {
@@ -360,7 +360,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setErrors(updatedErrors);
 		}
 		return false;
-	}, [props.taskSettings, props.node]);
+	}, [props.taskSettings, props.node, values]);
 
 	const setValueHelper = useCallback((fieldName, value, metaInfo) => {
 		if (props.node && fieldName) {	
@@ -431,7 +431,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}, [props.taskSettings, props.node]);
+	}, [props.taskSettings, props.node, values, node]);
 
 	
 	const onChange = (fieldName, fieldType, metaInfo, event: any) => {
@@ -526,7 +526,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}, [props.taskSettings, props.node]);
+	}, [props.taskSettings, props.node, values]);
 
 	const onReceiveValue = (value, metaInfo) => {
 
@@ -583,7 +583,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		delete data.shapeType;
 		delete data.taskType;
 		return data;
-	}, [props.node]);
+	}, [props.node, node, value, values]);
 
 	const onSetData = useCallback((data) => {
 
@@ -608,14 +608,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				data
 			);
 		}
-	}, [props.node]);
+	}, [props.node, node, value, values]);
 
 	const renderFields = useCallback(() => {
 
 		if (!props.taskSettings) {
 			return <></>;
 		}
-		
+
 		let metaInfo : any[] = [];
 		if (!!props.isNodeSettingsUI) {
 			metaInfo = props.taskSettings.configMenu.fields
@@ -676,7 +676,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 									{!!props.taskSettings.showNotSelectedAsLabels &&
 										(!selectedNode || 
 											(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) ?
-											<label key={"index-label-" + index} className="static-control"
+											<label key={"index-label-" + index} className="static-control static-control__form-node-input-as-label"
 												id={"label-" + props.node.name + "-" +metaInfo.fieldName}
 											>{inputValue}</label> :										
 											<input
@@ -762,7 +762,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
 				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
-	}, [selectedNode.node, props.taskSettings,props.node, props.datasources]);
+	}, [selectedNode.node, props.taskSettings, props.node, props.datasources, value, values, errors, receivedPayload, node]);
 
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"
