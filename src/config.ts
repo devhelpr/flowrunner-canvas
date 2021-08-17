@@ -936,41 +936,41 @@ const taskTypeConfig: any = {
         fieldType: 'textarea',
       },
       {
-        fieldName: "parameters",
-        fieldType: "objectList",
-        label: "Function parameters",
-        idProperty: "parameterId",
+        fieldName: 'parameters',
+        fieldType: 'objectList',
+        label: 'Function parameters',
+        idProperty: 'parameterId',
         metaInfo: [
           {
-            fieldName: "parameterName",
-            fieldType: "text",
+            fieldName: 'parameterName',
+            fieldType: 'text',
             required: true,
           },
           {
-            fieldName: "fieldType",
+            fieldName: 'fieldType',
             required: true,
-            fieldType: "select",
+            fieldType: 'select',
             options: [
               {
-                label: "int32",
-                value: "int32",
+                label: 'int32',
+                value: 'int32',
               },
               {
-                label: "int64",
-                value: "int64",
+                label: 'int64',
+                value: 'int64',
               },
               {
-                label: "float32",
-                value: "float32",
+                label: 'float32',
+                value: 'float32',
               },
               {
-                label: "float64",
-                value: "float64",
+                label: 'float64',
+                value: 'float64',
               },
             ],
           },
         ],
-      }
+      },
     ],
     presetValues: {
       outputProperty: 'script',
