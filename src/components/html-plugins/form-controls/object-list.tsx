@@ -309,7 +309,7 @@ export const ObjectList = (props: IFormControlProps) => {
     </DndContext>
 
 	*/
-
+console.log("OBJECTLIST", formControl.value,  metaInfo, props);
 	return <div className="form-group" data-helper="object-list">						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
 			{!!props.isInFlowEditor ? <>{metaInfo.viewMode && metaInfo.viewMode == "table" && metaInfo.metaInfo ?
@@ -358,11 +358,15 @@ export const ObjectList = (props: IFormControlProps) => {
 							return <div className="form-control__object-list-node" key={"input" + metaInfo.fieldName + index}>
 								<a href="#" onFocus={onFocus} onClick={(event) => deleteClick(event, index)} className="form-control__object-list-node-delete fas fa-trash-alt"></a>
 								<FormNodeHtmlPlugin 
-									node={{...formControl.value[index], metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + index, id: props.node.name + "-edit-" + index}}
+									node={{...formControl.value[index], 
+										metaInfo:props.metaInfo.metaInfo, 
+										name: props.node.name + "-edit-" + index, 
+										id: props.node.name + "-edit-" + index}}
 									isObjectListNodeEditing={true}
 									isInFlowEditor={props.isInFlowEditor}
 									onSetValue={(value, fieldName) => onEditNodeKeyValue(index, value, fieldName)}
 									datasources={props.datasources}
+									taskSettings={undefined}									
 								></FormNodeHtmlPlugin>
 							</div>
 						})}

@@ -398,7 +398,11 @@ function start(flowFileName, taskPlugins, options) {
 			let list = [];
 			if (!req.query.flowId || !req.query.nodeName) {
 				throw new Error("Required parameters not specified.");
-			}	
+			}
+			if (!presets || !presets[req.query.flowId]) {
+				res.send(JSON.stringify({data:[]}));
+				return;
+			}			
 			list = (presets[req.query.flowId][req.query.nodeName] || []).map((presetItem) => {
 				return {
 					name: presetItem.name,

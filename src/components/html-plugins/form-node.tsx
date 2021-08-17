@@ -182,7 +182,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 			}
 		}
-	}, []);
+	}, [props.node, ]);
 
 	useEffect(() => {
 
@@ -360,7 +360,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setErrors(updatedErrors);
 		}
 		return false;
-	}, [props.taskSettings, props.node, values]);
+	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 
 	const setValueHelper = useCallback((fieldName, value, metaInfo) => {
 		if (props.node && fieldName) {	
@@ -431,7 +431,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}, [props.taskSettings, props.node, values, node]);
+	}, [props.taskSettings, props.node, values, node, props.isObjectListNodeEditing, props.isNodeSettingsUI,
+		props.onSetValue
+	]);
 
 	
 	const onChange = (fieldName, fieldType, metaInfo, event: any) => {
@@ -526,7 +528,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}, [props.taskSettings, props.node, values]);
+	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing,props.isNodeSettingsUI,props.onSetValue]);
 
 	const onReceiveValue = (value, metaInfo) => {
 
@@ -611,14 +613,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.node, node, value, values]);
 
 	const renderFields = useCallback(() => {
-
-		if (!props.taskSettings) {
-			return <></>;
-		}
-
+		
 		let metaInfo : any[] = [];
 		if (!!props.isNodeSettingsUI) {
-			metaInfo = props.taskSettings.configMenu.fields
+			if (!props.taskSettings) {
+				metaInfo = props.taskSettings.configMenu.fields;
+			} else {
+				metaInfo = [];
+			}
 		} else {
 			if (props.taskSettings && props.taskSettings.metaInfo) {
 				metaInfo = props.taskSettings && props.taskSettings.metaInfo;
@@ -673,7 +675,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 							<div className="form-group">						
 								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
 								<div className="input-group mb-1">
-									{!!props.taskSettings.showNotSelectedAsLabels &&
+									{!!(props.taskSettings?.showNotSelectedAsLabels ?? false) && !props.isObjectListNodeEditing &&
 										(!selectedNode || 
 											(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) ?
 											<label key={"index-label-" + index} className="static-control static-control__form-node-input-as-label"
@@ -689,10 +691,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 												accept={metaInfo.acceptFiles || ""}
 												id={"input-" + props.node.name + "-" +metaInfo.fieldName}
 												data-index={index}
-												disabled={!!canvasMode?.isFlowrunnerPaused || 
+												disabled={!props.isObjectListNodeEditing && (!!canvasMode?.isFlowrunnerPaused || 
 													(!selectedNode || 
 														(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) 
-													}													 
+												)}													 
 											/>
 									}			
 								</div>
@@ -754,7 +756,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						selected: (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)
+						selected: (props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name))
 					})}</React.Fragment>
 				}
 				return null;
@@ -762,7 +764,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
 				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
-	}, [selectedNode.node, props.taskSettings, props.node, props.datasources, value, values, errors, receivedPayload, node]);
+	}, [selectedNode.node, props.taskSettings, props.node, props.datasources, 
+		value, values, errors, receivedPayload, node,
+		props.isInFlowEditor, props.isNodeSettingsUI, props.isObjectListNodeEditing
+	]);
 
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"
