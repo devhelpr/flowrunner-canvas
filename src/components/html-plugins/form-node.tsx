@@ -187,7 +187,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	useEffect(() => {
 
 		setNode({...props.node});
-		console.log("FORM-NODE use-effect", props.node.name, props.node);
+		//console.log("FORM-NODE use-effect", props.node.name, props.node);
 		if (props.flowrunnerConnector) {
 			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		}
@@ -643,7 +643,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						data = {...props.node, ...receivedPayload, ...values};
 					}
 					const result = executeExpressionTree(expression, data);
-					console.log("visibilityCondition", metaInfo.visibilityCondition, data, result, expression);
+					//console.log("visibilityCondition", metaInfo.visibilityCondition, data, result, expression);
 					if (!result) {
 						return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
 					}								

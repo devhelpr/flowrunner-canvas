@@ -309,7 +309,6 @@ export const ObjectList = (props: IFormControlProps) => {
     </DndContext>
 
 	*/
-console.log("OBJECTLIST", formControl.value,  metaInfo, props);
 	return <div className="form-group" data-helper="object-list">						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong></label>
 			{!!props.isInFlowEditor ? <>{metaInfo.viewMode && metaInfo.viewMode == "table" && metaInfo.metaInfo ?
