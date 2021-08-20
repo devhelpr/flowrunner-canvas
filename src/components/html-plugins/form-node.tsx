@@ -150,7 +150,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					setValue(props.node.value || props.node.defaultValue || "");
 				}
 			} else {
-				if (props.node.taskType == "FormTask") {
+				if (props.node.taskType == "FormTask" ||
+					!!props.taskSettings.isFormTask) {
 					//console.log("pre modifyFlowNode mount", values);
 					if (props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
@@ -396,7 +397,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			//console.log("setValueHelper",updatedValues);
 			//console.log("props.node.name",value,props.node.name);
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
-				if (props.node.taskType == "FormTask") {
+				if (props.node.taskType == "FormTask" ||
+					!!props.taskSettings.isFormTask) {
 					//console.log("pre modifyFlowNode 2", updatedValues);
 					if (props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
@@ -493,7 +495,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setNode(updatedNode);
 			
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
-				if (props.node.taskType == "FormTask") {
+				if (props.node.taskType == "FormTask" ||
+					!!props.taskSettings.isFormTask) {
 
 					// TODO : this should also push through all fields from this formnode
 					// 		kan dat de hele state.values zijn ?
