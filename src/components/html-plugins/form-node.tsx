@@ -619,7 +619,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		
 		let metaInfo : any[] = [];
 		if (!!props.isNodeSettingsUI) {
-			if (!props.taskSettings) {
+			if (props.taskSettings) {
 				metaInfo = props.taskSettings.configMenu.fields;
 			} else {
 				metaInfo = [];
@@ -680,7 +680,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 								<div className="input-group mb-1">
 									{!!(props.taskSettings?.showNotSelectedAsLabels ?? false) && !props.isObjectListNodeEditing &&
 										(!selectedNode || 
-											(props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && 
+											(!props.isNodeSettingsUI && props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && 
 											  selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) ?
 											<label key={"index-label-" + index} className="static-control static-control__form-node-input-as-label"
 												id={"label-" + props.node.name + "-" +metaInfo.fieldName}
@@ -695,7 +695,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 												accept={metaInfo.acceptFiles || ""}
 												id={"input-" + props.node.name + "-" +metaInfo.fieldName}
 												data-index={index}
-												disabled={props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && (
+												disabled={!props.isNodeSettingsUI && props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && (
 														!props.isObjectListNodeEditing && (!!canvasMode?.isFlowrunnerPaused || 
 														(!selectedNode || 
 															(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name))
@@ -762,7 +762,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						selected: (props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name))
+						selected: (!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name))
 					})}</React.Fragment>
 				}
 				return null;
