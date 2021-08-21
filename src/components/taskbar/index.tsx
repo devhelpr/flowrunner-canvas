@@ -102,7 +102,7 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	useEffect(() => {
-		loadTasks();
+		loadTasks();		
 	}, [canvasMode]);
 
 	useEffect(() => {

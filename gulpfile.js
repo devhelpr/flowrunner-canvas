@@ -200,6 +200,8 @@ gulp.task('startFlowServer', function(cb) {
     mediaUrl:"/media",
     config: {
       "TestCustomConfigTask": {
+        shapeType: "Html",
+        htmlPlugin: "formNode",
         presetValues: {
           "test" : "hello config"
         }
