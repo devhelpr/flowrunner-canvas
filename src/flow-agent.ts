@@ -800,10 +800,13 @@ const startFlow = (
     flow.registerTask('TimerTask', TimerTask);
     flow.registerTask('RandomTask', RandomTask);
     flow.registerTask('OutputValueTask', OutputValueTask);
-    flow.registerTask('ApiProxyTask', ApiProxyTask);
+    
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
     */
+
+    worker.flow.registerTask('ApiProxyTask', ApiProxyTask);
+
     registerTasks(worker.flow);
 
     if (pluginRegistry) {
