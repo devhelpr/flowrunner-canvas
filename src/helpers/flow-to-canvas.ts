@@ -483,4 +483,85 @@ export class FlowToCanvas {
       y: position.y + offset * 24,
     };
   }
+
+  static getHasInputs(shapeType, taskSettings) {
+    if (taskSettings) {
+      if (!!taskSettings.isStartEnd) {
+        return false;
+      }
+      const allowedInputs = taskSettings.constraints?.input?.allowedInputs ?? -1;
+      return (allowedInputs < 0) || (allowedInputs > 0);
+    }
+    return true;
+  }
+
+  static getAllowedInputs(shapeType, taskSettings) {
+    if (taskSettings) {
+      if (!!taskSettings.isStartEnd) {
+        return 0;
+      }
+      const allowedInputs = taskSettings.constraints?.input?.allowedInputs ?? -1;
+      return allowedInputs;
+    }
+    return -1;
+  }
+
+  static canHaveInputs(shapeType, taskSettings, flow: any, node: any, flowHashMap: any) {
+    if (flow === undefined || node === undefined || flowHashMap == undefined) {
+      return false;
+    }
+    if (taskSettings) {
+      if (!!taskSettings.isStartEnd) {
+        return false;
+      }
+      const nodeMapped = flowHashMap.get(node.name);
+      if (nodeMapped) {
+        let currentInputs = flowHashMap.get(flow[nodeMapped.index].name).end.length; 
+        const allowedInputs = taskSettings.constraints?.input?.allowedInputs ?? -1;
+        if (allowedInputs < 0) {
+          return true;
+        }       
+
+        return currentInputs < allowedInputs;
+      }
+    }
+    return true;
+  }
+
+  static getHasOutputs(shapeType, taskSettings) {
+    if (taskSettings) {      
+      const allowedOutputs = taskSettings.constraints?.output?.allowedOutputs ?? -1;
+      return (allowedOutputs < 0) || (allowedOutputs > 0);
+    }
+    return true;
+  }
+
+  static getAllowedOutputs(shapeType, taskSettings) {
+    if (taskSettings) {      
+      const allowedOutputs = taskSettings.constraints?.output?.allowedOutputs ?? -1;
+      return allowedOutputs;
+    }
+    return -1;
+  }
+
+  static canHaveOutputs(shapeType, taskSettings, flow: any, node: any, flowHashMap: any) {
+    if (flow === undefined || node === undefined || flowHashMap == undefined) {
+      return false;
+    }
+    if (taskSettings) {      
+      const nodeMapped = flowHashMap.get(node.name);
+      if (nodeMapped) {
+        let currentOutputs = flowHashMap.get(flow[nodeMapped.index].name).start.length; 
+        const allowedOutputs = taskSettings.constraints?.output?.allowedOutputs ?? -1;
+        if (allowedOutputs < 0) {
+          return true;
+        }       
+
+        return currentOutputs < allowedOutputs;
+      }
+    }
+    return true;
+  }
+
+
 }

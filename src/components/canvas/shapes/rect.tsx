@@ -8,6 +8,30 @@ import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { Lines } from './line-helper';
 
+const getStrokeColor = (backgroundColorString, settings) => {
+	switch (backgroundColorString)  {
+		case "background-yellow": {
+			return "#f0e938";
+		}
+		default: {
+			return settings.strokeColor;
+		}
+	}
+	
+}
+
+const getFillColor = (backgroundColorString, settings) => {
+	switch (backgroundColorString)  {
+		case "background-yellow": {
+			return "#fbf791";
+		}
+		default: {
+			return settings.strokeColor;
+		}
+	}
+	
+}
+
 export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
 	let rect : any = undefined;	
@@ -111,6 +135,12 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 		}
 	}));
 
+	let strokeColor = settings.strokeColor;
+	let fillColor = props.isSelected ? settings.fillSelectedColor : settings.fillColor;
+	if (!props.isSelected && settings.background) {
+		strokeColor = getStrokeColor(settings.background, settings);
+		fillColor = getFillColor(settings.background, settings);
+	}
 	
 	//ref={ref} (group)
 	return <>
@@ -141,7 +171,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				ref={ref => (setRef(ref))}
 				x={skewXOffset}
 				y={0}
-				stroke={settings.strokeColor}
+				stroke={strokeColor}
 				hitStrokeWidth={0}			
 				strokeWidth={4}
 				listening={true}
@@ -149,7 +179,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				transformsEnabled={settings.isSkewed ? "all" : "position"}
 				width={ShapeMeasures.rectWidht}
 				height={ShapeMeasures.rectHeight}
-				fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor}  
+				fill={fillColor}  
 				perfectDrawEnabled={false}>
 			</KonvaRect>
 			{settings.subShapeType && settings.subShapeType == "Model" && <KonvaLine

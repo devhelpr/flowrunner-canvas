@@ -138,6 +138,11 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 						lineRef.current.opacity(parameters.opacity);
 						
 						if (props.isNodeConnectorHelper !== undefined && !!props.isNodeConnectorHelper) {
+
+							if (bgLineRef && bgLineRef.current) {
+								bgLineRef.current.opacity(parameters.opacity);
+							}
+
 							if (lineRef.current) {
 								if (parameters.opacity > 0) {
 									lineRef.current.pointerWidth(10);

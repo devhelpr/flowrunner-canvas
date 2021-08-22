@@ -156,7 +156,25 @@ const taskTypeConfig: any = {
     },
   },
   FunctionInputTask: {
-    isStartEnd: true,
+    _isStartEnd: true,
+    background: 'background-yellow',
+    constraints: {
+      input: {
+        allowedInputs: 0,
+        notAllowed: [],
+        allowed: []
+      }
+    },
+  },
+  FunctionOutputTask: {
+    background: 'background-yellow',
+    constraints: {
+      output: {
+        allowedOutputs: 0,
+        notAllowed: [],
+        allowed: []
+      }
+    },
   },
   FetchTask: {
     shapeType: 'Rect',

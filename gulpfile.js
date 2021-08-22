@@ -204,7 +204,19 @@ gulp.task('startFlowServer', function(cb) {
         htmlPlugin: "formNode",
         presetValues: {
           "test" : "hello config"
-        }
+        },
+        constraints: {
+          input: {
+            allowedInputs: 1,
+            notAllowed: [],
+            allowed: []
+          },
+          output: {
+            allowedOutputs: 1,
+            notAllowed: [],
+            allowed: []
+          }
+        },
       }
     }
   });
