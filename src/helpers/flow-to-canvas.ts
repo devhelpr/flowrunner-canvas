@@ -490,7 +490,7 @@ export class FlowToCanvas {
         return false;
       }
       const allowedInputs = taskSettings.constraints?.input?.allowedInputs ?? -1;
-      return (allowedInputs < 0) || (allowedInputs > 0);
+      return allowedInputs < 0 || allowedInputs > 0;
     }
     return true;
   }
@@ -516,11 +516,11 @@ export class FlowToCanvas {
       }
       const nodeMapped = flowHashMap.get(node.name);
       if (nodeMapped) {
-        let currentInputs = flowHashMap.get(flow[nodeMapped.index].name).end.length; 
+        let currentInputs = flowHashMap.get(flow[nodeMapped.index].name).end.length;
         const allowedInputs = taskSettings.constraints?.input?.allowedInputs ?? -1;
         if (allowedInputs < 0) {
           return true;
-        }       
+        }
 
         return currentInputs < allowedInputs;
       }
@@ -529,15 +529,15 @@ export class FlowToCanvas {
   }
 
   static getHasOutputs(shapeType, taskSettings) {
-    if (taskSettings) {      
+    if (taskSettings) {
       const allowedOutputs = taskSettings.constraints?.output?.allowedOutputs ?? -1;
-      return (allowedOutputs < 0) || (allowedOutputs > 0);
+      return allowedOutputs < 0 || allowedOutputs > 0;
     }
     return true;
   }
 
   static getAllowedOutputs(shapeType, taskSettings) {
-    if (taskSettings) {      
+    if (taskSettings) {
       const allowedOutputs = taskSettings.constraints?.output?.allowedOutputs ?? -1;
       return allowedOutputs;
     }
@@ -548,20 +548,18 @@ export class FlowToCanvas {
     if (flow === undefined || node === undefined || flowHashMap == undefined) {
       return false;
     }
-    if (taskSettings) {      
+    if (taskSettings) {
       const nodeMapped = flowHashMap.get(node.name);
       if (nodeMapped) {
-        let currentOutputs = flowHashMap.get(flow[nodeMapped.index].name).start.length; 
+        let currentOutputs = flowHashMap.get(flow[nodeMapped.index].name).start.length;
         const allowedOutputs = taskSettings.constraints?.output?.allowedOutputs ?? -1;
         if (allowedOutputs < 0) {
           return true;
-        }       
+        }
 
         return currentOutputs < allowedOutputs;
       }
     }
     return true;
   }
-
-
 }

@@ -162,8 +162,8 @@ const taskTypeConfig: any = {
       input: {
         allowedInputs: 0,
         notAllowed: [],
-        allowed: []
-      }
+        allowed: [],
+      },
     },
   },
   FunctionOutputTask: {
@@ -172,8 +172,8 @@ const taskTypeConfig: any = {
       output: {
         allowedOutputs: 0,
         notAllowed: [],
-        allowed: []
-      }
+        allowed: [],
+      },
     },
   },
   FetchTask: {
