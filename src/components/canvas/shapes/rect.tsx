@@ -13,11 +13,22 @@ const getStrokeColor = (backgroundColorString, settings) => {
 		case "background-yellow": {
 			return "#f0e938";
 		}
+		case "background-orange": {
+			return "#f8a523";
+		}
+		case "background-blue": {
+			return "#36a4f9";
+		}
+		case "background-green": {
+			return "#3bee76";
+		}
+		case "background-purple": {
+			return "#cc8aee";
+		}
 		default: {
 			return settings.strokeColor;
 		}
 	}
-	
 }
 
 const getFillColor = (backgroundColorString, settings) => {
@@ -25,11 +36,22 @@ const getFillColor = (backgroundColorString, settings) => {
 		case "background-yellow": {
 			return "#fbf791";
 		}
+		case "background-orange": {
+			return "#f4c67d";
+		}
+		case "background-blue": {
+			return "#86c6f8";
+		}
+		case "background-green": {
+			return "#7df4a4";
+		}
+		case "background-purple": {
+			return "#e2bcf5";
+		}
 		default: {
-			return settings.strokeColor;
+			return settings.fillColor;
 		}
 	}
-	
 }
 
 export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
@@ -141,7 +163,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 		strokeColor = getStrokeColor(settings.background, settings);
 		fillColor = getFillColor(settings.background, settings);
 	}
-	
+
 	//ref={ref} (group)
 	return <>
 		<Group

@@ -1177,6 +1177,13 @@ const taskTypeConfig: any = {
   },
   RouteEndpointTask: {
     background: 'background-blue',
+    constraints: {
+      input: {
+        allowedInputs: 0,
+        notAllowed: [],
+        allowed: [],
+      },
+    },
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     presetValues: {
