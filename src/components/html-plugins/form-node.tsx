@@ -122,6 +122,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const [errors, setErrors] = useState({} as any);
 	const [datasource, setDatasource] = useState({} as any);
 	const [receivedPayload, setReceivedPayload] = useState({} as any);		
+	const [lastClickedInputNode , setLastClickedInputNode] = useState("");
 
 	//const flow = useFlowStore();
 	//const [storeFlowNode] = useFlowStore();
@@ -199,6 +200,16 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 	}, [props.node]);
 
+	useEffect(() => {		
+		if (selectedNode.node&& props.node.name == selectedNode.node.name) {
+			if (lastClickedInputNode !== "") {
+				const inputElement = document.getElementById(lastClickedInputNode);
+				if (inputElement) {
+					inputElement.focus();
+				}
+			}
+		}
+	}, [props.node, lastClickedInputNode, selectedNode.node]);
 	/*
 
 		// TODO : implement initializeFlowNode 
@@ -615,6 +626,13 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 	}, [props.node, node, value, values]);
 
+	const onInputGroupClick = useCallback((event, inputFieldName, formControlDOMId : string) => {
+		if (selectedNode.node.name !== props.node.name) {
+			selectedNode.selectNode(props.node.name, props.node);
+			setLastClickedInputNode(formControlDOMId);
+		}
+	}, [props.node, selectedNode.node]);
+
 	const renderFields = useCallback(() => {
 		
 		let metaInfo : any[] = [];
@@ -677,7 +695,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
 								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
-								<div className="input-group mb-1">
+								<div className="input-group mb-1" 
+									onClick={(event) => onInputGroupClick(event, metaInfo.fieldName, "input-" + props.node.name + "-" + metaInfo.fieldName)}>
 									{!!(props.taskSettings?.showNotSelectedAsLabels ?? false) && !props.isObjectListNodeEditing &&
 										(!selectedNode || 
 											(!props.isNodeSettingsUI && props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && 
@@ -686,7 +705,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 												id={"label-" + props.node.name + "-" +metaInfo.fieldName}
 											>{inputValue}</label> :										
 											<input
-												onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}
+												onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}												
 												onFocus={onFocus}
 												key={"index" + index}
 												type={fieldType === "fileupload" ? "file" : fieldType}
@@ -762,7 +781,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						selected: (!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name))
+						selected: (!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
+						onFormControlGroupClick: onInputGroupClick
 					})}</React.Fragment>
 				}
 				return null;

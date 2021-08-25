@@ -66,10 +66,12 @@ export const Textarea = (props: IFormControlProps) => {
 		return false;
 	}
 
-	return <div className="form-group">						
+	return <div className="form-group" 
+				onClick={(event) => props.onFormControlGroupClick(event, metaInfo.fieldName, "textarea-" + props.node.name + "-" + metaInfo.fieldName)}>						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 			<textarea 				
 				className="form-control"
+				id={"textarea-" + props.node.name + "-" + metaInfo.fieldName}
 				name={metaInfo.fieldName} 							
 				value={formControl.value} 
 				disabled={!props.selected}

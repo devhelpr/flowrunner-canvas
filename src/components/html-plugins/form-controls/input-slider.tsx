@@ -18,7 +18,9 @@ export const InputSlider = (props: IFormControlProps) => {
 		formControl.handleChangeByValue(value);
 	}
 
-	return <div className="form-group">						
+	return <div className="form-group"
+				onClick={(event) => props.onFormControlGroupClick(event, metaInfo.fieldName, "slider-" + props.node.name + "-" + metaInfo.fieldName)}
+			>						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name} ({formControl.value || 0})</strong>{!!metaInfo.required && " *"}</label>
 			<Slider 
 				name={metaInfo.fieldName} 
@@ -28,6 +30,7 @@ export const InputSlider = (props: IFormControlProps) => {
 				onChange={onChange}
 				onFocus={onFocus} 
 				disabled={!props.selected}
+				id={"slider-" + props.node.name + "-" + metaInfo.fieldName}
 			/>			
 	</div>;
 }
