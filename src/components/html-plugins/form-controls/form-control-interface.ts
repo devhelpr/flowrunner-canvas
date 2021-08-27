@@ -11,5 +11,5 @@ export interface IFormControlProps {
   isInFlowEditor: boolean;
   fieldDefinition?: any;
   enabled?: boolean;
-  onFormControlGroupClick: (event: any, fieldName: string, formControlDOMId : string) => void;
+  onFormControlGroupClick: (event: any, fieldName: string, formControlDOMId: string) => void;
 }
