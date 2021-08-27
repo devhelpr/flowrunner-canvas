@@ -26,7 +26,7 @@ import {
 	readOnlyFlowrunnerStorageProvider
 } from './flow-localstorage-provider';
 
-import { useFlows } from './use-flows';
+import { useFlows, FlowState } from './use-flows';
 import { registerPlugins } from './external-plugins';
 import { IFlowAgent } from './interfaces/IFlowAgent';
 
@@ -121,7 +121,8 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	}
 	const flows = useFlows(flowrunnerConnector.current);
 	
-	useEffect(() => {
+	useEffect(() => {			
+
 		canvasToolbarsubject.current = new Subject<string>();
 
 		import( './render-html-node').then((moduleRenderHtmlNode) => 
@@ -193,6 +194,12 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		}
 	}, [props.flowStorageProvider , props.flowrunnerConnector]);		
 
+	useEffect(() => {
+		if (flows.flowState !== FlowState.idle) {
+			flows.reloadFlow();
+		}
+	}, [props.flowStorageProvider , props.flowrunnerConnector]);
+	
 	if (!renderFlowCanvas || !flowrunnerConnector.current) {
 		return <></>;
 	}

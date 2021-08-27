@@ -70,6 +70,10 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
     setFlowState(FlowState.loading);
   };
 
+  const reloadFlow = () => {
+    setFlowState(FlowState.loading);
+  }
+
   useEffect(() => {
     if (flowState == FlowState.loading) {
       if (flowrunnerConnector.hasStorageProvider) {
@@ -175,5 +179,6 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
     loadFlow,
     onGetFlows,
     saveFlow,
+    reloadFlow
   };
 };
