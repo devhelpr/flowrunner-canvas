@@ -74,10 +74,10 @@ export const Textarea = (props: IFormControlProps) => {
 				id={"textarea-" + props.node.name + "-" + metaInfo.fieldName}
 				name={metaInfo.fieldName} 							
 				value={formControl.value} 
-				disabled={!props.selected}
+				disabled={!props.enabled}
 				onChange={onChange}
 				onFocus={onFocus}
-				readOnly={!props.selected}
+				readOnly={!props.enabled}
 				rows={props.node.rows || metaInfo.rows || 3}
 				ref={ref => ((textAreaRef as any).current = ref)} 
 			></textarea>

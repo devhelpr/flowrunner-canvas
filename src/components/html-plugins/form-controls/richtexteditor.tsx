@@ -138,7 +138,7 @@ export const RichTextEditor = (props: IFormControlProps) => {
 				editorClassName="editor-class"
 				toolbarClassName="toolbar-class"
 				onFocus={onFocus}
-				readOnly={!props.selected}
+				readOnly={!props.enabled}
 				toolbar={{
 					inline: { inDropdown: true },
 					image: { 

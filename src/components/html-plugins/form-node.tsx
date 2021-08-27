@@ -781,7 +781,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						selected: (!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
+						enabled: (!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
 						onFormControlGroupClick: onInputGroupClick
 					})}</React.Fragment>
 				}

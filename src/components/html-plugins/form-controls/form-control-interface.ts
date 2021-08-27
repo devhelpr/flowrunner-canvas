@@ -10,6 +10,6 @@ export interface IFormControlProps {
   payload?: any;
   isInFlowEditor: boolean;
   fieldDefinition?: any;
-  selected?: boolean;
+  enabled?: boolean;
   onFormControlGroupClick: (event: any, fieldName: string, formControlDOMId : string) => void;
 }

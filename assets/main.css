@@ -1652,3 +1652,7 @@ textarea.form-control:disabled {
 .static-control__form-node-input-as-label {
 	word-break: break-word;
 }
+
+[data-html-plugin="formNode"]:not[data-task="FormTask"] .form-control:disabled {
+	cursor: pointer;
+}

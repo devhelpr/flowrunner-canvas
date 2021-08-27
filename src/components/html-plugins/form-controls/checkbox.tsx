@@ -31,7 +31,7 @@ export const CheckBox = (props: IFormControlProps) => {
 				onChange={onClick} 
 				onFocus={onFocus}
 				checked={formControl.value === true}
-				disabled={!props.selected}
+				disabled={!props.enabled}
 				></input>
 			<label 
 				className="form-check-label"

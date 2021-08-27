@@ -191,7 +191,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				flowAgent.current.addEventListener("external", props.onMessageFromFlow);
 			}
 		}
-	}, []);		
+	}, [props.flowStorageProvider , props.flowrunnerConnector]);		
 
 	if (!renderFlowCanvas || !flowrunnerConnector.current) {
 		return <></>;
