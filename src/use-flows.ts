@@ -72,7 +72,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
 
   const reloadFlow = () => {
     setFlowState(FlowState.loading);
-  }
+  };
 
   useEffect(() => {
     if (flowState == FlowState.loading) {
@@ -179,6 +179,6 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
     loadFlow,
     onGetFlows,
     saveFlow,
-    reloadFlow
+    reloadFlow,
   };
 };
