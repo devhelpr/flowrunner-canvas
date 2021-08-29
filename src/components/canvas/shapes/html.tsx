@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useLayoutEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useImperativeHandle , useRef} from 'react';
 
 import { Group, Rect as KonvaRect } from 'react-konva';
@@ -13,7 +13,8 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 	const [width, setWidth] = useState(0);
 	const [height, setHeight] = useState(0);
 
-	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
+	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
+		[props.taskType, props.node]);
 	
 	const groupRef = useRef(null as any);
 

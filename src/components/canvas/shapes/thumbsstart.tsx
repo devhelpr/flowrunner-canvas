@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useLayoutEffect } from 'react';
+import { useState, useEffect, useLayoutEffect , useMemo } from 'react';
 import { useImperativeHandle , useRef} from 'react';
 
 import * as Konva from 'react-konva';
@@ -17,7 +17,8 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 	const [height, setHeight] = useState(0);
 	const groupRef = useRef(null as any);
 
-	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
+	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
+		[props.taskType, props.node]);
 
 	useImperativeHandle(ref, () => ({
 		modifyShape: (action : ModifyShapeEnum, parameters : any) => {

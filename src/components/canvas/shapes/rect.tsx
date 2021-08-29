@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, RefObject, useImperativeHandle , useRef} from 'react';
+import { useState, useEffect, RefObject, useImperativeHandle , useRef, useMemo} from 'react';
 
 import useImage from 'use-image';
 import { Group, Text, Rect as KonvaRect, Image as KonvaImage, Line as KonvaLine } from 'react-konva';
@@ -55,7 +55,8 @@ const getFillColor = (backgroundColorString, settings) => {
 }
 
 export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
-	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
+	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
+		[props.taskType, props.node]);
 	let rect : any = undefined;	
 	let textRef : any = undefined;
 	let skewX = 0;

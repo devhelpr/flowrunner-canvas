@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useImperativeHandle , useRef} from 'react';
+import { useImperativeHandle , useRef, useMemo} from 'react';
 
 import { Group, Text, Ellipse as KonvaEllipse } from 'react-konva';
 import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
@@ -8,7 +8,8 @@ import { ShapeSettings } from '../../../helpers/shape-settings';
 import { Lines } from './line-helper';
 
 export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
-	const settings = ShapeSettings.getShapeSettings(props.taskType, props.node);
+	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
+		[props.taskType, props.node]);
 	const groupRef = useRef(null as any);
 
 	useImperativeHandle(ref, () => ({

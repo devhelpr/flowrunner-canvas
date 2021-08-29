@@ -184,12 +184,13 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 			}
 		}
-	}, [props.node, ]);
+
+		// RUN THIS ONLY ON MOUNT OF COMPONENT
+	}, []);
 
 	useEffect(() => {
 
 		setNode({...props.node});
-		//console.log("FORM-NODE use-effect", props.node.name, props.node);
 		if (props.flowrunnerConnector) {
 			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		}
@@ -198,7 +199,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 			}
 		}
-	}, [props.node]);
+	}, [props.node, props.flowrunnerConnector]);
 
 	useEffect(() => {		
 		if (selectedNode.node&& props.node.name == selectedNode.node.name) {
@@ -444,8 +445,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}, [props.taskSettings, props.node, values, node, props.isObjectListNodeEditing, props.isNodeSettingsUI,
-		props.onSetValue
+	}, [props.taskSettings, props.node, values, 
+		errors,
+		node, props.isObjectListNodeEditing, props.isNodeSettingsUI,
+		props.onSetValue, props.flowrunnerConnector
 	]);
 
 	
@@ -473,7 +476,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 		
 		return false;
-	};
+	}
 
 	const setValueViaOnReceive = useCallback((newValue, metaInfo) => {
 		if (props.node && metaInfo.fieldName) {	
@@ -542,7 +545,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			
 		}
-	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing,props.isNodeSettingsUI,props.onSetValue]);
+	}, [props.taskSettings, props.node, values, 
+		props.isObjectListNodeEditing,props.isNodeSettingsUI,props.onSetValue,
+		props.flowrunnerConnector]);
 
 	const onReceiveValue = (value, metaInfo) => {
 
@@ -624,7 +629,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				data
 			);
 		}
-	}, [props.node, node, value, values]);
+	}, [props.node, node, value, values, props.flowrunnerConnector]);
 
 	const onInputGroupClick = useCallback((event, inputFieldName, formControlDOMId : string) => {
 		if (selectedNode.node.name !== props.node.name) {
@@ -634,7 +639,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.node, selectedNode.node]);
 
 	const renderFields = useCallback(() => {
-		
+		//console.log("RENDERFIELDS" , props.node.name, node, props);
 		let metaInfo : any[] = [];
 		if (!!props.isNodeSettingsUI) {
 			if (props.taskSettings) {
@@ -792,7 +797,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		</>; 
 	}, [selectedNode.node, props.taskSettings, props.node, props.datasources, 
 		value, values, errors, receivedPayload, node,
-		props.isInFlowEditor, props.isNodeSettingsUI, props.isObjectListNodeEditing
+		props.isInFlowEditor, props.isNodeSettingsUI, props.isObjectListNodeEditing,
+		props.flowrunnerConnector
 	]);
 
 	return <div className="html-plugin-node" style={{			

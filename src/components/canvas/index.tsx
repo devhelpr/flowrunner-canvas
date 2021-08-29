@@ -18,6 +18,7 @@ import { ModifyShapeEnum, ShapeStateEnum } from './shapes/shape-types';
 import { Flow } from '../flow';
 import { calculateLineControlPoints } from '../../helpers/line-points'
 import { EditNodeSettings } from '../edit-node-settings';
+import { HtmlNode} from './canvas-components/html-node';
 
 import { clearPositions, getPosition, setPosition, getPositions } from '../../services/position-service';
 
@@ -3876,86 +3877,21 @@ console.log("ONTOUCHEND");
 						className="canvas__html-elements">
 						
 						{flowMemo.map((node, index) => {
-								let shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-								const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-								const Shape = Shapes[shapeType];
-								
-								if (shapeType === "Html" && Shape) {
-									
-									const nodeClone = {...node};
-									const position = getPosition(node.name) || node;
-									let nodeState = (nodesStateLocal.current[node.name] || "") == "error" ? " has-error" : "";
-
-									const isSelected = selectedNode && selectedNode.node.name === node.name;
-									nodeClone.htmlPlugin = node.htmlPlugin || (settings as any).htmlPlugin || "";
-									
-									let width = undefined;
-									let height = undefined;
-
-									if (props.getNodeInstance) {
-										const instance = props.getNodeInstance(node, props.flowrunnerConnector, flowStore.flow, settings);
-										if (instance) {
-											if (instance.getWidth && instance.getHeight) {
-												width = instance.getWidth(node);
-												height = instance.getHeight(node);
-											}
-										}
-									}
-
-									//let top = (-(height || node.height || 250)/2);
-									/*
-										left: (-(width || node.width || 250)/2)+"px",
-										top: (top)+"px",
-
-									*/
-									return <div key={"html" + index}
-										style={{transform: "translate(" + (position.x) + "px," + 
-												( (position.y) ) + "px) " +
-												"scale(" + (1) + "," + (1) + ") ",
-												width: (width || node.width || 250) + "px",
-												minHeight: (height || node.height || 250) + "px",
-												height: (height || node.height || 250) + "px",
-												top: "0px",
-												left: "0px",
-												opacity: (!canvasHasSelectedNode || (selectedNode && selectedNode.node.name === node.name)) ? 1 : 1 //0.5 										 
-											}}
-										id={node.name}
-										data-node={node.name}
-										data-task={node.taskType}
-										data-html-plugin={nodeClone.htmlPlugin}
-										data-visualizer={node.visualizer || "default"}
-										data-x={position.x} 
-										data-y={position.y}
-										data-height={(height || node.height || 250)}
-										ref={ref => (elementRefs.current[node.name] = ref)}									 
-										className={"canvas__html-shape canvas__html-shape-" + node.name + nodeState + 
-											(settings.background ? " " + settings.background : "") + 
-											(isSelected ? " canvas__html-shap--selected" :"") + " " +
-											(FlowToCanvas.getHasOutputs(shapeType, settings) ? "" : "canvas__html-shape--no-outputs") + " " +
-											(FlowToCanvas.getHasInputs(shapeType, settings) ? "" : "canvas__html-shape--no-inputs")
-											}>
-											<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
-												<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{node.label ? node.label : node.name}</span>
-												<a href="#" onClick={(event) => onCloneNode(node, event)}
-													onFocus={onFocus}
-													className="canvas__html-shape-bar-icon far fa-clone"></a>									
-												{!!settings.hasConfigMenu && <a href="#"
-													onFocus={onFocus} 
-													onClick={(event) => onShowNodeSettings(node, settings, event)} 
-													className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
-											<div className="canvas__html-shape-body">
-											{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, flowMemo, settings)}</div>
-											<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
-											<div className={"canvas__html-shape-thumb-startbottom"}></div>
-											<div className={"canvas__html-shape-thumb-endtop"}></div>
-											<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}></div>
-											{settings.events && settings.events.map((event ,eventIndex) => {
-												return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + index + "-" + eventIndex}></div>
-											})}
-											</div>;						
-								}
-								return <React.Fragment key={"html" + index}></React.Fragment>;
-								
+							return <HtmlNode
+								key={"html_" + node.name + props.flowId}
+								ref={ref => (elementRefs.current[node.name] = ref)}	
+								node={node}
+								flowrunnerConnector={props.flowrunnerConnector}
+								nodesStateLocal={nodesStateLocal.current[node.name] || ""}
+								getNodeInstance={props.getNodeInstance}
+								onCloneNode={onCloneNode}
+								canvasHasSelectedNode={canvasHasSelectedNode}
+								onFocus={onFocus}
+								onShowNodeSettings={onShowNodeSettings}
+								renderHtmlNode={props.renderHtmlNode}
+								flowId={props.flowId}
+								flowMemo={flowMemo}
+							></HtmlNode>;												
 							})
 						}
 					</div>
