@@ -208,6 +208,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				if (inputElement) {
 					inputElement.focus();
 				}
+				setLastClickedInputNode("");
 			}
 		}
 	}, [props.node, lastClickedInputNode, selectedNode.node]);
