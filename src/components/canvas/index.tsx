@@ -795,13 +795,13 @@ export const Canvas = (props: CanvasProps) => {
 				
 				flowStore.flow.map((node, index) => {					
 
-					if (node.x && node.y) {						
+					if (node.x !== undefined && node.y !== undefined) {						
 						setPosition(node.name , {
 							x:node.x,
 							y:node.y
 						});
 					}
-					if (node.xstart && node.ystart) {						
+					if (node.xstart !== undefined && node.ystart !== undefined) {						
 						setPosition(node.name , {
 							xstart: node.xstart,
 							ystart: node.ystart,
