@@ -170,6 +170,7 @@ export const Canvas = (props: CanvasProps) => {
 
 	const wheelEnableLayoutOnTimeout = useCallback(() => {
 		if (layer && layer.current) {
+			//console.log("wheelEnableLayoutOnTimeout");
 			(layer.current as any).listening(true);
 			(layer.current as any).batchDraw();
 		}
@@ -193,7 +194,7 @@ export const Canvas = (props: CanvasProps) => {
 			(layer.current as any).listening(false);
 		}
 
-		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 60);
+		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 200);
 		
 		/*
 		if (e.preventDefault) {
@@ -203,7 +204,6 @@ export const Canvas = (props: CanvasProps) => {
 		
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
-			//if (refs.stage !== undefined) {
 
 			// workaround to get at least faster zooming with big flows
 			// its not buttery smooth but it will have to do for now
@@ -260,15 +260,8 @@ export const Canvas = (props: CanvasProps) => {
 				stageY.current = newPos.y;
 				stageScale.current = newScale;
 
-				//setHtmlElementsPositionAndScale(newPos.x, newPos.y, newScale);
 				setHtmlGlobalScale(newPos.x, newPos.y, newScale);
-				//console.log("WheelEvent performance setHtmlElementsPositionAndScale", performance.now() - startPerf);
 				
-				/*if (layer && layer.current) {
-					(layer.current as any).listening(true);
-					(layer.current as any).batchDraw();
-				}
-				*/
 			}
 			oldwheeltime.current = performance.now();
 		}

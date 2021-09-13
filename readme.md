@@ -103,3 +103,7 @@ node flowrunner-canvas.js
 # Esbuild experimental builder
 
 npx gulp esbuild
+
+# Flow-editor with local storage provider for testing
+
+http://localhost:4000/flow-editor-only

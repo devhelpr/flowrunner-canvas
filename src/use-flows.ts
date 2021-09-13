@@ -120,11 +120,11 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
   const saveFlow = (selectedFlow?) => {
     const flowAndUpdatedPositions = flowStore.flow.map(node => {
       let updatedNode = { ...node };
-      if (node.x && node.y && node.shapeType !== 'Line') {
+      if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
         const position = getPosition(node.name);
         updatedNode.x = position.x;
         updatedNode.y = position.y;
-      } else if (node.xstart && node.ystart && node.shapeType === 'Line') {
+      } else if (node.xstart !== undefined && node.ystart !== undefined && node.shapeType === 'Line') {
         const position = getPosition(node.name);
 
         updatedNode.xstart = position.xstart;
