@@ -136,7 +136,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const timer : any = useRef(null);
 	const lastTime : any = useRef(null);
 	const throttleTimer : any = useRef(null);
-
+	const modifyFlowThrottleTimer : any = useRef(null);
+	const modifyFlowThrottleEnabled : any = useRef(false);
 	useEffect(() => {
 
 		if (props.node) {
@@ -212,6 +213,23 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 		}
 	}, [props.node, lastClickedInputNode, selectedNode.node]);
+
+	useEffect(() => {
+		console.log("FORMNODE VALUES UPDATE", values);
+		if (modifyFlowThrottleEnabled.current) {
+			modifyFlowThrottleTimer.current = setTimeout(() => {
+				modifyFlowThrottleEnabled.current = false;
+				onModifyFlowThrottleTimer();
+			}, 50);
+		}
+
+		return () => {
+			if (modifyFlowThrottleTimer.current) {
+				clearTimeout(modifyFlowThrottleTimer.current);
+				modifyFlowThrottleTimer.current = null;
+			}
+		}
+ 	}, [values]);
 	/*
 
 		// TODO : implement initializeFlowNode 
@@ -375,6 +393,25 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 		return false;
 	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
+	
+	const onModifyFlowThrottleTimer = useCallback(() => {
+						
+		storeFlowNode({...node,...values}, props.node.name);
+
+		props.flowrunnerConnector?.modifyFlowNode(
+			props.node.name, 
+			"", 
+			"",
+			props.node.name,
+			'',
+			values
+		);
+
+	}, [props.taskSettings, props.node, values, 
+		errors,
+		node, props.isObjectListNodeEditing, props.isNodeSettingsUI,
+		props.onSetValue, props.flowrunnerConnector
+	]);
 
 	const setValueHelper = useCallback((fieldName, value, metaInfo) => {
 		if (props.node && fieldName) {	
@@ -425,9 +462,22 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					}
 				} else {
 					//console.log("formnode storeFlowNode updatedNode", updatedNode, props.node.name);
+
+					// TODO : throttle here .. but use "values" from state directly
+					//    .. how to handle multiple fields???
+					//  		flowrunner.setPropertyOnNode ...
+					//      add method flowrunner.setPropertiesOnNode
+
+
+
 					if (props.flowrunnerConnector) {
-						storeFlowNode(updatedNode, props.node.name);
-						
+
+						modifyFlowThrottleEnabled.current = true;
+
+						//storeFlowNode(updatedNode, props.node.name);
+
+
+/*						
 						// additional fix for updating nodes 
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
@@ -437,6 +487,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 							'',
 							updatedValues
 						);
+						*/
 					}
 					
 				}
@@ -473,7 +524,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 			}, fieldType == "color" ? 50 : 5);
 		} else {					
-			setValueHelper(fieldName, valueForNode, metaInfo);
+			setValueHelper(fieldName, valueForNode, metaInfo);			
 		}
 		
 		return false;
