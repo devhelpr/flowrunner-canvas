@@ -215,12 +215,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.node, lastClickedInputNode, selectedNode.node]);
 
 	useEffect(() => {
-		console.log("FORMNODE VALUES UPDATE", values);
+
+		const THROTTLE_TIMEOUT = 500;
+
+		//console.log("FORMNODE VALUES UPDATE", values);
 		if (modifyFlowThrottleEnabled.current) {
 			modifyFlowThrottleTimer.current = setTimeout(() => {
 				modifyFlowThrottleEnabled.current = false;
 				onModifyFlowThrottleTimer();
-			}, 50);
+			}, THROTTLE_TIMEOUT);
 		}
 
 		return () => {
@@ -395,7 +398,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 	
 	const onModifyFlowThrottleTimer = useCallback(() => {
-						
+		console.log("onModifyFlowThrottleTimer triggered");		
 		storeFlowNode({...node,...values}, props.node.name);
 
 		props.flowrunnerConnector?.modifyFlowNode(
@@ -580,6 +583,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				} else { 					
 					//console.log("formnode storeFlowNode setValueViaOnReceive", updatedNode, props.node.name);
 					if (props.flowrunnerConnector) {
+						modifyFlowThrottleEnabled.current = true;
+						/*
 						storeFlowNode(updatedNode, props.node.name);
 						// Looks like this is the fix...
 						props.flowrunnerConnector?.modifyFlowNode(
@@ -590,6 +595,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 							'',
 							newValues
 						);
+						*/
 					}
 				}
 			} else  if (props.onSetValue) {
