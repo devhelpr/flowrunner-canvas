@@ -755,12 +755,17 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 							}
 						}
 					}
-					return <React.Fragment key={"index-f-" + index}>
-							<div className="form-group">						
-								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
-								<div className="input-group mb-1" 
-									onClick={(event) => onInputGroupClick(event, metaInfo.fieldName, "input-" + props.node.name + "-" + metaInfo.fieldName)}>
-									{!!(props.taskSettings?.showNotSelectedAsLabels ?? false) && !props.isObjectListNodeEditing &&
+					/*
+
+						disabled={!props.isNodeSettingsUI && props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && (
+														!props.isObjectListNodeEditing && (!!canvasMode?.isFlowrunnerPaused || 
+														(!selectedNode || 
+															(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name))
+													) 
+												)}
+
+
+						{!!(props.taskSettings?.showNotSelectedAsLabels ?? false) && !props.isObjectListNodeEditing &&
 										(!selectedNode || 
 											(!props.isNodeSettingsUI && props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && 
 											  selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name)) ?
@@ -777,14 +782,27 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 												accept={metaInfo.acceptFiles || ""}
 												id={"input-" + props.node.name + "-" +metaInfo.fieldName}
 												data-index={index}
-												disabled={!props.isNodeSettingsUI && props.flowrunnerConnector?.getAppMode() !== ApplicationMode.UI && (
-														!props.isObjectListNodeEditing && (!!canvasMode?.isFlowrunnerPaused || 
-														(!selectedNode || 
-															(selectedNode && selectedNode.node && selectedNode.node.name !== props.node.name))
-													) 
-												)}													 
+												disabled={false}													 
 											/>
-									}			
+									}						
+					*/
+					return <React.Fragment key={"index-f-" + index}>
+							<div className="form-group">						
+								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
+								<div className="input-group mb-1" 
+									onClick={(event) => onInputGroupClick(event, metaInfo.fieldName, "input-" + props.node.name + "-" + metaInfo.fieldName)}>									
+									<input
+										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}												
+										onFocus={onFocus}
+										key={"index" + index}
+										type={fieldType === "fileupload" ? "file" : fieldType}
+										className="form-control"
+										value={inputValue}
+										accept={metaInfo.acceptFiles || ""}
+										id={"input-" + props.node.name + "-" +metaInfo.fieldName}
+										data-index={index}
+										disabled={false}													 
+									/>			
 								</div>
 								{errors[metaInfo.fieldName] && <div className="text-danger">{errors[metaInfo.fieldName]}</div>}
 							</div>
@@ -844,7 +862,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						enabled: (!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
+						enabled: true,//(!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
 						onFormControlGroupClick: onInputGroupClick
 					})}</React.Fragment>
 				}
