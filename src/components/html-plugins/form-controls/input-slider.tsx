@@ -18,9 +18,7 @@ export const InputSlider = (props: IFormControlProps) => {
 		formControl.handleChangeByValue(value);
 	}
 
-	return <div className="form-group"
-				onClick={(event) => props.onFormControlGroupClick(event, metaInfo.fieldName, "slider-" + props.node.name + "-" + metaInfo.fieldName)}
-			>						
+	return <div className="form-group">						
 			<label><strong>{metaInfo.label || metaInfo.fieldName || node.name} ({formControl.value || 0})</strong>{!!metaInfo.required && " *"}</label>
 			<Slider 
 				name={metaInfo.fieldName} 

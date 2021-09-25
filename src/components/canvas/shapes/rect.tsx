@@ -210,6 +210,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				stroke={settings.strokeColor} 
 				transformsEnabled={"position"}
 				listening={false}
+				perfectDrawEnabled={false}
 				strokeWidth={4}
 			></KonvaLine>}
 			{includeSvgIcon && <KonvaImage image={image}
@@ -218,6 +219,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				height={Math.round(ShapeMeasures.rectWidht / 4)}			
 				keepRatio={true}
 				listening={false}
+				perfectDrawEnabled={false}
 				transformsEnabled={"position"}
 				x={Math.round((ShapeMeasures.rectWidht / 2) - (ShapeMeasures.rectWidht / 8))}
 				y={8} 
@@ -242,7 +244,8 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 			{!!settings.hasConfigMenu && <KonvaImage image={cogImage}
 				pathColor={settings.textColor} 
 				transformsEnabled={"position"}
-				listening={true}		
+				listening={true}
+				perfectDrawEnabled={false}		
 				width={Math.round(ShapeMeasures.rectWidht / 8)}
 				height={Math.round(ShapeMeasures.rectWidht / 8)}
 				keepRatio={true}

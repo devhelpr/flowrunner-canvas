@@ -65,8 +65,7 @@ export const LineHelper = (props : ILineHelperProps) => {
 		onMouseOut={(event) => props.onLineMouseOut(props.lineNode, event)}
 		onClickLine={(event) => props.onClickLine(props.lineNode, event)}
 		canvasHasSelectedNode={props.canvasHasSelectedNode}
-		isSelected={props.selectedNode && props.selectedNode.node && 
-			props.selectedNode.node.name === props.lineNode.name}
+		isSelected={false}
 							
 		isErrorColor={props.lineNode.followflow === 'onfailure'}
 		isSuccessColor={props.lineNode.followflow === 'onsuccess'}
@@ -75,8 +74,7 @@ export const LineHelper = (props : ILineHelperProps) => {
 		xend={newEndPosition.x} 
 		yend={newEndPosition.y}
 		isEventNode={props.lineNode.event !== undefined && props.lineNode.event !== ""}
-		selectedNodeName={props.isSelected && props.selectedNode && 
-			props.selectedNode.node ? props.selectedNode.node.name : ""}
+		selectedNodeName={""}
 		startNodeName={props.lineNode.startshapeid}
 		endNodeName={props.lineNode.endshapeid}
 		noMouseEvents={false}	

@@ -10,7 +10,6 @@ import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressio
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
-import { useSelectedNodeStore} from '../../state/selected-node-state';
 
 import { onFocus } from './form-controls/helpers/focus';
 
@@ -128,7 +127,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	//const [storeFlowNode] = useFlowStore();
 	const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
 	const canvasMode = useCanvasModeStateStore();
-	const selectedNode = useSelectedNodeStore();
 
 	const observableId = useRef(uuidV4());
 
@@ -201,18 +199,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 		}
 	}, [props.node, props.flowrunnerConnector]);
-
-	useEffect(() => {		
-		if (selectedNode.node&& props.node.name == selectedNode.node.name) {
-			if (lastClickedInputNode !== "") {
-				const inputElement = document.getElementById(lastClickedInputNode);
-				if (inputElement) {
-					inputElement.focus();
-				}
-				setLastClickedInputNode("");
-			}
-		}
-	}, [props.node, lastClickedInputNode, selectedNode.node]);
 
 	useEffect(() => {
 
@@ -689,13 +675,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 	}, [props.node, node, value, values, props.flowrunnerConnector]);
 
-	const onInputGroupClick = useCallback((event, inputFieldName, formControlDOMId : string) => {
-		if (selectedNode.node.name !== props.node.name) {
-			selectedNode.selectNode(props.node.name, props.node);
-			setLastClickedInputNode(formControlDOMId);
-		}
-	}, [props.node, selectedNode.node]);
-
 	const renderFields = useCallback(() => {
 		//console.log("RENDERFIELDS" , props.node.name, node, props);
 		let metaInfo : any[] = [];
@@ -789,8 +768,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
 								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
-								<div className="input-group mb-1" 
-									onClick={(event) => onInputGroupClick(event, metaInfo.fieldName, "input-" + props.node.name + "-" + metaInfo.fieldName)}>									
+								<div className="input-group mb-1">									
 									<input
 										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}												
 										onFocus={onFocus}
@@ -862,8 +840,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						enabled: true,//(!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
-						onFormControlGroupClick: onInputGroupClick
+						enabled: true//(!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),						
 					})}</React.Fragment>
 				}
 				return null;
@@ -871,7 +848,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{!props.isReadOnly && !props.isObjectListNodeEditing &&
 				<button onFocus={onFocus} className="d-none">OK</button>}
 		</>; 
-	}, [selectedNode.node, props.taskSettings, props.node, props.datasources, 
+	}, [props.taskSettings, props.node, props.datasources, 
 		value, values, errors, receivedPayload, node,
 		props.isInFlowEditor, props.isNodeSettingsUI, props.isObjectListNodeEditing,
 		props.flowrunnerConnector

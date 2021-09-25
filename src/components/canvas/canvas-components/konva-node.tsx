@@ -66,7 +66,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 
 	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.node.taskType, props.node), [props.node]);
 
-	const selectedNode = useSelectedNodeStore();
+	//const selectedNode = useSelectedNodeStore();
 	const flowStore = useFlowStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 
@@ -97,8 +97,8 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 		
 		nodeState = props.nodesStateLocal;
 			
-		let isConnectedToSelectedNode = selectedNode && props.nodesConnectedToSelectedNode[props.node.name] === true;
-		if (selectedNode && 
+		let isConnectedToSelectedNode = false;//selectedNode && props.nodesConnectedToSelectedNode[props.node.name] === true;
+		/*if (selectedNode && 
 			selectedNode.node && 
 			(selectedNode.node as any).shapeType === "Line") {
 
@@ -110,7 +110,8 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				isConnectedToSelectedNode = true;
 			}								
 		}
-		
+		*/
+
 		return <React.Fragment><Shape
 			x={position.x} 
 			y={position.y} 
@@ -126,7 +127,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 			canvasHasSelectedNode={props.canvasHasSelectedNode}
 			
 			nodeState={nodeState}
-			selectedNode={selectedNode}
+			selectedNode={undefined}
 			onLineMouseOver={props.onMouseOver}
 			onLineMouseOut={props.onMouseOut}
 			onClickLine={props.onClickLine}
@@ -146,7 +147,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 			onMouseMove={(event) => props.onMouseMove(props.node, event)}
 			onMouseEnd={(event) => props.onMouseEnd(props.node, event)}
 			onMouseLeave={(event) => props.onMouseLeave(props.node, event)}
-			isSelected={selectedNode && selectedNode.node.name === props.node.name}
+			isSelected={false}
 			isConnectedToSelectedNode={isConnectedToSelectedNode}
 			getNodeInstance={props.getNodeInstance}
 			touchedNodes={touchedNodesStore.nodesTouched}
@@ -160,7 +161,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumb_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 
@@ -181,7 +182,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumb_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 				thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
@@ -203,7 +204,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumbstart_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 				
@@ -224,7 +225,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumbstartbottom_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 				thumbPositionRelativeToNode={ThumbPositionRelativeToNode.bottom}
@@ -246,7 +247,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumbtop_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 				thumbPositionRelativeToNode={ThumbPositionRelativeToNode.top}
@@ -270,7 +271,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumbstarttop_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 				followFlow={ThumbFollowFlow.happyFlow}
@@ -298,7 +299,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 				shapeType={shapeType}
 				node={props.node}																	
 				ref={ref => (props.shapeRefs.current["thumbstartbottom_" + props.node.name] = ref)} 									
-				isSelected={selectedNode && selectedNode.node.name === props.node.name}
+				isSelected={false}
 				isConnectedToSelectedNode={isConnectedToSelectedNode}									
 				canvasHasSelectedNode={props.canvasHasSelectedNode}
 				followFlow={ThumbFollowFlow.unhappyFlow}
@@ -326,7 +327,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 					shapeType={shapeType}
 					node={props.node}																	
 					ref={ref => (props.shapeRefs.current["thumbstartevent_" + props.node.name + eventIndex] = ref)} 									
-					isSelected={selectedNode && selectedNode.node.name === props.node.name}
+					isSelected={false}
 					isConnectedToSelectedNode={isConnectedToSelectedNode}									
 					canvasHasSelectedNode={props.canvasHasSelectedNode}
 

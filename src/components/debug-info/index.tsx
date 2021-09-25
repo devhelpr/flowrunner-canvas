@@ -63,7 +63,7 @@ export const DebugInfo = (props : DebugInfoProps) => {
 		fullscreenCss = " debug-info--fullscreen";
 		iconCss = "debug-info__window-maximize far fa-window-minimize";
 	}
-
+console.log("DEBUGINFO selectedNode", selectedNode?.node ?? "");
 	if (selectedNode && selectedNode.node && selectedNode.node.name) {
 		
 		if (selectedNode.node.payload) {

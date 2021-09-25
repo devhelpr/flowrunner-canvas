@@ -30,7 +30,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 
 	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.node.taskType, props.node), [props.node]);
 
-	const selectedNode = useSelectedNodeStore();
+	//const selectedNode = useSelectedNodeStore();
 	const flowStore = useFlowStore();
 
 	const Shape = Shapes[shapeType];
@@ -41,7 +41,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		const position = getPosition(props.node.name) || props.node;
 		let nodeState = (props.nodesStateLocal || "") == "error" ? " has-error" : "";
 
-		const isSelected = selectedNode && selectedNode.node.name === props.node.name;
+		const isSelected = false;//selectedNode && selectedNode.node.name === props.node.name;
 		nodeClone.htmlPlugin = props.node.htmlPlugin || (settings as any).htmlPlugin || "";
 		
 		let width = undefined;
@@ -66,7 +66,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					height: (height || props.node.height || 250) + "px",
 					top: "0px",
 					left: "0px",
-					opacity: (!props.canvasHasSelectedNode || (selectedNode && selectedNode.node.name === props.node.name)) ? 1 : 1 //0.5 										 
+					opacity: (!props.canvasHasSelectedNode) ? 1 : 1 //0.5 										 
 				}}
 			id={props.node.name}
 			data-node={props.node.name}

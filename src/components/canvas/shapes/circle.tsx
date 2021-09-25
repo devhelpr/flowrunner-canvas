@@ -113,7 +113,7 @@ export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {
 				ellipsis={true}
 				fill={settings.textColor}
 				transformsEnabled={"position"}
-				perfectDrawEnabled={true}>
+				perfectDrawEnabled={false}>
 			</Text>
 		</Group>			
 	</>

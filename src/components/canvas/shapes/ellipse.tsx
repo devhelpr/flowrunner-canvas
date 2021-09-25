@@ -112,7 +112,7 @@ export const Ellipse = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 				fontSize={18}
 				ellipsis={true}
 				fill={settings.textColor}
-				perfectDrawEnabled={true}>
+				perfectDrawEnabled={false}>
 			</Text>
 		</Group>		
 	</>;

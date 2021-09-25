@@ -164,7 +164,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				fontSize={18}
 				ellipsis={true}
 				fill={settings.textColor}
-				perfectDrawEnabled={true}>
+				perfectDrawEnabled={false}>
 			</Text>
 			{!!settings.hasConfigMenu && <KonvaImage image={image}
 				pathColor={settings.textColor} 		
@@ -173,6 +173,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				keepRatio={true}
 				x={Math.round((ShapeMeasures.diamondSize / 2) - ShapeMeasures.diamondSize / 16)}
 				y={16}
+				perfectDrawEnabled={false}
 				transformsEnabled={"position"}
 				onClick={props.onClickSetup} 
 			/>}

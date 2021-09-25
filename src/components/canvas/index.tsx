@@ -96,7 +96,8 @@ export const Canvas = (props: CanvasProps) => {
 
 	const flowStore = useFlowStore();
 	const canvasMode = useCanvasModeStateStore();
-	const selectedNode = useSelectedNodeStore();
+	//const selectedNode = useSelectedNodeStore();
+	const selectNode = useSelectedNodeStore(state => state.selectNode);
 	const touchedNodesStore = useNodesTouchedStateStore();
 	
 	//let flowHashMap = useRef({} as any);
@@ -155,6 +156,12 @@ export const Canvas = (props: CanvasProps) => {
 	let ctrlDown = useRef(false);
 
 	let animationScript = useRef(undefined as any);
+	
+	const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
+	useEffect(() => useSelectedNodeStore.subscribe(
+		node => (selectedNodeRef.current = node),
+		state => state.node
+	), []);
 
 	const droppableStyle = { color: isOver ? 'green' : undefined};
 
@@ -174,7 +181,7 @@ export const Canvas = (props: CanvasProps) => {
 			(layer.current as any).listening(true);
 			(layer.current as any).batchDraw();
 		}
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const wheelEvent = useCallback((e , touchPosition? : any) => {
 		
@@ -190,11 +197,11 @@ export const Canvas = (props: CanvasProps) => {
 			}
 		}
 
-		if (layer && layer.current) {
+		if (layer && layer.current && (layer.current as any).isListening()) {
 			(layer.current as any).listening(false);
 		}
 
-		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 200);
+		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 500);
 		
 		/*
 		if (e.preventDefault) {
@@ -266,7 +273,7 @@ export const Canvas = (props: CanvasProps) => {
 			oldwheeltime.current = performance.now();
 		}
 		return false;
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const updateDimensions = () => {
 		const stageContainerElement = document.querySelector(".stage-container");
@@ -348,7 +355,7 @@ export const Canvas = (props: CanvasProps) => {
 			return false;
 		}
 
-		const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;				
+		const nodeIsSelected : boolean = !!selectedNodeRef.current;				
 		
 		if (!nodeIsSelected) {
 			if (!canvasMode.isConnectingNodes) {
@@ -420,7 +427,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		// TODO : do we need to select the added node or dont? (see also the flow-actions)
-		selectedNode.selectNode("", undefined);
+		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
 		canvasMode.setSelectedTask("");		
@@ -491,7 +498,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		nodeStateList.current = [];
 		nodeStateCount.current = 0;
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const nodeStateObserver = (nodeName: string, nodeState : string, _touchedNodes : any) => {
 		if (!updateNodeTouchedState) {
@@ -628,7 +635,7 @@ export const Canvas = (props: CanvasProps) => {
 	const onResize = useCallback((event) => {
 		updateDimensions();
 		fitStage(undefined,true,true);
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	useEffect(() => {
 		//(flowIsLoading as any).current = true;
@@ -664,7 +671,7 @@ export const Canvas = (props: CanvasProps) => {
 				subscription.unsubscribe();
 			}
 		}
-	}, [flowStore.flow, selectedNode.node])
+	}, [flowStore.flow])
 
 	const updateTouchedNodes = () => {
 		// DONT UPDATE STATE HERE!!!
@@ -750,7 +757,7 @@ export const Canvas = (props: CanvasProps) => {
 				stageInstance.batchDraw();
 			}
 		}		
-	}, [flowStore.flow, selectedNode.node]);	
+	}, [flowStore.flow]);	
 
 	useLayoutEffect(() => {
 
@@ -769,8 +776,8 @@ export const Canvas = (props: CanvasProps) => {
 				setCanvasOpacity(0);
 				(flowIsLoading as any).current = true;
 
-				selectedNode.selectNode("", undefined);
-				console.log(`selectedNode.selectNode("", undefined)`);
+				selectNode("", undefined);
+				console.log(`selectNode("", undefined)`);
 				
 			} else
 			if (props.flowState == FlowState.loaded && (flowIsLoading as any).current) {
@@ -893,15 +900,6 @@ export const Canvas = (props: CanvasProps) => {
 		connectionX,
 		connectionY
 	]);
-
-	useEffect(() => {
-		
-
-
-		return () => {
-			//stopAnimation = true;		
-		}
-	}, [flowStore.flow, selectedNode.node])
 	
 	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean) => {
 		const unselectedNodeOpacity = 0.15;
@@ -1201,7 +1199,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
-			selectedNode.selectNode(node.name, node);
+			selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 			if (props.flowrunnerConnector.hasStorageProvider) {
 				props.saveFlow();
@@ -1209,7 +1207,7 @@ export const Canvas = (props: CanvasProps) => {
 				
 			}
 		}
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
@@ -1505,8 +1503,10 @@ export const Canvas = (props: CanvasProps) => {
 		if (event.currentTarget && mouseDragging.current) {
 			setNewPositionForNode(node, shapeRefs.current[node.name], undefined, true, false, true);
 		} else {
-			selectedNode.selectNode(node.name, node);
+			//console.log("onmouseend selectnode");
+			//selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
+			//console.log("onmouseend after selectnode");
 		}
 		(touchNode.current as any) = undefined;
 		mouseDragging.current = false;
@@ -1741,7 +1741,7 @@ export const Canvas = (props: CanvasProps) => {
 		isPinching.current = false;
 		if (!mouseDragging.current) {
 			if (touchNode.current && touchNodeGroup.current) {
-				selectedNode.selectNode((touchNode.current as any).name, touchNode.current as any);
+				selectNode((touchNode.current as any).name, touchNode.current as any);
 				canvasMode.setConnectiongNodeCanvasMode(false);
 			}
 		}
@@ -1848,7 +1848,7 @@ console.log("ONTOUCHEND");
 					y: event.evt.changedTouches[0].screenY
 				} : undefined, false, false, true);
 			} else {
-				selectedNode.selectNode(node.name, node);
+				selectNode(node.name, node);
 				canvasMode.setConnectiongNodeCanvasMode(false);
 			} 
 		}
@@ -2060,6 +2060,7 @@ console.log("ONTOUCHEND");
 	}
 
 	const onClickShape = (node, event) => {
+		console.log("onClickShape", node);
 		event.cancelBubble = true;
 		event.evt.preventDefault();
 		cancelDragStage();
@@ -2069,12 +2070,11 @@ console.log("ONTOUCHEND");
 			return false;
 		}
 
-		if ((!!canvasMode.isConnectingNodes || !!shiftDown.current) && 
-			selectedNode !== undefined &&
-			selectedNode.node !== undefined &&
-			(selectedNode.node as any).shapeType !== "Line") {
+		if ((!!canvasMode.isConnectingNodes || !!shiftDown.current) && 			
+			selectedNodeRef.current !== undefined &&
+			(selectedNodeRef.current as any).shapeType !== "Line") {
 
-			const connection = getNewConnection(selectedNode.node, node, props.getNodeInstance,
+			const connection = getNewConnection(selectedNodeRef.current, node, props.getNodeInstance,
 				connectionNodeThumbPositionRelativeToNode.current);			
 
 			if (connectionNodeFollowFlow.current == ThumbFollowFlow.happyFlow) {
@@ -2087,7 +2087,8 @@ console.log("ONTOUCHEND");
 			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
 
-		selectedNode.selectNode(node.name, node);
+		selectNode(node.name, node);
+		console.log("onClickShape after selectNode", node);
 		canvasMode.setConnectiongNodeCanvasMode(false);
 
 		return false;		
@@ -2101,7 +2102,7 @@ console.log("ONTOUCHEND");
 			return false;
 		}
 		canvasMode.setConnectiongNodeCanvasMode(false);
-		selectedNode.selectNode(node.name, node);
+		selectNode(node.name, node);
 		return false;
 	}
 
@@ -2141,7 +2142,7 @@ console.log("ONTOUCHEND");
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);						
 			}
 		}
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const onDragStageEnd = useCallback((event) => {
 
@@ -2174,7 +2175,7 @@ console.log("ONTOUCHEND");
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 			}
 		}
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const setHtmlElementsPositionAndScale = useCallback(
 		(stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
@@ -2211,7 +2212,7 @@ console.log("ONTOUCHEND");
 
 		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
 		setHtmlGlobalScale(stageX, stageY, stageScale);
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	//htmlWrapper
 	const setHtmlGlobalScale = useCallback((stageX, stageY, stageScale) => {
@@ -2221,7 +2222,7 @@ console.log("ONTOUCHEND");
 			"scale(" + (stageScale) + "," + (stageScale) + ") "
 			;
 		}
-	}, [flowStore.flow, selectedNode.node])
+	}, [flowStore.flow])
 
 	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
 		(element as any).style.transform = 						
@@ -2591,11 +2592,11 @@ console.log("ONTOUCHEND");
 				}
 			}
 		}
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	useEffect(() => {
 		console.log("useEffect AFTER fitstage", flowStore.flowId, performance.now());
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 
 	const clickStage = (event) => {
 		if (isConnectingNodesByDraggingLocal.current) {
@@ -2633,7 +2634,7 @@ console.log("ONTOUCHEND");
 			return false;
 		}
 		
-		const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;	
+		const nodeIsSelected : boolean = !!selectedNodeRef.current;	
 					
 		if (!nodeIsSelected && canvasMode.selectedTask !== undefined &&
 			canvasMode.selectedTask !== "") {
@@ -2703,7 +2704,7 @@ console.log("ONTOUCHEND");
 			}
 		}
 		// TODO : do we need to select the added node or dont? (see also the flow-actions)
-		selectedNode.selectNode("", undefined);
+		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
 		canvasMode.setSelectedTask("");		
@@ -2733,8 +2734,7 @@ console.log("ONTOUCHEND");
 
 	const getDependentConnections = () => {
 
-		// TODO zustand check
-		const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;	
+		const nodeIsSelected : boolean = !!selectedNodeRef.current;	
 
 		try {
 			let connections : any[] = [];
@@ -2920,9 +2920,9 @@ console.log("ONTOUCHEND");
 			//let data = event.dataTransfer.getData("text");
 			//event.target.appendChild(document.getElementById(data));
 
-			const nodeIsSelected : boolean = !!selectedNode && !!selectedNode.node;	
+			const nodeIsSelected : boolean = !!selectedNodeRef.current;	
 			
-			selectedNode.selectNode("", undefined);
+			selectNode("", undefined);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 
 			
@@ -3304,9 +3304,8 @@ console.log("ONTOUCHEND");
 		console.log("oninput", event);
 
 		if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
-			if (selectedNode && selectedNode.node) {
+			if (selectedNodeRef.current) {
 				event.preventDefault();
-				//fitStage(selectedNode.node, true);
 				fitStage(undefined, false, false, true);
 				return false;
 			}
@@ -3327,7 +3326,7 @@ console.log("ONTOUCHEND");
 				} else {
 					flow.deleteConnection(selectedNode.node);
 				}
-				selectedNode.selectNode("", undefined);
+				selectNode("", undefined);
 			}
 			return true;
 		}
@@ -3378,13 +3377,13 @@ console.log("ONTOUCHEND");
 		}		
 	}
 
-	const canvasHasSelectedNode : boolean = !!selectedNode && !!selectedNode.node;	
+	const canvasHasSelectedNode : boolean = !!selectedNodeRef.current;	
 
 	const connections = canvasMode.showDependencies ? getDependentConnections() : [];
 	let nodesConnectedToSelectedNode : any = {};
 	const flowMemo = useMemo(() => {
 		return flowStore.flow
-	}, [flowStore.flow, selectedNode.node]);
+	}, [flowStore.flow]);
 /*
 <DndContext 
 			    id={"canvas-dndcontext"}
@@ -3464,12 +3463,12 @@ console.log("ONTOUCHEND");
 								<Rect x={0} y={0} width={1024} height={750}></Rect>
 								{connections.length > 0 && connections.map((node, index) => {
 
-									if (canvasHasSelectedNode &&  selectedNode &&  selectedNode.node) {
-										if (node.startshapeid === selectedNode.node.name) {
+									if (canvasHasSelectedNode &&  selectedNodeRef.current) {
+										if (node.startshapeid === selectedNodeRef.current.name) {
 											nodesConnectedToSelectedNode[node.endshapeid] = true;
 										}
 
-										if (node.endshapeid === selectedNode.node.name) {
+										if (node.endshapeid === selectedNodeRef.current.name) {
 											nodesConnectedToSelectedNode[node.startshapeid] = true;
 										}								
 									}
@@ -3485,7 +3484,7 @@ console.log("ONTOUCHEND");
 											ystart={node.ystart}									
 											xend={node.xend} 
 											yend={node.yend}
-											selectedNodeName={canvasHasSelectedNode ? selectedNode.node.name : ""}
+											selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ""}
 											startNodeName={node.startshapeid}
 											endNodeName={node.endshapeid}
 											noMouseEvents={true}	
@@ -3527,7 +3526,7 @@ console.log("ONTOUCHEND");
 											canvasHasSelectedNode={canvasHasSelectedNode}
 											
 											nodeState={""}
-											selectedNode={selectedNode}
+											selectedNode={selectedNodeRef.current}
 											onLineMouseOver={onMouseOver}
 											onLineMouseOut={onMouseOut}
 											onClickLine={onClickLine}
@@ -3546,7 +3545,7 @@ console.log("ONTOUCHEND");
 											onMouseMove={(event) => onMouseMove(node, event)}
 											onMouseEnd={(event) => onMouseEnd(node, event)}
 											onMouseLeave={(event) => onMouseLeave(node, event)}
-											isSelected={selectedNode && selectedNode.node.name === node.name}
+											isSelected={selectedNodeRef.current.name === node.name}
 											isConnectedToSelectedNode={false}
 											getNodeInstance={props.getNodeInstance}
 											touchedNodes={touchedNodesStore.nodesTouched}

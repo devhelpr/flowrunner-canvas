@@ -67,9 +67,7 @@ export const Select = (props: IFormControlProps) => {
 	if (metaInfo.hideDefaultOption === true) {
 		showDefaultOption = false;
 	}
-	return <div className="form-group"
-			onClick={(event) => props.onFormControlGroupClick(event, metaInfo.fieldName, "select-" + props.node.name + "-" + metaInfo.fieldName)}
-		>						
+	return <div className="form-group">						
 		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 		<div className="input-group mb-1">
 			<select className="form-control" required={props.metaInfo && !!props.metaInfo.required} 

@@ -1,6 +1,5 @@
 import create from 'zustand';
 import { State, SetState } from 'zustand';
-import produce from 'immer';
 
 interface ISelectedNode {
   name: string;

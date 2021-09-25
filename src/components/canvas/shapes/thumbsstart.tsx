@@ -142,6 +142,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				radius={8}
 				listening={false}
 				transformsEnabled={"position"}
+				perfectDrawEnabled={false}
 				fill={props.followFlow == ThumbFollowFlow.happyFlow ? "#00d300" : 
 					(props.followFlow == ThumbFollowFlow.unhappyFlow ? "#e00000" : "#000000")}
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
@@ -152,6 +153,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				radius={6}
 				listening={false}
 				transformsEnabled={"position"}
+				perfectDrawEnabled={false}
 				fill="#ffffff"				
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
@@ -160,6 +162,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				y={12}
 				listening={true}
 				transformsEnabled={"position"}
+				perfectDrawEnabled={false}
 				radius={12}
 				opacity={0}
 			></KonvaCircle>			
