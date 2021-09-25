@@ -159,7 +159,31 @@ export const Canvas = (props: CanvasProps) => {
 	
 	const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
 	useEffect(() => useSelectedNodeStore.subscribe(
-		node => (selectedNodeRef.current = node),
+		(node : any, previousNode : any) => {
+			
+			selectedNodeRef.current = node;
+
+			if (node && node.node) {
+				const barElement = document.querySelector(`#${node.node.id} .canvas__html-shape-bar`);
+				if (barElement) {
+					barElement.classList.add("canvas__html-shape-bar--selected");
+				}
+				const htmlElement = document.querySelector(`#${node.node.id}.canvas__html-shape`);
+				if (htmlElement) {
+					htmlElement.classList.add("canvas__html-shape");
+				}
+			}
+			if (previousNode && previousNode.node) {
+				const barElement = document.querySelector(`#${previousNode.node.id} .canvas__html-shape-bar`);
+				if (barElement) {
+					barElement.classList.remove("canvas__html-shape-bar--selected");
+				}
+				const htmlElement = document.querySelector(`#${previousNode.node.id}.canvas__html-shape`);
+				if (htmlElement) {
+					htmlElement.classList.add("canvas__html-shape");
+				}
+			}
+		},
 		state => state.node
 	), []);
 
@@ -427,6 +451,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		// TODO : do we need to select the added node or dont? (see also the flow-actions)
+		console.log("selectNode onPaste");
 		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
@@ -775,9 +800,12 @@ export const Canvas = (props: CanvasProps) => {
 			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
 				setCanvasOpacity(0);
 				(flowIsLoading as any).current = true;
-
-				selectNode("", undefined);
-				console.log(`selectNode("", undefined)`);
+				
+				if (selectedNodeRef.current && selectedNodeRef.current.node !== undefined) {
+					selectNode("", undefined);
+					console.log(`selectNode("", undefined)`);
+				}
+				
 				
 			} else
 			if (props.flowState == FlowState.loaded && (flowIsLoading as any).current) {
@@ -1199,6 +1227,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
+			console.log("selectNode setNewPositionForNode");
 			selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 			if (props.flowrunnerConnector.hasStorageProvider) {
@@ -1848,6 +1877,7 @@ console.log("ONTOUCHEND");
 					y: event.evt.changedTouches[0].screenY
 				} : undefined, false, false, true);
 			} else {
+				console.log("selectNode ontouchend");
 				selectNode(node.name, node);
 				canvasMode.setConnectiongNodeCanvasMode(false);
 			} 
@@ -2089,8 +2119,9 @@ console.log("ONTOUCHEND");
 
 		selectNode(node.name, node);
 		console.log("onClickShape after selectNode", node);
-		canvasMode.setConnectiongNodeCanvasMode(false);
-
+		if (canvasMode.isConnectingNodes) {
+			canvasMode.setConnectiongNodeCanvasMode(false);
+		}
 		return false;		
 	}
 
@@ -2704,6 +2735,7 @@ console.log("ONTOUCHEND");
 			}
 		}
 		// TODO : do we need to select the added node or dont? (see also the flow-actions)
+		console.log("selectNode clickStage");
 		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
@@ -2921,7 +2953,7 @@ console.log("ONTOUCHEND");
 			//event.target.appendChild(document.getElementById(data));
 
 			const nodeIsSelected : boolean = !!selectedNodeRef.current;	
-			
+			console.log("selectNode addTaskToCanvas");
 			selectNode("", undefined);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 

@@ -22,8 +22,7 @@ export const DebugInfo = (props : DebugInfoProps) => {
 	const timer = useRef(null as any);
 	const [payload, setPayload] = useState(undefined);
 	const [fullscreen, setFullscreen] = useState(false);
-	const flow = useFlowStore();
-	const canvasMode = useCanvasModeStateStore();
+	const flowType = useCanvasModeStateStore(state => state.flowType);
 	const selectedNode = useSelectedNodeStore();
 
 	useEffect(() => {
@@ -53,7 +52,7 @@ export const DebugInfo = (props : DebugInfoProps) => {
 		setFullscreen(!fullscreen);
 	}
 
-	if (canvasMode.flowType !== "playground") {
+	if (flowType !== "playground") {
 		return <></>;
 	}
 	

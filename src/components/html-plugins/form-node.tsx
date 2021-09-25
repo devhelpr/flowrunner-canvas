@@ -126,7 +126,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	//const flow = useFlowStore();
 	//const [storeFlowNode] = useFlowStore();
 	const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
-	const canvasMode = useCanvasModeStateStore();
+	//const canvasMode = useCanvasModeStateStore();
+	const flowsPlayground = useCanvasModeStateStore(state => state.flowsPlayground);
+	const flowsWasm = useCanvasModeStateStore(state => state.flowsWasm);
 
 	const observableId = useRef(uuidV4());
 
@@ -792,10 +794,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						datasourceToUse = props.datasources[metaInfo.datasourceId] || [];
 					} else
 					if (metaInfo.datasource == "[PLAYGROUNDFLOW]") {
-						datasourceToUse = canvasMode?.flowsPlayground;
+						datasourceToUse = flowsPlayground;
 					} else
 					if (metaInfo.datasource == "[WASMFLOW]") {
-						datasourceToUse = canvasMode?.flowsWasm;
+						datasourceToUse = flowsWasm;
 					} else
 					if (metaInfo.datasource && datasource[metaInfo.datasource]) {
 						datasourceToUse = datasource[metaInfo.datasource];

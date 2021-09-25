@@ -24,7 +24,8 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
 
   const flowStore = useFlowStore();
   const layout = useLayoutStore();
-  const canvasMode = useCanvasModeStateStore();
+  const setCanvasFlowType = useCanvasModeStateStore(state => state.setFlowType);
+  const canvasflowType = useCanvasModeStateStore(state => state.flowType);
 
   const getFlows = (getFlowId?) => {
     if (flowrunnerConnector.hasStorageProvider) {
@@ -80,7 +81,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
         const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
         flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
         setFlowType(flowPackage.flowType || 'playground');
-        canvasMode.setFlowType(flowPackage.flowType || 'playground');
+        setCanvasFlowType(flowPackage.flowType || 'playground');
         flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
         setFlow(flowPackage.flow);
         layout.storeLayout(JSON.stringify(flowPackage.layout));
@@ -99,7 +100,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
         .then(flowPackage => {
           flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
           setFlowType(flowPackage.flowType || 'playground');
-          canvasMode.setFlowType(flowPackage.flowType || 'playground');
+          setCanvasFlowType(flowPackage.flowType || 'playground');
           flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
           setFlow(flowPackage.flow);
           layout.storeLayout(JSON.stringify(flowPackage.layout));
@@ -145,7 +146,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
         body: JSON.stringify({
           flow: flowAndUpdatedPositions,
           layout: JSON.parse(layout.layout),
-          flowType: canvasMode.flowType,
+          flowType: canvasflowType,
         }),
         headers: {
           'Content-Type': 'application/json',
