@@ -98,6 +98,8 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	
 	const flowrunnerConnector = useRef((props.flowrunnerConnector || new FlowConnector()) as IFlowrunnerConnector);
 	const canvasToolbarsubject = useRef(undefined as any);
+	const formNodesubject = useRef(undefined as any);
+
 	const renderHtmlNode = useRef(undefined as any);
 	const getNodeInstance = useRef(undefined as any);
 	const flowAgent = useRef(undefined as any);
@@ -124,7 +126,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	useEffect(() => {			
 
 		canvasToolbarsubject.current = new Subject<string>();
-
+		formNodesubject.current = new Subject<any>();
 		import( './render-html-node').then((moduleRenderHtmlNode) => 
 		{
 			
@@ -227,6 +229,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					renderHtmlNode={renderHtmlNode.current}
 					flowrunnerConnector={flowrunnerConnector.current}
 					getNodeInstance={getNodeInstance.current}
+					formNodesubject={formNodesubject.current}
 					flow={flows.flow}
 					flowId={flows.flowId}
 					flowType={flows.flowType}
@@ -401,6 +404,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 			const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
 			let canvasToolbarsubject = new Subject<string>();
+			let formNodesubject = new Subject<any>();
 
 			interface IAppProps {
 				isLoggedIn : boolean;
@@ -435,7 +439,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 											{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
 												flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
-											<Toolbar canvasToolbarsubject={canvasToolbarsubject} 
+											<Toolbar canvasToolbarsubject={canvasToolbarsubject}												
 												hasRunningFlowRunner={!!hasRunningFlowRunner}
 												flowrunnerConnector={flowrunnerConnector}
 												onEditorMode={onEditorMode}
@@ -451,6 +455,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												></Toolbar>
 											{editorMode == "canvas" &&
 											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
+												formNodesubject={formNodesubject} 
 												renderHtmlNode={renderHtmlNode}
 												flowrunnerConnector={flowrunnerConnector}
 												getNodeInstance={getNodeInstance}

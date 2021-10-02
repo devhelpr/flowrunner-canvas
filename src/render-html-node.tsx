@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Suspense } from 'react';
+import { Subject } from 'rxjs';
 
 import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPluginInfo,GridEditNodeHtmlPluginInfo } from './components/html-plugins/visualizers/info';
@@ -19,7 +20,7 @@ export const setPluginRegistry = (pluginRegistry) => {
 	_pluginRegistry = pluginRegistry;
 }
 
-export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any) => {
+export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>) => {
 
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -60,6 +61,7 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 			node={node}
 			taskSettings={taskSettings}
 			isInFlowEditor={true}
+			formNodesubject={formNodesubject}
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {

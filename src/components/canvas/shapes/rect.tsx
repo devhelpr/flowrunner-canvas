@@ -57,14 +57,16 @@ const getFillColor = (backgroundColorString, settings) => {
 export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
 		[props.taskType, props.node]);
-	let rect : any = undefined;	
+	
+	const [image] = useImage("/svg/layout.svg");
+	const [cogImage] = useImage("/svg/cog.svg");
+	const groupRef = useRef(null as any);
+
+	let rect : any = useRef(null as any);	
 	let textRef : any = undefined;
 	let skewX = 0;
 	let skewXOffset = 0;
 	let includeSvgIcon = false;
-	const [image] = useImage("/svg/layout.svg");
-	const [cogImage] = useImage("/svg/cog.svg");
-	const groupRef = useRef(null as any);
 
 	if (settings.isSkewed) {
 		skewX = -0.5;
@@ -78,12 +80,12 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	}
 	
 	useEffect(() => {
-		if (rect) {			
-			rect.skew({
+		if (rect && rect.current) {			
+			rect.current.skew({
 				x: skewX,
 				y: 0
 			});
-			rect.cache();
+			//rect.current.cache();
 		}
 
 		if (textRef) {
@@ -93,9 +95,9 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 	});
 
 	const setRef = (ref) => {
-		rect = ref;
-		if (rect) {
-			rect.skew({
+		rect.current = ref;
+		if (rect.current) {
+			rect.current.skew({
 				x: skewX,
 				y: 0
 			});
@@ -140,16 +142,30 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 					break;
 				}
 				case ModifyShapeEnum.SetState : {
-					/*
-					if (groupRef && groupRef.current && parameters) {
-						if (parameters.state == ShapeStateEnum.Touched) {
-							groupRef.current.opacity(1);
+					if (rect && rect.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Selected) {
+							rect.current.to({
+								duration: 0.15,
+								stroke:settings.strokeColor,
+								fill:settings.fillSelectedColor
+							});
 						} else
 						if (parameters.state == ShapeStateEnum.Default) {
-							groupRef.current.opacity(0.5);
-						}						
+							let strokeColor = settings.strokeColor;
+							let fillColor = settings.fillColor;
+
+							if (settings.background) {
+								strokeColor = getStrokeColor(settings.background, settings);
+								fillColor = getFillColor(settings.background, settings);
+							}
+							rect.current.to({
+								duration: 0.15,
+								stroke:strokeColor,
+								fill:fillColor
+							});
+						}
 					}
-					*/
+
 					break;
 				}
 				default:

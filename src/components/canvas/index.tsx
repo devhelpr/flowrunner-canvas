@@ -18,6 +18,7 @@ import { ModifyShapeEnum, ShapeStateEnum } from './shapes/shape-types';
 import { Flow } from '../flow';
 import { calculateLineControlPoints } from '../../helpers/line-points'
 import { EditNodeSettings } from '../edit-node-settings';
+import { EditNodePopup } from '../edit-node';
 import { HtmlNode} from './canvas-components/html-node';
 import { KonvaNode} from './canvas-components/konva-node';
 
@@ -51,6 +52,7 @@ const uuidV4 = uuid.v4;
 export interface CanvasProps {
 
 	canvasToolbarsubject : Subject<string>;
+	formNodesubject: Subject<any>;
 	
 	flow : any[];
 	flowId? : number | string;
@@ -84,6 +86,7 @@ export const Canvas = (props: CanvasProps) => {
 	const [canvasOpacity, setCanvasOpacity ] = useState(0);
 	const [canvasKey, setCanvasKey] = useState(1);
 	const [showNodeSettings, setShowNodeSettings] = useState(false);
+	const [showNodeEdit, setShowNodeEdit]= useState(false);
 	const [editNode, setEditNode] = useState(undefined);
 	const [editNodeSettings, setEditNodeSettings] = useState(undefined);
 	const [isConnectingNodesByDragging, setIsConnectingNodesByDragging] = useState(false);
@@ -163,16 +166,6 @@ export const Canvas = (props: CanvasProps) => {
 			
 			selectedNodeRef.current = node;
 
-			if (node && node.node) {
-				const barElement = document.querySelector(`#${node.node.id} .canvas__html-shape-bar`);
-				if (barElement) {
-					barElement.classList.add("canvas__html-shape-bar--selected");
-				}
-				const htmlElement = document.querySelector(`#${node.node.id}.canvas__html-shape`);
-				if (htmlElement) {
-					htmlElement.classList.add("canvas__html-shape");
-				}
-			}
 			if (previousNode && previousNode.node) {
 				const barElement = document.querySelector(`#${previousNode.node.id} .canvas__html-shape-bar`);
 				if (barElement) {
@@ -181,6 +174,33 @@ export const Canvas = (props: CanvasProps) => {
 				const htmlElement = document.querySelector(`#${previousNode.node.id}.canvas__html-shape`);
 				if (htmlElement) {
 					htmlElement.classList.add("canvas__html-shape");
+				} else {					
+					const shapeRef = shapeRefs.current[previousNode.node.id];
+					if (shapeRef) {
+						shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+							state: ShapeStateEnum.Default
+						});
+					}					
+				}
+			}
+
+			if (node && node.node) {
+				const barElement = document.querySelector(`#${node.node.id} .canvas__html-shape-bar`);
+				if (barElement) {
+					barElement.classList.add("canvas__html-shape-bar--selected");
+				}
+				const htmlElement = document.querySelector(`#${node.node.id}.canvas__html-shape`);
+				if (htmlElement) {
+					htmlElement.classList.add("canvas__html-shape");
+				} else {
+					
+					const shapeRef = shapeRefs.current[node.node.id];
+					if (shapeRef) {
+						shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+							state: ShapeStateEnum.Selected
+						});
+					}
+				
 				}
 			}
 		},
@@ -800,7 +820,7 @@ export const Canvas = (props: CanvasProps) => {
 			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
 				setCanvasOpacity(0);
 				(flowIsLoading as any).current = true;
-				
+
 				if (selectedNodeRef.current && selectedNodeRef.current.node !== undefined) {
 					selectNode("", undefined);
 					console.log(`selectNode("", undefined)`);
@@ -1263,6 +1283,20 @@ export const Canvas = (props: CanvasProps) => {
 
 	const onCloseEditNodeSettings = () => {
 		setShowNodeSettings(false);
+		setEditNode(undefined);
+		setEditNodeSettings(undefined);
+	}
+
+	const onShowNodeEditor = (node, settings, event) => {
+		event.preventDefault();
+		setEditNode(node);
+		setEditNodeSettings(settings);
+		setShowNodeEdit(true);
+		return false;
+	}	
+
+	const onCloseEditNode = () => {
+		setShowNodeEdit(false);
 		setEditNode(undefined);
 		setEditNodeSettings(undefined);
 	}
@@ -3675,9 +3709,11 @@ console.log("ONTOUCHEND");
 								canvasHasSelectedNode={canvasHasSelectedNode}
 								onFocus={onFocus}
 								onShowNodeSettings={onShowNodeSettings}
+								onShowNodeEditor={onShowNodeEditor}
 								renderHtmlNode={props.renderHtmlNode}
 								flowId={props.flowId}
 								flowMemo={flowMemo}
+								formNodesubject={props.formNodesubject}
 							></HtmlNode>;												
 							})
 						}
@@ -3686,6 +3722,9 @@ console.log("ONTOUCHEND");
 		</DndContext>		
 		
 		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
+		{showNodeEdit && <EditNodePopup node={editNode} 
+			formNodesubject={props.formNodesubject}
+			settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNode}></EditNodePopup>}
 		<Flow 
 			flow={flowStore.flow}
 			flowId={flowStore.flowId}

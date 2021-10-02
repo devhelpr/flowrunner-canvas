@@ -8,6 +8,7 @@ import { ShapeSettings } from '../../../helpers/shape-settings';
 import { getPosition } from '../../../services/position-service';
 import { useSelectedNodeStore} from '../../../state/selected-node-state';
 import { useFlowStore} from '../../../state/flow-state';
+import { Subject } from 'rxjs';
 
 export interface IHtmlNodeProps {
 	node : any;
@@ -21,6 +22,8 @@ export interface IHtmlNodeProps {
 	renderHtmlNode: any;
 	flowId?: string | number;
 	flowMemo: any;
+	onShowNodeEditor: any;
+	formNodesubject?: Subject<any>;
 }
 
 export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
@@ -57,6 +60,12 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 			}
 		}
 
+		let htmlPlugin = props.node.htmlPlugin;
+		if (!htmlPlugin || htmlPlugin == "") {
+			htmlPlugin = (settings as any).htmlPlugin;
+		}
+
+
 		return <div
 			style={{transform: "translate(" + (position.x) + "px," + 
 					( (position.y) ) + "px) " +
@@ -91,9 +100,14 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					{!!settings.hasConfigMenu && <a href="#"
 						onFocus={props.onFocus} 
 						onClick={(event) => props.onShowNodeSettings(props.node, settings, event)} 
-						className="canvas__html-shape-bar-icon fas fa-cog"></a>}</div>
+						className="canvas__html-shape-bar-icon fas fa-cog"></a>}
+					{htmlPlugin == "formNode" && <a href="#"
+						onFocus={props.onFocus} 
+						onClick={(event) => props.onShowNodeEditor(props.node, settings, event)} 
+						className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
+				</div>
 				<div className="canvas__html-shape-body">
-				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings)}</div>
+				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject)}</div>
 				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
 				<div className={"canvas__html-shape-thumb-startbottom"}></div>
 				<div className={"canvas__html-shape-thumb-endtop"}></div>

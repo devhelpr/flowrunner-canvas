@@ -57,6 +57,13 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				}
 				case ModifyShapeEnum.SetState : {
 					if (regularPolygonRef && regularPolygonRef.current && parameters) {
+						if (parameters.state == ShapeStateEnum.Selected) {
+							regularPolygonRef.current.to({
+								duration: 0.15,
+								stroke:settings.strokeColor,
+								fill:settings.fillSelectedColor
+							});
+						} else
 						if (parameters.state == ShapeStateEnum.Default) {
 							//regularPolygonRef.current.stroke(settings.strokeColor);
 							//regularPolygonRef.current.fill(settings.fillColor);

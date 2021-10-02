@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { ApplicationMode, IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { getFormControl } from './form-controls';
+import { Subject } from 'rxjs';
 
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 
@@ -95,6 +96,7 @@ export interface FormNodeHtmlPluginProps {
 	flowrunnerConnector? : IFlowrunnerConnector;
 	node : any;
 	taskSettings? : any;
+	formNodesubject?: Subject<any>;
 
 	isObjectListNodeEditing? : boolean;
 	isReadOnly? : boolean;
@@ -140,6 +142,22 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const modifyFlowThrottleEnabled : any = useRef(false);
 	useEffect(() => {
 
+		let subscription;
+		if (props.formNodesubject) {
+			
+			subscription = props.formNodesubject.subscribe({
+				next: (message: any) => {
+					if (unmounted.current) {
+						return;
+					}
+					if (message && props.node && message.id === props.node.name) {
+						setNode(message.node);
+						setValues([]);
+					}
+				}
+			});
+			
+		}
 		if (props.node) {
 			
 			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
@@ -177,6 +195,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}
 		return () => {
 			unmounted.current = true;
+
+			if (subscription) {
+				subscription.unsubscribe();
+			}
+
 			if (throttleTimer.current) {
 				clearTimeout(throttleTimer.current);
 				throttleTimer.current = undefined;
@@ -386,7 +409,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 	
 	const onModifyFlowThrottleTimer = useCallback(() => {
-		console.log("onModifyFlowThrottleTimer triggered");		
+		console.log("onModifyFlowThrottleTimer triggered", node,values);		
 		storeFlowNode({...node,...values}, props.node.name);
 
 		props.flowrunnerConnector?.modifyFlowNode(
