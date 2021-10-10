@@ -4,6 +4,7 @@ import { Line } from './line';
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ErrorBoundary } from '../../../helpers/error';
 import { ThumbPositionRelativeToNode } from './shape-types';
+import {  getPosition, setPosition } from '../../../services/position-service';
 
 export interface ILineHelperProps {
 	flow: any[],
@@ -46,19 +47,35 @@ export const LineHelper = (props : ILineHelperProps) => {
 	}
 	let endNode = endNodes[0];
 	*/
-	if (!endNode) {
-		return null;
-	}
-	
-	let positionNode = props.positions(endNode.name) || endNode;
-	const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-		x: positionNode.x,
-		y: positionNode.y
-	}, endNode, props.getNodeInstance,
-		props.lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
+	let newEndPosition = {
+		x: 0,
+		y: 0
+	};
 
-	// 
-	// 
+	if (endNode) {
+		
+		let positionNode = props.positions(endNode.name) || endNode;
+		newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
+			x: positionNode.x,
+			y: positionNode.y
+		}, endNode, props.getNodeInstance,
+			props.lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
+	} else {
+		let position = getPosition(props.lineNode.name);
+		if (!position) {				
+				setPosition(props.lineNode.name, {
+					xstart: props.lineNode.xstart,
+					ystart: props.lineNode.ystart,
+					xend: props.lineNode.xend,
+					yend: props.lineNode.yend
+				});
+				position = getPosition(props.lineNode.name);
+		}
+		newEndPosition = {
+			x: position.xend,
+			y: position.yend
+		};
+	}
 	return <Line
 		ref={ref => (props.shapeRefs.current[props.lineNode.name] = ref)}									
 		onMouseOver={(event) => props.onLineMouseOver(props.lineNode, event)}

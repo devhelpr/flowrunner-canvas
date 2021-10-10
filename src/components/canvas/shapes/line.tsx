@@ -3,12 +3,15 @@ import { useState, useEffect , useRef, useImperativeHandle} from 'react';
 
 import * as Konva from 'react-konva';
 import { calculateLineControlPoints } from '../../../helpers/line-points'
+import { Thumbs }  from './thumbs';
+import { ThumbsStart }  from './thumbsstart';
+import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 
 const KonvaLine = Konva.Arrow;
 
 import { Group, Text } from 'react-konva';
 
-import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbPositionRelativeToNode } from './shape-types';
+import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbFollowFlow, ThumbPositionRelativeToNode } from './shape-types';
 export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 	
@@ -163,7 +166,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 					}
 					if (bgLineRef && bgLineRef.current && parameters) {
 						bgLineRef.current.points(parameters.points);
-					}
+					}					
 					break;
 				}
 				case ModifyShapeEnum.SetState : {
@@ -257,7 +260,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 */
 
 // props.opacity !== undefined ? props.opacity : opacity
-	return <Group listening={!props.noMouseEvents}
+	return <><Group listening={!props.noMouseEvents}
 		transformsEnabled={"position"}
 	>
 		<KonvaLine
@@ -310,6 +313,56 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			onTap={props.onClickLine}
 			shadowForStrokeEnabled={false}
 		>
-		</KonvaLine>		
+		</KonvaLine>
 	</Group>
-});
+	{props.hasStartThumb !== undefined && !!props.hasStartThumb && props.shapeRefs && <ThumbsStart				
+		position={FlowToCanvas.getThumbStartPosition("", {x:props.xstart,y:props.ystart}, 0)}
+		name={""}
+		taskType={""}
+		shapeType={""}
+		node={props.lineNode}																	
+		ref={ref => {
+				if (props.shapeRefs) {
+					props.shapeRefs["thumbstart_line_" + props.name] = ref;			
+				}
+			} 
+		}									
+		isSelected={false}
+		isConnectedToSelectedNode={false}									
+		canvasHasSelectedNode={false}
+		thumbPositionRelativeToNode={ThumbPositionRelativeToNode.default}
+
+		onMouseConnectionStartOver={(event) => props.onMouseConnectionStartOver(props.lineNode,false,event)}
+		onMouseConnectionStartOut={(event) => props.onMouseConnectionStartOut(props.lineNode,false,event)}
+		onMouseConnectionStartStart={(event) => props.onMouseConnectionStartStart(props.lineNode,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.default,event)}
+		onMouseConnectionStartMove={(event) => props.onMouseConnectionStartMove(props.lineNode,false,event)}
+		onMouseConnectionStartEnd={(event) => props.onMouseConnectionStartEnd(props.lineNode,false,ThumbPositionRelativeToNode.default,event)}
+
+		getNodeInstance={props.getNodeInstance}										
+	></ThumbsStart>
+	}
+	{props.hasEndThumb !== undefined && !!props.hasEndThumb && props.shapeRefs && <Thumbs
+		position={FlowToCanvas.getThumbEndPosition("", {x:props.xend,y:props.yend})}
+		name={""}
+		taskType={""}
+		shapeType={""}
+		node={undefined}																	
+		ref={ref => {
+				if (props.shapeRefs) {
+					props.shapeRefs["thumb_line_" + props.name] = ref;			
+				}
+			} 
+		}					
+		isSelected={false}
+		isConnectedToSelectedNode={false}									
+		canvasHasSelectedNode={false}
+
+		onMouseConnectionEndOver={(event) => props.onMouseConnectionEndOver(props.lineNode,false,event)}
+		onMouseConnectionEndOut={(event) => props.onMouseConnectionEndOut(props.lineNode,false,event)}
+		onMouseConnectionEndStart={(event) => props.onMouseConnectionEndStart(props.lineNode,false,event)}
+		onMouseConnectionEndMove={(event) => props.onMouseConnectionEndMove(props.lineNode,false,event)}
+		onMouseConnectionEndEnd={(event) => props.onMouseConnectionEndEnd(props.lineNode,false,event)}
+		onMouseConnectionEndLeave={(event) => props.onMouseConnectionEndLeave(props.lineNode,false,event)}
+		getNodeInstance={props.getNodeInstance}
+	></Thumbs>}	
+</>});

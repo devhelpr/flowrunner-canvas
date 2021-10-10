@@ -86,7 +86,6 @@ export interface ThumbTypeProps {
   onMouseConnectionEndStart?: any;
   onMouseConnectionEndMove?: any;
   onMouseConnectionEndEnd?: any;
-
   onMouseConnectionEndLeave?: any;
 
   canvasHasSelectedNode: boolean;
@@ -123,6 +122,28 @@ export interface LineTypeProps {
   thumbPosition?: ThumbPositionRelativeToNode;
   thumbEndPosition?: ThumbPositionRelativeToNode;
   isNodeConnectorHelper?: boolean;
+
+  onMouseConnectionStartOver?: any;
+  onMouseConnectionStartOut?: any;
+  onMouseConnectionStartStart?: any;
+  onMouseConnectionStartMove?: any;
+  onMouseConnectionStartEnd?: any;
+
+  onMouseConnectionEndOver?: any;
+  onMouseConnectionEndOut?: any;
+  onMouseConnectionEndStart?: any;
+  onMouseConnectionEndMove?: any;
+  onMouseConnectionEndEnd?: any;
+  onMouseConnectionEndLeave?: any;
+
+  hasStartThumb? : boolean;
+  hasEndThumb? : boolean;
+
+  lineNode? : any;
+
+  shapeRefs?: any[];
+  getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
+
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';

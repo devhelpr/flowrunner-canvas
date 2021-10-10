@@ -28,7 +28,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 					break;
 				}
 				case ModifyShapeEnum.GetXY : {
-					if (groupRef && groupRef.current) {
+					if (groupRef && groupRef.current) {						
 						return {
 							x: (groupRef.current as any).x(),
 							y: (groupRef.current as any).y(),
@@ -38,6 +38,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				}
 				case ModifyShapeEnum.SetXY : {
 					if (groupRef && groupRef.current && parameters) {
+						
 						groupRef.current.x(parameters.x);
 						groupRef.current.y(parameters.y);
 
@@ -90,7 +91,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 	}));
 
 	useLayoutEffect(() => {
-		if (props.getNodeInstance) {
+		if (props.getNodeInstance && props.name) {
 			const instance = props.getNodeInstance(props.node, undefined, undefined, settings);
 			if (instance && instance.getWidth && instance.getHeight) {
 				setWidth(instance.getWidth(props.node));
@@ -114,7 +115,7 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 			}
 		}
 	}, [props.isSelected, props.isConnectedToSelectedNode, props.node]);
-	
+
 	return <><Group
 		ref={groupRef}
 		x={props.position.x }
@@ -134,11 +135,11 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 		height={12}
 		transformsEnabled={"position"}
 	>			
-		{(props.shapeType === "Rect" || props.shapeType === "Diamond") && <>
+		{(props.shapeType === "" || props.shapeType === "Rect" || props.shapeType === "Diamond") && <>
 				
 			<KonvaCircle
-				x={ShapeMeasures.rectWidht}
-				y={12}				
+				x={props.shapeType === "" ? 0 : ShapeMeasures.rectWidht}
+				y={props.shapeType === "" ? 0 : 12}				
 				radius={8}
 				listening={false}
 				transformsEnabled={"position"}
@@ -148,8 +149,8 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
 			<KonvaCircle
-				x={ShapeMeasures.rectWidht}
-				y={12}				
+				x={props.shapeType === "" ? 0 : ShapeMeasures.rectWidht}
+				y={props.shapeType === "" ? 0 : 12}				
 				radius={6}
 				listening={false}
 				transformsEnabled={"position"}
@@ -158,8 +159,8 @@ export const ThumbsStart = React.forwardRef((props: ThumbTypeProps, ref : any) =
 				opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			></KonvaCircle>
 			<KonvaCircle
-				x={ShapeMeasures.rectWidht}
-				y={12}
+				x={props.shapeType === "" ? 0 : ShapeMeasures.rectWidht}
+				y={props.shapeType === "" ? 0 : 12}
 				listening={true}
 				transformsEnabled={"position"}
 				perfectDrawEnabled={false}

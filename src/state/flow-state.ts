@@ -171,9 +171,26 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
             return false;
           }
           if (draftNode.startshapeid === node.name || draftNode.endshapeid === node.name) {
-            return false;
+            return true;
           }
           return true;
+        });
+        flow = flow.map((draftNode) => {
+          if (draftNode.startshapeid === node.name) {
+            let updatedNode = {...draftNode};
+            updatedNode.startshapeid = undefined;
+
+            if (draftNode.endshapeid === node.name) {
+              updatedNode.endshapeid = undefined;
+            }
+            return updatedNode;
+          } else 
+          if (draftNode.endshapeid === node.name) {
+            let updatedNode = {...draftNode};
+            updatedNode.endshapeid = undefined;
+            return updatedNode;
+          }
+          return draftNode;
         });
         //if (index >= 0) {
         //  draftState.flow.splice(index, 1);

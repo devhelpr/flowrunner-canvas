@@ -37,6 +37,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 				}
 				case ModifyShapeEnum.SetXY : {
 					if (groupRef && groupRef.current && parameters) {
+						
 						groupRef.current.x(parameters.x);
 						groupRef.current.y(parameters.y);
 					}
@@ -107,10 +108,10 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 		height={12}
 		transformsEnabled={"position"}
 	>
-		{(props.shapeType === "Rect" || props.shapeType === "Diamond") && <>			
+		{(props.shapeType === "" || props.shapeType === "Rect" || props.shapeType === "Diamond") && <>			
 			<KonvaCircle
 				x={0}
-				y={12}				
+				y={props.shapeType === "" ? 0 : 12}				
 				radius={8}
 				listening={false}
 				transformsEnabled={"position"}
@@ -120,7 +121,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 			></KonvaCircle>
 			<KonvaCircle
 				x={0}
-				y={12}				
+				y={props.shapeType === "" ? 0 : 12}				
 				radius={6}
 				listening={false}
 				perfectDrawEnabled={false}
@@ -130,7 +131,7 @@ export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 			></KonvaCircle>
 			<KonvaCircle
 				x={0}
-				y={12}
+				y={props.shapeType === "" ? 0 : 12}
 				radius={12}
 				listening={true}
 				transformsEnabled={"position"}
