@@ -260,6 +260,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 */
 
 // props.opacity !== undefined ? props.opacity : opacity
+
 	return <><Group listening={!props.noMouseEvents}
 		transformsEnabled={"position"}
 	>
@@ -322,8 +323,8 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		shapeType={""}
 		node={props.lineNode}																	
 		ref={ref => {
-				if (props.shapeRefs) {
-					props.shapeRefs["thumbstart_line_" + props.name] = ref;			
+				if (props.shapeRefs) {					
+					props.shapeRefs["thumbstart_line_" + props.lineNode.name] = ref;			
 				}
 			} 
 		}									
@@ -349,7 +350,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		node={undefined}																	
 		ref={ref => {
 				if (props.shapeRefs) {
-					props.shapeRefs["thumb_line_" + props.name] = ref;			
+					props.shapeRefs["thumb_line_" + props.lineNode.name] = ref;			
 				}
 			} 
 		}					

@@ -35,7 +35,7 @@ import { onFocus } from '../html-plugins/form-controls/helpers/focus';
 import * as uuid from 'uuid';
 
 import { FlowState } from '../../use-flows';
-import { Taskbar } from '../Taskbar';
+import { Taskbar } from '../taskbar';
 
 import { useDroppable } from '@dnd-kit/core';
 import {
@@ -1532,6 +1532,11 @@ export const Canvas = (props: CanvasProps) => {
 			eventHelper.event = connectionNodeEventName.current;
 		}
 
+
+		if (node.shapeType === "Line") {
+			return;
+		}
+
 		const settings = ShapeSettings.getShapeSettings(node.taskType, node);	
 		const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
 		if (allowedInputs == 0 || 
@@ -1638,9 +1643,60 @@ export const Canvas = (props: CanvasProps) => {
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 
-				if (!isConnectingNodesByDraggingLocal.current && mouseDragging.current && touchNode.current) {
+				if (connectionNodeThumbs.current !== "" && 
+					!isConnectingNodesByDraggingLocal.current && 
+					mouseDragging.current && touchNode.current) {
 					
 					setNewPositionForNode(touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
+				} else {
+					if (connectionNodeThumbs.current === "thumbstart") { 
+						
+						const touchPos = stageInstance.getPointerPosition();
+						const scaleFactor = (stageInstance as any).scaleX();
+		
+						let newPosition = {
+							x: 0,
+							y: 0
+						};
+						newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
+						newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
+						
+						setPosition(connectionNodeThumbsLineNode.current.name, {
+							xstart: newPosition.x,
+							ystart: newPosition.y,
+							xend:connectionNodeThumbsLineNode.current.xend,
+							yend:connectionNodeThumbsLineNode.current.yend
+						});
+						
+						connectionNodeThumbsLineNode.current.xstart = newPosition.x;
+						connectionNodeThumbsLineNode.current.ystart = newPosition.y;
+						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);	
+						
+							
+					} else 
+					if (connectionNodeThumbs.current === "thumbend") {
+						const touchPos = stageInstance.getPointerPosition();
+						const scaleFactor = (stageInstance as any).scaleX();
+		
+						let newPosition = {
+							x: 0,
+							y: 0
+						};
+						newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
+						newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
+						
+						setPosition(connectionNodeThumbsLineNode.current.name, {							
+							xstart:connectionNodeThumbsLineNode.current.xstart,
+							ystart:connectionNodeThumbsLineNode.current.ystart,
+							xend: newPosition.x,
+							yend: newPosition.y,
+						});
+						
+						connectionNodeThumbsLineNode.current.xend = newPosition.x;
+						connectionNodeThumbsLineNode.current.yend = newPosition.y;
+						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);	
+						
+					}
 				}
 
 				dragTime.current = undefined;
@@ -1653,6 +1709,7 @@ export const Canvas = (props: CanvasProps) => {
 				isConnectingNodesByDraggingLocal.current = false;
 				connectionNodeEvent.current = false;
 				connectionNodeEventName.current = "";
+				connectionNodeThumbs.current = "";
 				
 				connectionNodeThumbPositionRelativeToNode.current = ThumbPositionRelativeToNode.default;
 				connectionNodeFollowFlow.current = ThumbFollowFlow.default;
@@ -1668,6 +1725,13 @@ export const Canvas = (props: CanvasProps) => {
 				if (stageInstance) {
 					stageInstance.batchDraw();
 				}
+
+
+				/*
+					TODO: 
+						- add new connection when not connecting to node
+						- when dragging existing connection..store new position
+				*/
 			}
 			return false;
 		}
@@ -1767,7 +1831,7 @@ export const Canvas = (props: CanvasProps) => {
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
-					var touchPos = stageInstance.getPointerPosition();
+					const touchPos = stageInstance.getPointerPosition();
 					const scaleFactor = (stageInstance as any).scaleX();
 	
 					let newPosition = {
@@ -1810,7 +1874,6 @@ export const Canvas = (props: CanvasProps) => {
 						// connectionNodeThumbsLineNode.current
 
 						if (connectionNodeThumbs.current === "thumbstart") { 
-							console.log("thumbstart ... dragging!!", connectionNodeThumbsLineNode.current.name);
 							const lineRef = shapeRefs.current[connectionNodeThumbsLineNode.current.name];
 							if (lineRef) {
 			
@@ -1827,12 +1890,38 @@ export const Canvas = (props: CanvasProps) => {
 									controlPoints.controlPointx2, controlPoints.controlPointy2,
 									connectionNodeThumbsLineNode.current.xend,connectionNodeThumbsLineNode.current.yend]});
 								lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 1});
-								
-								
+																
 							}
 
 							const thumbRef = shapeRefs.current["thumbstart_line_" + connectionNodeThumbsLineNode.current.name];
-							console.log("thumbRef", thumbRef);
+							if (thumbRef) {
+								thumbRef.modifyShape(ModifyShapeEnum.SetXY, newPosition);
+							}
+
+							stageInstance.batchDraw();
+						} else
+						if (connectionNodeThumbs.current === "thumbend") { 
+							const lineRef = shapeRefs.current[connectionNodeThumbsLineNode.current.name];
+							if (lineRef) {
+			
+								let controlPoints = calculateLineControlPoints(									
+									connectionNodeThumbsLineNode.current.xstart,
+									connectionNodeThumbsLineNode.current.ystart,
+									newPosition.x, newPosition.y,
+									ThumbPositionRelativeToNode.default,
+									ThumbPositionRelativeToNode.default);
+									
+								lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points: [
+									connectionNodeThumbsLineNode.current.xstart,connectionNodeThumbsLineNode.current.ystart,
+									controlPoints.controlPointx1, controlPoints.controlPointy1,
+									controlPoints.controlPointx2, controlPoints.controlPointy2,
+									newPosition.x, newPosition.y
+								]});
+								lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 1});
+																
+							}
+
+							const thumbRef = shapeRefs.current["thumb_line_" + connectionNodeThumbsLineNode.current.name];
 							if (thumbRef) {
 								thumbRef.modifyShape(ModifyShapeEnum.SetXY, newPosition);
 							}
@@ -2051,12 +2140,15 @@ console.log("ONTOUCHEND");
 		if (node && touching.current && touchNode.current) {
 			return;
 		}
+		
 
-		const settings = ShapeSettings.getShapeSettings(node.taskType, node);	
-		const allowedOutputs = FlowToCanvas.getAllowedOutputs(node.shapeType, settings);
-		if (allowedOutputs == 0 || 
-			!FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
-			return false;
+		const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+		if (node && node.shapeType !== "Line") {
+			const allowedOutputs = FlowToCanvas.getAllowedOutputs(node.shapeType, settings);
+			if (allowedOutputs == 0 || 
+				!FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
+				return false;
+			}
 		}
 
 		(isConnectingNodesByDraggingLocal.current as any) = true;
@@ -2117,6 +2209,9 @@ console.log("ONTOUCHEND");
 	}
 
 	const onMouseConnectionStartEnd = (node, nodeEvent, thumbPositionRelativeToNode : ThumbPositionRelativeToNode , event) => {
+		
+		console.log("thumbstart onMouseConnectionStartEnd");
+
 		if (!!canvasMode.isConnectingNodes) {
 			return false;
 		}
@@ -2130,12 +2225,14 @@ console.log("ONTOUCHEND");
 			return false;
 		}
 
-		const settings = ShapeSettings.getShapeSettings(node.taskType, node);	
-		const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
-		if (allowedInputs == 0 || 
-			!FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
-			document.body.style.cursor = 'not-allowed';
-			return false;
+		const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+		if (node && node.shapeType !== "Line") {	
+			const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
+			if (allowedInputs == 0 || 
+				!FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
+				document.body.style.cursor = 'not-allowed';
+				return false;
+			}
 		}
 
 		document.body.style.cursor = 'pointer';

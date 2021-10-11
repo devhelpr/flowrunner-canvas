@@ -770,7 +770,7 @@ const startFlow = (
 ) => {
   let isSameFlow: boolean = false;
 
-  console.log('startFlow', flowId, currentFlowId);
+  console.log('startFlow', flowId, currentFlowId, flowPackage);
   if (flowId == currentFlowId) {
     isSameFlow = true;
   }

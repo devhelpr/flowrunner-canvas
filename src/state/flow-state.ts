@@ -59,7 +59,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
     flowId: '',
     flowHashmap: new Map(),
     storeFlow: (flow: any[], flowId: string) =>
-      set(state => {
+      set(state => {        
         return {
           flowId: flowId,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
@@ -88,6 +88,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
           return currentNode;
         });
+        console.log("storeFlowNode", node, flow);
         return {
           flow: flow,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),

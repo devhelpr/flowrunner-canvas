@@ -28,6 +28,10 @@ The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but y
 - yarn install
 - npx gulp
 
+# Node versions
+
+- I have succesfully ran my project on node 12.x node 14.x + on both Mac and Windows (wsl)
+
 # Using create-react-app
 
 - npx create-react-app flow-app --template typescript

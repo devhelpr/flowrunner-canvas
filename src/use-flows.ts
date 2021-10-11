@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import fetch from 'cross-fetch';
 
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
@@ -117,8 +117,12 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
     setCurrentFlowId(id);
     getFlows(id);
   };
+  
+  useEffect(() => {
+    console.log("useeffect use-flows", flowStore.flow);
+  },[flowStore.flow]);
 
-  const saveFlow = (selectedFlow?) => {
+  const saveFlow = useCallback((selectedFlow?) => {
     const flowAndUpdatedPositions = flowStore.flow.map(node => {
       let updatedNode = { ...node };
       if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
@@ -132,7 +136,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
         updatedNode.ystart = position.ystart;
         updatedNode.xend = position.xend;
         updatedNode.yend = position.yend;
-      }
+      }      
       return updatedNode;
     });
     if (flowrunnerConnector.hasStorageProvider) {
@@ -168,7 +172,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
           console.error(err);
         });
     }
-  };
+  }, [flowStore.flow]);
 
   return {
     flowState,
