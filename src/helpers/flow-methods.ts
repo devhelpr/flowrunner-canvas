@@ -78,6 +78,8 @@ export const getNewConnection = (
   getNodeInstance?,
   isEvent?: any,
   thumbPositionRelativeToNode?: ThumbPositionRelativeToNode,
+  positionToX? : number,
+  positionToY? : number
 ) => {
   const nodeFromPosition = FlowToCanvas.getStartPointForLine(
     nodeFrom,
@@ -89,22 +91,33 @@ export const getNewConnection = (
     getNodeInstance,
     thumbPositionRelativeToNode,
   );
-  const nodeToPosition = FlowToCanvas.getEndPointForLine(
-    nodeTo,
-    {
-      x: nodeTo.x,
-      y: nodeTo.y,
-    },
-    {},
-    getNodeInstance,
-  );
+  let nodeToPosition = {
+    x: 0, 
+    y: 0
+  }
+  let nodeToName : any = undefined;
+  if (nodeTo) {
+    nodeToPosition = FlowToCanvas.getEndPointForLine(
+      nodeTo,
+      {
+        x: nodeTo.x,
+        y: nodeTo.y,
+      },
+      {},
+      getNodeInstance,
+    );
+    nodeToName = nodeTo.name;
+  } else {
+    nodeToPosition.x = positionToX || 0;
+    nodeToPosition.y = positionToY || 0;
+  }
 
   const connection = {
     name: 'connection-' + uuidV4(),
     taskType: 'connection',
     shapeType: 'Line',
     startshapeid: nodeFrom.name,
-    endshapeid: nodeTo.name,
+    endshapeid: nodeToName,
     xstart: nodeFromPosition.x,
     ystart: nodeFromPosition.y,
     xend: nodeToPosition.x,
