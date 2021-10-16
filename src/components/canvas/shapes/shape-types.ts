@@ -136,14 +136,13 @@ export interface LineTypeProps {
   onMouseConnectionEndEnd?: any;
   onMouseConnectionEndLeave?: any;
 
-  hasStartThumb? : boolean;
-  hasEndThumb? : boolean;
+  hasStartThumb?: boolean;
+  hasEndThumb?: boolean;
 
-  lineNode? : any;
+  lineNode?: any;
 
   shapeRefs?: any[];
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
-
 }
 
 export const shapeBackgroundColor: string = '#f2f2f2';

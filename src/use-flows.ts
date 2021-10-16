@@ -117,62 +117,65 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
     setCurrentFlowId(id);
     getFlows(id);
   };
-  
+
   useEffect(() => {
-    console.log("useeffect use-flows", flowStore.flow);
-  },[flowStore.flow]);
-
-  const saveFlow = useCallback((selectedFlow?) => {
-    const flowAndUpdatedPositions = flowStore.flow.map(node => {
-      let updatedNode = { ...node };
-      if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
-        const position = getPosition(node.name);
-        updatedNode.x = position.x;
-        updatedNode.y = position.y;
-      } else if (node.xstart !== undefined && node.ystart !== undefined && node.shapeType === 'Line') {
-        const position = getPosition(node.name);
-
-        updatedNode.xstart = position.xstart;
-        updatedNode.ystart = position.ystart;
-        updatedNode.xend = position.xend;
-        updatedNode.yend = position.yend;
-      }      
-      return updatedNode;
-    });
-    if (flowrunnerConnector.hasStorageProvider) {
-      flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
-      if (selectedFlow) {
-        loadFlow(selectedFlow); //,true
-      }
-    } else {
-      fetch('/save-flow?id=' + selectedFlow, {
-        method: 'POST',
-        body: JSON.stringify({
-          flow: flowAndUpdatedPositions,
-          layout: JSON.parse(layout.layout),
-          flowType: canvasflowType,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(res => {
-          if (res.status >= 400) {
-            throw new Error('Bad response from server');
-          }
-
-          return res.json();
-        })
-        .then(status => {
-          if (selectedFlow) {
-            loadFlow(selectedFlow); //,true
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    }
+    console.log('useeffect use-flows', flowStore.flow);
   }, [flowStore.flow]);
+
+  const saveFlow = useCallback(
+    (selectedFlow?) => {
+      const flowAndUpdatedPositions = flowStore.flow.map(node => {
+        let updatedNode = { ...node };
+        if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
+          const position = getPosition(node.name);
+          updatedNode.x = position.x;
+          updatedNode.y = position.y;
+        } else if (node.xstart !== undefined && node.ystart !== undefined && node.shapeType === 'Line') {
+          const position = getPosition(node.name);
+
+          updatedNode.xstart = position.xstart;
+          updatedNode.ystart = position.ystart;
+          updatedNode.xend = position.xend;
+          updatedNode.yend = position.yend;
+        }
+        return updatedNode;
+      });
+      if (flowrunnerConnector.hasStorageProvider) {
+        flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
+        if (selectedFlow) {
+          loadFlow(selectedFlow); //,true
+        }
+      } else {
+        fetch('/save-flow?id=' + selectedFlow, {
+          method: 'POST',
+          body: JSON.stringify({
+            flow: flowAndUpdatedPositions,
+            layout: JSON.parse(layout.layout),
+            flowType: canvasflowType,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then(res => {
+            if (res.status >= 400) {
+              throw new Error('Bad response from server');
+            }
+
+            return res.json();
+          })
+          .then(status => {
+            if (selectedFlow) {
+              loadFlow(selectedFlow); //,true
+            }
+          })
+          .catch(err => {
+            console.error(err);
+          });
+      }
+    },
+    [flowStore.flow],
+  );
 
   return {
     flowState,
