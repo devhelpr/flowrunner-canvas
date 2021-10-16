@@ -3535,7 +3535,7 @@ console.log("ONTOUCHEND");
 					position.x = dropX;
 					position.y = dropY;
 				}
-				const minDistanceForAutoConnect = 750;
+				const minDistanceForAutoConnect = 500; // 750
 				let minDistance = -1;
 				let closestNode : any;
 				let closestStartNode : any;
