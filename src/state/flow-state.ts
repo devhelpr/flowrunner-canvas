@@ -14,7 +14,7 @@ interface IFlowState extends State {
   addFlowNode: (node: any) => void;
   addConnection: (connection: any) => void;
   deleteConnection: (node: any) => void;
-  deleteNode: (node: any, deleteLines : boolean) => void;
+  deleteNode: (node: any, deleteLines: boolean) => void;
 }
 
 const handleStorageProvider = config => (set, get, api) =>
@@ -158,7 +158,7 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
         }),
       ),
-    deleteNode: (node: any, deleteLines : boolean) =>
+    deleteNode: (node: any, deleteLines: boolean) =>
       set(state => {
         let index = -1;
         /*draftState.flow.map((draftNode, mapIndex) => {

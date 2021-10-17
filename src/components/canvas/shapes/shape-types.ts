@@ -45,7 +45,6 @@ export interface ShapeTypeProps {
 
   flowHash?: any;
 
-
   onMouseConnectionStartOver?: any;
   onMouseConnectionStartOut?: any;
   onMouseConnectionStartStart?: any;
