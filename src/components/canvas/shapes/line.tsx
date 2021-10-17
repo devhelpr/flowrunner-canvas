@@ -262,7 +262,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 // props.opacity !== undefined ? props.opacity : opacity
 
 	return <><Group listening={!props.noMouseEvents}
-		transformsEnabled={"position"}
+		transformsEnabled={"position"}		
 	>
 		<KonvaLine
 		 	ref={bgLineRef} 
@@ -309,7 +309,10 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			bezier={true}
 			perfectDrawEnabled={false}
 			onMouseOver={props.onMouseOver}
-			onMouseOut={props.onMouseOut}
+			onMouseOut={props.onMouseOut}	
+			onMouseDown={(event) => props.onMouseStart(props.lineNode, event)}
+			onMouseMove={(event) => props.onMouseMove(props.lineNode, event)}
+			onMouseUp={(event) => props.onMouseEnd(props.lineNode, event)}		
 			onClick={props.onClickLine}
 			onTap={props.onClickLine}
 			shadowForStrokeEnabled={false}

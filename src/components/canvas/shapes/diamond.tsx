@@ -20,6 +20,9 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 		[props.taskType, props.node]);
 
 	useImperativeHandle(ref, () => ({
+		getGroupRef: () => {
+			return groupRef.current;
+		},
 		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
 			switch (+action) {
 				case ModifyShapeEnum.GetShapeType : {

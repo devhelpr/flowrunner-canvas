@@ -17,5 +17,8 @@ export const LinesForShape = (props: ShapeTypeProps) => {
 		touchedNodes={props.touchedNodes}
 		positions={props.positions}
 		flowHash={props.flowHash}
+		onMouseStart={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseEnd={props.onMouseEnd}
 	></Lines>;	
 };

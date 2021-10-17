@@ -23,6 +23,9 @@ export interface ILineHelperProps {
 	newStartPosition,
 	positions: any;
 	flowHash?: any;
+	onMouseStart: any;
+	onMouseMove: any;
+	onMouseEnd: any;
 }
 
 export const LineHelper = (props : ILineHelperProps) => {
@@ -83,7 +86,10 @@ export const LineHelper = (props : ILineHelperProps) => {
 		onClickLine={(event) => props.onClickLine(props.lineNode, event)}
 		canvasHasSelectedNode={props.canvasHasSelectedNode}
 		isSelected={false}
-							
+		onMouseStart={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseEnd={props.onMouseEnd}
+		lineNode={props.lineNode}
 		isErrorColor={props.lineNode.followflow === 'onfailure'}
 		isSuccessColor={props.lineNode.followflow === 'onsuccess'}
 		xstart={props.newStartPosition.x} 
@@ -116,6 +122,9 @@ export interface ILinesProp {
 	touchedNodes,
 	positions?: any;
 	flowHash? : any;
+	onMouseStart: any;
+	onMouseMove: any;
+	onMouseEnd: any;
 }
 
 export const Lines = (
@@ -163,6 +172,9 @@ export const Lines = (
 					onLineMouseOver={props.onLineMouseOver}
 					onLineMouseOut={props.onLineMouseOut}
 					onClickLine={props.onClickLine}
+					onMouseStart={props.onMouseStart}
+					onMouseMove={props.onMouseMove}
+					onMouseEnd={props.onMouseEnd}
 					touchedNodes={props.touchedNodes}	
 					newStartPosition={newStartPosition}></LineHelper>		
 			</React.Fragment>;

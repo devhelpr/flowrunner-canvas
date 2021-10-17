@@ -110,6 +110,9 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 
 	
 	useImperativeHandle(ref, () => ({
+		getGroupRef: () => {
+			return groupRef.current;
+		},
 		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
 			switch (+action) {
 				case ModifyShapeEnum.GetShapeType : {

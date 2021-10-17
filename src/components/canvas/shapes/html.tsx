@@ -19,6 +19,9 @@ export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {
 	const groupRef = useRef(null as any);
 
 	useImperativeHandle(ref, () => ({
+		getGroupRef: () => {
+			return groupRef.current;
+		},
 		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
 			switch (+action) {
 				case ModifyShapeEnum.GetShapeType : {
