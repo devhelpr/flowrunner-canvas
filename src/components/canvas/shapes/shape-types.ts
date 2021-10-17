@@ -92,7 +92,7 @@ export interface ThumbTypeProps {
   isConnectedToSelectedNode: boolean;
 
   followFlow?: ThumbFollowFlow;
-  thumbPositionRelativeToNode?: ThumbPositionRelativeToNode;  
+  thumbPositionRelativeToNode?: ThumbPositionRelativeToNode;
 
   getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
 }
@@ -139,7 +139,7 @@ export interface LineTypeProps {
   onMouseStart: any;
   onMouseMove: any;
   onMouseEnd: any;
-  
+
   hasStartThumb?: boolean;
   hasEndThumb?: boolean;
 
