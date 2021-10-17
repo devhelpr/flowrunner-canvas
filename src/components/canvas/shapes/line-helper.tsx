@@ -26,6 +26,19 @@ export interface ILineHelperProps {
 	onMouseStart: any;
 	onMouseMove: any;
 	onMouseEnd: any;
+
+	onMouseConnectionStartOver?: any;
+	onMouseConnectionStartOut?: any;
+	onMouseConnectionStartStart?: any;
+	onMouseConnectionStartMove?: any;
+	onMouseConnectionStartEnd?: any;
+
+	onMouseConnectionEndOver?: any;
+	onMouseConnectionEndOut?: any;
+	onMouseConnectionEndStart?: any;
+	onMouseConnectionEndMove?: any;
+	onMouseConnectionEndEnd?: any;
+	onMouseConnectionEndLeave?: any;
 }
 
 export const LineHelper = (props : ILineHelperProps) => {
@@ -79,6 +92,7 @@ export const LineHelper = (props : ILineHelperProps) => {
 			y: position.yend
 		};
 	}
+	
 	return <Line
 		ref={ref => (props.shapeRefs.current[props.lineNode.name] = ref)}									
 		onMouseOver={(event) => props.onLineMouseOver(props.lineNode, event)}
@@ -90,6 +104,7 @@ export const LineHelper = (props : ILineHelperProps) => {
 		onMouseMove={props.onMouseMove}
 		onMouseEnd={props.onMouseEnd}
 		lineNode={props.lineNode}
+		shapeRefs={props.shapeRefs.current}
 		isErrorColor={props.lineNode.followflow === 'onfailure'}
 		isSuccessColor={props.lineNode.followflow === 'onsuccess'}
 		xstart={props.newStartPosition.x} 
@@ -100,11 +115,25 @@ export const LineHelper = (props : ILineHelperProps) => {
 		selectedNodeName={""}
 		startNodeName={props.lineNode.startshapeid}
 		endNodeName={props.lineNode.endshapeid}
+		hasEndThumb={props.endshapeid === undefined}
 		noMouseEvents={false}	
 		touchedNodes={props.touchedNodes}
 		name={props.lineNode.name}
 		thumbPosition={props.lineNode.thumbPosition || ThumbPositionRelativeToNode.default}
-		thumbEndPosition={props.lineNode.thumbEndPosition || ThumbPositionRelativeToNode.default}											
+		thumbEndPosition={props.lineNode.thumbEndPosition || ThumbPositionRelativeToNode.default}	
+		
+		onMouseConnectionStartOver={props.onMouseConnectionStartOver}
+		onMouseConnectionStartOut={props.onMouseConnectionStartOut}
+		onMouseConnectionStartStart={props.onMouseConnectionStartStart}
+		onMouseConnectionStartMove={props.onMouseConnectionStartMove}
+		onMouseConnectionStartEnd={props.onMouseConnectionStartEnd}
+
+		onMouseConnectionEndOver={props.onMouseConnectionEndOver}
+		onMouseConnectionEndOut={props.onMouseConnectionEndOut}
+		onMouseConnectionEndStart={props.onMouseConnectionEndStart}
+		onMouseConnectionEndMove={props.onMouseConnectionEndMove}
+		onMouseConnectionEndEnd={props.onMouseConnectionEndEnd}
+		onMouseConnectionEndLeave={props.onMouseConnectionEndLeave}
 	></Line>;
 }
 
@@ -125,6 +154,19 @@ export interface ILinesProp {
 	onMouseStart: any;
 	onMouseMove: any;
 	onMouseEnd: any;
+
+	onMouseConnectionStartOver?: any;
+	onMouseConnectionStartOut?: any;
+	onMouseConnectionStartStart?: any;
+	onMouseConnectionStartMove?: any;
+	onMouseConnectionStartEnd?: any;
+
+	onMouseConnectionEndOver?: any;
+	onMouseConnectionEndOut?: any;
+	onMouseConnectionEndStart?: any;
+	onMouseConnectionEndMove?: any;
+	onMouseConnectionEndEnd?: any;
+	onMouseConnectionEndLeave?: any;
 }
 
 export const Lines = (
@@ -175,6 +217,20 @@ export const Lines = (
 					onMouseStart={props.onMouseStart}
 					onMouseMove={props.onMouseMove}
 					onMouseEnd={props.onMouseEnd}
+
+					onMouseConnectionStartOver={props.onMouseConnectionStartOver}
+					onMouseConnectionStartOut={props.onMouseConnectionStartOut}
+					onMouseConnectionStartStart={props.onMouseConnectionStartStart}
+					onMouseConnectionStartMove={props.onMouseConnectionStartMove}
+					onMouseConnectionStartEnd={props.onMouseConnectionStartEnd}
+
+					onMouseConnectionEndOver={props.onMouseConnectionEndOver}
+					onMouseConnectionEndOut={props.onMouseConnectionEndOut}
+					onMouseConnectionEndStart={props.onMouseConnectionEndStart}
+					onMouseConnectionEndMove={props.onMouseConnectionEndMove}
+					onMouseConnectionEndEnd={props.onMouseConnectionEndEnd}
+					onMouseConnectionEndLeave={props.onMouseConnectionEndLeave}
+					
 					touchedNodes={props.touchedNodes}	
 					newStartPosition={newStartPosition}></LineHelper>		
 			</React.Fragment>;

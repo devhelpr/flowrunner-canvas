@@ -44,6 +44,20 @@ export interface ShapeTypeProps {
   touchedNodes: any;
 
   flowHash?: any;
+
+
+  onMouseConnectionStartOver?: any;
+  onMouseConnectionStartOut?: any;
+  onMouseConnectionStartStart?: any;
+  onMouseConnectionStartMove?: any;
+  onMouseConnectionStartEnd?: any;
+
+  onMouseConnectionEndOver?: any;
+  onMouseConnectionEndOut?: any;
+  onMouseConnectionEndStart?: any;
+  onMouseConnectionEndMove?: any;
+  onMouseConnectionEndEnd?: any;
+  onMouseConnectionEndLeave?: any;
 }
 
 export interface ThumbPosition {

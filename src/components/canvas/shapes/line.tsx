@@ -258,9 +258,8 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}
 */
-
+console.log("line" ,props.lineNode, props.hasEndThumb !== undefined && !!props.hasEndThumb && props.shapeRefs);
 // props.opacity !== undefined ? props.opacity : opacity
-
 	return <><Group listening={!props.noMouseEvents}
 		transformsEnabled={"position"}		
 	>
@@ -312,7 +311,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			onMouseOut={props.onMouseOut}	
 			onMouseDown={(event) => props.onMouseStart(props.lineNode, event)}
 			onMouseMove={(event) => props.onMouseMove(props.lineNode, event)}
-			onMouseUp={(event) => props.onMouseEnd(props.lineNode, event)}		
+			onMouseUp={(event) => props.onMouseEnd(props.lineNode, event)}	
 			onClick={props.onClickLine}
 			onTap={props.onClickLine}
 			shadowForStrokeEnabled={false}

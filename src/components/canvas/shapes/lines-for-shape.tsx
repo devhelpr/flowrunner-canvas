@@ -20,5 +20,18 @@ export const LinesForShape = (props: ShapeTypeProps) => {
 		onMouseStart={props.onMouseStart}
 		onMouseMove={props.onMouseMove}
 		onMouseEnd={props.onMouseEnd}
+
+		onMouseConnectionStartOver={props.onMouseConnectionStartOver}
+		onMouseConnectionStartOut={props.onMouseConnectionStartOut}
+		onMouseConnectionStartStart={props.onMouseConnectionStartStart}
+		onMouseConnectionStartMove={props.onMouseConnectionStartMove}
+		onMouseConnectionStartEnd={props.onMouseConnectionStartEnd}
+
+		onMouseConnectionEndOver={props.onMouseConnectionEndOver}
+		onMouseConnectionEndOut={props.onMouseConnectionEndOut}
+		onMouseConnectionEndStart={props.onMouseConnectionEndStart}
+		onMouseConnectionEndMove={props.onMouseConnectionEndMove}
+		onMouseConnectionEndEnd={props.onMouseConnectionEndEnd}
+		onMouseConnectionEndLeave={props.onMouseConnectionEndLeave}
 	></Lines>;	
 };

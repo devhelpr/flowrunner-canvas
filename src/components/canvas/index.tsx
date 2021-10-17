@@ -1484,8 +1484,7 @@ export const Canvas = (props: CanvasProps) => {
 			return;			
 		}
 
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;		
+			
 
 		touching.current = true;
 		touchNode.current = node;
@@ -1500,12 +1499,17 @@ export const Canvas = (props: CanvasProps) => {
 				if (node.endshapeid) {					
 					determineEndPosition(shapeRefs.current[node.endshapeid].getGroupRef());
 				}
+				return;
 			} else {
 				determineStartPosition(event.currentTarget);
 			}
 		}
+		console.log("onMouseStart before return", node.shapeType, event.currentTarget);
 
-		return false;
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;	
+
+		return;
 
 	}
 
@@ -1523,16 +1527,16 @@ export const Canvas = (props: CanvasProps) => {
 			return;			
 		}
 
+		if (node.shapeType === "Line" || (touchNode.current && (touchNode.current as any).shapeType === "Line")) {
+			return;
+		}
+
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;	
 
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
 			return false;
-		}
-
-		if (node.shapeType === "Line" || (touchNode.current && (touchNode.current as any).shapeType === "Line")) {
-			return;
 		}
 
 		if (touching.current) {
@@ -1674,13 +1678,16 @@ console.log("onMouseEnd");
 		document.body.style.cursor = 'default';
 		document.body.classList.remove("mouse--moving");
 
+		if (node.shapeType === "Line") {
+			return;
+		}
+
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {			
 			connectConnectionToNode(node);
 			return false;
 		}	
 		
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
+		
 	
 		if (touchNodeGroup.current != event.currentTarget) {
 			return false;
@@ -1688,9 +1695,10 @@ console.log("onMouseEnd");
 		if (!!canvasMode.isConnectingNodes) {
 			return false;
 		}
-		if (node.shapeType === "Line") {
-			return;
-		}
+		
+		event.evt.preventDefault();
+		event.evt.cancelBubble = true;
+
 		console.log("ONMOUSEND", node);
 
 		touching.current = false;
@@ -1732,7 +1740,7 @@ console.log("onMouseEnd");
 	}
 
 	const onStageMouseEnd = (event) => {
-
+		
 		if (isPinching.current) {
 			isPinching.current = false;
 			return;			
@@ -1741,7 +1749,7 @@ console.log("onMouseEnd");
 		console.log("ONSTAGEMOUSEEND", touching.current, isConnectingNodesByDraggingLocal.current, connectionNodeThumbs.current, mouseDragging.current );
 
 		if (touching.current || isConnectingNodesByDraggingLocal.current) {
-			cancelDragStage();
+			//cancelDragStage();
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 
@@ -1850,14 +1858,8 @@ console.log("onMouseEnd");
 				if (stageInstance) {
 					stageInstance.batchDraw();
 				}
-
-
-				/*
-					TODO: 
-						- add new connection when not connecting to node
-						- when dragging existing connection..store new position
-				*/
 			}
+			console.log ("onstagemouseend just before return false");
 			return false;
 		}
 	}
@@ -2065,8 +2067,7 @@ console.log("onMouseEnd");
 		}
 		
 		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
-			event.evt.preventDefault();
-			event.evt.cancelBubble = true;
+			
 			//console.log("touchmove stage", touchNode.current);
 
 			if ((touchNode.current as any).shapeType === "Line") {
@@ -2095,8 +2096,10 @@ console.log("onMouseEnd");
 					}
 				}
 				cancelDragStage();
-				return false;
+				return;
 			}
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
 
 			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], event.evt.screenX ? {
 				x: event.evt.screenX,
@@ -2158,17 +2161,6 @@ console.log("onMouseEnd");
 				return false;
 			}
 		}
-	}
-
-	const onStageTouchEnd = (event) => {
-		isPinching.current = false;
-		if (!mouseDragging.current) {
-			if (touchNode.current && touchNodeGroup.current) {
-				selectNode((touchNode.current as any).name, touchNode.current as any);
-				canvasMode.setConnectiongNodeCanvasMode(false);
-			}
-		}
-
 	}
 
 	const cancelDragStage = () => {
@@ -2586,13 +2578,16 @@ console.log("ONTOUCHEND");
 		return false;		
 	}
 
-	const onClickLine = (node, event) => {
+	const onClickLine = (node, event) => {		
+		console.log("onClickLine", node);
+
 		event.cancelBubble = true;
 		event.evt.preventDefault();
 		cancelDragStage();
 		if (node.notSelectable) {
 			return false;
 		}
+		
 		canvasMode.setConnectiongNodeCanvasMode(false);
 		selectNode(node.name, node);
 		return false;
@@ -4285,6 +4280,20 @@ console.log("ONTOUCHEND");
 											isConnectedToSelectedNode={false}
 											getNodeInstance={props.getNodeInstance}
 											touchedNodes={touchedNodesStore.nodesTouched}
+
+											onMouseConnectionStartOver={onMouseConnectionStartOver}
+											onMouseConnectionStartOut={onMouseConnectionStartOut}
+											onMouseConnectionStartStart={onMouseConnectionStartStart}
+											onMouseConnectionStartMove={onMouseConnectionStartMove}
+											onMouseConnectionStartEnd={onMouseConnectionStartEnd}
+
+											onMouseConnectionEndOver={onMouseConnectionEndOver}
+											onMouseConnectionEndOut={onMouseConnectionEndOut}
+											onMouseConnectionEndStart={onMouseConnectionEndStart}
+											onMouseConnectionEndMove={onMouseConnectionEndMove}
+											onMouseConnectionEndEnd={onMouseConnectionEndEnd}
+											onMouseConnectionEndLeave={onMouseConnectionEndLeave}
+											
 										></LinesForShape>
 									} else {
 										// TODO : check here if line and startshapeid or endshapeid == undefined

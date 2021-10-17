@@ -92,8 +92,8 @@ export const Toolbar = (props: ToolbarProps) => {
 	const selectedNode = useSelectedNodeStore();
 	const layout = useLayoutStore();
 	const modulesMenu = useModulesStateStore();
-
-	useEffect(() => {
+	
+	useEffect(() => {		
 		props.getFlows();
 	}, []);
 
@@ -120,7 +120,6 @@ export const Toolbar = (props: ToolbarProps) => {
 			setShowModulesPopup(false);
 		}
 	}, [modulesMenu.selectedModule]);
-	
 
 	const setFlows = (flows : any[] | undefined, id?: number | string) => {
 		if (flows && flows.length > 0) {
@@ -240,7 +239,7 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const deleteNode = (event) => {
 		event.preventDefault();
-		flow.deleteNode(selectedNode.node);
+		flow.deleteNode(selectedNode.node, !!event.shiftKey);
 		selectedNode.selectNode("", undefined);
 
 		return false;
