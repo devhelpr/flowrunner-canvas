@@ -258,7 +258,6 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}
 */
-console.log("line" ,props.lineNode, props.hasEndThumb !== undefined && !!props.hasEndThumb && props.shapeRefs);
 // props.opacity !== undefined ? props.opacity : opacity
 	return <><Group listening={!props.noMouseEvents}
 		transformsEnabled={"position"}		

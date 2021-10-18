@@ -52,7 +52,17 @@ export const DataGridNodeHtmlPlugin = (props : DataGridNodeHtmlPluginProps) => {
 	}
 
 	const storeNode = (newNode) => {
-		flow.storeFlowNode(newNode, props.node.name);		
+		console.log("datagrid", newNode);
+		flow.storeFlowNode(newNode, props.node.name);	
+		
+		props.flowrunnerConnector?.modifyFlowNode(
+			props.node.name, 
+			"", 
+			"",
+			props.node.name,
+			'',
+			newNode
+		);
 	}
 
 	const onCurrentValueChange = (event: any) => {

@@ -1541,7 +1541,6 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (touching.current) {
 			if (event.currentTarget) {
-				console.log("onmousemove", node, touchNode.current);
 				mouseDragging.current = true;
 				document.body.classList.add("mouse--moving");
 				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.screenX ? {
