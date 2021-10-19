@@ -4446,6 +4446,7 @@ console.log("ONTOUCHEND");
 					</div>				
 					</ErrorBoundary>
 					<div ref={ref => ((htmlWrapper as any).current = ref)} 
+						key={"html_wrapper_" +  props.flowId}
 						style={{transform: 
 							"translate(" + (stageX ) + "px," + (stageY) + "px) "+
 							"scale(" + (stageScale) + "," + (stageScale) + ") "}}
@@ -4453,7 +4454,7 @@ console.log("ONTOUCHEND");
 						
 						{flowMemo.map((node, index) => {
 							return <HtmlNode
-								key={"html_" + node.name + props.flowId}
+								key={"html_" + node.name + flowStore.flowId}
 								ref={ref => (elementRefs.current[node.name] = ref)}	
 								node={node}
 								flowrunnerConnector={props.flowrunnerConnector}
@@ -4465,7 +4466,7 @@ console.log("ONTOUCHEND");
 								onShowNodeSettings={onShowNodeSettings}
 								onShowNodeEditor={onShowNodeEditor}
 								renderHtmlNode={props.renderHtmlNode}
-								flowId={props.flowId}
+								flowId={flowStore.flowId}
 								flowMemo={flowMemo}
 								formNodesubject={props.formNodesubject}
 							></HtmlNode>;												

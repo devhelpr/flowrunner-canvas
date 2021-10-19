@@ -107,7 +107,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 						className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
 				</div>
 				<div className="canvas__html-shape-body">
-				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject)}</div>
+				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId)}</div>
 				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
 				<div className={"canvas__html-shape-thumb-startbottom"}></div>
 				<div className={"canvas__html-shape-thumb-endtop"}></div>

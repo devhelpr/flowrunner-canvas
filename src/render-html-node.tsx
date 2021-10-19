@@ -20,7 +20,7 @@ export const setPluginRegistry = (pluginRegistry) => {
 	_pluginRegistry = pluginRegistry;
 }
 
-export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>) => {
+export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>, flowId? : string) => {
 
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -57,11 +57,14 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		></InputNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "formNode") {
-		return <FormNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+		console.log("renderhtmlnode form", flowId, node.name);
+		return <FormNodeHtmlPlugin 
+			key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
 			node={node}
 			taskSettings={taskSettings}
 			isInFlowEditor={true}
-			formNodesubject={formNodesubject}
+			formNodesubject={formNodesubject}			
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {

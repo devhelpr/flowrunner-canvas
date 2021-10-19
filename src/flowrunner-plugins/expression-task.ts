@@ -1,6 +1,31 @@
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 import { FlowTask, FlowTaskPackageType } from '@devhelpr/flowrunner';
 
+
+const convertGridToNamedVariables = (values: any[]) => {
+  let variables: any = {};
+  values.map((rowValues: any, rowIndex: number) => {
+    if (rowValues) {
+      rowValues.map((cellValue: any, columnIndex: number) => {
+        if (cellValue) {
+          if (cellValue === '' || (cellValue !== '' && cellValue[0] !== '=')) {
+            let letter = String.fromCharCode((columnIndex % 26) + 65);
+            let value = Number(cellValue);
+            if (isNaN(value)) {
+              value = cellValue;
+            }
+            variables[letter + (rowIndex + 1)] = value;
+          }
+        }
+        return null;
+      });
+    }
+    return null;
+  });
+  return variables;
+};
+
+
 export class ExpressionTask extends FlowTask {
   private compiledExpressionTree: any = undefined;
   private expression: string = '';
@@ -17,13 +42,22 @@ export class ExpressionTask extends FlowTask {
         if (node.forceNumeric === true) {
           for (const property in node.payload) {
             if (node.payload.hasOwnProperty(property)) {
-              payload[property] = parseFloat(node.payload[property]) || 0;
+              if (typeof node.payload[property] == "string") {
+                payload[property] = parseFloat(node.payload[property]) || 0;
+              } else {
+                payload[property] = node.payload[property];
+              }
             }
           }
         } else {
           payload = node.payload;
         }
+        if (payload.values) {
+          let values = convertGridToNamedVariables(payload.values);
+          payload = {...payload, ...values};
+        }
         try {
+          console.log("expression",node.forceNumeric,payload,this.compiledExpressionTree );
           const result = executeExpressionTree(this.compiledExpressionTree, payload || {});
           if (node.mode && node.mode === 'numeric' && (isNaN(result) || result === 'undefined')) {
             console.log('ExpressionTask - result is NaN/undefined', result);
