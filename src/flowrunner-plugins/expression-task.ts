@@ -1,7 +1,6 @@
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 import { FlowTask, FlowTaskPackageType } from '@devhelpr/flowrunner';
 
-
 const convertGridToNamedVariables = (values: any[]) => {
   let variables: any = {};
   values.map((rowValues: any, rowIndex: number) => {
@@ -25,7 +24,6 @@ const convertGridToNamedVariables = (values: any[]) => {
   return variables;
 };
 
-
 export class ExpressionTask extends FlowTask {
   private compiledExpressionTree: any = undefined;
   private expression: string = '';
@@ -42,7 +40,7 @@ export class ExpressionTask extends FlowTask {
         if (node.forceNumeric === true) {
           for (const property in node.payload) {
             if (node.payload.hasOwnProperty(property)) {
-              if (typeof node.payload[property] == "string") {
+              if (typeof node.payload[property] == 'string') {
                 payload[property] = parseFloat(node.payload[property]) || 0;
               } else {
                 payload[property] = node.payload[property];
@@ -54,10 +52,10 @@ export class ExpressionTask extends FlowTask {
         }
         if (payload.values) {
           let values = convertGridToNamedVariables(payload.values);
-          payload = {...payload, ...values};
+          payload = { ...payload, ...values };
         }
         try {
-          console.log("expression",node.forceNumeric,payload,this.compiledExpressionTree );
+          console.log('expression', node.forceNumeric, payload, this.compiledExpressionTree);
           const result = executeExpressionTree(this.compiledExpressionTree, payload || {});
           if (node.mode && node.mode === 'numeric' && (isNaN(result) || result === 'undefined')) {
             console.log('ExpressionTask - result is NaN/undefined', result);
