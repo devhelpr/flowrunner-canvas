@@ -21,9 +21,13 @@ export class Number extends React.Component<NumberProps, NumberState> {
 			if (this.props.node.propertyName && payload[this.props.node.propertyName]) {
 			
 				if (this.props.node.format === "toFixed") {
-					data = payload[this.props.node.propertyName].toFixed(this.props.node.fixed || 0);
-					if (this.props.node.decimalSeparator !== undefined) {
-						data = data.replace(".", this.props.node.decimalSeparator || ".");
+					try {
+						data = payload[this.props.node.propertyName].toFixed(this.props.node.fixed || 0);
+						if (this.props.node.decimalSeparator !== undefined) {
+							data = data.replace(".", this.props.node.decimalSeparator || ".");
+						}
+					} catch(error) {
+						data = "";
 					}
 				} else {
 					data = payload[this.props.node.propertyName];

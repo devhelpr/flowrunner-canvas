@@ -127,7 +127,7 @@ export const DataGridNodeHtmlPlugin = (props : DataGridNodeHtmlPluginProps) => {
 		});
 		
 		setValues(data);
-		const newNode = {...props.node, values: data, columns: (node as any).columns + 1};		
+		const newNode = {...props.node, values: data, columns: (props.node as any).columns + 1};		
 		flow.storeFlowNode({...newNode}, 
 			props.node.name
 		);
@@ -140,7 +140,7 @@ export const DataGridNodeHtmlPlugin = (props : DataGridNodeHtmlPluginProps) => {
 		let data : any[] = [...values];
 		data.push(new Array(props.node.columns || 8).fill("0"));
 		setValues(data);
-		const newNode = {...props.node, values: data, rows: (node as any).rows + 1};
+		const newNode = {...props.node, values: data, rows: (props.node as any).rows + 1};
 		flow.storeFlowNode({...newNode}, 
 			props.node.name
 		);

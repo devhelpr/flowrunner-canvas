@@ -33,31 +33,38 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		src={node.url}></iframe>;
 	} else
 	if (htmlPlugin == "executeNode") {
-		return <ExecuteNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+		return <ExecuteNodeHtmlPlugin 
+			key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
 			node={node}
 		></ExecuteNodeHtmlPlugin>;
 	} else
 	if (htmlPlugin == "sliderNode") {
-		return <SliderNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+		return <SliderNodeHtmlPlugin 
+			key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
 			node={node}
 			flow={flow}
 		></SliderNodeHtmlPlugin>;
 	} else
 	if (htmlPlugin == "gridEditNode") {
 		return <Suspense fallback={<div>Loading...</div>}>
-			<GridEditNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+			<GridEditNodeHtmlPlugin 
+				key={(flowId ? "" : flowId) + node.name}
+				flowrunnerConnector={flowrunnerConnector}
 				node={node}
 				flow={flow}
 			></GridEditNodeHtmlPlugin>
 		</Suspense>;
 	} else
 	if (htmlPlugin == "inputNode") {
-		return <InputNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+		return <InputNodeHtmlPlugin 
+		key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
 			node={node}
 		></InputNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "formNode") {
-		console.log("renderhtmlnode form", flowId, node.name);
 		return <FormNodeHtmlPlugin 
 			key={(flowId ? "" : flowId) + node.name}
 			flowrunnerConnector={flowrunnerConnector}
@@ -68,15 +75,19 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {
-		return <DataGridNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+		return <DataGridNodeHtmlPlugin 
+			key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
 			node={node}
 		></DataGridNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "debugNode") {
 		return <Suspense fallback={<div>Loading...</div>}>
-				<DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
-				node={node}
-				flow={flow}
+				<DebugNodeHtmlPlugin 
+					key={(flowId ? "" : flowId) + node.name}
+					flowrunnerConnector={flowrunnerConnector}					
+					node={node}
+					flow={flow}
 			></DebugNodeHtmlPlugin>
 		</Suspense>;
 	} else
@@ -86,9 +97,11 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 		node.visualizer = "children";
 		
 		return <Suspense fallback={<div>Loading...</div>}>
-				<DebugNodeHtmlPlugin flowrunnerConnector={flowrunnerConnector}
+				<DebugNodeHtmlPlugin 
+					key={(flowId ? "" : flowId) + node.name}
+					flowrunnerConnector={flowrunnerConnector}
 					node={node}
-					flow={flow}
+					flow={flow}					
 				><Plugin></Plugin></DebugNodeHtmlPlugin>
 		</Suspense>;
 	}
