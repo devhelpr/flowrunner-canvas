@@ -1679,13 +1679,14 @@ export const Canvas = (props: CanvasProps) => {
 		if (isPinching.current) {
 			return;			
 		}
-console.log("onMouseEnd");
-		document.body.style.cursor = 'default';
-		document.body.classList.remove("mouse--moving");
-
+	
 		if (node.shapeType === "Line") {
 			return;
 		}
+
+		document.body.style.cursor = 'default';
+		document.body.classList.remove("mouse--moving");
+
 
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {			
 			connectConnectionToNode(node);
@@ -1958,7 +1959,7 @@ console.log("onMouseEnd");
 		if (isConnectingNodesByDraggingLocal.current) {
 			//event.evt.preventDefault();
 			event.evt.cancelBubble = true;
-			//cancelDragStage();
+			//cancelDragStage();						
 
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
@@ -2074,7 +2075,9 @@ console.log("onMouseEnd");
 		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
 			
 			//console.log("touchmove stage", touchNode.current);
-
+			document.body.classList.add("mouse--moving");
+			document.body.style.cursor = 'pointer';
+			
 			if ((touchNode.current as any).shapeType === "Line") {
 				
 				let lineNode = (touchNode.current as any);
