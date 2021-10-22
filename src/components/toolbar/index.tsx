@@ -503,7 +503,7 @@ export const Toolbar = (props: ToolbarProps) => {
 							<form className="form-inline toolbar__form flex-nowrap">
 								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 								
 									<div className="mr-2">
-										<a href="#" onClick={showModules} className="btn btn-outline-light"><span className="fas fa-bars"></span></a>
+										<a href="#" onClick={showModules} className="btn btn-outline-light ml-2"><span className="fas fa-bars"></span></a>
 									</div>	
 								}
 								<>
