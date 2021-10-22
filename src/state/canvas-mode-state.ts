@@ -63,9 +63,10 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
       set(state => ({
         showDependencies: showDependencies,
       })),
-    setSnapToGrid: (snapToGrid: boolean) =>  set(state => ({
-      snapToGrid: snapToGrid,
-    })),
+    setSnapToGrid: (snapToGrid: boolean) =>
+      set(state => ({
+        snapToGrid: snapToGrid,
+      })),
     setAllowInputToHtmlNodes: (allowInputToHtmlNodes: boolean) =>
       set(state => ({
         allowInputToHtmlNodes: allowInputToHtmlNodes,
