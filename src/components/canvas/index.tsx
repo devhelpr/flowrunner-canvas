@@ -1569,7 +1569,7 @@ export const Canvas = (props: CanvasProps) => {
 							x = x - (x % gridSize.current);
 							y = y - (y % gridSize.current);
 
-							movingTaskToCanvas(x, y, true, node, true);
+							movingExistingOrNewNodeOnCanvas(x, y, true, node, true);
 						}
 					}
 				}
@@ -2125,7 +2125,7 @@ console.log("onMouseEnd");
 						x = x - (x % gridSize.current);
 						y = y - (y % gridSize.current);
 
-						movingTaskToCanvas(x, y, true, touchNode.current, true);
+						movingExistingOrNewNodeOnCanvas(x, y, true, touchNode.current, true);
 					}
 				}
 			}
@@ -3596,10 +3596,10 @@ console.log("ONTOUCHEND");
 	}
 	const onAllowDrop = (event) => {
 		event.preventDefault();
-		movingTaskToCanvas(event.clientX, event.clientY, false);
+		movingExistingOrNewNodeOnCanvas(event.clientX, event.clientY, false);
 	}
 
-	const movingTaskToCanvas = (dropX: number, dropY: number, isConnectingToExistingNode : boolean, existingNode?: any, noScale? : boolean) => {
+	const movingExistingOrNewNodeOnCanvas = (dropX: number, dropY: number, isConnectingToExistingNode : boolean, existingNode?: any, noScale? : boolean) => {
 
 		if (!!isConnectingToExistingNode && existingNode) {
 			const mappedNode = flowStore.flowHashmap.get(existingNode.name);
@@ -3848,6 +3848,8 @@ console.log("ONTOUCHEND");
 									ThumbPositionRelativeToNode.default);
 								position.x = newStartPosition.x;
 								position.y = newStartPosition.y;
+							} else {
+								position.x += 100;
 							}
 
 							let controlPoints = calculateLineControlPoints(
@@ -3861,6 +3863,19 @@ console.log("ONTOUCHEND");
 								controlPoints.controlPointx2, controlPoints.controlPointy2,
 								nodePosition.xend, nodePosition.yend,
 							]});
+
+							const thumbRef = shapeRefs.current["thumbstart_line_" + closestEndNode.name];
+							if (thumbRef) {
+								thumbRef.modifyShape(ModifyShapeEnum.SetXY, position);
+							}
+
+							const thumbEndRef = shapeRefs.current["thumb_line_" + closestEndNode.name];
+							if (thumbEndRef) {
+								thumbEndRef.modifyShape(ModifyShapeEnum.SetXY, {
+									x: nodePosition.xend,
+									y: nodePosition.yend
+								});
+							}
 
 							const connectionForDraggingRef = shapeRefs.current[connectionForDraggingName];
 							if (connectionForDraggingRef) {
@@ -3888,6 +3903,8 @@ console.log("ONTOUCHEND");
 									ThumbPositionRelativeToNode.default);
 								position.x = newEndPosition.x;
 								position.y = newEndPosition.y;
+							} else {
+								position.x -= 200;
 							}
 
 							let controlPoints = calculateLineControlPoints(
@@ -3901,6 +3918,20 @@ console.log("ONTOUCHEND");
 								controlPoints.controlPointx2, controlPoints.controlPointy2,
 								position.x, position.y,
 							]});
+
+							const thumbRef = shapeRefs.current["thumbstart_line_" + closestStartNode.name];
+							if (thumbRef) {
+								thumbRef.modifyShape(ModifyShapeEnum.SetXY, {
+									x: nodePosition.xend,
+									y: nodePosition.yend
+								});
+							}
+
+							const thumbEndRef = shapeRefs.current["thumb_line_" + closestStartNode.name];
+							if (thumbEndRef) {
+								thumbEndRef.modifyShape(ModifyShapeEnum.SetXY, position);
+							}
+
 
 							const connectionForDraggingRef = shapeRefs.current[connectionForDraggingName];
 							if (connectionForDraggingRef) {
@@ -4106,7 +4137,7 @@ console.log("ONTOUCHEND");
 		let element	 = document.querySelector(".taskbar__task-dragging");
 		if (element) {
 			let rect = element.getBoundingClientRect();
-			movingTaskToCanvas(
+			movingExistingOrNewNodeOnCanvas(
 				Math.round((rect.left + rect.right)/2), 
 				Math.round((rect.top+rect.bottom)/2),
 				false
