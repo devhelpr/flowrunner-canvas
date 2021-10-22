@@ -86,6 +86,7 @@ export const Toolbar = (props: ToolbarProps) => {
 	const [flowFiles, setFlowFiles]	= useState([] as any[]);
 	const [selectedFlow, setSelectedFlow]	= useState("");
 	const [showTaskHelp, setShowTaskHelp]	= useState(false);
+	const [snapToGrid, setSnapToGrid] = useState(true);
 
 	const flow = useFlowStore();
 	const canvasMode = useCanvasModeStateStore();
@@ -329,6 +330,11 @@ export const Toolbar = (props: ToolbarProps) => {
 		setShowDependencies(!showDependencies);		
 	}
 
+	const onSnapToGridChange = (event) => {
+		canvasMode.setSnapToGrid(!snapToGrid);
+		setSnapToGrid(!snapToGrid);		
+	}
+
 	const loadFlow = (flowId, withoutRefit? : boolean) => {
 
 		/*if (!withoutRefit) {
@@ -495,8 +501,7 @@ export const Toolbar = (props: ToolbarProps) => {
 					<div className="bg-dark toolbar w-100">						
 						<Navbar.Collapse id="basic-navbar-nav">
 							<form className="form-inline toolbar__form flex-nowrap">
-								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 
-									!!!selectedNode.node.name &&
+								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 								
 									<div className="mr-2">
 										<a href="#" onClick={showModules} className="btn btn-outline-light"><span className="fas fa-bars"></span></a>
 									</div>	
@@ -524,7 +529,10 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!isFlowEditorOnly && canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
 									<img title="backend flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/server-solid.svg" />
 								}
-								
+								{canvasMode.editorMode === "canvas" && <>
+									<input id="snapToGrid" type="checkbox" className="ml-2" checked={snapToGrid} onChange={onSnapToGridChange} />
+									<label className="text-white mr-2" htmlFor="snapToGrid">&nbsp;Snap to grid</label>								
+								</>}
 								
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit</a>
@@ -538,7 +546,7 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 
 									<a href="#" onClick={deleteLine} className={"mx-2 btn btn-danger"}>Delete</a>
 								}
-								{!isFlowEditorOnly && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
+								{false && !isFlowEditorOnly && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={helpNode} className="mx-2 btn btn-outline-light">Help</a>
 								}
 
@@ -560,6 +568,7 @@ export const Toolbar = (props: ToolbarProps) => {
 									<input id="showDependenciesInput" type="checkbox" checked={showDependencies} onChange={onShowDependenciesChange} />
 									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 								</>}
+								
 								{!isFlowEditorOnly && !!props.hasRunningFlowRunner && 
 									canvasMode.editorMode === "canvas" &&
 									canvasMode.flowType == "playground" && 

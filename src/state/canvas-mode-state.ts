@@ -10,6 +10,7 @@ interface ICanvasModeState extends State {
   isConnectingNodes: boolean;
   selectedTask: string;
   showDependencies: boolean;
+  snapToGrid: boolean;
   allowInputToHtmlNodes: boolean;
   isFlowrunnerPaused: boolean;
   flowType: string;
@@ -30,6 +31,7 @@ interface ICanvasModeState extends State {
   setFlowsWasm: (flowsWasm: any[]) => void;
   setCurrentPopup: (popup: PopupEnum, onPresetName: undefined | ((name: string) => void)) => void;
   setFlowsUpdateId: (id: string) => void;
+  setSnapToGrid: (snapToGrid: boolean) => void;
 }
 
 //set(state => ({ bears: state.bears + 1 }))
@@ -48,6 +50,7 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
     currentPopup: PopupEnum.none,
     onPresetName: undefined,
     flowsUpdateId: '',
+    snapToGrid: true,
     setConnectiongNodeCanvasMode: (isConnectingNodes: boolean) =>
       set(state => ({
         isConnectingNodes: isConnectingNodes,
@@ -60,6 +63,9 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
       set(state => ({
         showDependencies: showDependencies,
       })),
+    setSnapToGrid: (snapToGrid: boolean) =>  set(state => ({
+      snapToGrid: snapToGrid,
+    })),
     setAllowInputToHtmlNodes: (allowInputToHtmlNodes: boolean) =>
       set(state => ({
         allowInputToHtmlNodes: allowInputToHtmlNodes,

@@ -108,6 +108,7 @@ export const Canvas = (props: CanvasProps) => {
 
 	//let positions = useRef({} as any);
 
+	const gridSize = useRef(50);
 	let stage = useRef(null);
 	let canvasWrapper = useRef(null);
 	let htmlWrapper = useRef(null);
@@ -172,9 +173,10 @@ export const Canvas = (props: CanvasProps) => {
 
 	let animationScript = useRef(undefined as any);
 
-	let gridSize = 50;
+	
 	
 	const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
+	
 	useEffect(() => useSelectedNodeStore.subscribe(
 		(node : any, previousNode : any) => {
 			
@@ -232,6 +234,10 @@ export const Canvas = (props: CanvasProps) => {
 	const fKey = 102;
 
 	let wheelTimeout = useRef(null);
+
+	useEffect(() => {
+		gridSize.current = canvasMode.snapToGrid ? 50 : 1;
+	},[]);
 
 	const wheelEnableLayoutOnTimeout = useCallback(() => {
 		if (layer && layer.current) {
@@ -989,8 +995,8 @@ export const Canvas = (props: CanvasProps) => {
 		let newPosition = position || {x:x, y:y};
 				
 		
-		newPosition.x = newPosition.x - (newPosition.x % gridSize);
-		newPosition.y = newPosition.y - (newPosition.y % gridSize);
+		newPosition.x = newPosition.x - (newPosition.x % gridSize.current);
+		newPosition.y = newPosition.y - (newPosition.y % gridSize.current);
 
 		if (newPosition && !linesOnly) {
 			if (stage && stage.current) {
@@ -1007,8 +1013,8 @@ export const Canvas = (props: CanvasProps) => {
 							newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
 							newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
 						}
-						newPosition.x = newPosition.x - (newPosition.x % gridSize);
-						newPosition.y = newPosition.y - (newPosition.y % gridSize);
+						newPosition.x = newPosition.x - (newPosition.x % gridSize.current);
+						newPosition.y = newPosition.y - (newPosition.y % gridSize.current);
 				
 					}
 				}
@@ -1560,8 +1566,8 @@ export const Canvas = (props: CanvasProps) => {
 							let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
 							let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
 	
-							x = x - (x % gridSize);
-							y = y - (y % gridSize);
+							x = x - (x % gridSize.current);
+							y = y - (y % gridSize.current);
 
 							movingTaskToCanvas(x, y, true, node, true);
 						}
@@ -2116,8 +2122,8 @@ console.log("onMouseEnd");
 						let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
 						let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
 
-						x = x - (x % gridSize);
-						y = y - (y % gridSize);
+						x = x - (x % gridSize.current);
+						y = y - (y % gridSize.current);
 
 						movingTaskToCanvas(x, y, true, touchNode.current, true);
 					}
@@ -3083,6 +3089,10 @@ console.log("ONTOUCHEND");
 	useEffect(() => {
 		console.log("useEffect AFTER fitstage", flowStore.flowId, performance.now());
 	}, [flowStore.flow]);
+
+	useEffect(() => {
+		gridSize.current = canvasMode.snapToGrid ? 50 : 1;
+	}, [canvasMode.snapToGrid]);
 
 	const clickStage = (event) => {
 		console.log("clickStage");
