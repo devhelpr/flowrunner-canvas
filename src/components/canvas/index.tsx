@@ -22,7 +22,7 @@ import { EditNodePopup } from '../edit-node';
 import { HtmlNode} from './canvas-components/html-node';
 import { KonvaNode} from './canvas-components/konva-node';
 
-import { clearPositions, getPosition, setPosition, getPositions } from '../../services/position-service';
+import { clearPositions, getPosition, setPosition, getPositions, setOrgPosition, getOrgPosition } from '../../services/position-service';
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
@@ -46,7 +46,6 @@ import { ErrorBoundary } from '../../helpers/error';
 
 import * as Konva from "konva"
 import { animateTo } from "./konva/Tween";
-import { YoutubeSearchedForSharp } from '@material-ui/icons';
 
 const uuidV4 = uuid.v4;
 
@@ -124,6 +123,7 @@ export const Canvas = (props: CanvasProps) => {
 	let closestStartNodeWhenAddingNewNode = useRef(undefined);
 	let closestEndNodeWhenAddingNewNode = useRef(undefined);
 	let closestNodeAreLineNodes = useRef(false);
+	let draggingMultipleNodes = useRef([] as any[]);
 
 	let shapeRefs = useRef([] as any);
 	let elementRefs = useRef([] as any);
@@ -144,6 +144,9 @@ export const Canvas = (props: CanvasProps) => {
 	let mouseStartY = useRef(0);
 	let mouseEndX = useRef(0);
 	let mouseEndY = useRef(0);
+
+	let mouseStartPointerX = useRef(0);
+	let mouseStartPointerY = useRef(0);
 
 	let stageScale = useRef(1.0);
 	let stageX = useRef(0.0);
@@ -868,9 +871,21 @@ export const Canvas = (props: CanvasProps) => {
 							x:node.x,
 							y:node.y
 						});
+
+						setOrgPosition(node.name, {
+							x:node.x,
+							y:node.y
+						});
 					}
 					if (node.xstart !== undefined && node.ystart !== undefined) {						
 						setPosition(node.name , {
+							xstart: node.xstart,
+							ystart: node.ystart,
+							xend: node.xend,
+							yend: node.yend
+						});
+
+						setOrgPosition(node.name , {
 							xstart: node.xstart,
 							ystart: node.ystart,
 							xend: node.xend,
@@ -969,18 +984,19 @@ export const Canvas = (props: CanvasProps) => {
 		connectionY
 	]);	
 	
-	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean) => {
+	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
 		const unselectedNodeOpacity = 0.15;
 		if (!linesOnly) {
 			flowStore.flow.map((flowNode) => {
 				if (flowNode.name !== node.name) {
 					// node is not selected or handled by this setNewPositionForNode call
-					if (shapeRefs.current[flowNode.name]) {
+					/*if (shapeRefs.current[flowNode.name]) {
 						const shape = (shapeRefs.current[flowNode.name] as any);
 						if (shape) {
 							//shape.modifyShape(ModifyShapeEnum.SetOpacity,{opacity:unselectedNodeOpacity});					
 						}				
 					}
+					*/
 					//const element = document.getElementById(flowNode.name);
 					const element = elementRefs.current[flowNode.name];
 					if (element) {
@@ -994,12 +1010,33 @@ export const Canvas = (props: CanvasProps) => {
 		const y = resultXY ? resultXY.y : 0;
 		let newPosition = position || {x:x, y:y};
 				
-		
+		if (offsetPosition !== undefined) {
+
+			let mappedNode = flowStore.flowHashmap.get(node.name);
+			if (mappedNode) {
+				let flowNode = flowStore.flow[mappedNode.index];
+				if (flowNode) {
+
+					let orgPosition = getOrgPosition(flowNode.name);
+					if (orgPosition) {
+						newPosition = {
+							x: orgPosition.x + offsetPosition.x,
+							y: orgPosition.y + offsetPosition.y
+						}
+					} else {
+						newPosition = {
+							x: flowNode.x + offsetPosition.x,
+							y: flowNode.y + offsetPosition.y
+						}
+					}
+				}
+			}
+		}
+
 		newPosition.x = newPosition.x - (newPosition.x % gridSize.current);
 		newPosition.y = newPosition.y - (newPosition.y % gridSize.current);
-
 		if (newPosition && !linesOnly) {
-			if (stage && stage.current) {
+			if (stage && stage.current && offsetPosition === undefined) {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
 					let touchPos = stageInstance.getPointerPosition();
@@ -1018,100 +1055,97 @@ export const Canvas = (props: CanvasProps) => {
 				
 					}
 				}
-			}
-
-			
+			}			
 
 			if (shapeRefs.current[node.name]) {
-				if ((shapeRefs.current[node.name] as any)) {
-					let currentGroup = (shapeRefs.current[node.name] as any);
-					if (currentGroup) {
-						currentGroup.modifyShape(ModifyShapeEnum.SetXY, newPosition);					
-						currentGroup.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+				
+				let currentGroup = (shapeRefs.current[node.name] as any);
+				if (currentGroup) {
+					currentGroup.modifyShape(ModifyShapeEnum.SetXY, newPosition);					
+					currentGroup.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+				}
+
+				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+				const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
+
+				let diamondThumb = 0;
+				if (shapeType === "Diamond") {
+					if (!settings.altThumbPositions) {
+						diamondThumb = 1;
+					} else
+					if (settings.altThumbPositions === 1) {
+						diamondThumb = 2;
 					}
+				}
 
-					const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-					const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
-
-					let diamondThumb = 0;
-					if (shapeType === "Diamond") {
-						if (!settings.altThumbPositions) {
-							diamondThumb = 1;
-						} else
-						if (settings.altThumbPositions === 1) {
-							diamondThumb = 2;
-						}
+				let currentGroupThumbs = shapeRefs.current["thumb_" + node.name] as any;
+				if (currentGroupThumbs) {
+					let thumbPosition;
+					if (diamondThumb === 2) {
+						thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition,0 , ThumbPositionRelativeToNode.top);
+					} else {
+						thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition);
 					}
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+				}
 
-					let currentGroupThumbs = shapeRefs.current["thumb_" + node.name] as any;
-					if (currentGroupThumbs) {
-						let thumbPosition;
-						if (diamondThumb === 2) {
-							thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition,0 , ThumbPositionRelativeToNode.top);
-						} else {
-							thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition);
-						}
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-					}
+				currentGroupThumbs = shapeRefs.current["thumbtop_" + node.name] as any;
+				if (currentGroupThumbs) {
+					const thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition, 0 , ThumbPositionRelativeToNode.top);
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});						
+				}
 
-					currentGroupThumbs = shapeRefs.current["thumbtop_" + node.name] as any;
-					if (currentGroupThumbs) {
-						const thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition, 0 , ThumbPositionRelativeToNode.top);
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});						
-					}
-
-					currentGroupThumbs = (shapeRefs.current["thumbstart_" + node.name] as any);
-					if (currentGroupThumbs) {
-						
-						const thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0);
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-
-					}
-					currentGroupThumbs = (shapeRefs.current["thumbstarttop_" + node.name] as any);
-					if (currentGroupThumbs) {
-						let thumbPosition;
-						if (diamondThumb === 2) {
-							thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.left);
-						} else {
-							thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.top);
-						}
-
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-
-					}
-					currentGroupThumbs = (shapeRefs.current["thumbstartbottom_" + node.name] as any);
-					if (currentGroupThumbs) {
-
-						let thumbPosition;
-						if (diamondThumb === 2) {
-							thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.right);
-						} else {
-							thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.bottom);
-						}
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-						currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-
-					}
-
+				currentGroupThumbs = (shapeRefs.current["thumbstart_" + node.name] as any);
+				if (currentGroupThumbs) {
 					
-					// TODO : set some state here?? which state ?
-					/*currentGroup.children.map((childNode) => {
-						const childType = childNode.getClassName();
-						if (childType == "Rect" || childType == "Circle" || childType == "Ellipse" || childType=="RegularPolygon") {
-							childNode.fill(settings.fillSelectedColor);
-						}
-					});
-					*/
-					//const element = document.getElementById(node.name);
-					const element = elementRefs.current[node.name];
-					if (element) {
-						element.style.opacity = "1";
-					} 
-				}				
+					const thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0);
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+
+				}
+				currentGroupThumbs = (shapeRefs.current["thumbstarttop_" + node.name] as any);
+				if (currentGroupThumbs) {
+					let thumbPosition;
+					if (diamondThumb === 2) {
+						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.left);
+					} else {
+						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.top);
+					}
+
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+
+				}
+				currentGroupThumbs = (shapeRefs.current["thumbstartbottom_" + node.name] as any);
+				if (currentGroupThumbs) {
+
+					let thumbPosition;
+					if (diamondThumb === 2) {
+						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.right);
+					} else {
+						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.bottom);
+					}
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
+					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
+
+				}
+
+				
+				// TODO : set some state here?? which state ?
+				/*currentGroup.children.map((childNode) => {
+					const childType = childNode.getClassName();
+					if (childType == "Rect" || childType == "Circle" || childType == "Ellipse" || childType=="RegularPolygon") {
+						childNode.fill(settings.fillSelectedColor);
+					}
+				});
+				*/
+				//const element = document.getElementById(node.name);
+				const element = elementRefs.current[node.name];
+				if (element) {
+					element.style.opacity = "1";
+				} 							
 			} 
 		}
 		
@@ -1315,7 +1349,8 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
-			console.log("selectNode setNewPositionForNode");
+			//console.log("setNewPositionForNode isCommitingToStore", );
+			setOrgPosition(node.name, {...newPosition});
 			selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 			if (props.flowrunnerConnector.hasStorageProvider) {
@@ -1324,7 +1359,7 @@ export const Canvas = (props: CanvasProps) => {
 				
 			}
 		}
-	}, [flowStore.flow]);
+	}, [flowStore.flow, flowStore.flowHashmap]);
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
@@ -1429,7 +1464,7 @@ export const Canvas = (props: CanvasProps) => {
 
 	
 	const determineStartPosition = (group) => {
-		console.log("determineStartPosition", group);
+		//console.log("determineStartPosition", group);
 		let x = group.attrs["x"];
 		let y = group.attrs["y"];
 		let newPosition = {x:x, y:y};		
@@ -1445,9 +1480,11 @@ export const Canvas = (props: CanvasProps) => {
 					
 				mouseStartX.current = newPosition.x - x;
 				mouseStartY.current = newPosition.y - y;
-				console.log("determineStartPosition",newPosition,x,y);
+				console.log("determineStartPosition",newPosition,x,y,mouseStartX.current,mouseStartY.current);
+				return true;
 			}
 		}
+		return false;
 	}
 
 	const determineEndPosition = (group) => {
@@ -1473,7 +1510,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onMouseStart = (node, event) => {
-		console.log("onMouseStart", node.shapeType, event.currentTarget);
+		console.log("onMouseStart", node.shapeType, node, event);
 		
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
@@ -1489,13 +1526,23 @@ export const Canvas = (props: CanvasProps) => {
 			cancelDragStage();
 			return;			
 		}
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				const touchPos = stageInstance.getPointerPosition();
+				mouseStartPointerX.current = touchPos.x;
+				mouseStartPointerY.current = touchPos.y;
 
-			
+				console.log("mouseStartPointerX", mouseStartPointerX.current, mouseStartPointerY.current);
+			}
+		}	
 
 		touching.current = true;
 		touchNode.current = node;
 		touchNodeGroup.current = event.currentTarget;
 		mouseDragging.current = false;
+		draggingMultipleNodes.current = [];
+
 		if (event.currentTarget) {
 			if (node && node.shapeType === "Line") {
 			
@@ -1507,7 +1554,23 @@ export const Canvas = (props: CanvasProps) => {
 				}
 				return;
 			} else {
-				determineStartPosition(event.currentTarget);
+
+				if (determineStartPosition(event.currentTarget)) {
+					if (node && node.shapeType === "Html" && !!event.evt.shiftKey) {			
+						
+						const width = getWidthForHtmlNode(node);
+						if (node.name,mouseStartX.current > (width/2)+25) {
+							console.log("node width.. on right of center");
+							getAllConnectedNodes(node, "output");
+						} else
+						if (node.name,mouseStartX.current < (width/2)-25) {
+							console.log("node width.. on right of center");
+							getAllConnectedNodes(node, "input");
+						}
+					}
+				}
+
+				
 			}
 		}
 		console.log("onMouseStart before return", node.shapeType, event.currentTarget);
@@ -1517,6 +1580,81 @@ export const Canvas = (props: CanvasProps) => {
 
 		return;
 
+	}
+
+	const getAllConnectedNodes = (node : any, mode: string) => {
+		draggingMultipleNodes.current = [node.name];
+		if (mode === "output") {
+			getAllConnectedOutputNodes(node.name);
+
+			console.log("connected output nodes", draggingMultipleNodes.current);
+
+		} else
+		if (mode === "input") {
+			getAllConnectedInputNodes(node.name);
+
+			console.log("connected output nodes", draggingMultipleNodes.current);
+
+		}
+	}
+	
+	const getAllConnectedOutputNodes = (nodeName : any) => {
+		const mappedNode = flowStore.flowHashmap.get(nodeName);
+		if (mappedNode) {
+			const outputs = mappedNode.start;
+			console.log("outputs", outputs);
+			if (outputs && outputs.length > 0) {
+				outputs.forEach(outputIndex => {
+					const outputLineNode = flowStore.flow[outputIndex];
+					if (outputLineNode.endshapeid && 
+						!draggingMultipleNodes.current[outputLineNode.endshapeid]) {
+						draggingMultipleNodes.current.push(outputLineNode.endshapeid);
+						getAllConnectedOutputNodes(outputLineNode.endshapeid);
+					}
+				});
+			}
+		}
+	}
+
+	const getAllConnectedInputNodes = (nodeName : any) => {
+		const mappedNode = flowStore.flowHashmap.get(nodeName);
+		if (mappedNode) {
+			const inputs = mappedNode.end;
+			console.log("inputs", inputs);
+			if (inputs && inputs.length > 0) {
+				inputs.forEach(outputIndex => {
+					const outputLineNode = flowStore.flow[outputIndex];
+					if (outputLineNode.startshapeid && 
+						!draggingMultipleNodes.current[outputLineNode.startshapeid]) {
+						draggingMultipleNodes.current.push(outputLineNode.startshapeid);
+						getAllConnectedInputNodes(outputLineNode.startshapeid);
+					}
+				});
+			}
+		}
+	}
+
+	const getWidthForHtmlNode = (node : any) => {
+		if (node && node.shapeType === "Html") {					
+			if (props.getNodeInstance) {
+				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+				const instance = props.getNodeInstance(node, undefined, undefined, settings);
+				if (instance && instance.getWidth && instance.getHeight) {
+
+					let width = instance.getWidth(node);
+					let element = document.querySelector("#" + node.name + " .html-plugin-node");
+					if (element) {
+						
+						const elementWidth = element.clientWidth;
+						if (elementWidth > width) {
+							width = elementWidth;
+						}
+					}
+					return width;					
+				}
+			}
+		}
+		return 0;
 	}
 
 	const onMouseMove = (node, event) => {
@@ -1549,6 +1687,9 @@ export const Canvas = (props: CanvasProps) => {
 			if (event.currentTarget) {
 				mouseDragging.current = true;
 				document.body.classList.add("mouse--moving");
+
+				return;
+				/*
 				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.screenX ? {
 					x: event.evt.screenX,
 					y: event.evt.screenY
@@ -1573,6 +1714,7 @@ export const Canvas = (props: CanvasProps) => {
 						}
 					}
 				}
+				*/
 			}
 		}
 		
@@ -1702,6 +1844,10 @@ export const Canvas = (props: CanvasProps) => {
 			return false;
 		}
 		
+		if (event.currentTarget && mouseDragging.current) {
+			return;
+		}
+
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
 
@@ -1763,12 +1909,47 @@ export const Canvas = (props: CanvasProps) => {
 					!isConnectingNodesByDraggingLocal.current && 
 					mouseDragging.current && touchNode.current) {
 					
-		console.log("onStageMouseEnd",(touchNode.current as any).shapeType);
 
-					setNewPositionForNode(touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
-					console.log("closestNodeAreLineNodes.current", closestNodeAreLineNodes.current, closestEndNodeWhenAddingNewNode.current, closestStartNodeWhenAddingNewNode.current);
-					if (closestNodeAreLineNodes.current) {
-						connectNodeToExistingLines(touchNode.current);
+						if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 1) {
+
+							if (stage && stage.current) {
+								let stageInstance = (stage.current as any).getStage();
+								if (stageInstance) {
+									const touchPos = stageInstance.getPointerPosition();
+									let offsetX = touchPos.x - mouseStartPointerX.current;
+									let offsetY = touchPos.y - mouseStartPointerY.current;
+				console.log("end offset", offsetX,offsetY, touchPos.x , touchPos.y,mouseStartPointerX.current,mouseStartPointerY.current);
+									const scaleFactor = (stageInstance as any).scaleX();
+					
+									let offsetPosition = {
+										x: 0,
+										y: 0
+									};
+									offsetPosition.x = ((offsetX ) / scaleFactor);
+									offsetPosition.y = ((offsetY ) / scaleFactor);
+								
+									draggingMultipleNodes.current.forEach((nodeName) => {
+										let mappedNode = flowStore.flowHashmap.get(nodeName);
+										if (mappedNode) {				
+											let draggingNode = flowStore.flow[mappedNode.index];
+											if (draggingNode) {
+												setNewPositionForNode(draggingNode, shapeRefs.current[nodeName], event.evt.screenX ? {
+													x: event.evt.screenX,
+													y: event.evt.screenY
+												} : undefined, true, false, true, false, false, offsetPosition);
+											}
+										}
+									})
+								}
+							}
+						} else {
+							console.log("onStageMouseEnd",(touchNode.current as any).shapeType);
+
+							setNewPositionForNode(touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
+							console.log("closestNodeAreLineNodes.current", closestNodeAreLineNodes.current, closestEndNodeWhenAddingNewNode.current, closestStartNodeWhenAddingNewNode.current);
+							if (closestNodeAreLineNodes.current) {
+								connectNodeToExistingLines(touchNode.current);
+							}
 					}
 
 				} else {
@@ -1956,6 +2137,17 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onStageTouchMove = (event) => {
+
+		/*
+			structure :
+
+			if (dragging connection from start thumb to ..) { ... }
+			else if (moving node)
+			else if (moving line)
+			else if (is pinching using touch)
+			
+		*/
+
 		if (isConnectingNodesByDraggingLocal.current) {
 			//event.evt.preventDefault();
 			event.evt.cancelBubble = true;
@@ -1974,7 +2166,7 @@ export const Canvas = (props: CanvasProps) => {
 					newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
 					newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
 					
-					if (connectionNodeThumbs.current === "") { 
+					if (connectionNodeThumbs.current === "") {
 						const lineRef = shapeRefs.current[connectionForDraggingName];
 						if (lineRef) {
 		
@@ -1990,7 +2182,7 @@ export const Canvas = (props: CanvasProps) => {
 								newPosition.x, newPosition.y]});
 							lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 1});
 							stageInstance.batchDraw();
-						}
+						}					
 					} else {
 						// TODO dragging thumbs directly
 						/*
@@ -2108,31 +2300,65 @@ export const Canvas = (props: CanvasProps) => {
 			}
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
+			
+			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 1) {
 
-			setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], event.evt.screenX ? {
-				x: event.evt.screenX,
-				y: event.evt.screenY
-			} : undefined, false, false, true);
-
-			if (stage && stage.current) {
-				let stageInstance = (stage.current as any).getStage();
-				if (stageInstance) {
-					let touchPos = stageInstance.getPointerPosition();
-					
-					if (touchPos) {
+				if (stage && stage.current) {
+					let stageInstance = (stage.current as any).getStage();
+					if (stageInstance) {
+						const touchPos = stageInstance.getPointerPosition();
+						let offsetX = touchPos.x - mouseStartPointerX.current;
+						let offsetY = touchPos.y - mouseStartPointerY.current;
 						const scaleFactor = (stageInstance as any).scaleX();
-
-						let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
-						let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
-
-						x = x - (x % gridSize.current);
-						y = y - (y % gridSize.current);
-
-						movingExistingOrNewNodeOnCanvas(x, y, true, touchNode.current, true);
+		
+						let offsetPosition = {
+							x: 0,
+							y: 0
+						};
+						offsetPosition.x = ((offsetX ) / scaleFactor);
+						offsetPosition.y = ((offsetY ) / scaleFactor);
+					
+						draggingMultipleNodes.current.forEach((nodeName) => {
+							let mappedNode = flowStore.flowHashmap.get(nodeName);
+							if (mappedNode) {				
+								let draggingNode = flowStore.flow[mappedNode.index];
+								if (draggingNode) {
+									console.log("dragging node", nodeName, draggingNode);
+									setNewPositionForNode(draggingNode, shapeRefs.current[nodeName], event.evt.screenX ? {
+										x: event.evt.screenX,
+										y: event.evt.screenY
+									} : undefined, false, false, true, false, false, offsetPosition);
+								}
+							}
+						})
 					}
 				}
-			}
-					
+			} else {
+
+				setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], event.evt.screenX ? {
+					x: event.evt.screenX,
+					y: event.evt.screenY
+				} : undefined, false, false, true);
+
+				if (stage && stage.current) {
+					let stageInstance = (stage.current as any).getStage();
+					if (stageInstance) {
+						let touchPos = stageInstance.getPointerPosition();
+						
+						if (touchPos) {
+							const scaleFactor = (stageInstance as any).scaleX();
+
+							let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
+							let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
+
+							x = x - (x % gridSize.current);
+							y = y - (y % gridSize.current);
+
+							movingExistingOrNewNodeOnCanvas(x, y, true, touchNode.current, true);
+						}
+					}
+				}
+			}	
 			
 
 			cancelDragStage();
