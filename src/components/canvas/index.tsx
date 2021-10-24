@@ -4396,7 +4396,7 @@ console.log("ONTOUCHEND");
 			return;
 		}
 		
-		console.log("oninput", event);
+		//console.log("oninput", event);
 
 		if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
 			if (selectedNodeRef.current) {
