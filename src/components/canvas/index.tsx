@@ -2109,6 +2109,9 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onStageMouseLeave = (event) => {
+		
+		onStageMouseEnd(event);
+
 		console.log("onStageMouseLeave");
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
