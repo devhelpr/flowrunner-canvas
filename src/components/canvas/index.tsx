@@ -1348,11 +1348,13 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		
 		if (!!doDraw) {
-			if (stage && stage.current) {
-				let stageInstance = (stage.current as any).getStage();
-				stageInstance.batchDraw();
+			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
+				if (stage && stage.current) {
+					let stageInstance = (stage.current as any).getStage();
+					stageInstance.batchDraw();
+				}
+				updateTouchedNodes();
 			}
-			updateTouchedNodes();
 		}
 
 		if (!!isCommitingToStore) {
@@ -1936,7 +1938,7 @@ export const Canvas = (props: CanvasProps) => {
 					mouseDragging.current && touchNode.current) {
 					
 
-						if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 1) {
+						if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 0) {
 
 							if (stage && stage.current) {
 								let stageInstance = (stage.current as any).getStage();
@@ -1967,6 +1969,12 @@ export const Canvas = (props: CanvasProps) => {
 									})
 								}
 							}
+
+							if (stage && stage.current) {
+								let stageInstance = (stage.current as any).getStage();
+								stageInstance.batchDraw();
+							}
+							updateTouchedNodes();
 
 							canvasMode.setConnectiongNodeCanvasMode(false);
 							if (props.flowrunnerConnector.hasStorageProvider) {
