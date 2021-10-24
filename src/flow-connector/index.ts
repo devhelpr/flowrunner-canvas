@@ -6,7 +6,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   storageProvider: IStorageProvider | undefined = undefined;
   hasStorageProvider = false;
   flowView = '';
-  forcePushToFlowRunner= false;
+  forcePushToFlowRunner = false;
 
   getNodeExecutions() {
     return [];
@@ -348,7 +348,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {
     this.forcePushToFlowRunner = false;
-    
+
     let flowToFlowRunner = [
       ...flow.map(node => {
         return { ...node };

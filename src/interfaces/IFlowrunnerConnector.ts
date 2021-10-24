@@ -12,7 +12,7 @@ export interface IFlowrunnerConnector {
 
   flowView: string;
   forcePushToFlowRunner: boolean;
-  
+
   registerNodeStateObserver: (
     observableId: string,
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,

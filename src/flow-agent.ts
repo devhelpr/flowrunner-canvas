@@ -640,7 +640,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
             }
           });
       } else {
-        console.log("retriggerNode", data.nodeName);
+        console.log('retriggerNode', data.nodeName);
         worker.flow
           .retriggerNode(data.nodeName)
           .then(result => {
