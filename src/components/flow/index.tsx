@@ -78,9 +78,12 @@ export const Flow = (props : IFlowProps) => {
 
 			console.log("flow diffing time", (performance.now() - perfstart) + "ms");
 			
-			if (changed) {
-				console.log("flow changed", changedNode, changedNodeProperty, props.flow);
-				// make deep copy here tot prevent circulair refererence
+			if (changed || !!props.flowrunnerConnector.forcePushToFlowRunner) {
+				console.log("flow changed", changedNode, changedNodeProperty, props.flowrunnerConnector.forcePushToFlowRunner, props.flow);
+
+				props.flowrunnerConnector.forcePushToFlowRunner = false;
+				
+				// make deep copy here to prevent circulair refererence
 				// flowrunner  needs its own flow
 				setInternalFlow(props.flow);
 			}

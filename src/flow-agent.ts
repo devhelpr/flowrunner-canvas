@@ -616,28 +616,53 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         return;
       }
       const sendMessageOnResolve = !!data.sendMessageOnResolve;
-      let payload = { ...data.payload };
-      worker.flow
-        .executeNode(data.nodeName, payload || {})
-        .then(result => {
-          if (sendMessageOnResolve) {
-            worker.postMessage('external', {
-              command: 'ExecuteFlowNodeResult',
-              result: result,
-              payload: { ...(result as any) },
-            });
-          }
-        })
-        .catch(error => {
-          console.log('executeNode failed', error);
-          if (sendMessageOnResolve) {
-            worker.postMessage('external', {
-              command: 'ExecuteFlowNodeResult',
-              result: false,
-              payload: undefined,
-            });
-          }
-        });
+      let payload = data.payload ? { ...data.payload } : undefined;
+      if (payload) {
+        worker.flow
+          .executeNode(data.nodeName, payload || {})
+          .then(result => {
+            if (sendMessageOnResolve) {
+              worker.postMessage('external', {
+                command: 'ExecuteFlowNodeResult',
+                result: result,
+                payload: { ...(result as any) },
+              });
+            }
+          })
+          .catch(error => {
+            console.log('executeNode failed', error);
+            if (sendMessageOnResolve) {
+              worker.postMessage('external', {
+                command: 'ExecuteFlowNodeResult',
+                result: false,
+                payload: undefined,
+              });
+            }
+          });
+      } else {
+        console.log("retriggerNode", data.nodeName);
+        worker.flow
+          .retriggerNode(data.nodeName)
+          .then(result => {
+            if (sendMessageOnResolve) {
+              worker.postMessage('external', {
+                command: 'ExecuteFlowNodeResult',
+                result: result,
+                payload: { ...(result as any) },
+              });
+            }
+          })
+          .catch(error => {
+            console.log('executeNode failed', error);
+            if (sendMessageOnResolve) {
+              worker.postMessage('external', {
+                command: 'ExecuteFlowNodeResult',
+                result: false,
+                payload: undefined,
+              });
+            }
+          });
+      }
       payload = null;
     } else if (command == 'modifyFlowNode') {
       if (!data.nodeName) {

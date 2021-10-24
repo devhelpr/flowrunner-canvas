@@ -6,6 +6,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   storageProvider: IStorageProvider | undefined = undefined;
   hasStorageProvider = false;
   flowView = '';
+  forcePushToFlowRunner= false;
 
   getNodeExecutions() {
     return [];
@@ -39,7 +40,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   resetCurrentFlow = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {};
 
-  executeFlowNode = (nodeName: string, payload: any) => {};
+  executeFlowNode = (nodeName: string, payload?: any) => {};
 
   modifyFlowNode = (
     nodeName: string,
@@ -105,6 +106,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   flowView = '';
 
   nodeState: any = {};
+  forcePushToFlowRunner = false;
 
   screenUICallback: (action: any) => void = action => {
     return;
@@ -345,6 +347,8 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   updateFlowNode = () => {};
   pushFlowToFlowrunner = (flow: any, autoStartNodes: boolean = true, flowId: string) => {
+    this.forcePushToFlowRunner = false;
+    
     let flowToFlowRunner = [
       ...flow.map(node => {
         return { ...node };
@@ -391,7 +395,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       }
     }
   };
-  executeFlowNode = (nodeName: string, payload: any) => {
+  executeFlowNode = (nodeName: string, payload?: any) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
         this.worker.postMessage('worker', {

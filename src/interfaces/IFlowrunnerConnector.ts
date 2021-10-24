@@ -11,6 +11,8 @@ export interface IFlowrunnerConnector {
   hasStorageProvider: boolean;
 
   flowView: string;
+  forcePushToFlowRunner: boolean;
+  
   registerNodeStateObserver: (
     observableId: string,
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
@@ -23,7 +25,7 @@ export interface IFlowrunnerConnector {
   resetCurrentFlow: () => void;
   updateFlowNode: () => void;
   pushFlowToFlowrunner: (flow: any, autoStartNodes: boolean, flowId: string) => void;
-  executeFlowNode: (nodeName: string, payload: any) => void;
+  executeFlowNode: (nodeName: string, payload?: any) => void;
   modifyFlowNode: (
     nodeName: string,
     propertyName: string,
