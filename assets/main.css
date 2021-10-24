@@ -517,6 +517,10 @@ img {
 	pointer-events: auto;
 }
 
+.mouse-moving .canvas__html-shape-bar-icon {
+	pointer-events: none;
+}
+
 .canvas__html-shape-bar-icon:first-of-type {
 	margin-left: auto;
 }

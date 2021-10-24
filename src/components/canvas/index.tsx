@@ -1565,8 +1565,8 @@ export const Canvas = (props: CanvasProps) => {
 		draggingMultipleNodes.current = [];
 
 		if (event.currentTarget) {
-			if (node && node.shapeType === "Line") {
-			
+			document.body.classList.add("mouse--moving");
+			if (node && node.shapeType === "Line") {				
 				if (node.startshapeid) {					
 					determineStartPosition(shapeRefs.current[node.startshapeid].getGroupRef());
 				}
@@ -1583,11 +1583,11 @@ export const Canvas = (props: CanvasProps) => {
 						!!event.evt.shiftKey) {			
 						
 						const width = getWidthForHtmlNode(node);
-						if (node.name,mouseStartX.current > (width/2)+25) {
+						if (node.name,mouseStartX.current > (width/2)) {
 							console.log("node width.. on right of center");
 							getAllConnectedNodes(node, "output");
 						} else
-						if (node.name,mouseStartX.current < (width/2)-25) {
+						if (node.name,mouseStartX.current < (width/2)) {
 							console.log("node width.. on right of center");
 							getAllConnectedNodes(node, "input");
 						}
