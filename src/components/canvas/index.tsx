@@ -22,7 +22,8 @@ import { EditNodePopup } from '../edit-node';
 import { HtmlNode} from './canvas-components/html-node';
 import { KonvaNode} from './canvas-components/konva-node';
 
-import { clearPositions, getPosition, setPosition, getPositions, setOrgPosition, getOrgPosition } from '../../services/position-service';
+import { clearPositions, getPosition, setPosition, getPositions, 
+	setCommittedPosition, getCommittedPosition } from '../../services/position-service';
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
@@ -488,6 +489,11 @@ export const Canvas = (props: CanvasProps) => {
 						y: newNode.y
 					});
 
+					setCommittedPosition(newNode.name, {
+						x: newNode.x,
+						y: newNode.y
+					});
+
 					flowStore.addFlowNode(newNode);
 				}				
 			}
@@ -872,7 +878,7 @@ export const Canvas = (props: CanvasProps) => {
 							y:node.y
 						});
 
-						setOrgPosition(node.name, {
+						setCommittedPosition(node.name, {
 							x:node.x,
 							y:node.y
 						});
@@ -885,7 +891,7 @@ export const Canvas = (props: CanvasProps) => {
 							yend: node.yend
 						});
 
-						setOrgPosition(node.name , {
+						setCommittedPosition(node.name , {
 							xstart: node.xstart,
 							ystart: node.ystart,
 							xend: node.xend,
@@ -987,23 +993,25 @@ export const Canvas = (props: CanvasProps) => {
 	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
 		const unselectedNodeOpacity = 0.15;
 		if (!linesOnly) {
-			flowStore.flow.map((flowNode) => {
-				if (flowNode.name !== node.name) {
-					// node is not selected or handled by this setNewPositionForNode call
-					/*if (shapeRefs.current[flowNode.name]) {
-						const shape = (shapeRefs.current[flowNode.name] as any);
-						if (shape) {
-							//shape.modifyShape(ModifyShapeEnum.SetOpacity,{opacity:unselectedNodeOpacity});					
-						}				
+			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
+				flowStore.flow.map((flowNode) => {
+					if (flowNode.name !== node.name) {
+						// node is not selected or handled by this setNewPositionForNode call
+						/*if (shapeRefs.current[flowNode.name]) {
+							const shape = (shapeRefs.current[flowNode.name] as any);
+							if (shape) {
+								//shape.modifyShape(ModifyShapeEnum.SetOpacity,{opacity:unselectedNodeOpacity});					
+							}				
+						}
+						*/
+						//const element = document.getElementById(flowNode.name);
+						const element = elementRefs.current[flowNode.name];
+						if (element) {
+							element.style.opacity = "1"//;"0.5";
+						} 
 					}
-					*/
-					//const element = document.getElementById(flowNode.name);
-					const element = elementRefs.current[flowNode.name];
-					if (element) {
-						element.style.opacity = "1"//;"0.5";
-					} 
-				}
-			});
+				});
+			}
 		}
 		let resultXY = group && group.modifyShape(ModifyShapeEnum.GetXY,{});
 		const x = resultXY ? resultXY.x : 0;
@@ -1017,11 +1025,11 @@ export const Canvas = (props: CanvasProps) => {
 				let flowNode = flowStore.flow[mappedNode.index];
 				if (flowNode) {
 
-					let orgPosition = getOrgPosition(flowNode.name);
-					if (orgPosition) {
+					let committedPosition = getCommittedPosition(flowNode.name);
+					if (committedPosition) {
 						newPosition = {
-							x: orgPosition.x + offsetPosition.x,
-							y: orgPosition.y + offsetPosition.y
+							x: committedPosition.x + offsetPosition.x,
+							y: committedPosition.y + offsetPosition.y
 						}
 					} else {
 						newPosition = {
@@ -1350,13 +1358,17 @@ export const Canvas = (props: CanvasProps) => {
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
 			//console.log("setNewPositionForNode isCommitingToStore", );
-			setOrgPosition(node.name, {...newPosition});
-			selectNode(node.name, node);
-			canvasMode.setConnectiongNodeCanvasMode(false);
-			if (props.flowrunnerConnector.hasStorageProvider) {
-				props.saveFlow();
-				//flowStore.storeFlowNode({...node,x:newPosition.x,y:newPosition.y}, node.name);
-				
+			setCommittedPosition(node.name, {...newPosition});
+			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
+				selectNode(node.name, node);
+
+				// TODO : do this only after last node directly from stagemouseend
+				//  when draggingMultipleNodes.current.length >0
+				canvasMode.setConnectiongNodeCanvasMode(false);
+
+				if (props.flowrunnerConnector.hasStorageProvider) {
+					props.saveFlow();
+				}
 			}
 		}
 	}, [flowStore.flow, flowStore.flowHashmap]);
@@ -1368,6 +1380,11 @@ export const Canvas = (props: CanvasProps) => {
 		newNode.y = newNode.y + 100;
 		
 		setPosition(newNode.name, {
+			x: newNode.x,
+			y: newNode.y
+		});
+
+		setCommittedPosition(newNode.name, {
 			x: newNode.x,
 			y: newNode.y
 		});
@@ -1556,7 +1573,10 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 
 				if (determineStartPosition(event.currentTarget)) {
-					if (node && node.shapeType === "Html" && !!event.evt.shiftKey) {			
+					const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+					if (node && 
+						shapeType === "Html" && 
+						!!event.evt.shiftKey) {			
 						
 						const width = getWidthForHtmlNode(node);
 						if (node.name,mouseStartX.current > (width/2)+25) {
@@ -1602,12 +1622,12 @@ export const Canvas = (props: CanvasProps) => {
 		const mappedNode = flowStore.flowHashmap.get(nodeName);
 		if (mappedNode) {
 			const outputs = mappedNode.start;
-			console.log("outputs", outputs);
+			//console.log("outputs", outputs);
 			if (outputs && outputs.length > 0) {
 				outputs.forEach(outputIndex => {
 					const outputLineNode = flowStore.flow[outputIndex];
 					if (outputLineNode.endshapeid && 
-						!draggingMultipleNodes.current[outputLineNode.endshapeid]) {
+						draggingMultipleNodes.current.indexOf(outputLineNode.endshapeid) < 0) {							
 						draggingMultipleNodes.current.push(outputLineNode.endshapeid);
 						getAllConnectedOutputNodes(outputLineNode.endshapeid);
 					}
@@ -1620,12 +1640,12 @@ export const Canvas = (props: CanvasProps) => {
 		const mappedNode = flowStore.flowHashmap.get(nodeName);
 		if (mappedNode) {
 			const inputs = mappedNode.end;
-			console.log("inputs", inputs);
+			//console.log("inputs", inputs);
 			if (inputs && inputs.length > 0) {
 				inputs.forEach(outputIndex => {
 					const outputLineNode = flowStore.flow[outputIndex];
 					if (outputLineNode.startshapeid && 
-						!draggingMultipleNodes.current[outputLineNode.startshapeid]) {
+						draggingMultipleNodes.current.indexOf(outputLineNode.startshapeid) < 0) {
 						draggingMultipleNodes.current.push(outputLineNode.startshapeid);
 						getAllConnectedInputNodes(outputLineNode.startshapeid);
 					}
@@ -1635,7 +1655,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const getWidthForHtmlNode = (node : any) => {
-		if (node && node.shapeType === "Html") {					
+		if (node) {					
 			if (props.getNodeInstance) {
 				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 				const instance = props.getNodeInstance(node, undefined, undefined, settings);
@@ -1942,6 +1962,11 @@ export const Canvas = (props: CanvasProps) => {
 									})
 								}
 							}
+
+							canvasMode.setConnectiongNodeCanvasMode(false);
+							if (props.flowrunnerConnector.hasStorageProvider) {
+								props.saveFlow();
+							}							
 						} else {
 							console.log("onStageMouseEnd",(touchNode.current as any).shapeType);
 
@@ -2323,7 +2348,7 @@ export const Canvas = (props: CanvasProps) => {
 							if (mappedNode) {				
 								let draggingNode = flowStore.flow[mappedNode.index];
 								if (draggingNode) {
-									console.log("dragging node", nodeName, draggingNode);
+									//console.log("dragging node", nodeName, draggingNode);
 									setNewPositionForNode(draggingNode, shapeRefs.current[nodeName], event.evt.screenX ? {
 										x: event.evt.screenX,
 										y: event.evt.screenY
@@ -3456,6 +3481,10 @@ console.log("ONTOUCHEND");
 						x: newNode.x,
 						y: newNode.y
 					});
+					setCommittedPosition(newNode.name, {
+						x: newNode.x,
+						y: newNode.y
+					});
 					flowStore.addFlowNode(newNode);
 				}				
 			}
@@ -3757,6 +3786,10 @@ console.log("ONTOUCHEND");
 						}
 						
 						setPosition(newNode.name, {
+							x: newNode.x,
+							y: newNode.y
+						});
+						setCommittedPosition(newNode.name, {
 							x: newNode.x,
 							y: newNode.y
 						});

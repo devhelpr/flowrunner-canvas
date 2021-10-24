@@ -19,12 +19,12 @@ export const getPosition = (nodeName: string) => {
   return positions.get(nodeName);
 };
 
-export const setOrgPosition = (nodeName: string, position: any) => {
+export const setCommittedPosition = (nodeName: string, position: any) => {
   //positions[nodeName] = position;
   orgPositions.set(nodeName, position);
 };
 
-export const getOrgPosition = (nodeName: string) => {
+export const getCommittedPosition = (nodeName: string) => {
   //return positions[nodeName];
   return orgPositions.get(nodeName);
 };
