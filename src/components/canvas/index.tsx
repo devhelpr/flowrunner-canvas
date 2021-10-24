@@ -1922,11 +1922,12 @@ export const Canvas = (props: CanvasProps) => {
 			isPinching.current = false;
 			return;			
 		}
+		let haveMouseEventFallThrough = false;
 
 		console.log("ONSTAGEMOUSEEND", touching.current, isConnectingNodesByDraggingLocal.current, connectionNodeThumbs.current, mouseDragging.current );
 
 		if (touching.current || isConnectingNodesByDraggingLocal.current) {
-			cancelDragStage();
+			
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 
@@ -2046,15 +2047,23 @@ export const Canvas = (props: CanvasProps) => {
 						props.flowrunnerConnector.forcePushToFlowRunner = true;
 						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);
 						const nodeName = connectionNodeThumbsLineNode.current.startshapeid;						
+					} else {
+						haveMouseEventFallThrough = true;
 					}
 				}
 				
 				console.log("CLEARING CONNECTING STATE 1");
+				
+				if (!haveMouseEventFallThrough) {
+					cancelDragStage();
+					event.evt.preventDefault();
+					event.evt.cancelBubble = true;
+
+					clearConnectionState();
+				}
 
 				dragTime.current = undefined;
 				touching.current = false;
-				event.evt.preventDefault();
-				event.evt.cancelBubble = true;
 
 				(touchNode.current as any) = undefined;
 				touchNodeGroup.current = undefined;
@@ -2077,9 +2086,7 @@ export const Canvas = (props: CanvasProps) => {
 		
 				if (stageInstance) {
 					stageInstance.batchDraw();
-				}
-
-				clearConnectionState();
+				}	
 			}
 			console.log ("onstagemouseend just before return false");
 			return false;
