@@ -1579,9 +1579,8 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 
 				if (determineStartPosition(event.currentTarget)) {
-					const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-					if (node && 
-						shapeType === "Html" && 
+					//const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+					if (node && 						
 						!!event.evt.shiftKey) {			
 						
 						const width = getWidthForHtmlNode(node);
@@ -1663,20 +1662,30 @@ export const Canvas = (props: CanvasProps) => {
 	const getWidthForHtmlNode = (node : any) => {
 		if (node) {					
 			if (props.getNodeInstance) {
-				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-				const instance = props.getNodeInstance(node, undefined, undefined, settings);
-				if (instance && instance.getWidth && instance.getHeight) {
+				const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+				if (shapeType === "Html") {
+					const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+					const instance = props.getNodeInstance(node, undefined, undefined, settings);
+					if (instance && instance.getWidth && instance.getHeight) {
 
-					let width = instance.getWidth(node);
-					let element = document.querySelector("#" + node.name + " .html-plugin-node");
-					if (element) {
-						
-						const elementWidth = element.clientWidth;
-						if (elementWidth > width) {
-							width = elementWidth;
+						let width = instance.getWidth(node);
+						let element = document.querySelector("#" + node.name + " .html-plugin-node");
+						if (element) {
+							
+							const elementWidth = element.clientWidth;
+							if (elementWidth > width) {
+								width = elementWidth;
+							}
 						}
+						return width;					
 					}
-					return width;					
+				} else {
+					if (shapeType == "Rect") {
+						return ShapeMeasures.rectWidht
+					} else
+					if (shapeType == "Diamond") {
+						return ShapeMeasures.diamondSize
+					}
 				}
 			}
 		}
