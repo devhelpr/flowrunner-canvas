@@ -111,7 +111,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
           setFlowState(FlowState.error);
         });
     }
-  }, [flowState]);
+  }, [flowState, flowrunnerConnector]);
 
   const onGetFlows = (id?: string | number) => {
     setCurrentFlowId(id);
@@ -175,7 +175,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
           });
       }
     },
-    [flowStore.flow],
+    [flowStore.flow, flowrunnerConnector],
   );
 
   return {
