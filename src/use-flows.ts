@@ -141,6 +141,7 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
         return updatedNode;
       });
       if (flowrunnerConnector.hasStorageProvider) {
+        console.log("flowAndUpdatedPositions", flowAndUpdatedPositions);
         flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
         if (selectedFlow) {
           loadFlow(selectedFlow); //,true

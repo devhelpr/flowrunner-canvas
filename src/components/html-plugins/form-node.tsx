@@ -159,7 +159,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			
 		}
 		if (props.node) {
-			console.log("formtask useeffect mount", props.node);
 			if (props.node.nodeDatasource && props.node.nodeDatasource === "flow") {
 				if (props.node.mode && props.node.mode === "list") {
 					setNode(props.node);

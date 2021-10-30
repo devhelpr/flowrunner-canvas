@@ -14,7 +14,7 @@ export const Textarea = (props: IFormControlProps) => {
 	let formControl = useFormControl(props.value, metaInfo, props.onChange);
 	
 	useEffect(() => {
-		console.log("calculateTextareaHeight on mount");
+		//console.log("calculateTextareaHeight on mount");
 		//calculateTextareaHeight();
 	}, []);
 	
@@ -33,14 +33,14 @@ export const Textarea = (props: IFormControlProps) => {
 
 	const calculateTextareaHeight = () => {
         if (textAreaRef && textAreaRef.current) {
-			console.log("TEXTAREA calculateTextareaHeight");
+			//console.log("TEXTAREA calculateTextareaHeight");
             const textareaLineHeight = 24;            
             if (textAreaRef.current != null) {
 				const textArea = (textAreaRef.current as any);
 				const previousRows = textArea.rows;
 				textArea.rows = minRows; 
 				const currentRows = Math.floor(textArea.scrollHeight / textareaLineHeight);
-				console.log("TEXTAREA calculateTextareaHeight", textArea.scrollHeight, textareaLineHeight,  textArea.rows, currentRows);
+				//console.log("TEXTAREA calculateTextareaHeight", textArea.scrollHeight, textareaLineHeight,  textArea.rows, currentRows);
 				if (currentRows === previousRows) {
 					textArea.rows = currentRows;
 				}
@@ -60,7 +60,7 @@ export const Textarea = (props: IFormControlProps) => {
 	const onChange= (event) => {
 		event.preventDefault();
 		formControl.onChange(event);
-		console.log("calculateTextareaHeight onchange");
+		//console.log("calculateTextareaHeight onchange");
 
 		//calculateTextareaHeight();
 		return false;
