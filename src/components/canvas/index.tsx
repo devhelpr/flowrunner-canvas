@@ -2711,7 +2711,8 @@ console.log("ONTOUCHEND");
 		}
 
 		const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-		if (node && node.shapeType !== "Line") {	
+		if (node && node.shapeType !== "Line" && 
+			touching.current && touchNode.current) {	
 			const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
 			if (allowedInputs == 0 || 
 				!FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
