@@ -173,8 +173,6 @@ img {
 	border-radius: 10px;
 	-webkit-transform-origin: top left;
 	        transform-origin: top left;
-	-webkit-perspective: 1px;
-	        perspective: 1px;
 }
 
 .canvas__html-shape.composite-hint {
