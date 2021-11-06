@@ -41,7 +41,7 @@ export const hasReplacebleValuesExistingInPayload = (content: string, payload: a
 
       let splittedValues = matchValue.split('=>');
       if (splittedValues.length > 1) {
-       // skip => 
+        // skip =>
       } else {
         splittedValues = matchValue.split('|');
         if (splittedValues.length > 1) {
@@ -68,13 +68,13 @@ export const hasReplacebleValuesExistingInPayload = (content: string, payload: a
           }
         }
       }
-      if (value !== undefined && value !== "" && value !== null) {
+      if (value !== undefined && value !== '' && value !== null) {
         hasValues = true;
       }
     });
   }
   return hasValues;
-}
+};
 export const replaceValuesExpressions = (content: string, payload: any, noValueSet: string) => {
   let resultContent = content;
   let matches = resultContent.match(/{.+?}/g);
