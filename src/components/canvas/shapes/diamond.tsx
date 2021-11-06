@@ -6,7 +6,7 @@ import { Group, Text, RegularPolygon, Image as KonvaImage } from 'react-konva';
 import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
 import { ShapeSettings } from '../../../helpers/shape-settings';
-import { replaceValuesExpressions } from '../../../helpers/replace-values';
+import { replaceValuesExpressions, hasReplacebleValuesExistingInPayload } from '../../../helpers/replace-values';
 import { Lines } from './line-helper';
 
 import useImage from 'use-image';
@@ -105,8 +105,10 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 	}));
 
 	let labelText = props.node && props.node.label ? props.node.label : props.name;
-	if ((settings as any).label) {
+	if ((settings as any).label && hasReplacebleValuesExistingInPayload((settings as any).label, props.node)) {
 		labelText= replaceValuesExpressions((settings as any).label, props.node, "-");
+	} else if (!!props.hasTaskNameAsNodeTitle) {
+		labelText = props.node.taskType;
 	}
 
 	let textDecoration = "";

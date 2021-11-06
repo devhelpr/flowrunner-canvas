@@ -833,7 +833,8 @@ const startFlow = (
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
     */
-
+    worker.flow.registerTask('InputTask', InputTask);
+    worker.flow.registerTask('ListTask', ListTask);
     worker.flow.registerTask('ApiProxyTask', ApiProxyTask);
 
     registerTasks(worker.flow);

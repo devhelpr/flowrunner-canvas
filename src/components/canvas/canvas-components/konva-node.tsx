@@ -15,6 +15,8 @@ import { useNodesTouchedStateStore} from '../../../state/nodes-touched';
 import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
 
 export interface IKonvaNodeProps {
+	hasTaskNameAsNodeTitle?: boolean;
+
 	node : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 	nodesStateLocal : any;
@@ -131,7 +133,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 			onLineMouseOver={props.onMouseOver}
 			onLineMouseOut={props.onMouseOut}
 			onClickLine={props.onClickLine}
-		
+			hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 
 			onClickSetup={(event) => props.onClickSetup( props.node, settings,event)}
 			onMouseOver={(event) => props.onMouseOver(props.node, event)}

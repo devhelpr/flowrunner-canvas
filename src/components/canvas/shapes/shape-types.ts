@@ -7,6 +7,8 @@ export interface ShapeTypeProps {
   taskType: string;
   node: any;
   flow: any;
+
+  hasTaskNameAsNodeTitle?: boolean;
   onDragStart: any;
   onDragMove: any;
   onDragEnd: any;

@@ -247,7 +247,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
 				ref={ref => (setTextRef(ref))}
 				x={0}
 				y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
-				text={props.node && props.node.label ? props.node.label : props.name}
+				text={!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node && props.node.label ? props.node.label : props.name}
 				align='center'
 				fontSize={18}
 				transformsEnabled={"position"}

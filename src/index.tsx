@@ -88,8 +88,9 @@ export { setCustomConfig };
 export interface IFlowrunnerCanvasProps {
 	flowStorageProvider? : IStorageProvider;
 	developmentMode? : boolean;
+	hasTaskNameAsNodeTitle? : boolean;
 	flowrunnerConnector? : IFlowrunnerConnector;
-	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;
+	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;	
 }
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
@@ -235,6 +236,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					flowType={flows.flowType}
 					flowState={flows.flowState}
 					saveFlow={flows.saveFlow}
+					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 				></CanvasComponent>
 			</ErrorBoundary>	
 		</Suspense>		
@@ -464,6 +466,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												flowType={flows.flowType}
 												flowState={flows.flowState}
 												saveFlow={flows.saveFlow}
+												hasTaskNameAsNodeTitle={true}
 											></CanvasComponent>}
 											{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
 												<UserInterfaceViewEditor 

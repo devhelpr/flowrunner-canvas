@@ -11,6 +11,7 @@ import { useFlowStore} from '../../../state/flow-state';
 import { Subject } from 'rxjs';
 
 export interface IHtmlNodeProps {
+	hasTaskNameAsNodeTitle?: boolean;
 	node : any;
 	flowrunnerConnector : IFlowrunnerConnector;
 	nodesStateLocal : any;
@@ -93,7 +94,8 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 				(FlowToCanvas.getHasInputs(shapeType, settings) ? "" : "canvas__html-shape--no-inputs")
 				}>
 				<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
-					<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}{props.node.label ? props.node.label : props.node.name}</span>
+					<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}
+					<span>{!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.label ? props.node.label : props.node.name}</span></span>
 					<a href="#" onClick={(event) => props.onCloneNode(props.node, event)}
 						onFocus={props.onFocus}
 						className="canvas__html-shape-bar-icon far fa-clone"></a>									

@@ -47,11 +47,13 @@ import { ErrorBoundary } from '../../helpers/error';
 
 import * as Konva from "konva"
 import { animateTo } from "./konva/Tween";
+import { InteractionState } from "./canvas-types/interaction-state"; 
 
 const uuidV4 = uuid.v4;
 
 export interface CanvasProps {
 
+	hasTaskNameAsNodeTitle?: boolean;
 	canvasToolbarsubject : Subject<string>;
 	formNodesubject: Subject<any>;
 	
@@ -176,8 +178,7 @@ export const Canvas = (props: CanvasProps) => {
 	let ctrlDown = useRef(false);
 
 	let animationScript = useRef(undefined as any);
-
-	
+	let interactionState = useRef<InteractionState>(InteractionState.idle);	
 	
 	const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
 	
@@ -1569,10 +1570,12 @@ export const Canvas = (props: CanvasProps) => {
 		if (event.currentTarget) {
 			document.body.classList.add("mouse--moving");
 			if (node && node.shapeType === "Line") {				
-				if (node.startshapeid) {					
+				if (node.startshapeid) {				
+					interactionState.current = InteractionState.draggingNodesByConnection;	
 					determineStartPosition(shapeRefs.current[node.startshapeid].getGroupRef());
 				}
-				if (node.endshapeid) {					
+				if (node.endshapeid) {		
+					interactionState.current = InteractionState.draggingNodesByConnection;			
 					determineEndPosition(shapeRefs.current[node.endshapeid].getGroupRef());
 				}
 				return;
@@ -1586,10 +1589,12 @@ export const Canvas = (props: CanvasProps) => {
 						const width = getWidthForHtmlNode(node);
 						if (node.name,mouseStartX.current > (width/2)) {
 							console.log("node width.. on right of center");
+							interactionState.current = InteractionState.draggingNodesUpstream;
 							getAllConnectedNodes(node, "output");
 						} else
 						if (node.name,mouseStartX.current < (width/2)) {
 							console.log("node width.. on right of center");
+							interactionState.current = InteractionState.draggingNodesDownstream;
 							getAllConnectedNodes(node, "input");
 						}
 					}
@@ -1722,7 +1727,7 @@ export const Canvas = (props: CanvasProps) => {
 			if (event.currentTarget) {
 				mouseDragging.current = true;
 				document.body.classList.add("mouse--moving");
-
+				interactionState.current = InteractionState.draggingNode;
 				return;
 				/*
 				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.screenX ? {
@@ -1771,7 +1776,8 @@ export const Canvas = (props: CanvasProps) => {
 		(touchNode.current as any) = undefined;
 		touchNodeGroup.current = undefined;
 		connectionNodeThumbsLineNode.current = undefined;
-		
+		interactionState.current = InteractionState.idle;
+
 		const lineRef = shapeRefs.current[connectionForDraggingName];
 		if (lineRef) {
 			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
@@ -1789,7 +1795,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const connectConnectionToNode = (node, thumbPositionRelativeToNode?) => {
-
+console.log("connectConnectionToNode", node);
 		let eventHelper : any = undefined;
 		if (connectionNodeEventName !== undefined &&
 			connectionNodeEventName.current !== "" && 
@@ -1867,7 +1873,14 @@ export const Canvas = (props: CanvasProps) => {
 
 
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {			
-			connectConnectionToNode(node);
+
+			if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
+				if (connectionNodeThumbsLineNode.current) {
+					connectionNodeThumbsLineNode.current.endshapeid = node.name;
+					return;
+				}
+				connectConnectionToNode(node);
+			}
 			return false;
 		}	
 		
@@ -2092,6 +2105,8 @@ export const Canvas = (props: CanvasProps) => {
 
 				connectionNodeThumbPositionRelativeToNode.current = ThumbPositionRelativeToNode.default;
 				connectionNodeFollowFlow.current = ThumbFollowFlow.default;
+
+				interactionState.current = InteractionState.idle;
 
 				document.body.classList.remove("connecting-nodes");
 				document.body.classList.remove("mouse--moving");
@@ -2635,6 +2650,8 @@ console.log("ONTOUCHEND");
 				return false;
 			}
 		}
+		
+		interactionState.current = InteractionState.addingNewConnection;
 
 		(isConnectingNodesByDraggingLocal.current as any) = true;
 		connectionNodeEvent.current = nodeEvent;
@@ -2757,7 +2774,7 @@ console.log("ONTOUCHEND");
 					connectionNodeThumbsLineNode.current = lineNode;
 					touchNode.current = lineNode;
 					touchNodeGroup.current = shapeRefs.current[lineNode.name];
-
+					interactionState.current = InteractionState.draggingConnectionEnd;
 					console.log("starting reconnecting line/connecion to other node...", lineNode);
 					if (!lineNode) {
 						return;
@@ -2770,6 +2787,8 @@ console.log("ONTOUCHEND");
 				return;
 			}
 		}
+
+		interactionState.current = InteractionState.addingNewConnection;
 		(isConnectingNodesByDraggingLocal.current as any) = true;
 		connectionNodeEvent.current = nodeEvent;
 		connectionNodeEventName.current = "";
@@ -3783,7 +3802,7 @@ console.log("ONTOUCHEND");
 
 	const addTaskToCanvas = (taskClassName : string) => {
 		//const taskClassName = event.target.getAttribute("data-task");
-		if (stage && stage.current) {
+		if (stage && stage.current) {			
 			let _stage = (stage.current as any).getStage();
 
 			_stage.setPointersPositions(event);
@@ -3800,6 +3819,8 @@ console.log("ONTOUCHEND");
 			if (taskClassName && taskClassName !== "") {
 				if (!canvasMode.isConnectingNodes) {
 					if (stage && stage.current) {
+						interactionState.current = InteractionState.addingNewNode;
+
 						let stageInstance = (stage.current as any).getStage();
 						const position = (stageInstance as any).getPointerPosition();
 						const scaleFactor = (stageInstance as any).scaleX();
@@ -4762,6 +4783,7 @@ console.log("ONTOUCHEND");
 									return <KonvaNode 
 										key={"konva_" + node.name + props.flowId}
 										node={node}
+										hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 										flowrunnerConnector={props.flowrunnerConnector}
 										nodesStateLocal={nodesStateLocal.current[node.name] || ""}
 										getNodeInstance={props.getNodeInstance}
@@ -4843,6 +4865,7 @@ console.log("ONTOUCHEND");
 							return <HtmlNode
 								key={"html_" + node.name + flowStore.flowId}
 								ref={ref => (elementRefs.current[node.name] = ref)}	
+								hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 								node={node}
 								flowrunnerConnector={props.flowrunnerConnector}
 								nodesStateLocal={nodesStateLocal.current[node.name] || ""}

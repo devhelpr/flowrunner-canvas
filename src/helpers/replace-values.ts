@@ -30,6 +30,51 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+export const hasReplacebleValuesExistingInPayload = (content: string, payload: any) => {
+  let hasValues = false;
+  let resultContent = content;
+  let matches = resultContent.match(/{.+?}/g);
+  if (matches) {
+    matches.map(match => {
+      const matchValue = match.slice(1, -1);
+      let value;
+
+      let splittedValues = matchValue.split('=>');
+      if (splittedValues.length > 1) {
+       // skip => 
+      } else {
+        splittedValues = matchValue.split('|');
+        if (splittedValues.length > 1) {
+          const variableName1 = splittedValues[0];
+          const variableName2 = splittedValues[1];
+          if (payload[variableName1] !== undefined && payload[variableName1] != '') {
+            value = (payload[variableName1] || '').toString();
+          } else if (payload[variableName2] !== undefined && payload[variableName2] != '') {
+            value = (payload[variableName2] || '').toString();
+          }
+        } else {
+          splittedValues = matchValue.split(':');
+          const variableName = splittedValues[0];
+          value = payload[variableName];
+          if (splittedValues.length > 1) {
+            const format = splittedValues[1];
+            if (format == 'currency') {
+              value = parseFloat(value)
+                .toFixed(2)
+                .replace('.', ',');
+            } else if (format == 'integer') {
+              value = parseFloat(value).toFixed(0);
+            }
+          }
+        }
+      }
+      if (value !== undefined && value !== "" && value !== null) {
+        hasValues = true;
+      }
+    });
+  }
+  return hasValues;
+}
 export const replaceValuesExpressions = (content: string, payload: any, noValueSet: string) => {
   let resultContent = content;
   let matches = resultContent.match(/{.+?}/g);
