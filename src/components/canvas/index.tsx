@@ -3943,8 +3943,18 @@ console.log("ONTOUCHEND");
 									xend: connection.xend,
 									yend: connection.yend
 								});
+								setCommittedPosition(connection.name, {
+									xstart: connection.xstart,
+									ystart: connection.ystart,
+									xend: connection.xend,
+									yend: connection.yend
+								});
 								flowStore.addConnection(connection);
 							}
+						}
+
+						if (props.flowrunnerConnector.hasStorageProvider) {
+							props.saveFlow();
 						}
 					}				
 				}
