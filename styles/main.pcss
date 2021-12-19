@@ -203,6 +203,18 @@ img {
 	background: transparent;
 }
 
+.canvas__html-shape-thumb-start::after {
+    content: "";
+    width: 60px;
+    height: 60px;
+    display: block;
+    border-radius: 50%;
+    position: absolute;
+    top: -24px;
+    left: -21px;
+    clip-path: ellipse(30% 100% at 72% 50%);
+}
+
 .canvas__html-shape-thumb-startbottom {
 	width: 16px;
     height: 16px;
@@ -278,6 +290,19 @@ img {
 	border: 2px #e2e2e2 solid;
 	background: transparent;
 }
+
+.canvas__html-shape-thumb-end::after {
+    content: "";
+    width: 60px;
+    height: 60px;
+    display: block;
+    border-radius: 50%;
+    position: absolute;
+    top: -24px;
+    left: -28px;
+    clip-path: ellipse(67% 100% at -6% 50%);
+}
+
 
 
 .canvas__html-shape-thumb-endtop {
