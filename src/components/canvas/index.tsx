@@ -246,7 +246,6 @@ export const Canvas = (props: CanvasProps) => {
 
 	const wheelEnableLayoutOnTimeout = useCallback(() => {
 		if (layer && layer.current) {
-			//console.log("wheelEnableLayoutOnTimeout");
 			(layer.current as any).listening(true);
 			(layer.current as any).batchDraw();
 		}
@@ -318,7 +317,6 @@ export const Canvas = (props: CanvasProps) => {
 				const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 				const startPerf = performance.now();
 				stageInstance.scale({ x: newScale, y: newScale });
-				//console.log("WheelEvent performance", performance.now() - startPerf);
 				const newPos = {
 					x: -(mousePointTo.x - xPos / newScale) * newScale,
 					y: -(mousePointTo.y - yPos / newScale) * newScale
@@ -501,7 +499,6 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		// TODO : do we need to select the added node or dont? (see also the flow-actions)
-		console.log("selectNode onPaste");
 		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
@@ -591,14 +588,7 @@ export const Canvas = (props: CanvasProps) => {
 			nodeState: nodeState,
 			nodeName: nodeName
 		});
-
-		/*
-		if (nodeStateCount.current >= 10) {
-			nodeStateTimeoutCallback();
-		} else {
-			(nodeStateTimeout.current as any) = setTimeout(nodeStateTimeoutCallback, 70);
-		}
-		*/
+		
 		(nodeStateTimeout.current as any) = setTimeout(nodeStateTimeoutCallback, 30);
 		
 
@@ -623,63 +613,8 @@ export const Canvas = (props: CanvasProps) => {
 
 		*/
 		touchedNodesLocal.current = _touchedNodes;
-		/*if (nodesStateLocal.current[nodeName] != nodeState) 
-		{
-			console.log("nodeStateObserver", nodeName, nodeState, _touchedNodes);
-
-			let nodeStateClass = nodeState == "error" ? "has-error" : "";
-			const element = document.getElementById(nodeName);
-			if (element) {
-				element.classList.remove("has-error");
-				if (nodeStateClass != "") {
-					element.classList.add(nodeStateClass);
-				}
-			} 
-
-			const shapeRef = shapeRefs.current[nodeName];
-			let newShapeState = ShapeStateEnum.Default;
-			if (nodeState == "ok") {
-				newShapeState = ShapeStateEnum.Ok;
-			} else if (nodeState == "error") {
-				newShapeState = ShapeStateEnum.Error;
-			}
-			shapeRef.modifyShape(ModifyShapeEnum.SetState , {
-				state: newShapeState
-			});
-		}
-		*/
 		
-		nodesStateLocal.current[nodeName] = nodeState;		
-		/*
-		if (_touchedNodes) {
-
-			Object.keys(_touchedNodes).map((touchNodeId: string) => {
-				const lineRef = shapeRefs.current[touchNodeId];
-				if (lineRef && lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
-					return;
-				}
-				const element = document.getElementById(touchNodeId);
-				if (element) {
-					if (_touchedNodes[touchNodeId] === true) {
-						element.classList.remove("untouched");
-					} else {
-						element.classList.add("untouched");
-					}
-				} else {
-					if (!_touchedNodes[touchNodeId] &&
-						nodesStateLocal.current[touchNodeId] != "") {
-						nodesStateLocal.current[touchNodeId] = "";
-						const shapeRef = shapeRefs.current[touchNodeId];
-						shapeRef.modifyShape(ModifyShapeEnum.SetState , {
-							state: ShapeStateEnum.Default
-						});
-					}
-				}
-			})
-		}
-		
-		updateTouchedNodes();
-		*/
+		nodesStateLocal.current[nodeName] = nodeState;				
 	}
 
 
@@ -818,7 +753,7 @@ export const Canvas = (props: CanvasProps) => {
 						setHtmlElementStyle(element, 0, 0, 1, x, y);
 						//setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);
 
-						setNewPositionForNode(node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw , true);
+						setNewPositionForNode(undefined, node, (shapeRef as any), {x:position.x,y:position.y}, false, true, doBatchdraw , true);
 					}
 				}
 			}
@@ -853,7 +788,6 @@ export const Canvas = (props: CanvasProps) => {
 
 				if (selectedNodeRef.current && selectedNodeRef.current.node !== undefined) {
 					selectNode("", undefined);
-					console.log(`selectNode("", undefined)`);
 				}
 				
 				
@@ -991,7 +925,7 @@ export const Canvas = (props: CanvasProps) => {
 		connectionY
 	]);	
 	
-	const setNewPositionForNode = useCallback((node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
+	const setNewPositionForNode = useCallback((event, node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
 		const unselectedNodeOpacity = 0.15;
 		if (!linesOnly) {
 			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
@@ -1048,7 +982,8 @@ export const Canvas = (props: CanvasProps) => {
 			if (stage && stage.current && offsetPosition === undefined) {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
-					let touchPos = stageInstance.getPointerPosition();
+					// TODO : .. provide event or currentPosition as parameter
+					let touchPos = getCurrentPosition(event);
 					if (touchPos) {
 						const scaleFactor = (stageInstance as any).scaleX();
 
@@ -1068,14 +1003,14 @@ export const Canvas = (props: CanvasProps) => {
 
 			if (shapeRefs.current[node.name]) {
 				
+				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
+				const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
+
 				let currentGroup = (shapeRefs.current[node.name] as any);
-				if (currentGroup) {
+				if (currentGroup && shapeType !== "Line") {
 					currentGroup.modifyShape(ModifyShapeEnum.SetXY, newPosition);					
 					currentGroup.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
 				}
-
-				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-				const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
 
 				let diamondThumb = 0;
 				if (shapeType === "Diamond") {
@@ -1158,7 +1093,10 @@ export const Canvas = (props: CanvasProps) => {
 			} 
 		}
 		
-		setPosition(node.name, {...newPosition});
+		if (node.shapeType !== "Line") {
+			setPosition(node.name, {...newPosition});
+		}
+
 		if (skipSetHtml === undefined || skipSetHtml === false) {
 			setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current, 
 				newPosition.x, newPosition.y, node);		
@@ -1283,14 +1221,7 @@ export const Canvas = (props: CanvasProps) => {
 					y : positionLine.ystart
 				};
 
-				/*
-				let startNodes = flow.flow.filter((node) => {
-					return node.name == lineNode.startshapeid;
-				})
-				let startNode = startNodes[0];
-				*/
 				let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];	
-				//console.log("startNode" , startNode, lineNode.startshapeid, lineNode, endLines);	
 				if (startNode) {
 					const positionNode = getPosition(startNode.name) || startNode;
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
@@ -1347,6 +1278,43 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			})
 		}
+
+		if (node.shapeType === "Line") {
+			newPosition = getPosition(node.name);
+
+			if (node.endshapeid) {
+				let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
+				if (endNode) {
+					
+					const positionNode = getPosition(endNode.name) || endNode;
+					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
+							x: positionNode.x,
+							y: positionNode.y
+						}, node, props.getNodeInstance,
+						node.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
+					);
+					newPosition.xend = newEndPosition.x;
+					newPosition.yend = newEndPosition.y;	
+				}
+			}
+			
+			if (node.startshapeid) {
+				let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];	
+				if (startNode) {
+					
+					const positionNode = getPosition(startNode.name) || startNode;
+					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
+							x: positionNode.x,
+							y: positionNode.y
+						}, node, props.getNodeInstance,
+						node.thumbPosition as ThumbPositionRelativeToNode);
+					newPosition.xstart = newStartPosition.x;
+					newPosition.ystart = newStartPosition.y;			
+				}
+			}
+
+			setPosition(node.name, newPosition);
+		}
 		
 		if (!!doDraw) {
 			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
@@ -1360,8 +1328,8 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
-			//console.log("setNewPositionForNode isCommitingToStore", );
-			setCommittedPosition(node.name, {...newPosition});
+			setCommittedPosition(node.name, {...newPosition});			
+
 			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
 				selectNode(node.name, node);
 
@@ -1483,59 +1451,73 @@ export const Canvas = (props: CanvasProps) => {
 	}
 	
 	const onMouseOut = () => {
-        document.body.style.cursor = 'default';
+        (document.body.style.cursor as any) = null;
 	}
 
 	
-	const determineStartPosition = (group) => {
-		//console.log("determineStartPosition", group);
-		let x = group.attrs["x"];
-		let y = group.attrs["y"];
-		let newPosition = {x:x, y:y};		
+	const determineStartPosition = (group, pointerPosition, committed?: any) => {
+		let newPosition = {x:0, y:0};
+		let x = 0;
+		let y = 0;
+		
+		if (group && group.attrs && group.attrs["x"]) {
+			x = group.attrs["x"];
+			y = group.attrs["y"];
+			newPosition = {x:x, y:y};
+		} else {
+			x = group.x;
+			y = group.y;
+			newPosition = {x:x, y:y};
+		}
+
 		
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				var touchPos = stageInstance.getPointerPosition();
 				const scaleFactor = (stageInstance as any).scaleX();
 
-				newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
-				newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
+				newPosition.x = ((pointerPosition.x - (stageInstance).x()) / scaleFactor);
+				newPosition.y = ((pointerPosition.y - (stageInstance).y()) / scaleFactor);
 					
 				mouseStartX.current = newPosition.x - x;
 				mouseStartY.current = newPosition.y - y;
-				console.log("determineStartPosition",newPosition,x,y,mouseStartX.current,mouseStartY.current);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	const determineEndPosition = (group) => {
-		console.log("determineEndPosition", group);
-		let x = group.attrs["x"];
-		let y = group.attrs["y"];
-		let newPosition = {x:x, y:y};
+	const determineEndPosition = (group, pointerPosition) => {
+
+		let newPosition = {x:0, y:0};
+		let x = 0;
+		let y = 0;
+		
+		if (group && group.attrs && group.attrs["x"]) {
+			x = group.attrs["x"];
+			y = group.attrs["y"];
+			newPosition = {x:x, y:y};
+		} else {
+			x = group.x;
+			y = group.y;
+			newPosition = {x:x, y:y};
+		}
 		
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				var touchPos = stageInstance.getPointerPosition();
 				const scaleFactor = (stageInstance as any).scaleX();
 
-				newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
-				newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
+				newPosition.x = ((pointerPosition.x - (stageInstance).x()) / scaleFactor);
+				newPosition.y = ((pointerPosition.y - (stageInstance).y()) / scaleFactor);
 					
 				mouseEndX.current = newPosition.x - x;
 				mouseEndY.current = newPosition.y - y;
-				console.log("determineEndPosition",newPosition,x,y);
 			}
 		}
 	}
 
 	const onMouseStart = (node, event) => {
-		console.log("onMouseStart", node.shapeType, node, event);
-		
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
 			return false;
@@ -1550,14 +1532,17 @@ export const Canvas = (props: CanvasProps) => {
 			cancelDragStage();
 			return;			
 		}
+
+		if (!event.evt) {
+			event.persist();
+		}
+
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				const touchPos = stageInstance.getPointerPosition();
+				const touchPos = getCurrentPosition(event);
 				mouseStartPointerX.current = touchPos.x;
 				mouseStartPointerY.current = touchPos.y;
-
-				console.log("mouseStartPointerX", mouseStartPointerX.current, mouseStartPointerY.current);
 			}
 		}	
 
@@ -1568,46 +1553,92 @@ export const Canvas = (props: CanvasProps) => {
 		draggingMultipleNodes.current = [];
 
 		if (event.currentTarget) {
+			
 			document.body.classList.add("mouse--moving");
 			if (node && node.shapeType === "Line") {				
 				if (node.startshapeid) {				
-					interactionState.current = InteractionState.draggingNodesByConnection;	
-					determineStartPosition(shapeRefs.current[node.startshapeid].getGroupRef());
+					interactionState.current = InteractionState.draggingNodesByConnection;
+					const shapeRef = shapeRefs.current[node.startshapeid];
+					if (shapeRef) {
+						determineStartPosition(shapeRef.getGroupRef(),
+							getCurrentPosition(event));
+					} else {
+						determineStartPosition(getPosition(node.startshapeid),
+							getCurrentPosition(event));
+					}	
+					
 				}
 				if (node.endshapeid) {		
-					interactionState.current = InteractionState.draggingNodesByConnection;			
-					determineEndPosition(shapeRefs.current[node.endshapeid].getGroupRef());
+					interactionState.current = InteractionState.draggingNodesByConnection;
+					const shapeRef = shapeRefs.current[node.endshapeid];
+					if (shapeRef) {		
+						determineEndPosition(shapeRef.getGroupRef(),
+							getCurrentPosition(event));
+					} else {
+						determineEndPosition(getPosition(node.endshapeid),
+							getCurrentPosition(event));
+					}
 				}
 				return;
 			} else {
+				let stageInstance = (stage.current as any).getStage();
+				const scaleFactor = (stageInstance as any).scaleX();
 
-				if (determineStartPosition(event.currentTarget)) {
-					//const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
+				let _x = ((event.clientX) / scaleFactor);
+				let _y = ((event.clientY) / scaleFactor);
+
+/*
+	What is the issue?
+		we need x,y coordinates of the mousepointer for
+		 html-nodes in the "space of the canvas"
+		currently, the position of the stageinstance is used
+		and this causes weird jumps
+		probably because we're dealing with html-node events instead of konva events			
+	
+		implement a strategy factory pattern to get the correct coordinates of the mousepointer for the current canvas implementation
+
+
+		clientX/clientY is the same as stageInstance.getPointerPosition()
+			..BUT getPointerPosition is not updated when hovering over a DOM node
+
+			There's now a getCurrentPosition(event) method which returns
+				the coordinates depending on the event type
+					
+		The above issue is fixed, but:
+		- it still occurs when dragging using shift-key (upstream/downstream)
+		- when dragging a line, it disappears after mouse up
+	
+*/
+
+				if (determineStartPosition(event.evt ? event.currentTarget : getPosition(node.id), 
+						getCurrentPosition(event),
+						{x:stageX.current+_x,y:stageY.current+_y,
+						screenX:event.clientX,screenY:event.clientY,
+						canvasPointer: stageInstance.getPointerPosition()}
+					)) {
 					if (node && 						
-						!!event.evt.shiftKey) {			
+						((event.evt && !!event.evt.shiftKey) ||
+						 (event && !!event.shiftKey)
+						)
+					 ) {			
 						
 						const width = getWidthForHtmlNode(node);
 						if (node.name,mouseStartX.current > (width/2)) {
-							console.log("node width.. on right of center");
 							interactionState.current = InteractionState.draggingNodesUpstream;
 							getAllConnectedNodes(node, "output");
 						} else
 						if (node.name,mouseStartX.current < (width/2)) {
-							console.log("node width.. on right of center");
 							interactionState.current = InteractionState.draggingNodesDownstream;
 							getAllConnectedNodes(node, "input");
 						}
 					}
-				}
-
-				
+				}			
 			}
 		}
-		console.log("onMouseStart before return", node.shapeType, event.currentTarget);
-
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;	
-
+		
+		if (interactionState.current === InteractionState.idle) { 
+			return false;
+		}
 		return;
 
 	}
@@ -1616,15 +1647,9 @@ export const Canvas = (props: CanvasProps) => {
 		draggingMultipleNodes.current = [node.name];
 		if (mode === "output") {
 			getAllConnectedOutputNodes(node.name);
-
-			console.log("connected output nodes", draggingMultipleNodes.current);
-
 		} else
 		if (mode === "input") {
 			getAllConnectedInputNodes(node.name);
-
-			console.log("connected output nodes", draggingMultipleNodes.current);
-
 		}
 	}
 	
@@ -1632,7 +1657,6 @@ export const Canvas = (props: CanvasProps) => {
 		const mappedNode = flowStore.flowHashmap.get(nodeName);
 		if (mappedNode) {
 			const outputs = mappedNode.start;
-			//console.log("outputs", outputs);
 			if (outputs && outputs.length > 0) {
 				outputs.forEach(outputIndex => {
 					const outputLineNode = flowStore.flow[outputIndex];
@@ -1650,7 +1674,6 @@ export const Canvas = (props: CanvasProps) => {
 		const mappedNode = flowStore.flowHashmap.get(nodeName);
 		if (mappedNode) {
 			const inputs = mappedNode.end;
-			//console.log("inputs", inputs);
 			if (inputs && inputs.length > 0) {
 				inputs.forEach(outputIndex => {
 					const outputLineNode = flowStore.flow[outputIndex];
@@ -1698,6 +1721,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onMouseMove = (node, event) => {
+		
 		if (node && touching.current && touchNode.current && 
 				node.name !== (touchNode.current as any).name) {
 			return;
@@ -1714,56 +1738,31 @@ export const Canvas = (props: CanvasProps) => {
 		if (node.shapeType === "Line" || (touchNode.current && (touchNode.current as any).shapeType === "Line")) {
 			return;
 		}
-
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;	
-
+/*
+		if (event.evt && event.evt.preventDefault) {
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;	
+		} else {
+			event.preventDefault();
+			event.cancelBubble = true;
+		}
+*/
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
 			return false;
 		}
 
 		if (touching.current) {
-			if (event.currentTarget) {
-				mouseDragging.current = true;
-				document.body.classList.add("mouse--moving");
-				interactionState.current = InteractionState.draggingNode;
-				return;
-				/*
-				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.screenX ? {
-					x: event.evt.screenX,
-					y: event.evt.screenY
-				} : undefined, false, false, true);
-
-						
-				if (stage && stage.current) {
-					let stageInstance = (stage.current as any).getStage();
-					if (stageInstance) {
-						let touchPos = stageInstance.getPointerPosition();
-						
-						if (touchPos) {
-							const scaleFactor = (stageInstance as any).scaleX();
-	
-							let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
-							let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
-	
-							x = x - (x % gridSize.current);
-							y = y - (y % gridSize.current);
-
-							movingExistingOrNewNodeOnCanvas(x, y, true, node, true);
-						}
-					}
-				}
-				*/
-			}
+			mouseDragging.current = true;
+			document.body.classList.add("mouse--moving");
+			interactionState.current = InteractionState.draggingNode;
+			return;
 		}
-		
-		return false;
+		return;
+		//return false;
 	}
 
 	const clearConnectionState = () => {
-
-		console.log("CLEAR CONNECTING STATE 2");
 
 		touching.current = false
 		isConnectingNodesByDraggingLocal.current = false;
@@ -1795,7 +1794,6 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const connectConnectionToNode = (node, thumbPositionRelativeToNode?) => {
-console.log("connectConnectionToNode", node);
 		let eventHelper : any = undefined;
 		if (connectionNodeEventName !== undefined &&
 			connectionNodeEventName.current !== "" && 
@@ -1813,7 +1811,6 @@ console.log("connectConnectionToNode", node);
 		const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
 		if (allowedInputs == 0 || 
 			!FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
-			console.log("CANCEL CONNECT NODES : allowedInput 0", node);
 			clearConnectionState();
 			return false;
 		}
@@ -1858,8 +1855,7 @@ console.log("connectConnectionToNode", node);
 		canvasMode.setConnectiongNodeCanvasMode(false);
 	}
 
-	const onMouseEnd = (node, event) => {
-
+	const onMouseEnd = (node, event) => {		
 		if (isPinching.current) {
 			return;			
 		}
@@ -1868,23 +1864,29 @@ console.log("connectConnectionToNode", node);
 			return;
 		}
 
-		document.body.style.cursor = 'default';
+		if (interactionState.current === InteractionState.draggingConnectionEnd) {
+			// Bij het verlepen van een eindpunt naar een andere node
+			// en je hovert over een DOM-node... dan kom je hier uberhaupt niet...
+			//return;
+		}
+		(document.body.style.cursor as any) = null;
 		document.body.classList.remove("mouse--moving");
-
 
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {			
 
 			if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
 				if (connectionNodeThumbsLineNode.current) {
-					connectionNodeThumbsLineNode.current.endshapeid = node.name;
+
+					//connectionNodeThumbsLineNode.current.endshapeid = node.name;
+					let clonedNode = {...connectionNodeThumbsLineNode.current};
+					clonedNode.endshapeid = node.name;
+					connectionNodeThumbsLineNode.current = clonedNode;
 					return;
 				}
 				connectConnectionToNode(node);
 			}
 			return false;
-		}	
-		
-		
+		}			
 	
 		if (touchNodeGroup.current != event.currentTarget) {
 			return false;
@@ -1897,28 +1899,26 @@ console.log("connectConnectionToNode", node);
 			return;
 		}
 
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
-
-		console.log("ONMOUSEND", node);
+		if (event.evt) {
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
+		} else {
+			event.preventDefault();
+			event.cancelBubble = true;
+		}
 
 		touching.current = false;
 		dragTime.current = undefined;
 		
 		touchNodeGroup.current = undefined;
 		if (event.currentTarget && mouseDragging.current) {
-			setNewPositionForNode(node, shapeRefs.current[node.name], undefined, true, false, true);
+			setNewPositionForNode(event, node, shapeRefs.current[node.name], undefined, true, false, true);
 
-			console.log("closestNodeAreLineNodes.current", closestNodeAreLineNodes.current, closestEndNodeWhenAddingNewNode.current, closestStartNodeWhenAddingNewNode.current);
 			if (closestNodeAreLineNodes.current) {
 				connectNodeToExistingLines(node);
 			}
-
 		} else {
-			//console.log("onmouseend selectnode");
-			//selectNode(node.name, node);
 			canvasMode.setConnectiongNodeCanvasMode(false);
-			//console.log("onmouseend after selectnode");
 		}
 		(touchNode.current as any) = undefined;
 		mouseDragging.current = false;
@@ -1929,43 +1929,41 @@ console.log("connectConnectionToNode", node);
 		if (closestEndNodeWhenAddingNewNode.current) {
 			const closestEndConnectionNode = closestEndNodeWhenAddingNewNode.current as any;
 			closestEndConnectionNode.startshapeid = node.name;
-			console.log("closestEndConnectionNode", closestEndConnectionNode);
 			flowStore.storeFlowNode(closestEndConnectionNode,closestEndConnectionNode.name);
 		}
 		if (closestStartNodeWhenAddingNewNode.current) {
 			const closestStartConnectionNode = closestStartNodeWhenAddingNewNode.current as any;
 			closestStartConnectionNode.endshapeid = node.name;
-			console.log("closestStartConnectionNode", closestStartConnectionNode);
 			flowStore.storeFlowNode(closestStartConnectionNode,closestStartConnectionNode.name);
 		}
 	}
 
 	const onStageMouseEnd = (event) => {
 		
+		if (interactionState.current === InteractionState.idle) {
+			return;
+		}
+
 		if (isPinching.current) {
 			isPinching.current = false;
 			return;			
 		}
 		let haveMouseEventFallThrough = false;
 
-		console.log("ONSTAGEMOUSEEND", touching.current, isConnectingNodesByDraggingLocal.current, connectionNodeThumbs.current, mouseDragging.current );
-
 		if (touching.current || isConnectingNodesByDraggingLocal.current) {
 			
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
-
 				if (connectionNodeThumbs.current === "" && 
 					!isConnectingNodesByDraggingLocal.current && 
 					mouseDragging.current && touchNode.current) {
 					
-
 						if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 0) {
 
 							if (stage && stage.current) {
 								let stageInstance = (stage.current as any).getStage();
 								if (stageInstance) {
-									const touchPos = stageInstance.getPointerPosition();
+									const touchPos = getCurrentPosition(event);
 									let offsetX = touchPos.x - mouseStartPointerX.current;
 									let offsetY = touchPos.y - mouseStartPointerY.current;
 									const scaleFactor = (stageInstance as any).scaleX();
@@ -1982,10 +1980,13 @@ console.log("connectConnectionToNode", node);
 										if (mappedNode) {				
 											let draggingNode = flowStore.flow[mappedNode.index];
 											if (draggingNode) {
-												setNewPositionForNode(draggingNode, shapeRefs.current[nodeName], event.evt.screenX ? {
+												setNewPositionForNode(event, draggingNode, shapeRefs.current[nodeName], event.evt && event.evt.screenX ? {
 													x: event.evt.screenX,
 													y: event.evt.screenY
-												} : undefined, true, false, true, false, false, offsetPosition);
+												} : (event.screenX ? {
+													x: event.screenX,
+													y: event.screenY
+												} : undefined), true, false, true, false, false, offsetPosition);
 											}
 										}
 									})
@@ -2003,19 +2004,46 @@ console.log("connectConnectionToNode", node);
 								props.saveFlow();
 							}							
 						} else {
-							console.log("onStageMouseEnd",(touchNode.current as any).shapeType);
-
-							setNewPositionForNode(touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
-							console.log("closestNodeAreLineNodes.current", closestNodeAreLineNodes.current, closestEndNodeWhenAddingNewNode.current, closestStartNodeWhenAddingNewNode.current);
+							if ((touchNode.current as any).shapeType === "Line") {
+								let lineNode = (touchNode.current as any);
+								if (lineNode.startshapeid) {
+									const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
+									if (startNode) {	
+										setNewPositionForNode(event, startNode, shapeRefs.current[startNode.name], 
+											event.evt && event.evt.screenX ? {
+												x: event.evt.screenX ,
+												y: event.evt.screenY 
+											} : (event.screenX ? {
+												x: event.screenX ,
+												y: event.screenY 
+											} : undefined), true, false, true);
+									}
+								}
+								if (lineNode.endshapeid) {
+									const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+									if (endNode) {
+										setNewPositionForNode(event, endNode, 
+											shapeRefs.current[endNode.name], 
+											event.evt && event.evt.screenX ? {
+												x: event.evt.screenX,
+												y: event.evt.screenY
+											} : (event.screenX ? {
+												x: event.screenX,
+												y: event.screenY
+											} : undefined), true, false, true, false, true);
+									}
+								}
+							}
+							
+							setNewPositionForNode(event, touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
+							
 							if (closestNodeAreLineNodes.current) {
 								connectNodeToExistingLines(touchNode.current);
-							}
+							}							
 					}
-
 				} else {
-					if (connectionNodeThumbs.current === "thumbstart") { 
-						
-						const touchPos = stageInstance.getPointerPosition();
+					const touchPos = getCurrentPosition(event);
+					if (connectionNodeThumbs.current === "thumbstart") { 												
 						const scaleFactor = (stageInstance as any).scaleX();
 		
 						let newPosition = {
@@ -2036,18 +2064,21 @@ console.log("connectConnectionToNode", node);
 							xend:endPosition.xend,
 							yend:endPosition.yend
 						});
-						
-						connectionNodeThumbsLineNode.current.xstart = newPosition.x;
-						connectionNodeThumbsLineNode.current.ystart = newPosition.y;
-						connectionNodeThumbsLineNode.current.xend = endPosition.xend;
-						connectionNodeThumbsLineNode.current.yend = endPosition.yend;
+
+						let endpoints = {
+							...connectionNodeThumbsLineNode.current,
+							xstart : newPosition.x,
+							ystart : newPosition.y,
+							xend : endPosition.xend,
+							yend : endPosition.yend
+						}
+						connectionNodeThumbsLineNode.current = endpoints;
 
 						props.flowrunnerConnector.forcePushToFlowRunner = true;
 						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);	
 
 					} else 
 					if (connectionNodeThumbs.current === "thumbend") {
-						const touchPos = stageInstance.getPointerPosition();
 						const scaleFactor = (stageInstance as any).scaleX();
 		
 						let newPosition = {
@@ -2069,10 +2100,15 @@ console.log("connectConnectionToNode", node);
 							yend: newPosition.y,
 						});
 						
-						connectionNodeThumbsLineNode.current.xstart = startPosition.xstart;
-						connectionNodeThumbsLineNode.current.ystart = startPosition.ystart;
-						connectionNodeThumbsLineNode.current.xend = newPosition.x;
-						connectionNodeThumbsLineNode.current.yend = newPosition.y;
+						let endpoints = {
+							...connectionNodeThumbsLineNode.current,
+							xstart : startPosition.xstart,
+							ystart : startPosition.ystart,
+							xend : newPosition.x,
+							yend : newPosition.y
+						}
+						
+						connectionNodeThumbsLineNode.current = endpoints;
 
 						props.flowrunnerConnector.forcePushToFlowRunner = true;
 						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);
@@ -2082,13 +2118,15 @@ console.log("connectConnectionToNode", node);
 					}
 				}
 				
-				console.log("CLEARING CONNECTING STATE 1");
-				
 				if (!haveMouseEventFallThrough) {
 					cancelDragStage();
-					event.evt.preventDefault();
-					event.evt.cancelBubble = true;
-
+					if (event.evt) {
+						event.evt.preventDefault();
+						event.evt.cancelBubble = true;
+					} else {
+						event.preventDefault();
+						event.cancelBubble = true;
+					}
 					clearConnectionState();
 				}
 
@@ -2120,7 +2158,6 @@ console.log("connectConnectionToNode", node);
 					stageInstance.batchDraw();
 				}	
 			}
-			console.log ("onstagemouseend just before return false");
 			return false;
 		}
 	}
@@ -2131,8 +2168,6 @@ console.log("connectConnectionToNode", node);
 			if (mappedNode && mappedNode.index >= 0) {
 				let startNode = flowStore.flow[mappedNode.index];
 				if (startNode) {
-					console.log("triggerNode", nodeName, startNode);
-
 					//flowStore.storeFlowNode(startNode, nodeName);
 					props.flowrunnerConnector?.executeFlowNode(nodeName);
 				}
@@ -2141,13 +2176,16 @@ console.log("connectConnectionToNode", node);
 	}
 
 	const onStageMouseLeave = (event) => {
-		
 		onStageMouseEnd(event);
 
-		console.log("onStageMouseLeave");
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
-		
+		if (event.evt) {
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
+		} else {
+			event.preventDefault();
+			event.cancelBubble = true;
+		}
+
 		const lineRef = shapeRefs.current[connectionForDraggingName];
 		if (lineRef) {
 			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
@@ -2241,16 +2279,23 @@ console.log("connectConnectionToNode", node);
 			else if (is pinching using touch)
 			
 		*/
+		
+		if (interactionState.current === InteractionState.idle) {
+			return;
+		}
 
 		if (isConnectingNodesByDraggingLocal.current) {
-			//event.evt.preventDefault();
-			event.evt.cancelBubble = true;
-			//cancelDragStage();						
+			if (event.evt) {
+				event.evt.cancelBubble = true;
+			} else {
+				event.cancelBubble = true;
+			}
 
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
-					const touchPos = stageInstance.getPointerPosition();
+					
+					const touchPos = getCurrentPosition(event);
 					const scaleFactor = (stageInstance as any).scaleX();
 	
 					let newPosition = {
@@ -2278,28 +2323,15 @@ console.log("connectConnectionToNode", node);
 							stageInstance.batchDraw();
 						}					
 					} else {
-						// TODO dragging thumbs directly
-						/*
-							- line node name
-							- modify line
-							- modify thumb
-
-							- keep in mind: line can have start XOR endnode XOR none
-
-							- can be used to disconnect node that has connections(later)
-
-						*/
-
-						// connectionNodeThumbsLineNode.current
 
 						if (connectionNodeThumbs.current === "thumbstart" && connectionNodeThumbsLineNode.current) { 
 							const lineRef = shapeRefs.current[connectionNodeThumbsLineNode.current.name];
 							if (lineRef) {
-			
+								let lineEndPosition = getPosition(connectionNodeThumbsLineNode.current.name);
 								let controlPoints = calculateLineControlPoints(									
 									newPosition.x, newPosition.y,
-									connectionNodeThumbsLineNode.current.xend,
-									connectionNodeThumbsLineNode.current.yend,
+									(lineEndPosition && lineEndPosition.xend) || connectionNodeThumbsLineNode.current.xend,
+									(lineEndPosition && lineEndPosition.yend) || connectionNodeThumbsLineNode.current.yend,
 									ThumbPositionRelativeToNode.default,
 									ThumbPositionRelativeToNode.default);
 									
@@ -2307,7 +2339,9 @@ console.log("connectConnectionToNode", node);
 									newPosition.x, newPosition.y,
 									controlPoints.controlPointx1, controlPoints.controlPointy1,
 									controlPoints.controlPointx2, controlPoints.controlPointy2,
-									connectionNodeThumbsLineNode.current.xend,connectionNodeThumbsLineNode.current.yend]});
+									(lineEndPosition && lineEndPosition.xend) || connectionNodeThumbsLineNode.current.xend,
+									(lineEndPosition && lineEndPosition.yend) || connectionNodeThumbsLineNode.current.yend
+								]});
 								lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 1});
 																
 							}
@@ -2322,16 +2356,17 @@ console.log("connectConnectionToNode", node);
 						if (connectionNodeThumbs.current === "thumbend" && connectionNodeThumbsLineNode.current) { 
 							const lineRef = shapeRefs.current[connectionNodeThumbsLineNode.current.name];
 							if (lineRef) {
-			
+								let lineStartPosition = getPosition(connectionNodeThumbsLineNode.current.name);
 								let controlPoints = calculateLineControlPoints(									
-									connectionNodeThumbsLineNode.current.xstart,
-									connectionNodeThumbsLineNode.current.ystart,
+									(lineStartPosition && lineStartPosition.xstart) || connectionNodeThumbsLineNode.current.xstart,
+									(lineStartPosition && lineStartPosition.ystart) || connectionNodeThumbsLineNode.current.ystart,
 									newPosition.x, newPosition.y,
 									ThumbPositionRelativeToNode.default,
 									ThumbPositionRelativeToNode.default);
-									
+
 								lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points: [
-									connectionNodeThumbsLineNode.current.xstart,connectionNodeThumbsLineNode.current.ystart,
+									(lineStartPosition && lineStartPosition.xstart) || connectionNodeThumbsLineNode.current.xstart,
+									(lineStartPosition && lineStartPosition.ystart) || connectionNodeThumbsLineNode.current.ystart,
 									controlPoints.controlPointx1, controlPoints.controlPointy1,
 									controlPoints.controlPointx2, controlPoints.controlPointy2,
 									newPosition.x, newPosition.y
@@ -2350,6 +2385,8 @@ console.log("connectConnectionToNode", node);
 					}
 				}
 			}
+
+			cancelDragStage();
 			return;
 		}
 
@@ -2360,40 +2397,52 @@ console.log("connectConnectionToNode", node);
 		
 		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
 			
-			//console.log("touchmove stage", touchNode.current);
 			document.body.classList.add("mouse--moving");
 			document.body.style.cursor = 'pointer';
-			
+			mouseDragging.current = true;
+
 			if ((touchNode.current as any).shapeType === "Line") {
-				
+
 				let lineNode = (touchNode.current as any);
 				if (lineNode.startshapeid) {
 					const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
 					if (startNode) {	
-								
-						setNewPositionForNode(startNode, shapeRefs.current[startNode.name], event.evt.screenX ? {
-							x: event.evt.screenX,
-							y: event.evt.screenY
-						} : undefined, false, false, true);
+						setNewPositionForNode(event, startNode, shapeRefs.current[startNode.name], 
+							event.evt && event.evt.screenX ? {
+								x: event.evt.screenX ,
+								y: event.evt.screenY 
+							} : (event.screenX ? {
+								x: event.screenX ,
+								y: event.screenY 
+							} : undefined), false, false, true);
 					}
 				}
 				if (lineNode.endshapeid) {
 					const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
 					if (endNode) {
 						
-						setNewPositionForNode(endNode, 
+						setNewPositionForNode(event, endNode, 
 							shapeRefs.current[endNode.name], 
-							event.evt.screenX ? {
-							x: event.evt.screenX,
-							y: event.evt.screenY
-						} : undefined, false, false, true, false, true);
+							event.evt && event.evt.screenX ? {
+								x: event.evt.screenX,
+								y: event.evt.screenY
+							} : (event.screenX ? {
+								x: event.screenX,
+								y: event.screenY
+							} : undefined), false, false, true, false, true);
 					}
 				}
 				cancelDragStage();
 				return;
 			}
-			event.evt.preventDefault();
-			event.evt.cancelBubble = true;
+
+			if (event.evt) {
+				event.evt.preventDefault();
+				event.evt.cancelBubble = true;
+			} else {
+				event.preventDefault();
+				event.cancelBubble = true;
+			}
 			
 			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 1) {
 
@@ -2417,22 +2466,28 @@ console.log("connectConnectionToNode", node);
 							if (mappedNode) {				
 								let draggingNode = flowStore.flow[mappedNode.index];
 								if (draggingNode) {
-									//console.log("dragging node", nodeName, draggingNode);
-									setNewPositionForNode(draggingNode, shapeRefs.current[nodeName], event.evt.screenX ? {
-										x: event.evt.screenX,
-										y: event.evt.screenY
-									} : undefined, false, false, true, false, false, offsetPosition);
+									setNewPositionForNode(event, draggingNode, shapeRefs.current[nodeName], 
+										event.evt && event.evt.screenX ? {
+											x: event.evt.screenX ,
+											y: event.evt.screenY 
+										} : (event.screenX ? {
+											x: event.screenX ,
+											y: event.screenY 
+										} : undefined), false, false, true, false, false, offsetPosition);
 								}
 							}
 						})
 					}
 				}
 			} else {
-
-				setNewPositionForNode(touchNode.current, shapeRefs.current[(touchNode.current as any).name], event.evt.screenX ? {
-					x: event.evt.screenX,
-					y: event.evt.screenY
-				} : undefined, false, false, true);
+				setNewPositionForNode(event, touchNode.current, shapeRefs.current[(touchNode.current as any).name], 
+					event.evt && event.evt.screenX ? {
+						x: event.evt.screenX ,
+						y: event.evt.screenY 
+					} : (event.screenX ? {
+						x: event.screenX ,
+						y: event.screenY 
+					} : undefined), false, false, true);
 
 				if (stage && stage.current) {
 					let stageInstance = (stage.current as any).getStage();
@@ -2459,22 +2514,26 @@ console.log("connectConnectionToNode", node);
 			return false;
 		} else {
 			
-			if (isPinching.current && event.evt.touches && event.evt.touches.length > 1) {
+			if (isPinching.current && event.evt && event.evt.touches && event.evt.touches.length > 1) {
 				cancelDragStage();
-				event.evt.preventDefault();
-				event.evt.cancelBubble = true;
+				if (event.evt) {
+					event.evt.preventDefault();
+					event.evt.cancelBubble = true;
+				} else {
+					event.preventDefault();
+					event.cancelBubble = true;
+				}
 
 				/*
 					deltaY
 					toElement
 				*/
 
-				if (event.evt.touches.length == 2) {
+				if (event.evt && event.evt.touches.length == 2) {
 					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
 					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
 
 					let newDistance = Math.sqrt( x*x + y*y );
-					
 					
 					wheelEvent(
 						{
@@ -2497,6 +2556,25 @@ console.log("connectConnectionToNode", node);
 			if (stageInstance) {
 				stageInstance.stopDrag();
 			}
+		}
+	}
+
+	const getCurrentPosition = (event: any) => {
+		let x = 0;
+		let y = 0;
+		if (!event || event.evt) {
+			const stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				x = stageInstance.getPointerPosition().x;
+				y = stageInstance.getPointerPosition().y;
+			}
+		} else {
+			x = event.clientX;
+			y = event.clientY;
+		}
+		return {
+			x: x,
+			y: y
 		}
 	}
 
@@ -2523,7 +2601,7 @@ console.log("connectConnectionToNode", node);
 		cancelDragStage();	
 		
 		if (event.currentTarget) {
-			determineStartPosition(event.currentTarget);
+			determineStartPosition(event.currentTarget, getCurrentPosition(event));
 		}
 
 		return false;
@@ -2549,15 +2627,12 @@ console.log("connectConnectionToNode", node);
 		touching.current = true;
 		event.evt.preventDefault();
 		event.evt.cancelBubble = true;
-		if (event.currentTarget) {
-			if (node.shapeType !== "Line") {
-				console.log("ontouchmove", node, touchNode.current);
-				mouseDragging.current = true;
-				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.touches.length > 0 ? {
-					x: event.evt.touches[0].screenX,
-					y: event.evt.touches[0].screenY
-				} : undefined, false, false, true);
-			}
+		if (node.shapeType !== "Line") {
+			mouseDragging.current = true;
+			setNewPositionForNode(event, node, shapeRefs.current[node.name], event.evt.touches.length > 0 ? {
+				x: event.evt.touches[0].screenX,
+				y: event.evt.touches[0].screenY
+			} : undefined, false, false, true);
 		}
 		return false;
 	}
@@ -2579,7 +2654,6 @@ console.log("connectConnectionToNode", node);
 		if (touchNodeGroup.current != event.currentTarget) {
 			return false;
 		}
-console.log("ONTOUCHEND");
 		touching.current = false;
 		dragTime.current = undefined;
 		(touchNode.current as any) = undefined;
@@ -2590,12 +2664,11 @@ console.log("ONTOUCHEND");
 		
 		if (event.currentTarget) {
 			if (mouseDragging.current) {
-				setNewPositionForNode(node, shapeRefs.current[node.name], event.evt.changedTouches.length > 0 ? {
+				setNewPositionForNode(event, node, shapeRefs.current[node.name], event.evt.changedTouches.length > 0 ? {
 					x: event.evt.changedTouches[0].screenX,
 					y: event.evt.changedTouches[0].screenY
 				} : undefined, false, false, true);
 			} else {
-				console.log("selectNode ontouchend");
 				selectNode(node.name, node);
 				canvasMode.setConnectiongNodeCanvasMode(false);
 			} 
@@ -2624,13 +2697,14 @@ console.log("ONTOUCHEND");
 	}
 
 	const onMouseConnectionStartOut= (node, nodeEvent, event) => {
-		document.body.style.cursor = 'default';
+		(document.body.style.cursor as any) = null;
 	}
 
 
 	const onMouseConnectionStartStart = (node, nodeEvent, nodeEventName, 
 		followFlow: ThumbFollowFlow,
 		thumbPositionRelativeToNode : ThumbPositionRelativeToNode, event) => {
+
 		if (isConnectingNodesByDraggingLocal.current) {
 			return false;
 		}
@@ -2668,10 +2742,7 @@ console.log("ONTOUCHEND");
 		document.body.classList.add("connecting-nodes");
 
 		touchNode.current = node;
-		touchNodeGroup.current = event.currentTarget;
-
-		const x = (touchNodeGroup.current as any).attrs["x"];
-		const y = (touchNodeGroup.current as any).attrs["y"];
+		touchNodeGroup.current = event.currentTarget;		
 
 		let newPosition = {
 			x: 0,
@@ -2681,7 +2752,7 @@ console.log("ONTOUCHEND");
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stage) {
-				var touchPos = stageInstance.getPointerPosition();
+				var touchPos = getCurrentPosition(event);
 				const scaleFactor = (stageInstance as any).scaleX();
 
 				newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
@@ -2693,10 +2764,13 @@ console.log("ONTOUCHEND");
 		
 		if (node && node.shapeType === 'Line') {
 			// dragging thumb-start
-			console.log("dragging thumb-start");
 			connectionNodeThumbs.current = "thumbstart";
 			connectionNodeThumbsLineNode.current = node;
 		}
+		if (!event.evt) {
+			event.preventDefault();
+		}
+		return false;
 	}
 
 	const onMouseConnectionStartMove = (node, nodeEvent, event) => {
@@ -2706,14 +2780,15 @@ console.log("ONTOUCHEND");
 		if (node && touching.current && touchNode.current) {
 			return;
 		}
-		
-		event.evt.cancelBubble = true;		
+		if (event.evt) {
+			event.evt.cancelBubble = true;		
+		} else {
+			event.cancelBubble = true;
+		}
 	}
 
 	const onMouseConnectionStartEnd = (node, nodeEvent, thumbPositionRelativeToNode : ThumbPositionRelativeToNode , event) => {
 		
-		console.log("thumbstart onMouseConnectionStartEnd");
-
 		if (!!canvasMode.isConnectingNodes) {
 			return false;
 		}
@@ -2723,6 +2798,11 @@ console.log("ONTOUCHEND");
 	}
 
 	const onMouseConnectionEndOver = (node, nodeEvent, event, thumbPositionRelativeToNode? : ThumbPositionRelativeToNode) => {
+
+		if (interactionState.current == InteractionState.draggingConnectionEnd) {
+			return;			
+		}
+
 		if (node.notSelectable) {
 			return false;
 		}
@@ -2750,11 +2830,22 @@ console.log("ONTOUCHEND");
 	}
 
 	const onMouseConnectionEndOut = (node, nodeEvent, event) => {
-		document.body.style.cursor = 'default';
+		(document.body.style.cursor as any) = null;
 	}
 
 	const onMouseConnectionEndStart = (node, nodeEvent, event) => {
+
+		if (interactionState.current != InteractionState.idle) {
+			if (!event.evt) {
+				event.preventDefault();
+			}
+			return false;
+		}
+
 		if (!!canvasMode.isConnectingNodes) {
+			if (!event.evt) {
+				event.preventDefault();
+			}
 			return false;
 		}
 		if (node && touching.current && touchNode.current && !isConnectingNodesByDraggingLocal.current) {
@@ -2766,19 +2857,22 @@ console.log("ONTOUCHEND");
 			connectionNodeThumbsLineNode.current = node;
 			touchNode.current = node;
 			touchNodeGroup.current = event.currentTarget;
+
+			interactionState.current = InteractionState.addingNewConnection;
 		} else {
 			const mappedNode = flowStore.flowHashmap.get(node.name);
 			if (mappedNode) {
 				if (mappedNode.end.length > 0) {
 					const lineNode = flowStore.flow[mappedNode.end[0]];
+					
+					if (!lineNode) {
+						return;
+					}
+
 					connectionNodeThumbsLineNode.current = lineNode;
 					touchNode.current = lineNode;
 					touchNodeGroup.current = shapeRefs.current[lineNode.name];
 					interactionState.current = InteractionState.draggingConnectionEnd;
-					console.log("starting reconnecting line/connecion to other node...", lineNode);
-					if (!lineNode) {
-						return;
-					}
 
 				} else {
 					return;
@@ -2787,8 +2881,7 @@ console.log("ONTOUCHEND");
 				return;
 			}
 		}
-
-		interactionState.current = InteractionState.addingNewConnection;
+		
 		(isConnectingNodesByDraggingLocal.current as any) = true;
 		connectionNodeEvent.current = nodeEvent;
 		connectionNodeEventName.current = "";
@@ -2799,9 +2892,6 @@ console.log("ONTOUCHEND");
 		
 		document.body.classList.add("connecting-nodes");				
 
-		//const x = (touchNodeGroup.current as any).attrs["x"];
-		//const y = (touchNodeGroup.current as any).attrs["y"];
-
 		let newPosition = {
 			x: 0,
 			y: 0
@@ -2810,7 +2900,7 @@ console.log("ONTOUCHEND");
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stage) {
-				var touchPos = stageInstance.getPointerPosition();
+				var touchPos = getCurrentPosition(event);
 				const scaleFactor = (stageInstance as any).scaleX();
 
 				newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
@@ -2821,10 +2911,18 @@ console.log("ONTOUCHEND");
 		}
 
 		connectionNodeThumbs.current = "thumbend";
+
+		if (!event.evt) {
+			event.preventDefault();
+		}
+		return false;
 	}
 
 	const onMouseConnectionEndMove = (node, nodeEvent, event) => {
-		if (!!canvasMode.isConnectingNodes) {
+		if (!!canvasMode.isConnectingNodes) {			
+			if (!event.evt) {
+				event.preventDefault();
+			}
 			return false;
 		}
 		if (node && touching.current && touchNode.current && !isConnectingNodesByDraggingLocal.current) {
@@ -2833,22 +2931,20 @@ console.log("ONTOUCHEND");
 	}
 
 	const onMouseConnectionEndEnd = (node, nodeEvent,event, thumbPositionRelativeToNode?) => {
-		console.log("onMouseConnectionEndEnd",canvasMode.isConnectingNodes,isConnectingNodesByDraggingLocal.current,node,touchNode.current);
 		if (!!canvasMode.isConnectingNodes) {
+			if (!event.evt) {
+				event.preventDefault();
+			}
 			return false;
 		}
 		if (node && touching.current && touchNode.current && !isConnectingNodesByDraggingLocal.current) {
 			return;
 		}
-		/*
-			const closestEndConnectionNode = closestEndNodeWhenAddingNewNode.current as any;
-			closestEndConnectionNode.startshapeid = newNode.name;
-			flowStore.storeFlowNode(closestEndConnectionNode,closestEndConnectionNode.name);
-
-		*/
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
 			if (connectionNodeThumbsLineNode.current) {
-				connectionNodeThumbsLineNode.current.endshapeid = node.name;
+				let clonedNode = {...connectionNodeThumbsLineNode.current};
+				clonedNode.endshapeid = node.name;
+				connectionNodeThumbsLineNode.current = clonedNode;
 				return;
 			}
 			connectConnectionToNode(node, thumbPositionRelativeToNode);
@@ -2878,7 +2974,7 @@ console.log("ONTOUCHEND");
 			draggingWhileTouching.current = true;
 			return false;
 		}
-		setNewPositionForNode(node, shapeRefs.current[node.name], false, false, true);		
+		setNewPositionForNode(event, node, shapeRefs.current[node.name], false, false, true);		
 	}
 
 	const onDragEnd = (node, event) => {
@@ -2888,7 +2984,7 @@ console.log("ONTOUCHEND");
 		}
 
 		dragTime.current = undefined;
-		setNewPositionForNode(node, shapeRefs.current[node.name]);
+		setNewPositionForNode(event, node, shapeRefs.current[node.name]);
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			stageInstance.batchDraw();
@@ -2905,9 +3001,12 @@ console.log("ONTOUCHEND");
 	}
 
 	const onClickShape = (node, event) => {
-		console.log("onClickShape", node);
 		event.cancelBubble = true;
-		event.evt.preventDefault();
+		if (event.evt) {
+			event.evt.preventDefault();
+		} else {
+			event.preventDefault();
+		}
 		cancelDragStage();
 
 		if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
@@ -2933,7 +3032,6 @@ console.log("ONTOUCHEND");
 		}
 
 		selectNode(node.name, node);
-		console.log("onClickShape after selectNode", node);
 		if (canvasMode.isConnectingNodes) {
 			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
@@ -2941,8 +3039,6 @@ console.log("ONTOUCHEND");
 	}
 
 	const onClickLine = (node, event) => {		
-		console.log("onClickLine", node);
-
 		event.cancelBubble = true;
 		event.evt.preventDefault();
 		cancelDragStage();
@@ -2965,6 +3061,9 @@ console.log("ONTOUCHEND");
 			return false;
 		}
 
+		if (interactionState.current !== InteractionState.idle) {
+			return false;
+		}
 
 		if (touching.current || draggingWhileTouching.current) {
 			if (event.target && event.target.stopDrag) {
@@ -3000,6 +3099,10 @@ console.log("ONTOUCHEND");
 		}
 
 		if (!!canvasMode.isConnectingNodes) {			
+			return false;
+		}
+
+		if (interactionState.current !== InteractionState.idle) {
 			return false;
 		}
 
@@ -3058,8 +3161,6 @@ console.log("ONTOUCHEND");
 		});
 
 		// see also recalculateStartEndpoints
-
-		//console.log("setHtmlElementsPositionAndScale performance", performance.now() - startPerf);
 		setHtmlGlobalScale(stageX, stageY, stageScale);
 	}, [flowStore.flow]);
 
@@ -3142,8 +3243,6 @@ console.log("ONTOUCHEND");
 								if (elementWidth > width) {
 									width = elementWidth;
 								}
-
-								//console.log("shape size", shape.name, elementWidth, elementHeight);
 							}
 
 							// subWidth needed here ... html nodes start at x-width/2
@@ -3273,9 +3372,6 @@ console.log("ONTOUCHEND");
 							setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
 						}
 						setCanvasOpacity(1);
-						console.log("fitStage position", newPos.x, newPos.y, scale);
-						console.log("fitStage flowWidth flowHeight xMin yMin stageWidth stageHeight", flowWidth, flowHeight, xMin, yMin, stageWidth, stageHeight);
-
 
 						let stopAnimation = false;
 
@@ -3300,7 +3396,6 @@ console.log("ONTOUCHEND");
 							if (canvas) {
 								canvas.requestPointerLock();
 							}
-							console.log("ANIMATION", animationScript.current);
 							let stageInstance = (stage.current as any).getStage();
 							if (animationScript.current) {
 								let nodesToAnimate = animationScript.current.nodes;
@@ -3345,7 +3440,6 @@ console.log("ONTOUCHEND");
 										let zoom = animationScript.current.zoom;
 										//let offsetX = newPos.x;//stageX.current;
 										//let offsetY = newPos.y;//stageY.current;
-				console.log("ANIMATION STEP", position.x * stageScale.current, position.y * stageScale.current);
 										const triggerAnimation = () => {
 											let isDrawing = false;
 											newPos.x = offsetX + (-position.x*scale) + (stageWidth)/2 - (150*scale);
@@ -3380,7 +3474,6 @@ console.log("ONTOUCHEND");
 															position = getPosition(nodesToAnimate[animationScript.current.loop]);
 															if (position) {
 
-																console.log(`ANIMATION STEP ${animationScript.current.loop}`, position.x * stageScale.current, position.y * stageScale.current);
 																triggerAnimation();
 															}
 														} else {
@@ -3401,15 +3494,7 @@ console.log("ONTOUCHEND");
 										}
 										triggerAnimation();
 									}
-								}
-				/*
-								circle.to({
-				x : 50,
-				duration : 0.5,
-				onUpdate: () => console.log('props updated'),
-				onFinish: () => console.log('finished'),
-				});
-				*/
+								}				
 							}
 						}
 					}
@@ -3452,7 +3537,6 @@ console.log("ONTOUCHEND");
 	}, [canvasMode.snapToGrid]);
 
 	const clickStage = (event) => {
-		console.log("clickStage");
 		if (isConnectingNodesByDraggingLocal.current) {
 			event.evt.preventDefault();
 
@@ -3593,7 +3677,6 @@ console.log("ONTOUCHEND");
 			}
 		}
 		// TODO : do we need to select the added node or dont? (see also the flow-actions)
-		console.log("selectNode clickStage");
 		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
@@ -3811,7 +3894,6 @@ console.log("ONTOUCHEND");
 			//event.target.appendChild(document.getElementById(data));
 
 			const nodeIsSelected : boolean = !!selectedNodeRef.current;	
-			console.log("selectNode addTaskToCanvas");
 			selectNode("", undefined);
 			canvasMode.setConnectiongNodeCanvasMode(false);
 
@@ -3852,7 +3934,6 @@ console.log("ONTOUCHEND");
 								const left = Math.round((rect.left + rect.right)/2);
 								let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
 								if (result && result.getWidth) {
-									//console.log("addTaskToCanvas", result.getWidth(newNode)/2);
 									newNode.x = (left - (_stage).x()) / scaleFactor;
 									newNode.y = (rect.top - (_stage).y()) / scaleFactor;
 									newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
@@ -4259,8 +4340,6 @@ console.log("ONTOUCHEND");
 								connectionForDraggingRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 							}
 
-							console.log("closestEndNode", closestEndNode.name);
-
 							stageInstance.batchDraw();
 						}						
 					}
@@ -4314,7 +4393,6 @@ console.log("ONTOUCHEND");
 							if (connectionForDraggingRef) {
 								connectionForDraggingRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 							}
-							console.log("closestStartNode", closestStartNode.name);
 
 							stageInstance.batchDraw();
 						}							
@@ -4445,8 +4523,6 @@ console.log("ONTOUCHEND");
 			return;
 		}
 		
-		//console.log("oninput", event);
-
 		if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
 			if (selectedNodeRef.current) {
 				event.preventDefault();
@@ -4582,7 +4658,9 @@ console.log("ONTOUCHEND");
 					onInput={onInput}
 					onKeyDown={onInput}
 					onKeyUp={onKeyUp}	
-					onWheel={wheelEvent}																
+					onWheel={wheelEvent}			
+					
+					onMouseLeave={onStageMouseLeave}
 					>
 					<ErrorBoundary>
 					<div ref={setNodeRef} style={droppableStyle}>
@@ -4599,7 +4677,7 @@ console.log("ONTOUCHEND");
 							onTouchMove={onStageTouchMove}
 							onMouseMove={onStageTouchMove}
 							onTouchEnd={onStageMouseEnd}
-							onMouseLeave={onStageMouseLeave}
+							
 							onMouseUp={onStageMouseEnd}
 							onTap={clickStage}
 							className="stage-container">
@@ -4869,7 +4947,11 @@ console.log("ONTOUCHEND");
 						style={{transform: 
 							"translate(" + (stageX ) + "px," + (stageY) + "px) "+
 							"scale(" + (stageScale) + "," + (stageScale) + ") "}}
-						className="canvas__html-elements">
+						className="canvas__html-elements"
+						onMouseMove={onStageTouchMove}
+						onMouseUp={onStageMouseEnd}
+						
+						>
 						
 						{flowMemo.map((node, index) => {
 							return <HtmlNode
@@ -4889,6 +4971,27 @@ console.log("ONTOUCHEND");
 								flowId={flowStore.flowId}
 								flowMemo={flowMemo}
 								formNodesubject={props.formNodesubject}
+								onMouseStart={onMouseStart}
+								onMouseOver={onMouseOver}
+								onMouseOut={onMouseOut}
+								onClickShape={onClickShape}
+								onTouchStart={onTouchStart}
+								onMouseEnd={onMouseEnd}
+								onMouseMove={onMouseMove}
+								onMouseLeave={onMouseLeave}
+
+								onMouseConnectionStartOver={onMouseConnectionStartOver}
+								onMouseConnectionStartOut={onMouseConnectionStartOut}
+								onMouseConnectionStartStart={onMouseConnectionStartStart}
+								onMouseConnectionStartMove={onMouseConnectionStartMove}
+								onMouseConnectionStartEnd={onMouseConnectionStartEnd}
+
+								onMouseConnectionEndOver={onMouseConnectionEndOver}
+								onMouseConnectionEndOut={onMouseConnectionEndOut}
+								onMouseConnectionEndStart={onMouseConnectionEndStart}
+								onMouseConnectionEndMove={onMouseConnectionEndMove}
+								onMouseConnectionEndEnd={onMouseConnectionEndEnd}
+								onMouseConnectionEndLeave={onMouseConnectionEndLeave}
 							></HtmlNode>;												
 							})
 						}

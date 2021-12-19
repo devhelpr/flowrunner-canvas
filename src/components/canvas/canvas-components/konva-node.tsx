@@ -72,6 +72,9 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 	const flowStore = useFlowStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 
+	if (shapeType === "Html") {
+		return null;
+	}
 	const Shape = Shapes[shapeType];
 	let position = getPosition(props.node.name);
 	if (!position) {

@@ -128,8 +128,12 @@ img {
 	position: relative;
 	z-index: 1;
 	height: 100%;
-}
 
+}
+.dummy {
+	height: calc(100% - 70px);
+    top: 70px;
+}
 
 .canvas__html-elements {
 	position: absolute;
@@ -153,6 +157,7 @@ img {
 	position: absolute;
 	border-radius: 10px;
 	transform-origin: top left;
+	height: auto;
 }
 
 .canvas__html-shape.composite-hint {
@@ -168,7 +173,7 @@ img {
     right: 0px;
     top: 44px;
 	z-index: 2;
-	pointer-events: none;
+	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
@@ -179,9 +184,9 @@ img {
 	
 	width: 16px;
     height: 16px;
-	border-radius: 50%;
+	border-radius: 3px;
 	right: -8px;
-	border: 2px #000000 solid;
+	border: 2px #ffffff solid;
 	background: #ffffff;
 }
 .canvas__html-shape-thumb-start::before {
@@ -192,7 +197,7 @@ img {
 	
 	width: 20px;
     height: 20px;
-	border-radius: 50%;
+	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
 	background: transparent;
@@ -204,9 +209,9 @@ img {
     background: transparent;
     position: absolute;
     left: calc(50% - 8px);
-    bottom: 0;
+    bottom: -14px;
 	z-index: 2;
-	pointer-events: none;
+	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
@@ -217,8 +222,8 @@ img {
 	
 	width: 16px;
     height: 16px;
-	border-radius: 50%;
-	border: 2px #000000 solid;
+	border-radius: 3px;
+	border: 2px #ffffff solid;
 	background: #ffffff;
 }
 .canvas__html-shape-thumb-startbottom::before {
@@ -229,7 +234,7 @@ img {
 	
 	width: 20px;
     height: 20px;
-	border-radius: 50%;
+	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
 	background: transparent;
@@ -243,7 +248,7 @@ img {
 	left: 0px;
     top: 44px;
 	z-index: 2;
-	pointer-events: none;
+	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
@@ -255,8 +260,8 @@ img {
 	width: 16px;
 	height: 16px;
 	left: -8px;
-	border-radius: 50%;
-	border: 2px #000000 solid;
+	border-radius: 3px;
+	border: 2px #ffffff solid;
 	background: #ffffff;
 }
 
@@ -268,7 +273,7 @@ img {
 	
 	width: 20px;
     height: 20px;
-	border-radius: 50%;
+	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
 	background: transparent;
@@ -281,9 +286,9 @@ img {
     background: transparent;
     position: absolute;
 	left: calc(50% - 8px);
-    top: -8px;
+    top: -14px;
 	z-index: 2;
-	pointer-events: none;
+	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
@@ -294,8 +299,8 @@ img {
 	
 	width: 16px;
 	height: 16px;
-	border-radius: 50%;
-	border: 2px #000000 solid;
+	border-radius: 3px;
+	border: 2px #ffffff solid;
 	background: #ffffff;
 }
 
@@ -307,7 +312,7 @@ img {
 	
 	width: 20px;
     height: 20px;
-	border-radius: 50%;
+	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
 	background: transparent;
@@ -381,7 +386,9 @@ img {
 
 	transition: filter 0.15s ease-in-out, background-color 0.15s ease-in-out;
 	border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px
+    border-bottom-left-radius: 8px;
+
+	user-select: none;
 }
 
 .html-plugin-node__visibility {
@@ -426,7 +433,7 @@ img {
 
 .canvas__html-shape-bar {
 	position: relative;
-	pointer-events: none;
+	pointer-events: auto;
 	height: 26px;
 	min-height: 26px;
 	display: flex;
@@ -436,6 +443,12 @@ img {
 	background: #c2c2c2;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;	
+	user-select: none;
+	cursor: pointer;
+}
+
+._mouse--moving .canvas__html-shape-bar {
+	pointer-events: none;
 }
 
 .canvas__html-shape-bar-title {
@@ -452,7 +465,7 @@ img {
 	pointer-events: auto;
 }
 
-.mouse--moving .canvas__html-shape-bar-icon {
+._mouse--moving .canvas__html-shape-bar-icon {
 	pointer-events: none;
 }
 
@@ -474,7 +487,7 @@ img {
 
 .canvas__html-shape-body {
 	position: relative;
-	pointer-events: none;
+	pointer-events: auto;
 	min-height: 100%;
 	height: auto;
 	width: 100%;
@@ -486,7 +499,7 @@ img {
     align-items: center;
 }
 
-.connecting-nodes .canvas__html-shape-body {
+._connecting-nodes .canvas__html-shape-body {
 	pointer-events: none;
 }
 
@@ -500,9 +513,9 @@ img {
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
-	align-items: flex-start;
+	/*align-items: flex-start;*/
 	overflow: visible;
-	background: transparent;
+	/*background: transparent;*/
 }
 
 [data-html-plugin="dataGridNode"] .html-plugin-node,
@@ -522,7 +535,7 @@ img {
 	justify-content: flex-start;
 }
 
-.mouse--moving .canvas__html-shape-body {
+._mouse--moving .canvas__html-shape-body {
 	pointer-events: none;
 }
 
@@ -533,6 +546,9 @@ img {
 .html-plugin-node > div {
 	height: 100%;
 	pointer-events: auto;
+}
+._mouse--moving .html-plugin-node > div {
+	pointer-events: none;
 }
 
 
@@ -571,19 +587,24 @@ img {
 	height: auto;
 }
 
-.connecting-nodes .html-plugin-node > div {
+.connecting-nodes .canvas__html-shape-body {
+	cursor: pointer;
+}
+
+
+._connecting-nodes .html-plugin-node > div {
 	pointer-events: none;
 }
 
-.mouse--moving .html-plugin-node > div {
+._mouse--moving .html-plugin-node > div {
 	pointer-events: none;
 }
 
-.connecting-nodes .html-plugin-node .form {
+._connecting-nodes .html-plugin-node .form {
 	pointer-events: none;
 }
 
-.mouse--moving .html-plugin-node .form {
+._mouse--moving .html-plugin-node .form {
 	pointer-events: none;
 }
 

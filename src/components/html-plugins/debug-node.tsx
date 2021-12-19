@@ -258,7 +258,7 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 			delete (payload as any).debugId;
 		}
 		//console.log("debugtask" , props.node, payload, state);
-		visualizer = <>{payload ? JSON.stringify(payload, null, 2) : ""}</>;
+		visualizer = <div className="w-100 h-auto">{payload ? JSON.stringify(payload, null, 2) : ""}</div>;
 	}
 	return <>
 		{!visible && expressionTree && 

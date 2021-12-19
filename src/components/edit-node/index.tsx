@@ -134,7 +134,7 @@ export const EditNodePopup = (props: EditNodeProps) => {
 	}
 	
 	return <div className="edit-node-settings edit-node-popup" ref={ref => ((containerRef as any).current = ref)}>
-		<Modal show={true} centered size="lg" container={containerRef.current}>
+		<Modal show={true} centered size="xl" container={containerRef.current}>
 			<Modal.Header>
 				<Modal.Title>Edit {props.node.name}</Modal.Title>
 			</Modal.Header>

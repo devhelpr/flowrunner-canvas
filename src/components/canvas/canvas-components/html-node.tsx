@@ -9,6 +9,7 @@ import { getPosition } from '../../../services/position-service';
 import { useSelectedNodeStore} from '../../../state/selected-node-state';
 import { useFlowStore} from '../../../state/flow-state';
 import { Subject } from 'rxjs';
+import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
 
 export interface IHtmlNodeProps {
 	hasTaskNameAsNodeTitle?: boolean;
@@ -25,6 +26,29 @@ export interface IHtmlNodeProps {
 	flowMemo: any;
 	onShowNodeEditor: any;
 	formNodesubject?: Subject<any>;
+
+	onMouseStart: any;
+	onMouseOver: any;
+	onMouseOut: any;
+	onTouchStart: any;
+	onMouseEnd: any;
+	onMouseMove: any;
+	onMouseLeave: any;
+	onClickShape: any;
+
+	onMouseConnectionStartOver: any;
+	onMouseConnectionStartOut: any;
+	onMouseConnectionStartStart: any;
+	onMouseConnectionStartMove: any;
+	onMouseConnectionStartEnd: any;
+
+	onMouseConnectionEndOver : any;
+	onMouseConnectionEndOut: any;
+	onMouseConnectionEndStart: any;
+	onMouseConnectionEndMove: any;
+	onMouseConnectionEndEnd: any;
+	onMouseConnectionEndLeave: any;
+
 }
 
 export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
@@ -65,15 +89,16 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		if (!htmlPlugin || htmlPlugin == "") {
 			htmlPlugin = (settings as any).htmlPlugin;
 		}
+// onClick={(event) => props.onClickShape(props.node, event)}
 
-
+// height: (height || props.node.height || 250) + "px",
 		return <div
 			style={{transform: "translate(" + (position.x) + "px," + 
 					( (position.y) ) + "px) " +
 					"scale(" + (1) + "," + (1) + ") ",
 					width: (width || props.node.width || 250) + "px",
 					minHeight: (height || props.node.height || 250) + "px",
-					height: (height || props.node.height || 250) + "px",
+					
 					top: "0px",
 					left: "0px",
 					opacity: (!props.canvasHasSelectedNode) ? 1 : 1 //0.5 										 
@@ -86,14 +111,28 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 			data-x={position.x} 
 			data-y={position.y}
 			data-height={(height || props.node.height || 250)}
-			ref={ref as React.LegacyRef<HTMLDivElement>}									 
+			ref={ref as React.LegacyRef<HTMLDivElement>}
+												 
 			className={"canvas__html-shape canvas__html-shape-" + props.node.name + nodeState + 
 				(settings.background ? " " + settings.background : "") + 
 				(isSelected ? " canvas__html-shap--selected" :"") + " " +
 				(FlowToCanvas.getHasOutputs(shapeType, settings) ? "" : "canvas__html-shape--no-outputs") + " " +
 				(FlowToCanvas.getHasInputs(shapeType, settings) ? "" : "canvas__html-shape--no-inputs")
-				}>
-				<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}>
+				}
+				onMouseUp={(event) => props.onMouseEnd(props.node, event)}
+				>
+				<div className={"canvas__html-shape-bar " + (isSelected ? "canvas__html-shape-bar--selected" :"")}
+					onMouseOver={(event) => props.onMouseOver(props.node, event)}
+					onMouseOut={props.onMouseOut}
+					onTouchStart={(event) => props.onTouchStart(props.node, event)}
+					onTouchEnd={(event) => props.onMouseEnd( props.node, event)}
+					onTouchMove={(event) => props.onMouseMove(props.node, event)}
+					onMouseDown={(event) => props.onMouseStart(props.node, event)}
+					onMouseMove={(event) => props.onMouseMove(props.node, event)}
+					onMouseUp={(event) => props.onMouseEnd(props.node, event)}
+					onMouseLeave={(event) => props.onMouseLeave(props.node, event)}	
+					onClick={(event) => props.onClickShape(props.node, event)}			
+				>
 					<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}
 					<span>{!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.label ? props.node.label : props.node.name}</span></span>
 					<a href="#" onClick={(event) => props.onCloneNode(props.node, event)}
@@ -110,10 +149,37 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 				</div>
 				<div className="canvas__html-shape-body">
 				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId)}</div>
-				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}></div>
-				<div className={"canvas__html-shape-thumb-startbottom"}></div>
-				<div className={"canvas__html-shape-thumb-endtop"}></div>
-				<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}></div>
+				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}
+					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}
+					onMouseOut={(event) => props.onMouseConnectionStartOut(props.node,false,event)}
+					onMouseDown={(event) => props.onMouseConnectionStartStart(props.node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.default,event)}
+					onMouseMove={(event) => props.onMouseConnectionStartMove(props.node,false,event)}
+					onMouseUp={(event) => props.onMouseConnectionStartEnd(props.node,false,ThumbPositionRelativeToNode.default,event)}				
+				></div>
+				<div className={"canvas__html-shape-thumb-startbottom"}
+					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}
+					onMouseOut={(event) => props.onMouseConnectionStartOut(props.node,false,event)}
+					onMouseDown={(event) => props.onMouseConnectionStartStart(props.node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.bottom,event)}
+					onMouseMove={(event) => props.onMouseConnectionStartMove(props.node,false,event)}
+					onMouseUp={(event) => props.onMouseConnectionStartEnd(props.node,false,ThumbPositionRelativeToNode.default,event)}		
+				></div>
+				<div className={"canvas__html-shape-thumb-endtop"}
+					onMouseOver={(event) => props.onMouseConnectionEndOver(props.node,false,event,ThumbPositionRelativeToNode.top)}
+					onMouseOut={(event) => props.onMouseConnectionEndOut(props.node,false,event)}
+					onMouseDown={(event) => props.onMouseConnectionEndStart(props.node,false,event)}
+					onMouseMove={(event) => props.onMouseConnectionEndMove(props.node,false,event)}
+					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event,ThumbPositionRelativeToNode.top)}
+					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}
+				
+				></div>
+				<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}
+					onMouseOver={(event) => props.onMouseConnectionEndOver(props.node,false,event)}
+					onMouseOut={(event) => props.onMouseConnectionEndOut(props.node,false,event)}
+					onMouseDown={(event) => props.onMouseConnectionEndStart(props.node,false,event)}
+					onMouseMove={(event) => props.onMouseConnectionEndMove(props.node,false,event)}
+					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event)}
+					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}				
+				></div>
 				{settings.events && settings.events.map((event ,eventIndex) => {
 					return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + props.node.name + (props.flowId || "") + "-" + eventIndex}></div>
 				})}

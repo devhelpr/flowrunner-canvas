@@ -86,7 +86,7 @@ export const Toolbar = (props: ToolbarProps) => {
 	const [flowFiles, setFlowFiles]	= useState([] as any[]);
 	const [selectedFlow, setSelectedFlow]	= useState("");
 	const [showTaskHelp, setShowTaskHelp]	= useState(false);
-	const [snapToGrid, setSnapToGrid] = useState(true);
+	const [snapToGrid, setSnapToGrid] = useState(false);
 
 	const flow = useFlowStore();
 	const canvasMode = useCanvasModeStateStore();

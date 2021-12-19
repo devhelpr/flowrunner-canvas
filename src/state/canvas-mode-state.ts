@@ -50,7 +50,7 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
     currentPopup: PopupEnum.none,
     onPresetName: undefined,
     flowsUpdateId: '',
-    snapToGrid: true,
+    snapToGrid: false,
     setConnectiongNodeCanvasMode: (isConnectingNodes: boolean) =>
       set(state => ({
         isConnectingNodes: isConnectingNodes,
