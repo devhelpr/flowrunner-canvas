@@ -29,10 +29,12 @@ import { SelectValueFromListTask } from '../flowrunner-plugins/select-value-from
 
 import { PrototypeTask } from '../flowrunner-plugins/prototype-task';
 import { ScriptTask } from '../flowrunner-plugins/script-task';
+import { WhileTask } from '../flowrunner-plugins/while-task';
 
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);
+  flow.registerTask('WhileTask', WhileTask);
   flow.registerTask('MatrixTask', MatrixTask);
   flow.registerTask('GridEditTask', GridEditTask);
   flow.registerTask('DataGridTask', DataGridTask);

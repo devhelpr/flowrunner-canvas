@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { useImperativeHandle , useRef, useMemo} from 'react';
 
-import { Group, Text, RegularPolygon, Image as KonvaImage } from 'react-konva';
+import { Group, Text, Shape as KonvaShape, RegularPolygon, 
+	Image as KonvaImage,
+	Arrow as KonvaArrow,
+	Circle as KonvaCircle,
+} from 'react-konva';
 
 import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
 import { ShapeMeasures } from '../../../helpers/shape-measures';
@@ -15,7 +19,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 	const [image] = useImage("/svg/cog.svg");
 	const groupRef = useRef(null as any);
 	const regularPolygonRef = useRef(null as any);
-
+	const shapeRef = useRef(null as any);	
 	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
 		[props.taskType, props.node]);
 
@@ -48,10 +52,14 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 				case ModifyShapeEnum.SetOpacity : {
 					if (groupRef && groupRef.current && parameters) {
 						groupRef.current.opacity(parameters.opacity);
-						regularPolygonRef.current.to({
-							duration: 0.05,
-							opacity:parameters.opacity
-						});					
+						if (settings.subShapeType === "Loop") {
+
+						} else {
+							regularPolygonRef.current.to({
+								duration: 0.05,
+								opacity:parameters.opacity
+							});			
+						}		
 					}
 					break;
 				}
@@ -59,43 +67,48 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 					break;
 				}
 				case ModifyShapeEnum.SetState : {
-					if (regularPolygonRef && regularPolygonRef.current && parameters) {
-						if (parameters.state == ShapeStateEnum.Selected) {
-							regularPolygonRef.current.to({
-								duration: 0.15,
-								stroke:settings.strokeColor,
-								fill:settings.fillSelectedColor
-							});
-						} else
-						if (parameters.state == ShapeStateEnum.Default) {
-							//regularPolygonRef.current.stroke(settings.strokeColor);
-							//regularPolygonRef.current.fill(settings.fillColor);
-							regularPolygonRef.current.to({
-								duration: 0.15,
-								stroke:settings.strokeColor,
-								fill:settings.fillColor
-							});
-						} else
-						if (parameters.state == ShapeStateEnum.Error) {
-							//regularPolygonRef.current.stroke("#f00000");
-							//regularPolygonRef.current.fill("#ff9d9d");
-							regularPolygonRef.current.to({
-								duration: 0.15,
-								stroke:"#f00000",
-								fill:"#ff9d9d"
-							});
-						} else
-						if (parameters.state == ShapeStateEnum.Ok) {
-							//regularPolygonRef.current.stroke("#00e000");
-							//regularPolygonRef.current.fill("#9dff9d");
-							regularPolygonRef.current.to({
-								duration: 0.15,
-								stroke:"#00e000",
-								fill:"#9dff9d"
-							});							
-						}						
+
+					if (settings.subShapeType === "Loop") {
+
+					} else {
+
+						if (regularPolygonRef && regularPolygonRef.current && parameters) {
+							if (parameters.state == ShapeStateEnum.Selected) {
+								regularPolygonRef.current.to({
+									duration: 0.15,
+									stroke:settings.strokeColor,
+									fill:settings.fillSelectedColor
+								});
+							} else
+							if (parameters.state == ShapeStateEnum.Default) {
+								//regularPolygonRef.current.stroke(settings.strokeColor);
+								//regularPolygonRef.current.fill(settings.fillColor);
+								regularPolygonRef.current.to({
+									duration: 0.15,
+									stroke:settings.strokeColor,
+									fill:settings.fillColor
+								});
+							} else
+							if (parameters.state == ShapeStateEnum.Error) {
+								//regularPolygonRef.current.stroke("#f00000");
+								//regularPolygonRef.current.fill("#ff9d9d");
+								regularPolygonRef.current.to({
+									duration: 0.15,
+									stroke:"#f00000",
+									fill:"#ff9d9d"
+								});
+							} else
+							if (parameters.state == ShapeStateEnum.Ok) {
+								//regularPolygonRef.current.stroke("#00e000");
+								//regularPolygonRef.current.fill("#9dff9d");
+								regularPolygonRef.current.to({
+									duration: 0.15,
+									stroke:"#00e000",
+									fill:"#9dff9d"
+								});							
+							}						
+						}
 					}
-					
 					break;
 				}
 				default:
@@ -124,6 +137,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 		strokeColor = props.isSelected ? "#00f000" : "#00e000";
 		fillColor = props.isSelected ? "#54ff54" : "#9dff9d";
 	}
+
 	
 	return <>
 		<Group
@@ -145,22 +159,84 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 			onMouseUp={props.onMouseEnd}
 			onMouseLeave={props.onMouseLeave}
 			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
-			>
-			<RegularPolygon 
-				x={ShapeMeasures.diamondSize/2}
-				y={ShapeMeasures.diamondSize/2}
-				stroke={strokeColor}
-				strokeWidth={4}
-				cornerRadius={4}
-				sides={4}
-				transformsEnabled={"position"}
-				ref={regularPolygonRef}
-				radius={ShapeMeasures.diamondSize}
-				width={ShapeMeasures.diamondSize}
-				height={ShapeMeasures.diamondSize}
-				fill={fillColor}  
-				perfectDrawEnabled={false}>
-			</RegularPolygon>
+			><>{
+				settings.subShapeType === "Loop" ? <>
+					<KonvaShape
+						x={ShapeMeasures.diamondSize/2}
+						y={ShapeMeasures.diamondSize/2}
+						width={ShapeMeasures.diamondSize}
+						height={ShapeMeasures.diamondSize}
+						stroke={strokeColor}
+						strokeWidth={4}
+						ref={shapeRef}
+						transformsEnabled={"position"}
+						sceneFunc={(context, shape) => {
+							context.beginPath();
+							(context as any).lineWidth = 3;
+							context.arc(
+								0, 							
+								0, 
+								ShapeMeasures.diamondSize/2, 
+								1.5 * Math.PI, 
+								0.95 * Math.PI,
+								false);
+							context.stroke();
+						}}
+					></KonvaShape>
+					<KonvaCircle 
+						x={ShapeMeasures.diamondSize/2}
+						y={ShapeMeasures.diamondSize/2}
+						radius={ShapeMeasures.diamondSize}
+						stroke={settings.strokeColor}
+						strokeWidth={4}
+						opacity={0}
+						width={ShapeMeasures.diamondSize}
+						height={ShapeMeasures.diamondSize}
+						fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor} 
+						transformsEnabled={"position"}
+						perfectDrawEnabled={false}>
+					</KonvaCircle>
+					<KonvaArrow
+						x={0.25}
+						y={12+(ShapeMeasures.diamondSize/2)}
+						points={[
+							0.5, 
+							0,
+							0, 
+							-4
+						]}
+						stroke={"#000000"} 
+						strokeWidth={1}
+						pointerLength={10}
+						pointerWidth={10}
+						lineCap="round"
+						lineJoin="round"
+						opacity={1}
+						transformsEnabled={"position"}
+						fill={"#000000"} 
+						perfectDrawEnabled={false}
+						hitStrokeWidth={0}
+						noMouseEvents={true}
+						shadowForStrokeEnabled={false}
+					></KonvaArrow>
+				</> :			
+				<RegularPolygon 
+					x={ShapeMeasures.diamondSize/2}
+					y={ShapeMeasures.diamondSize/2}
+					stroke={strokeColor}
+					strokeWidth={4}
+					cornerRadius={4}
+					sides={4}
+					transformsEnabled={"position"}
+					ref={regularPolygonRef}
+					radius={ShapeMeasures.diamondSize}
+					width={ShapeMeasures.diamondSize}
+					height={ShapeMeasures.diamondSize}
+					fill={fillColor}  
+					perfectDrawEnabled={false}>
+				</RegularPolygon>
+				}
+			</>
 			<Text
 				x={10}
 				y={0}

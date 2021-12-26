@@ -132,6 +132,7 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"ObservableTask", fullName: "ObservableTask", flowType: "playground"});
 				tasks.push({className:"TraceConsoleTask", fullName: "TraceConsoleTask", flowType: "playground"});
 				tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "playground"});
+				tasks.push({className:"WhileTask", fullName: "WhileTask", flowType: "playground"});
 				tasks.push({className:"FunctionCallTask", fullName: "FunctionCallTask", flowType: "playground"});
 				tasks.push({className:"FunctionInputTask", fullName: "FunctionInputTask", flowType: "playground"});
 				tasks.push({className:"FunctionOutputTask", fullName: "FunctionOutputTask", flowType: "playground"});
