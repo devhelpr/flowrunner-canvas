@@ -117,7 +117,7 @@ const taskTypeConfig: any = {
   },
   WhileTask: {
     shapeType: 'Diamond',
-    subShapeType: "Loop",
+    subShapeType: 'Loop',
     altThumbPositions: 1,
     presetValues: {
       compareProperty: '',
