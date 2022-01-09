@@ -902,8 +902,8 @@ const taskTypeConfig: any = {
       metaInfo: [],
     },
     configMenu: {
-      fields: []
-    }
+      fields: [],
+    },
   },
   FormTask: {
     hasUI: true,

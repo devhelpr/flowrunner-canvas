@@ -30,7 +30,7 @@ import { SelectValueFromListTask } from '../flowrunner-plugins/select-value-from
 import { PrototypeTask } from '../flowrunner-plugins/prototype-task';
 import { ScriptTask } from '../flowrunner-plugins/script-task';
 import { WhileTask } from '../flowrunner-plugins/while-task';
-import {SvgTestTask} from '../flowrunner-plugins/svg-test-task';
+import { SvgTestTask } from '../flowrunner-plugins/svg-test-task';
 
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
