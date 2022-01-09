@@ -26,7 +26,15 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 	if (!htmlPlugin || htmlPlugin == "") {
 		htmlPlugin = taskSettings.htmlPlugin;
 	}
-
+	if (htmlPlugin == "svgTestNode") {
+		return <>
+			<svg>
+				<circle cx="50%" cy="50%" r="30%" stroke="black" strokeWidth="3" 
+					fill="red" />
+				<text x="50%" y="50%" fill="black" textAnchor="middle" dominantBaseline="middle">SVG!</text>
+			</svg>
+		</>;
+	} else
 	if (htmlPlugin == "iframe") {
 		return <iframe width={node.width || 250}
 			height={node.height || 250}
@@ -149,6 +157,5 @@ export const getNodeInstance = (node: any, flowrunnerConnector?: IFlowrunnerConn
 	if (htmlPlugin == "dataGridNode") {
 		return new DataGridNodeHtmlPluginInfo();
 	}
-
 	return;
 }

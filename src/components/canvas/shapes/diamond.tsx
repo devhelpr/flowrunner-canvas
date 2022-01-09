@@ -161,6 +161,18 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
 			><>{
 				settings.subShapeType === "Loop" ? <>
+					<KonvaCircle 
+						x={ShapeMeasures.diamondSize/2}
+						y={ShapeMeasures.diamondSize/2}
+						radius={ShapeMeasures.diamondSize}
+						strokeWidth={0}
+						opacity={1}
+						width={ShapeMeasures.diamondSize}
+						height={ShapeMeasures.diamondSize}
+						fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor} 
+						transformsEnabled={"position"}
+						perfectDrawEnabled={false}>
+					</KonvaCircle>
 					<KonvaShape
 						x={ShapeMeasures.diamondSize/2}
 						y={ShapeMeasures.diamondSize/2}
@@ -182,20 +194,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps , ref: any) => {
 								false);
 							context.stroke();
 						}}
-					></KonvaShape>
-					<KonvaCircle 
-						x={ShapeMeasures.diamondSize/2}
-						y={ShapeMeasures.diamondSize/2}
-						radius={ShapeMeasures.diamondSize}
-						stroke={settings.strokeColor}
-						strokeWidth={4}
-						opacity={0}
-						width={ShapeMeasures.diamondSize}
-						height={ShapeMeasures.diamondSize}
-						fill={props.isSelected ? settings.fillSelectedColor : settings.fillColor} 
-						transformsEnabled={"position"}
-						perfectDrawEnabled={false}>
-					</KonvaCircle>
+					></KonvaShape>					
 					<KonvaArrow
 						x={0.25}
 						y={12+(ShapeMeasures.diamondSize/2)}

@@ -2289,44 +2289,64 @@ textarea.form-control:disabled {
 }
 
 .background-yellow .canvas__html-shape-bar {
-	background: #f0e938 !important;
-}
+		background: #f0e938 !important;
+	}
+
+.background-yellow .canvas__html-shape-body {
+		background: #fbf791 !important;
+	}
 
 .background-yellow .html-plugin-node {
-	background: #fbf791 !important;
-}
+		background: #fbf791 !important;
+	}
 
 .background-orange .canvas__html-shape-bar {
-	background: #f8a523 !important;
-}
+		background: #f8a523 !important;
+	}
+
+.background-orange .canvas__html-shape-body {
+		background: #f4c67d !important;
+	}
 
 .background-orange .html-plugin-node {
-	background: #f4c67d !important;
-}
+		background: #f4c67d !important;
+	}
 
 .background-blue .canvas__html-shape-bar {
-	background: #36a4f9 !important;
-}
+		background: #36a4f9 !important;
+	}
 
 .background-blue .html-plugin-node {
-	background: #86c6f8 !important;
-}
+		background: #86c6f8 !important;
+	}
+
+.background-blue .canvas__html-shape-body {
+		background: #86c6f8 !important;
+	}
 
 .background-green .canvas__html-shape-bar {
-	background: #3bee76 !important;
-}
+		background: #3bee76 !important;
+	}
 
 .background-green .html-plugin-node {
-	background: #7df4a4 !important;
-}
+		background: #7df4a4 !important;
+	}
+
+.background-green .canvas__html-shape-body {
+		background: #7df4a4 !important;
+	}
 
 .background-purple .canvas__html-shape-bar {
-	background: #cc8aee !important;
-}
+		background: #cc8aee !important;
+	}
 
 .background-purple .html-plugin-node {
-	background: #e2bcf5 !important;
-}
+		background: #e2bcf5 !important;
+	}
+
+.background-purple .canvas__html-shape-body {
+		background: #e2bcf5 !important;
+	}
 
 .static-control__form-node-input-as-label {
 	word-break: break-word;

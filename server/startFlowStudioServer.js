@@ -178,6 +178,8 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"ActivationTask", fullName: "ActivationTask", flowType:"playground"});
 				tasks.push({className:"UpdateWeightsTask", fullName: "UpdateWeightsTask", flowType:"playground"});
 
+				tasks.push({className:"SvgTestTask", fullName: "SvgTestTask", flowType:"playground"});
+
 				tasks.push({className:"assign", fullName: "Assign", flowType:"rustflowrunner"});
 				tasks.push({className:"operation", fullName: "Operation", flowType:"rustflowrunner"});
 				tasks.push({className:"if", fullName: "If", flowType:"rustflowrunner"});

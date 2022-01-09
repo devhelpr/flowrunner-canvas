@@ -230,6 +230,7 @@ gulp.task('postcss', () => {
   
   var processors = [
     require('postcss-import'),
+    require('postcss-nested'),
     require("tailwindcss"),
 		autoprefixer({
       overrideBrowserslist: ["last 2 versions", "ie >= 11"],

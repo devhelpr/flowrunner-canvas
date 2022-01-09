@@ -96,6 +96,7 @@
     "gulp-watch": "5.0.1",
     "jest": "^25.1.0",
     "postcss": "^8.3.11",
+    "postcss-nested": "^5.0.6",
     "postcss-import": "^14.0.2",
     "prettier": "^1.19.1",
     "tailwindcss": "^2.2.19",

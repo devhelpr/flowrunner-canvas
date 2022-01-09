@@ -892,6 +892,19 @@ const taskTypeConfig: any = {
       },
     ],
   },
+  SvgTestTask: {
+    hasUI: true,
+    shapeType: 'Html',
+    htmlPlugin: 'svgTestNode',
+    hasMetaInfoInNode: false,
+    hasConfigMenu: true,
+    presetValues: {
+      metaInfo: [],
+    },
+    configMenu: {
+      fields: []
+    }
+  },
   FormTask: {
     hasUI: true,
     shapeType: 'Html',
