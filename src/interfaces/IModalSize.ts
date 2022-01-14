@@ -1,1 +1,1 @@
-export type IModalSize = "sm" | "lg" | "xl";
+export type IModalSize = 'sm' | 'lg' | 'xl';
