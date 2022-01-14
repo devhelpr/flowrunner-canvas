@@ -48,6 +48,7 @@ import { ErrorBoundary } from '../../helpers/error';
 import * as Konva from "konva"
 import { animateTo } from "./konva/Tween";
 import { InteractionState } from "./canvas-types/interaction-state"; 
+import { IModalSize } from '../../interfaces/IModalSize';
 
 const uuidV4 = uuid.v4;
 
@@ -62,6 +63,8 @@ export interface CanvasProps {
 	flowState : FlowState;
 	flowType : string;
 	saveFlow : (flowId?) => void;
+
+	modalSize? : IModalSize;
 
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -4999,8 +5002,13 @@ export const Canvas = (props: CanvasProps) => {
 				</div>
 		</DndContext>		
 		
-		{showNodeSettings && <EditNodeSettings node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
+		{showNodeSettings && <EditNodeSettings 
+			modalSize={props.modalSize}
+			hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
+			node={editNode} settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNodeSettings}></EditNodeSettings>}
 		{showNodeEdit && <EditNodePopup node={editNode} 
+			modalSize={props.modalSize}
+			hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 			formNodesubject={props.formNodesubject}
 			settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNode}></EditNodePopup>}
 		<Flow 

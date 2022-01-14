@@ -32,6 +32,8 @@ import { IFlowAgent } from './interfaces/IFlowAgent';
 
 import { ErrorBoundary } from './helpers/error';
 
+import { IModalSize } from './interfaces/IModalSize';
+
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
 
@@ -90,6 +92,7 @@ export interface IFlowrunnerCanvasProps {
 	developmentMode? : boolean;
 	hasTaskNameAsNodeTitle? : boolean;
 	flowrunnerConnector? : IFlowrunnerConnector;
+	modalSize? : IModalSize;
 	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;	
 }
 
@@ -236,6 +239,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					flowType={flows.flowType}
 					flowState={flows.flowState}
 					saveFlow={flows.saveFlow}
+					modalSize={props.modalSize}
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 				></CanvasComponent>
 			</ErrorBoundary>	

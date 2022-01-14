@@ -5,12 +5,14 @@ import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { FormNodeHtmlPlugin } from '../html-plugins/form-node';
 import { useFlowStore} from '../../state/flow-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
+import { IModalSize } from '../../interfaces/IModalSize';
 
 export interface EditNodeSettingsProps {
 	node : any;
 	settings: any;
 	flowrunnerConnector : IFlowrunnerConnector;
-	
+	modalSize?: IModalSize;
+	hasTaskNameAsNodeTitle?: boolean;
 	onClose: (pushFlow? : boolean) => void;
 }
 
@@ -129,9 +131,9 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 	}
 	
 	return <div className="edit-node-settings" ref={ref => ((containerRef as any).current = ref)}>
-		<Modal show={true} centered size="lg" container={containerRef.current}>
+		<Modal show={true} centered size={props.modalSize || "lg"} container={containerRef.current}>
 			<Modal.Header>
-				<Modal.Title>Edit {props.node.name}</Modal.Title>
+				<Modal.Title>Edit {!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.name}</Modal.Title>
 			</Modal.Header>
 		
 			<Modal.Body>
