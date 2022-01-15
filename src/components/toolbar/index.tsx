@@ -572,7 +572,7 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!isFlowEditorOnly && !!props.hasRunningFlowRunner && 
 									canvasMode.editorMode === "canvas" &&
 									canvasMode.flowType == "playground" && 
-									<a href="#" onClick={onSetPausedClick} className="ml-2 pause-button">{!!canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>
+									<a href="#" onClick={onSetPausedClick} className="ml-2 text-white pause-button">{!!canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>
 								}							
 								{canvasMode.editorMode === "canvas" && 
 									<a href="#" onClick={fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
@@ -580,16 +580,16 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!isFlowEditorOnly && !props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={saveFlow} className="ml-2 btn btn-primary">Save</a>}
 								{!isFlowEditorOnly && <span className="ml-auto"></span>}
 								{!isFlowEditorOnly && canvasMode.flowType == "playground" && 
-									<a href={"/ui/" + selectedFlow} className="ml-2">UI View</a>
+									<a href={"/ui/" + selectedFlow} className="ml-2 text-white">UI View</a>
 								}
 								{!isFlowEditorOnly && !!!selectedNode.node.name &&
 									canvasMode.flowType == "playground" &&
 									canvasMode.editorMode == "canvas" &&
-									<a href="#" onClick={swithToUIViewEditor} className="ml-2">Edit UI View</a>
+									<a href="#" onClick={swithToUIViewEditor} className="ml-2 text-white">Edit UI View</a>
 								}
 								{!isFlowEditorOnly && canvasMode.flowType == "playground" &&
 									canvasMode.editorMode != "canvas" &&
-									<a href="#" onClick={swithToCanvasEditor} className="ml-2">Edit Flow</a>
+									<a href="#" onClick={swithToCanvasEditor} className="ml-2 text-white">Edit Flow</a>
 								}
 							</form>
 						</Navbar.Collapse>
