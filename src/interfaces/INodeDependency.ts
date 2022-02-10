@@ -1,4 +1,4 @@
 export interface INodeDependency {
-	startNodeName : string;
-	endNodeName : string;
+  startNodeName: string;
+  endNodeName: string;
 }
