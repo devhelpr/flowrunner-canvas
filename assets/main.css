@@ -798,30 +798,29 @@ img {
 
 	width: 0px;
     height: 0px;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
-	border-right: 12px solid #c2c2c2;
 	
 	width: 16px;
     height: 16px;
 	border-radius: 3px;
 	right: -8px;
-	border: 2px #ffffff solid;
-	background: #ffffff;
 }
 
 .canvas__html-shape-thumb-start::before {
 	content: "";
     position: absolute;
-    top: -4px;
+    top: -2px;
 	z-index: 2;
 	
 	width: 20px;
     height: 20px;
 	border-radius: 5px;
-	right: -4px;
+	right: -2px;
 	border: 2px #e2e2e2 solid;
-	background: transparent;
+	background: #e2e2e2;
+
+	-webkit-clip-path: inset(0px 10px 0px 0px);
+
+	        clip-path: inset(0px 10px 0px 0px);
 }
 
 .canvas__html-shape-thumb-start::after {
@@ -901,30 +900,30 @@ img {
 
 	width: 0px;
     height: 0px;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
-	border-left: 12px solid #c2c2c2;
 	
 	width: 16px;
 	height: 16px;
 	left: -8px;
 	border-radius: 3px;
-	border: 2px #ffffff solid;
-	background: #ffffff;
+	
 }
 
 .canvas__html-shape-thumb-end::before {
 	content: "";
     position: absolute;
-    top: -4px;
+    top: -2px;
 	z-index: 2;
 	
 	width: 20px;
     height: 20px;
 	border-radius: 5px;
-	right: -4px;
+	right: -2px;
 	border: 2px #e2e2e2 solid;
-	background: transparent;
+	background: #e2e2e2;
+
+	-webkit-clip-path: inset(0px 0px 0px 10px);
+
+	        clip-path: inset(0px 0px 0px 10px)
 }
 
 .canvas__html-shape-thumb-end::after {

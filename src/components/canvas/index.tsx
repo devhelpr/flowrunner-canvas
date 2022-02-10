@@ -49,6 +49,7 @@ import * as Konva from "konva"
 import { animateTo } from "./konva/Tween";
 import { InteractionState } from "./canvas-types/interaction-state"; 
 import { IModalSize } from '../../interfaces/IModalSize';
+import { INodeDependency } from '../../interfaces/INodeDependency';
 
 const uuidV4 = uuid.v4;
 
@@ -69,6 +70,7 @@ export interface CanvasProps {
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	flowrunnerConnector : IFlowrunnerConnector;
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
+	getNodeDependencies?: (nodeName: string) => INodeDependency[];
 }
 
 export interface CanvasState {
@@ -187,7 +189,7 @@ export const Canvas = (props: CanvasProps) => {
 	
 	useEffect(() => useSelectedNodeStore.subscribe(
 		(node : any, previousNode : any) => {
-			
+			console.log("useSelectedNodeStore.subscribe", node.name);
 			selectedNodeRef.current = node;
 
 			if (previousNode && previousNode.node) {
@@ -1867,6 +1869,8 @@ export const Canvas = (props: CanvasProps) => {
 			return;
 		}
 
+		selectedNodeRef.current = node;
+
 		if (interactionState.current === InteractionState.draggingConnectionEnd) {
 			// Bij het verlepen van een eindpunt naar een andere node
 			// en je hovert over een DOM-node... dan kom je hier uberhaupt niet...
@@ -3004,6 +3008,8 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onClickShape = (node, event) => {
+		console.log("onclickshape", node.name);
+
 		event.cancelBubble = true;
 		if (event.evt) {
 			event.evt.preventDefault();
@@ -3034,7 +3040,9 @@ export const Canvas = (props: CanvasProps) => {
 			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
 
+		selectedNodeRef.current = node;
 		selectNode(node.name, node);
+
 		if (canvasMode.isConnectingNodes) {
 			canvasMode.setConnectiongNodeCanvasMode(false);
 		}
@@ -3710,167 +3718,220 @@ export const Canvas = (props: CanvasProps) => {
 
 	const getDependentConnections = () => {
 
-		const nodeIsSelected : boolean = !!selectedNodeRef.current;	
-
+		const nodeIsSelected : boolean = !!selectedNodeRef.current && selectedNodeRef.current.name;
+		
 		try {
 			let connections : any[] = [];
-			flowStore.flow.map((node, index) => {
-				if (node.shapeType !== "Line" ) {
-					const nodeJson = JSON.stringify(node);
-					let nodeMatches  = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
+			if (props.getNodeDependencies) {
+				const nodeConnections = props.getNodeDependencies(selectedNodeRef.current.name);
+				/*
+					nodeConnections contains a list of objects
+						consisting of start and 
+					foreach nodeConnection in nodeConnections ... 
+						getNode nodeConnection.start
+						getNode nodeConnection.nd
+						create temp connection
+						connections.push(add temp connection)
+				*/
+				nodeConnections.forEach((nodeDependency , index) => {
+					let breakOut = false;
+					if (nodeIsSelected && 
+						nodeDependency.startNodeName !== selectedNodeRef.current.name && 
+						nodeDependency.endNodeName !== selectedNodeRef.current.name) {
+						breakOut = true;
+					}
+
+					if (!breakOut) {
+						const startNode = getNodeByName(nodeDependency.startNodeName);
+						const endNode = getNodeByName(nodeDependency.endNodeName);
+						const startPosition = FlowToCanvas.getStartPointForLine(startNode, {x: startNode.x, y: startNode.y}, undefined, props.getNodeInstance);
+						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endNode.x, y: endNode.y}, undefined, props.getNodeInstance);
+
+						let connection = {
+							shapeType : "Line",
+							name: "_dc" + index,
+							id: "_dc" + index,
+							xstart : startPosition.x,
+							ystart : startPosition.y,
+							xend: endPosition.x,
+							yend: endPosition.y,
+							notSelectable: true,
+							startshapeid: startNode.name,
+							endshapeid: endNode.name,
+							isConnectionWithVariable: true
+						};
+						connections.push(connection);
+					}
+				});
+
+			} else {
+				flowStore.flow.forEach((node, index) => {
 					
-					const getVariableNodeMatches = nodeJson.match(/("getVariable":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (getVariableNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(getVariableNodeMatches);
-						} else {
-							nodeMatches = getVariableNodeMatches;
-						}
-					}
-
-					const setVariableNodeMatches = nodeJson.match(/("setVariable":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (setVariableNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(setVariableNodeMatches);
-						} else {
-							nodeMatches = setVariableNodeMatches;
-						}
-					}
-
-					const datasourceNodeMatches = nodeJson.match(/("datasourceNode":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (datasourceNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(datasourceNodeMatches);
-						} else {
-							nodeMatches = datasourceNodeMatches;
-						}
-					}
-
-					const functionCallNodeMatches = nodeJson.match(/("functionnodeid":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (functionCallNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(functionCallNodeMatches);
-						} else {
-							nodeMatches = functionCallNodeMatches;
-						}
-					}
-
-					const detailNodeMatches = nodeJson.match(/("detailNode":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (detailNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(detailNodeMatches);
-						} else {
-							nodeMatches = detailNodeMatches;
-						}
-					}
-					const deleteNodeMatches = nodeJson.match(/("deleteNode":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (deleteNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(deleteNodeMatches);
-						} else {
-							nodeMatches = deleteNodeMatches;
-						}
-					}
-
-					const listFromNodeMatches = nodeJson.match(/("useListFromNode":\ ?"[a-zA-Z0-9\- :]*")/g);
-					if (listFromNodeMatches) {
-						if (nodeMatches) {
-							nodeMatches = nodeMatches.concat(listFromNodeMatches);
-						} else {
-							nodeMatches = listFromNodeMatches;
-						}
-					}
-									
-					if (node.taskType && node.taskType.indexOf("Type") < 0) {
-						const variableNodeMatches = nodeJson.match(/("variableName":\ ?"[a-zA-Z0-9\- :]*")/g);
-						if (variableNodeMatches) {
+					if (node.shapeType !== "Line" ) {
+						const nodeJson = JSON.stringify(node);
+						let nodeMatches  = nodeJson.match(/("node":\ ?"[a-zA-Z0-9\- :]*")/g);
+						
+						const getVariableNodeMatches = nodeJson.match(/("getVariable":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (getVariableNodeMatches) {
 							if (nodeMatches) {
-								nodeMatches = nodeMatches.concat(variableNodeMatches);
+								nodeMatches = nodeMatches.concat(getVariableNodeMatches);
 							} else {
-								nodeMatches = variableNodeMatches;
+								nodeMatches = getVariableNodeMatches;
 							}
+						}
+
+						const setVariableNodeMatches = nodeJson.match(/("setVariable":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (setVariableNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(setVariableNodeMatches);
+							} else {
+								nodeMatches = setVariableNodeMatches;
+							}
+						}
+
+						const datasourceNodeMatches = nodeJson.match(/("datasourceNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (datasourceNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(datasourceNodeMatches);
+							} else {
+								nodeMatches = datasourceNodeMatches;
+							}
+						}
+
+						const functionCallNodeMatches = nodeJson.match(/("functionnodeid":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (functionCallNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(functionCallNodeMatches);
+							} else {
+								nodeMatches = functionCallNodeMatches;
+							}
+						}
+
+						const detailNodeMatches = nodeJson.match(/("detailNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (detailNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(detailNodeMatches);
+							} else {
+								nodeMatches = detailNodeMatches;
+							}
+						}
+						const deleteNodeMatches = nodeJson.match(/("deleteNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (deleteNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(deleteNodeMatches);
+							} else {
+								nodeMatches = deleteNodeMatches;
+							}
+						}
+
+						const listFromNodeMatches = nodeJson.match(/("useListFromNode":\ ?"[a-zA-Z0-9\- :]*")/g);
+						if (listFromNodeMatches) {
+							if (nodeMatches) {
+								nodeMatches = nodeMatches.concat(listFromNodeMatches);
+							} else {
+								nodeMatches = listFromNodeMatches;
+							}
+						}
+										
+						if (node.taskType && node.taskType.indexOf("Type") < 0) {
+							const variableNodeMatches = nodeJson.match(/("variableName":\ ?"[a-zA-Z0-9\- :]*")/g);
+							if (variableNodeMatches) {
+								if (nodeMatches) {
+									nodeMatches = nodeMatches.concat(variableNodeMatches);
+								} else {
+									nodeMatches = variableNodeMatches;
+								}
+							}
+						}
+
+						if (nodeMatches) {						
+							nodeMatches.map((match, index) => {
+
+								let isNodeByName = match.indexOf('"node":') >= 0;
+								let isGetVariable = match.indexOf('"getVariable":') >= 0;
+								let isSetVariable = match.indexOf('"setVariable":') >= 0;
+								let isFunctionCall = match.indexOf('"functionnodeid":') >= 0;
+								let isUseListFromNode = match.indexOf('"useListFromNode":') >= 0;
+								isNodeByName = isNodeByName || isUseListFromNode || isFunctionCall;
+
+								let nodeName = match.replace('"node":', "");
+								nodeName = nodeName.replace('"variableName":', "");
+								nodeName = nodeName.replace('"getVariable":', "");
+								nodeName = nodeName.replace('"setVariable":', "");
+								nodeName = nodeName.replace('"datasourceNode":', "");
+								nodeName = nodeName.replace('"functionnodeid":', "");
+								nodeName = nodeName.replace('"detailNode":', "");
+								nodeName = nodeName.replace('"deleteNode":', "");
+								nodeName = nodeName.replace('"useListFromNode":', "");
+								
+								nodeName = nodeName.replace(/\ /g,"");
+								nodeName = nodeName.replace(/\"/g,"");
+								let nodeEnd;
+								let startToEnd : boolean = true;
+								let isConnectionWithVariable = false;
+
+								if (isNodeByName && !isGetVariable && !isSetVariable) {
+									nodeEnd = getNodeByName(nodeName);
+									if (nodeEnd && !!nodeEnd.hasVariableAttached) {
+										isConnectionWithVariable = true;
+									}
+
+									if (nodeEnd && nodeEnd.variableName && node.getVariable) {
+										nodeEnd = undefined;
+									}								
+								}							
+
+								if (isGetVariable || isSetVariable) {
+									nodeEnd = getNodeByVariableName(nodeName);
+
+									if (nodeEnd) {
+										isConnectionWithVariable = true;
+									}
+
+									if (isGetVariable) {
+										startToEnd = false;
+									}
+								}
+																						
+								if (nodeEnd) {
+
+									if (nodeIsSelected && 
+										node.name !== selectedNodeRef.current.name && 
+										nodeEnd.name !== selectedNodeRef.current.name) {
+										console.log("getdeps", selectedNodeRef.current, node.name,nodeEnd.name);
+										return;
+									}
+
+									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
+									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
+
+									if (!startToEnd) {
+										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
+										endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
+									}
+
+									let connection = {
+										shapeType : "Line",
+										name: "_dc" + index,
+										id: "_dc" + index,
+										xstart : startPosition.x,
+										ystart : startPosition.y,
+										xend: endPosition.x,
+										yend: endPosition.y,
+										notSelectable: true,
+										startshapeid: (startToEnd ? node.name : nodeEnd.name),
+										endshapeid: (startToEnd ? nodeEnd.name : node.name),
+										isConnectionWithVariable: isConnectionWithVariable || isFunctionCall
+									};
+									connections.push(connection);
+								}
+								
+							})
 						}
 					}
 
-					if (nodeMatches) {						
-						nodeMatches.map((match, index) => {
-
-							let isNodeByName = match.indexOf('"node":') >= 0;
-							let isGetVariable = match.indexOf('"getVariable":') >= 0;
-							let isSetVariable = match.indexOf('"setVariable":') >= 0;
-							let isFunctionCall = match.indexOf('"functionnodeid":') >= 0;
-							let isUseListFromNode = match.indexOf('"useListFromNode":') >= 0;
-							isNodeByName = isNodeByName || isUseListFromNode || isFunctionCall;
-
-							let nodeName = match.replace('"node":', "");
-							nodeName = nodeName.replace('"variableName":', "");
-							nodeName = nodeName.replace('"getVariable":', "");
-							nodeName = nodeName.replace('"setVariable":', "");
-							nodeName = nodeName.replace('"datasourceNode":', "");
-							nodeName = nodeName.replace('"functionnodeid":', "");
-							nodeName = nodeName.replace('"detailNode":', "");
-							nodeName = nodeName.replace('"deleteNode":', "");
-							nodeName = nodeName.replace('"useListFromNode":', "");
-							
-							nodeName = nodeName.replace(/\ /g,"");
-							nodeName = nodeName.replace(/\"/g,"");
-							let nodeEnd;
-							let startToEnd : boolean = true;
-							let isConnectionWithVariable = false;
-
-							if (isNodeByName && !isGetVariable && !isSetVariable) {
-								nodeEnd = getNodeByName(nodeName);
-								if (nodeEnd && !!nodeEnd.hasVariableAttached) {
-									isConnectionWithVariable = true;
-								}
-
-								if (nodeEnd && nodeEnd.variableName && node.getVariable) {
-									nodeEnd = undefined;
-								}								
-							}							
-
-							if (isGetVariable || isSetVariable) {
-								nodeEnd = getNodeByVariableName(nodeName);
-
-								if (nodeEnd) {
-									isConnectionWithVariable = true;
-								}
-
-								if (isGetVariable) {
-									startToEnd = false;
-								}
-							}
-																					
-							if (nodeEnd) {
-
-								let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
-								let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
-
-								if (!startToEnd) {
-									startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
-									endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
-								}
-
-								let connection = {
-									shapeType : "Line",
-									name: "_dc" + index,
-									id: "_dc" + index,
-									xstart : startPosition.x,
-									ystart : startPosition.y,
-									xend: endPosition.x,
-									yend: endPosition.y,
-									notSelectable: true,
-									startshapeid: (startToEnd ? node.name : nodeEnd.name),
-									endshapeid: (startToEnd ? nodeEnd.name : node.name),
-									isConnectionWithVariable: isConnectionWithVariable || isFunctionCall
-								};
-								connections.push(connection);
-							}
-							
-						})
-					}
-				}
-			});
+				});
+			}
 			return connections;
 		} catch(err) {
 			console.log(err);

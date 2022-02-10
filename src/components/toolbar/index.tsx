@@ -45,6 +45,9 @@ export interface IFlowFile {
 
 export interface ToolbarProps {
 	
+	hasShowDependenciesInMenu?: boolean;
+	renderMenuOptions? : () => JSX.Element;
+
 	flow : any[];
 	flowId? : number | string;
 	flows: any[] | undefined;
@@ -564,7 +567,9 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!isFlowEditorOnly && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>
 								}
-								{!isFlowEditorOnly && !!!selectedNode.node.name && canvasMode.editorMode === "canvas" && <>
+								{(props.hasShowDependenciesInMenu === undefined || 
+									props.hasShowDependenciesInMenu === true) &&
+									!!!selectedNode.node.name && canvasMode.editorMode === "canvas" && <>
 									<input id="showDependenciesInput" type="checkbox" checked={showDependencies} onChange={onShowDependenciesChange} />
 									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 								</>}
@@ -591,6 +596,9 @@ export const Toolbar = (props: ToolbarProps) => {
 									canvasMode.editorMode != "canvas" &&
 									<a href="#" onClick={swithToCanvasEditor} className="ml-2 text-white">Edit Flow</a>
 								}
+								<>{
+									props.renderMenuOptions && <span className="ml-auto">{props.renderMenuOptions()}</span>
+								}</>
 							</form>
 						</Navbar.Collapse>
 					</div>

@@ -33,6 +33,7 @@ import { IFlowAgent } from './interfaces/IFlowAgent';
 import { ErrorBoundary } from './helpers/error';
 
 import { IModalSize } from './interfaces/IModalSize';
+import { INodeDependency } from './interfaces/INodeDependency';
 
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
@@ -88,12 +89,18 @@ export { ApplicationMode };
 export { setCustomConfig };
 
 export interface IFlowrunnerCanvasProps {
-	flowStorageProvider? : IStorageProvider;
-	developmentMode? : boolean;
+	hasShowDependenciesInMenu?: boolean;
 	hasTaskNameAsNodeTitle? : boolean;
-	flowrunnerConnector? : IFlowrunnerConnector;
 	modalSize? : IModalSize;
+
+	developmentMode? : boolean;
+
+	flowStorageProvider? : IStorageProvider;
+	flowrunnerConnector? : IFlowrunnerConnector;
+
 	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;	
+	getNodeDependencies?: (nodeName: string) => INodeDependency[];
+	renderMenuOptions? : () => JSX.Element;
 }
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
@@ -214,19 +221,22 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		<Suspense fallback={<div>Loading...</div>}>
 			<ErrorBoundary>
 				<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
-				<Toolbar canvasToolbarsubject={canvasToolbarsubject.current} 
-						hasRunningFlowRunner={true}
-						isFlowEditorOnly={true}
-						flowrunnerConnector={flowrunnerConnector.current}
-						flow={flows.flow}
-						flowId={flows.flowId}
-						flows={flows.flows}
-						flowType={flows.flowType}
-						flowState={flows.flowState}
-						getFlows={flows.getFlows}
-						loadFlow={flows.loadFlow}
-						saveFlow={flows.saveFlow}
-						onGetFlows={flows.onGetFlows}
+				<Toolbar 
+					hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
+					renderMenuOptions={props.renderMenuOptions}
+					canvasToolbarsubject={canvasToolbarsubject.current} 
+					hasRunningFlowRunner={true}
+					isFlowEditorOnly={true}
+					flowrunnerConnector={flowrunnerConnector.current}
+					flow={flows.flow}
+					flowId={flows.flowId}
+					flows={flows.flows}
+					flowType={flows.flowType}
+					flowState={flows.flowState}
+					getFlows={flows.getFlows}
+					loadFlow={flows.loadFlow}
+					saveFlow={flows.saveFlow}
+					onGetFlows={flows.onGetFlows}
 				></Toolbar>
 								
 				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current} 
@@ -241,6 +251,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					saveFlow={flows.saveFlow}
 					modalSize={props.modalSize}
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
+					getNodeDependencies={props.getNodeDependencies}
 				></CanvasComponent>
 			</ErrorBoundary>	
 		</Suspense>		
