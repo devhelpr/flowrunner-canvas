@@ -3744,8 +3744,11 @@ export const Canvas = (props: CanvasProps) => {
 					if (!breakOut) {
 						const startNode = getNodeByName(nodeDependency.startNodeName);
 						const endNode = getNodeByName(nodeDependency.endNodeName);
-						const startPosition = FlowToCanvas.getStartPointForLine(startNode, {x: startNode.x, y: startNode.y}, undefined, props.getNodeInstance);
-						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endNode.x, y: endNode.y}, undefined, props.getNodeInstance);
+						const startPositionNode = getPosition(startNode.name) || startNode;
+						const endPositionNode = getPosition(endNode.name) || endNode;
+
+						const startPosition = FlowToCanvas.getStartPointForLine(startNode, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
+						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
 
 						let connection = {
 							shapeType : "Line",
@@ -3903,12 +3906,15 @@ export const Canvas = (props: CanvasProps) => {
 										return;
 									}
 
-									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
-									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
+									const startPositionNode = getPosition(node.name) || node;
+									const endPositionNode = getPosition(nodeEnd.name) || nodeEnd;
+			
+									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
+									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
 
 									if (!startToEnd) {
-										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: nodeEnd.x, y: nodeEnd.y}, undefined, props.getNodeInstance);
-										endPosition = FlowToCanvas.getEndPointForLine(node, {x: node.x, y: node.y}, undefined, props.getNodeInstance);
+										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
+										endPosition = FlowToCanvas.getEndPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
 									}
 
 									let connection = {
