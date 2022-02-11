@@ -79,6 +79,7 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 	flowRunnerCanvasPluginRegisterFunctions.push(registerFunction);
 }
 
+export { INodeDependency };
 export { IExecutionEvent };
 export { IFlowrunnerConnector };
 export { IFlowAgent };

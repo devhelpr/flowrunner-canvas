@@ -123,6 +123,7 @@ export interface LineTypeProps {
   isSelected: boolean;
   isAltColor?: boolean;
   isConnectionWithVariable?: boolean;
+  isConnectionWithFunction?: boolean;
   isErrorColor?: boolean;
   isSuccessColor?: boolean;
   isEventNode?: boolean;

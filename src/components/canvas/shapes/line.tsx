@@ -15,7 +15,9 @@ import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbFollowFlow, Thumb
 export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 	
-	const [fillColor, setFillColor] = useState(props.isConnectionWithVariable ?  "#0080e0" : "#000000");
+	const [fillColor, setFillColor] = useState(
+		props.isConnectionWithVariable ?  "#e08000" : 
+			props.isConnectionWithFunction? "#0080e0" : "#000000");
 	const [strokeWidth, setStrokeWidth] = useState(2);
 	const [opacity, setOpacity] = useState(0);
 	const [dash, setDash] = useState(props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5,10] : [1,1]);
@@ -40,6 +42,11 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 
 		if (props.isConnectionWithVariable) {
+			_fillColor = "#e08000";  
+			//_strokeWidth = 2;
+		}
+
+		if (props.isConnectionWithFunction) {
 			_fillColor = "#0080e0";  
 			//_strokeWidth = 2;
 		}
@@ -99,6 +106,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		props.isSuccessColor,
 		props.isAltColor,
 		props.isConnectionWithVariable, 
+		props.isConnectionWithFunction,
 		props.isEventNode,
 		props.canvasHasSelectedNode,
 		props.selectedNodeName,

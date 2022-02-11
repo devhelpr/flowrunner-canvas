@@ -3758,7 +3758,8 @@ export const Canvas = (props: CanvasProps) => {
 							notSelectable: true,
 							startshapeid: startNode.name,
 							endshapeid: endNode.name,
-							isConnectionWithVariable: true
+							isConnectionWithVariable: !!nodeDependency.isVariable,
+							isConnectionWithFunction: !!nodeDependency.isFunction
 						};
 						connections.push(connection);
 					}
@@ -3921,7 +3922,8 @@ export const Canvas = (props: CanvasProps) => {
 										notSelectable: true,
 										startshapeid: (startToEnd ? node.name : nodeEnd.name),
 										endshapeid: (startToEnd ? nodeEnd.name : node.name),
-										isConnectionWithVariable: isConnectionWithVariable || isFunctionCall
+										isConnectionWithVariable: isConnectionWithVariable,
+										isConnectionWithFunction: isFunctionCall
 									};
 									connections.push(connection);
 								}
@@ -4770,6 +4772,7 @@ export const Canvas = (props: CanvasProps) => {
 											isAltColor={true}									
 											canvasHasSelectedNode={canvasHasSelectedNode}
 											isConnectionWithVariable={node.isConnectionWithVariable}
+											isConnectionWithFunction={node.isConnectionWithFunction}
 											xstart={node.xstart} 
 											ystart={node.ystart}									
 											xend={node.xend} 
