@@ -582,11 +582,34 @@ export const Canvas = (props: CanvasProps) => {
 			return;
 		}
 
-		
 		if (nodeStateTimeout.current) {
 			clearTimeout(nodeStateTimeout.current);
 			nodeStateTimeout.current = undefined;
 		}
+
+		if (nodeState === "RESET_ALL") {
+			nodeStateList.current = [];
+			nodeStateCount.current = 0;
+			Object.keys(elementRefs.current).map((nodeName: string) => {
+				const element = elementRefs.current[nodeName];
+				if (element) {
+					element.classList.remove("has-error");
+				} 
+			});
+
+			Object.keys(shapeRefs.current).map((nodeName: string) => {
+				const shapeRef = shapeRefs.current[nodeName];
+				if (shapeRef) {
+					shapeRef.modifyShape(ModifyShapeEnum.SetState , {
+						state: ShapeStateEnum.Default
+					});
+				} 
+			});
+
+
+
+			return;
+		}		
 
 		nodeStateCount.current += 1;
 		nodeStateList.current.push({
