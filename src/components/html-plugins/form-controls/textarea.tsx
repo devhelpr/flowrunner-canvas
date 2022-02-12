@@ -78,7 +78,8 @@ export const Textarea = (props: IFormControlProps) => {
 				onFocus={onFocus}
 				readOnly={!props.enabled}
 				rows={props.node.rows || metaInfo.rows || 3}
-				ref={ref => ((textAreaRef as any).current = ref)} 
+				ref={ref => ((textAreaRef as any).current = ref)}
+				spellCheck={false}
 			></textarea>
 	</div>;
 }
