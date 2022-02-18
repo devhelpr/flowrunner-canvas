@@ -302,7 +302,7 @@ export const Canvas = (props: CanvasProps) => {
 			}
 			*/
 
-			if (stageInstance !== undefined && stageInstance.getPointerPosition() !== undefined) {
+			if (stageInstance !== undefined && stageInstance.getPointerPosition()) {
 				
 				const oldScale = stageInstance.scaleX();				
 
@@ -2621,9 +2621,15 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		touching.current = true;
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
-		
+
+		if (event.evt) {
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
+		} else {
+			//event.preventDefault();
+			event.cancelBubble = true;
+		}
+
 		touchNode.current = node;
 		touchNodeGroup.current = event.currentTarget;
 		mouseDragging.current = false;
@@ -2655,8 +2661,15 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		touching.current = true;
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
+		
+		if (event.evt) {
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
+		} else {
+			//event.preventDefault();
+			event.cancelBubble = true;
+		}
+
 		if (node.shapeType !== "Line") {
 			mouseDragging.current = true;
 			setNewPositionForNode(event, node, shapeRefs.current[node.name], event.evt.touches.length > 0 ? {
@@ -2689,8 +2702,13 @@ export const Canvas = (props: CanvasProps) => {
 		(touchNode.current as any) = undefined;
 		touchNodeGroup.current = undefined;
 
-		event.evt.preventDefault();
-		event.evt.cancelBubble = true;
+		if (event.evt) {
+			event.evt.preventDefault();
+			event.evt.cancelBubble = true;
+		} else {
+			//event.preventDefault();
+			event.cancelBubble = true;
+		}
 		
 		if (event.currentTarget) {
 			if (mouseDragging.current) {

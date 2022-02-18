@@ -209,7 +209,7 @@ const taskTypeConfig: any = {
     shapeType: 'Circle',
   },
   FunctionCallTask: {
-    background: 'background-yellow',
+    background: 'background-dark-yellow',
     cornerRadius: 10,
     shapeType: 'Html',
     htmlPlugin: 'formNode',

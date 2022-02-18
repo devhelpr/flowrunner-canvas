@@ -2304,6 +2304,19 @@ textarea.form-control:disabled {
 		background: #fbf791 !important;
 	}
 
+.background-dark-yellow .canvas__html-shape-bar {
+		background: #fbf791 !important;
+	}
+
+.background-dark-yellow .canvas__html-shape-body {
+		background: #f0e938 !important;
+	}
+
+.background-dark-yellow .html-plugin-node {
+		background: #f0e938 !important;
+	}
+
+
 .background-orange .canvas__html-shape-bar {
 		background: #f8a523 !important;
 	}
@@ -2316,6 +2329,19 @@ textarea.form-control:disabled {
 		background: #f4c67d !important;
 	}
 
+.background-dark-orange .canvas__html-shape-bar {
+		background: #f4c67d !important;
+	}
+
+.background-dark-orange .canvas__html-shape-body {
+		background: #f8a523 !important;
+	}
+
+.background-dark-orange .html-plugin-node {
+		background: #f4c67d !important;
+	}
+
+
 .background-blue .canvas__html-shape-bar {
 		background: #36a4f9 !important;
 	}
@@ -2327,6 +2353,18 @@ textarea.form-control:disabled {
 .background-blue .canvas__html-shape-body {
 		background: #86c6f8 !important;
 	}
+.background-dark-blue .canvas__html-shape-bar {
+		background: #86c6f8 !important;
+	}
+
+.background-dark-blue .html-plugin-node {
+		background: #36a4f9 !important;
+	}
+
+.background-dark-blue .canvas__html-shape-body {
+		background: #36a4f9 !important;
+	}
+
 
 .background-green .canvas__html-shape-bar {
 		background: #3bee76 !important;
@@ -2340,6 +2378,19 @@ textarea.form-control:disabled {
 		background: #7df4a4 !important;
 	}
 
+.background-dark-green .canvas__html-shape-bar {
+		background: #7df4a4 !important;
+	}
+
+.background-dark-green .html-plugin-node {
+		background: #3bee76 !important;
+	}
+
+.background-dark-green .canvas__html-shape-body {
+		background: #3bee76 !important;
+	}
+
+
 .background-purple .canvas__html-shape-bar {
 		background: #cc8aee !important;
 	}
@@ -2350,6 +2401,17 @@ textarea.form-control:disabled {
 
 .background-purple .canvas__html-shape-body {
 		background: #e2bcf5 !important;
+	}
+.background-dark-purple .canvas__html-shape-bar {
+		background: #e2bcf5 !important;
+	}
+
+.background-dark-purple .html-plugin-node {
+		background: #cc8aee !important;
+	}
+
+.background-dark-purple .canvas__html-shape-body {
+		background: #cc8aee !important;
 	}
 
 .static-control__form-node-input-as-label {
