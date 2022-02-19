@@ -8,4 +8,6 @@ export enum InteractionState {
   draggingNodesByConnection,
   draggingNodesDownstream,
   draggingNodesUpstream,
+  selectingNodes,
+  multiSelect
 }

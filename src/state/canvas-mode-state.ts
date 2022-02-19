@@ -12,6 +12,7 @@ interface ICanvasModeState extends State {
   showDependencies: boolean;
   snapToGrid: boolean;
   allowInputToHtmlNodes: boolean;
+  isInMultiSelect: boolean;
   isFlowrunnerPaused: boolean;
   flowType: string;
   editorMode: string;
@@ -32,6 +33,7 @@ interface ICanvasModeState extends State {
   setCurrentPopup: (popup: PopupEnum, onPresetName: undefined | ((name: string) => void)) => void;
   setFlowsUpdateId: (id: string) => void;
   setSnapToGrid: (snapToGrid: boolean) => void;
+  setIsInMultiSelect: (isInMultiSelect: boolean) => void;
 }
 
 //set(state => ({ bears: state.bears + 1 }))
@@ -43,6 +45,7 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
     showDependencies: false,
     allowInputToHtmlNodes: false,
     isFlowrunnerPaused: false,
+    isInMultiSelect: false,
     flowType: '',
     editorMode: 'canvas',
     flowsPlayground: [],
@@ -100,7 +103,11 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
       set(state => ({
         flowsUpdateId: id,
       })),
-  };
+    setIsInMultiSelect: (isInMultiSelect: boolean) => 
+      set(state => ({
+        isInMultiSelect: isInMultiSelect,
+      }))
+  };  
 };
 
 export const useCanvasModeStateStore = create<ICanvasModeState>(set => storeHandler(set));

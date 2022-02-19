@@ -121,17 +121,21 @@ export const Canvas = (props: CanvasProps) => {
 	let htmlWrapper = useRef(null);
 	let layer = useRef(null);
 	let stageGroup = useRef(null);
+	let selectingRectRef = useRef(null);
+
 	let flowIsLoading = useRef(true);
 	let flowIsFittedStageForSingleNode = useRef(false);
 	let closestNodeWhenAddingNewNode = useRef(undefined);
 	let orientationClosestNodeWhenAddingNewNode = useRef(false);
 	let nodeOrientationClosestNodeWhenAddingNewNode = useRef(ThumbPositionRelativeToNode.default);
-
+	
 
 	let closestStartNodeWhenAddingNewNode = useRef(undefined);
 	let closestEndNodeWhenAddingNewNode = useRef(undefined);
 	let closestNodeAreLineNodes = useRef(false);
 	let draggingMultipleNodes = useRef([] as any[]);
+	let selectedNodes = useRef([] as any[]);
+	let selectingRectInfo = useRef(undefined as any);
 
 	let shapeRefs = useRef([] as any);
 	let elementRefs = useRef([] as any);
@@ -1546,6 +1550,11 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onMouseStart = (node, event) => {
+		if (interactionState.current === InteractionState.multiSelect) {
+			cancelDragStage();
+			return false;
+		}
+
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
 			return false;
@@ -1750,6 +1759,10 @@ export const Canvas = (props: CanvasProps) => {
 
 	const onMouseMove = (node, event) => {
 		
+		if (interactionState.current === InteractionState.multiSelect) {
+			return;
+		}
+
 		if (node && touching.current && touchNode.current && 
 				node.name !== (touchNode.current as any).name) {
 			return;
@@ -1791,7 +1804,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const clearConnectionState = () => {
-
+console.log("clearstate");
 		touching.current = false
 		isConnectingNodesByDraggingLocal.current = false;
 		connectionNodeEvent.current = false;
@@ -1970,6 +1983,13 @@ export const Canvas = (props: CanvasProps) => {
 
 	const onStageMouseEnd = (event) => {
 		
+		if (interactionState.current === InteractionState.selectingNodes) {
+			interactionState.current = InteractionState.multiSelect;
+			selectNodesForSelectRectangle(event);
+			canvasMode.setIsInMultiSelect(true);
+			return;
+		}
+		
 		if (interactionState.current === InteractionState.idle) {
 			return;
 		}
@@ -1980,13 +2000,15 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		let haveMouseEventFallThrough = false;
 
-		if (touching.current || isConnectingNodesByDraggingLocal.current) {
+		if ((interactionState.current == InteractionState.multiSelect && touching.current) ||
+			touching.current || isConnectingNodesByDraggingLocal.current) {
 			
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
-				if (connectionNodeThumbs.current === "" && 
+				if (interactionState.current == InteractionState.multiSelect ||
+					(connectionNodeThumbs.current === "" && 
 					!isConnectingNodesByDraggingLocal.current && 
-					mouseDragging.current && touchNode.current) {
+					mouseDragging.current && touchNode.current)) {
 					
 						if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 0) {
 
@@ -2157,8 +2179,11 @@ export const Canvas = (props: CanvasProps) => {
 						event.preventDefault();
 						event.cancelBubble = true;
 					}
-					clearConnectionState();
-				}
+
+					if (interactionState.current !== InteractionState.multiSelect) {
+						clearConnectionState();
+					}
+				}					
 
 				dragTime.current = undefined;
 				touching.current = false;
@@ -2174,10 +2199,16 @@ export const Canvas = (props: CanvasProps) => {
 				connectionNodeThumbPositionRelativeToNode.current = ThumbPositionRelativeToNode.default;
 				connectionNodeFollowFlow.current = ThumbFollowFlow.default;
 
-				interactionState.current = InteractionState.idle;
-
 				document.body.classList.remove("connecting-nodes");
 				document.body.classList.remove("mouse--moving");
+				(document.body.style.cursor as any) = null;
+
+				if (interactionState.current !== InteractionState.multiSelect) {
+					interactionState.current = InteractionState.idle;
+				} else {
+					handleMultiSelectCursor(event);
+					updateSelectRectangle(event);					
+				}				
 
 				const lineRef = shapeRefs.current[connectionForDraggingName];
 				if (lineRef) {
@@ -2206,7 +2237,17 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onStageMouseLeave = (event) => {
+	
 		onStageMouseEnd(event);
+
+		if (interactionState.current === InteractionState.selectingNodes ||
+			interactionState.current === InteractionState.multiSelect) {
+			interactionState.current = InteractionState.idle;
+			(selectingRectRef.current as any).opacity(0);
+			selectedNodes.current = [];
+			deselectAllNodes();
+			touching.current = false;
+		}
 
 		if (event.evt) {
 			event.evt.preventDefault();
@@ -2235,6 +2276,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		document.body.classList.remove("connecting-nodes");
 		document.body.classList.remove("mouse--moving");
+		(document.body.style.cursor as any) = null;
 		touching.current = false;
 		dragTime.current = undefined;
 		(touchNode.current as any) = undefined;
@@ -2272,6 +2314,43 @@ export const Canvas = (props: CanvasProps) => {
 	
 	const onStageTouchStart = (event) => {
 		isPinching.current = false;
+		
+		if (event && event.evt && !!event.evt.shiftKey) {
+			cancelDragStage();
+			selectedNodes.current = [];
+			interactionState.current = InteractionState.selectingNodes;
+			if (stage && stage.current) {
+				let stageInstance = (stage.current as any).getStage();
+				if (stageInstance) {					
+					const touchPos = getCurrentPosition(event);
+					mouseStartPointerX.current = touchPos.x;
+					mouseStartPointerY.current = touchPos.y;
+				}
+			}
+			return false;
+		}
+
+		if (interactionState.current === InteractionState.multiSelect) {
+			if (selectedNodes.current.length > 0) {
+				if (stage && stage.current) {
+					let stageInstance = (stage.current as any).getStage();
+					if (stageInstance) {
+						const touchPos = getCurrentPosition(event);
+						mouseStartPointerX.current = touchPos.x;
+						mouseStartPointerY.current = touchPos.y;
+					}
+				}	
+		
+				touching.current = true;
+				mouseDragging.current = false;
+				draggingMultipleNodes.current = [...selectedNodes.current];
+				document.body.classList.add("mouse--moving");
+			} else {
+				interactionState.current = InteractionState.idle;
+			}
+			return;
+		}
+
 		if (!!canvasMode.isConnectingNodes) {
 			cancelDragStage();
 			return false;
@@ -2279,7 +2358,7 @@ export const Canvas = (props: CanvasProps) => {
 		if (touchNode.current && touchNodeGroup.current) {
 			cancelDragStage();
 		} else {
-			if (event.evt.touches.length > 1) {
+			if (event.evt && event.evt.touches && event.evt.touches.length > 1) {
 				isPinching.current = true;
 				cancelDragStage();
 
@@ -2298,6 +2377,222 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}
 
+	const showSelectRectangle = (event) => {
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+								
+				const touchPos = getCurrentPosition(event);
+				let width = touchPos.x - mouseStartPointerX.current;
+				let height = touchPos.y - mouseStartPointerY.current;
+				const scaleFactor = (stageInstance as any).scaleX();
+
+				(selectingRectRef.current as any).opacity(1);
+				(selectingRectRef.current as any).x((mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor);
+				(selectingRectRef.current as any).y((mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor);
+				(selectingRectRef.current as any).width((width) / scaleFactor);
+				(selectingRectRef.current as any).height((height) / scaleFactor);
+				(selectingRectRef.current as any).draw();
+
+				selectingRectInfo.current = {
+					x:mouseStartPointerX.current,
+					y:mouseStartPointerY.current,
+					width: width,
+					height: height
+				}
+				stageInstance.batchDraw();
+			}
+		}
+	}
+
+	const deselectAllNodes = useCallback(() => {
+		selectedNodes.current = [];
+		flowStore.flow.map((node, index) => {
+			if (node.shapeType !== "Line") {
+				const taskSettings = FlowToCanvas.getTaskSettings(node.taskType);
+				let shapeType = FlowToCanvas.getShapeTypeUsingSettings(node.shapeType, node.taskType, node.isStartEnd, taskSettings);
+			
+				if (shapeType === "Html") {
+					const element = document.querySelector("#" + node.name);
+					if (element) {
+						element.classList.remove("selected");
+					}
+				}
+			}
+		});
+	},[flowStore.flow]);
+
+	const selectNodesForSelectRectangle = useCallback((event) => {
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+								
+				const touchPos = getCurrentPosition(event);
+				let width = touchPos.x - mouseStartPointerX.current;
+				let height = touchPos.y - mouseStartPointerY.current;
+				const scaleFactor = (stageInstance as any).scaleX();
+
+				
+				let x = (mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor;
+				let y = (mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor;
+				let scaledWidth = width / scaleFactor;
+				let scaledHeight = height / scaleFactor;
+				let nodesInBoundary : any = [];
+				flowStore.flow.map((node, index) => {
+					if (node.shapeType !== "Line") {
+						let nodeWidth : number = 0;
+						let nodeHeight : number = 0;
+						const taskSettings = FlowToCanvas.getTaskSettings(node.taskType);
+						let shapeType = FlowToCanvas.getShapeTypeUsingSettings(node.shapeType, node.taskType, node.isStartEnd, taskSettings);
+					
+						const position = getPosition(node.name) || {x:node.x,y:node.y};
+
+						if (shapeType === "Html") {
+														
+							if (props.getNodeInstance) {
+								const instance = props.getNodeInstance(node, props.flowrunnerConnector, flowStore.flow, taskSettings);
+								if (instance) {
+									if (instance.getWidth && instance.getHeight) {
+										nodeWidth = instance.getWidth(node);
+										nodeHeight = instance.getHeight(node);
+									}
+								}
+							}
+
+							let element = document.querySelector("#" + node.name + " .html-plugin-node");
+							if (element) {
+
+								const elementHeight = element.clientHeight;
+								if (elementHeight > height) {
+									nodeHeight = elementHeight;
+								}
+
+								const elementWidth = element.clientWidth;
+								if (elementWidth > width) {
+									nodeWidth = elementWidth;
+								}
+							}
+
+							nodeWidth = (nodeWidth || node.width || 250);
+							nodeHeight = (nodeHeight || node.height || 250);
+						} else {
+							nodeWidth = 100;
+							nodeHeight = 50;
+
+							if (shapeType === 'Circle') {
+								nodeWidth = ShapeMeasures.circleSize;
+								nodeHeight = ShapeMeasures.circleSize;
+							} else 
+							if (shapeType === 'Diamond') {
+								nodeWidth = ShapeMeasures.diamondSize;
+								nodeHeight = ShapeMeasures.diamondSize;
+							} else {
+								nodeWidth = ShapeMeasures.rectWidht 
+								nodeHeight = ShapeMeasures.rectHeight;
+							}
+						}
+
+						if (x <= position.x && y <= position.y && 
+							(position.x+nodeWidth < x + scaledWidth) && 
+							(position.y+nodeHeight < y + scaledHeight)) {
+							console.log("selected node:", node.name);
+							nodesInBoundary.push(node.name);
+
+							if (shapeType === "Html") {
+															
+								let element = document.querySelector("#" + node.name);
+								if (element) {
+									element.classList.add("selected");
+								}
+							}
+						} else {
+							if (shapeType === "Html") {
+															
+								let element = document.querySelector("#" + node.name);
+								if (element) {
+									element.classList.remove("selected");
+								}
+							}
+						}
+					}
+				});
+
+				selectedNodes.current = nodesInBoundary;
+
+			}
+		}
+	}, [flowStore.flow]);
+	
+	const moveSelectRectangle = (event) => {
+		// selectingRectInfo
+		if (stage && stage.current && selectingRectInfo.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				const touchPos = stageInstance.getPointerPosition();
+				let offsetX = touchPos.x - mouseStartPointerX.current;
+				let offsetY = touchPos.y - mouseStartPointerY.current;
+				const scaleFactor = (stageInstance as any).scaleX();
+
+				let offsetPosition = {
+					x: 0,
+					y: 0
+				};
+				offsetPosition.x = ((offsetX ) / scaleFactor);
+				offsetPosition.y = ((offsetY ) / scaleFactor);
+
+				(selectingRectRef.current as any).x((selectingRectInfo.current.x + offsetX  - (stageInstance).x()) / scaleFactor);
+				(selectingRectRef.current as any).y((selectingRectInfo.current.y + offsetY - (stageInstance).y()) / scaleFactor);
+
+			}
+		}
+	}
+
+	const updateSelectRectangle = (event) => {
+		if (stage && stage.current && selectingRectInfo.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				const touchPos = stageInstance.getPointerPosition();
+				let offsetX = touchPos.x - mouseStartPointerX.current;
+				let offsetY = touchPos.y - mouseStartPointerY.current;
+				const scaleFactor = (stageInstance as any).scaleX();
+
+				let offsetPosition = {
+					x: 0,
+					y: 0
+				};
+				offsetPosition.x = ((offsetX ) / scaleFactor);
+				offsetPosition.y = ((offsetY ) / scaleFactor);
+
+				(selectingRectRef.current as any).x((selectingRectInfo.current.x + offsetX  - (stageInstance).x()) / scaleFactor);
+				(selectingRectRef.current as any).y((selectingRectInfo.current.y + offsetY - (stageInstance).y()) / scaleFactor);
+				selectingRectInfo.current.x = selectingRectInfo.current.x + offsetX;
+				selectingRectInfo.current.y = selectingRectInfo.current.y + offsetY;
+
+			}
+		}
+	}
+
+	const handleMultiSelectCursor = (event) => {
+		if (touching.current) {
+			return;
+		}
+
+		if (stage && stage.current && selectingRectInfo.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				const touchPos = getCurrentPosition(event);
+				if (selectingRectInfo.current.x <= touchPos.x &&
+					selectingRectInfo.current.y <= touchPos.y &&
+					touchPos.x <= selectingRectInfo.current.x + selectingRectInfo.current.width &&
+					touchPos.y <= selectingRectInfo.current.y + selectingRectInfo.current.height) {
+					document.body.style.cursor = 'pointer';
+				} else {
+					document.body.style.cursor = 'default';
+				}
+			}
+		}
+	}
+
 	const onStageTouchMove = (event) => {
 
 		/*
@@ -2309,22 +2604,30 @@ export const Canvas = (props: CanvasProps) => {
 			else if (is pinching using touch)
 			
 		*/
+
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
 		
-		if (interactionState.current === InteractionState.idle) {
-			return;
-		}
+				if (interactionState.current === InteractionState.idle) {
+					return;
+				}
+				if (interactionState.current === InteractionState.selectingNodes) {
+					showSelectRectangle(event);
+					return;
+				}			
 
-		if (isConnectingNodesByDraggingLocal.current) {
-			if (event.evt) {
-				event.evt.cancelBubble = true;
-			} else {
-				event.cancelBubble = true;
-			}
+				if (interactionState.current === InteractionState.multiSelect) {
+					handleMultiSelectCursor(event);
+				}
 
-			if (stage && stage.current) {
-				let stageInstance = (stage.current as any).getStage();
-				if (stageInstance) {
-					
+				if (isConnectingNodesByDraggingLocal.current) {
+					if (event.evt) {
+						event.evt.cancelBubble = true;
+					} else {
+						event.cancelBubble = true;
+					}					
+							
 					const touchPos = getCurrentPosition(event);
 					const scaleFactor = (stageInstance as any).scaleX();
 	
@@ -2413,72 +2716,73 @@ export const Canvas = (props: CanvasProps) => {
 							stageInstance.batchDraw();
 						}
 					}
+												
+					cancelDragStage();
+					return;
 				}
-			}
 
-			cancelDragStage();
-			return;
-		}
+				if (!!canvasMode.isConnectingNodes) {
+					cancelDragStage();
+					return false;
+				}
+				
+				if ((interactionState.current === InteractionState.multiSelect && touching.current) || (
+					touchNode.current && touchNodeGroup.current && !isPinching.current
+					))  {			
+					
+					if (interactionState.current === InteractionState.multiSelect) {
+						moveSelectRectangle(event);
+					}	
 
-		if (!!canvasMode.isConnectingNodes) {
-			cancelDragStage();
-			return false;
-		}
-		
-		if (touchNode.current && touchNodeGroup.current && !isPinching.current)  {			
-			
-			document.body.classList.add("mouse--moving");
-			document.body.style.cursor = 'pointer';
-			mouseDragging.current = true;
+					document.body.classList.add("mouse--moving");
+					document.body.style.cursor = 'pointer';
+					mouseDragging.current = true;
 
-			if ((touchNode.current as any).shapeType === "Line") {
+					if (touchNode.current && (touchNode.current as any).shapeType === "Line") {
 
-				let lineNode = (touchNode.current as any);
-				if (lineNode.startshapeid) {
-					const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
-					if (startNode) {	
-						setNewPositionForNode(event, startNode, shapeRefs.current[startNode.name], 
-							event.evt && event.evt.screenX ? {
-								x: event.evt.screenX ,
-								y: event.evt.screenY 
-							} : (event.screenX ? {
-								x: event.screenX ,
-								y: event.screenY 
-							} : undefined), false, false, true);
+						let lineNode = (touchNode.current as any);
+						if (lineNode.startshapeid) {
+							const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
+							if (startNode) {	
+								setNewPositionForNode(event, startNode, shapeRefs.current[startNode.name], 
+									event.evt && event.evt.screenX ? {
+										x: event.evt.screenX ,
+										y: event.evt.screenY 
+									} : (event.screenX ? {
+										x: event.screenX ,
+										y: event.screenY 
+									} : undefined), false, false, true);
+							}
+						}
+						if (lineNode.endshapeid) {
+							const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+							if (endNode) {
+								
+								setNewPositionForNode(event, endNode, 
+									shapeRefs.current[endNode.name], 
+									event.evt && event.evt.screenX ? {
+										x: event.evt.screenX,
+										y: event.evt.screenY
+									} : (event.screenX ? {
+										x: event.screenX,
+										y: event.screenY
+									} : undefined), false, false, true, false, true);
+							}
+						}
+						cancelDragStage();
+						return;
 					}
-				}
-				if (lineNode.endshapeid) {
-					const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
-					if (endNode) {
-						
-						setNewPositionForNode(event, endNode, 
-							shapeRefs.current[endNode.name], 
-							event.evt && event.evt.screenX ? {
-								x: event.evt.screenX,
-								y: event.evt.screenY
-							} : (event.screenX ? {
-								x: event.screenX,
-								y: event.screenY
-							} : undefined), false, false, true, false, true);
+
+					if (event.evt) {
+						event.evt.preventDefault();
+						event.evt.cancelBubble = true;
+					} else {
+						event.preventDefault();
+						event.cancelBubble = true;
 					}
-				}
-				cancelDragStage();
-				return;
-			}
+					
+					if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 0) {
 
-			if (event.evt) {
-				event.evt.preventDefault();
-				event.evt.cancelBubble = true;
-			} else {
-				event.preventDefault();
-				event.cancelBubble = true;
-			}
-			
-			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 1) {
-
-				if (stage && stage.current) {
-					let stageInstance = (stage.current as any).getStage();
-					if (stageInstance) {
 						const touchPos = stageInstance.getPointerPosition();
 						let offsetX = touchPos.x - mouseStartPointerX.current;
 						let offsetY = touchPos.y - mouseStartPointerY.current;
@@ -2507,75 +2811,78 @@ export const Canvas = (props: CanvasProps) => {
 								}
 							}
 						})
-					}
-				}
-			} else {
-				setNewPositionForNode(event, touchNode.current, shapeRefs.current[(touchNode.current as any).name], 
-					event.evt && event.evt.screenX ? {
-						x: event.evt.screenX ,
-						y: event.evt.screenY 
-					} : (event.screenX ? {
-						x: event.screenX ,
-						y: event.screenY 
-					} : undefined), false, false, true);
+												
+					} else {
+						if (touchNode.current) { 
+							setNewPositionForNode(event, touchNode.current, shapeRefs.current[(touchNode.current as any).name], 
+								event.evt && event.evt.screenX ? {
+									x: event.evt.screenX ,
+									y: event.evt.screenY 
+								} : (event.screenX ? {
+									x: event.screenX ,
+									y: event.screenY 
+								} : undefined), false, false, true);
 
-				if (stage && stage.current) {
-					let stageInstance = (stage.current as any).getStage();
-					if (stageInstance) {
-						let touchPos = stageInstance.getPointerPosition();
-						
-						if (touchPos) {
-							const scaleFactor = (stageInstance as any).scaleX();
+							if (stage && stage.current) {
+								let stageInstance = (stage.current as any).getStage();
+								if (stageInstance) {
+									let touchPos = stageInstance.getPointerPosition();
+									
+									if (touchPos) {
+										const scaleFactor = (stageInstance as any).scaleX();
 
-							let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
-							let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
+										let x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
+										let y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
 
-							x = x - (x % gridSize.current);
-							y = y - (y % gridSize.current);
+										x = x - (x % gridSize.current);
+										y = y - (y % gridSize.current);
 
-							movingExistingOrNewNodeOnCanvas(x, y, true, touchNode.current, true);
+										movingExistingOrNewNodeOnCanvas(x, y, true, touchNode.current, true);
+									}
+								}
+							}
 						}
+					}	
+					
+
+					cancelDragStage();
+					return false;
+				} else {
+					
+					if (isPinching.current && event.evt && event.evt.touches && event.evt.touches.length > 1) {
+						cancelDragStage();
+						if (event.evt) {
+							event.evt.preventDefault();
+							event.evt.cancelBubble = true;
+						} else {
+							event.preventDefault();
+							event.cancelBubble = true;
+						}
+
+						/*
+							deltaY
+							toElement
+						*/
+
+						if (event.evt && event.evt.touches.length == 2) {
+							const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
+							const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
+
+							let newDistance = Math.sqrt( x*x + y*y );
+							
+							wheelEvent(
+								{
+									deltaY: newDistance - startDistance.current,
+									toElement: undefined
+								},
+								pinchStartPosition.current
+							)
+						}
+
+						
+						return false;
 					}
 				}
-			}	
-			
-
-			cancelDragStage();
-			return false;
-		} else {
-			
-			if (isPinching.current && event.evt && event.evt.touches && event.evt.touches.length > 1) {
-				cancelDragStage();
-				if (event.evt) {
-					event.evt.preventDefault();
-					event.evt.cancelBubble = true;
-				} else {
-					event.preventDefault();
-					event.cancelBubble = true;
-				}
-
-				/*
-					deltaY
-					toElement
-				*/
-
-				if (event.evt && event.evt.touches.length == 2) {
-					const x = event.evt.touches[0].screenX - event.evt.touches[1].screenX;
-					const y = event.evt.touches[0].screenY - event.evt.touches[1].screenY;
-
-					let newDistance = Math.sqrt( x*x + y*y );
-					
-					wheelEvent(
-						{
-							deltaY: newDistance - startDistance.current,
-							toElement: undefined
-						},
-						pinchStartPosition.current
-					)
-				}
-
-				
-				return false;
 			}
 		}
 	}
@@ -3266,7 +3573,7 @@ export const Canvas = (props: CanvasProps) => {
 						let subtractWidth = 0;
 						let subtractHeight = 0;
 
-						if (shapeType === "Html" && RealShape) {
+						if (shapeType === "Html") {
 							
 							containsHtmlShape = true;
 
@@ -3635,6 +3942,7 @@ export const Canvas = (props: CanvasProps) => {
 
 			document.body.classList.remove("connecting-nodes");
 			document.body.classList.remove("mouse--moving");
+			(document.body.style.cursor as any) = null;
 
 			const lineRef = shapeRefs.current[connectionForDraggingName];
 			if (lineRef) {
@@ -3732,8 +4040,16 @@ export const Canvas = (props: CanvasProps) => {
 		selectNode("", undefined);
 
 		canvasMode.setConnectiongNodeCanvasMode(false);
-		canvasMode.setSelectedTask("");		
+		canvasMode.setSelectedTask("");
 		
+		if (interactionState.current === InteractionState.multiSelect) {
+			canvasMode.setIsInMultiSelect(false);
+		}
+		touching.current = false;
+		deselectAllNodes();
+		interactionState.current = InteractionState.idle;
+		(selectingRectRef.current as any).opacity(0);
+
 		return false;
 	}
 
@@ -4786,17 +5102,32 @@ export const Canvas = (props: CanvasProps) => {
 							ref={ref => ((stage as any).current = ref)}
 							onDragMove={onDragStageMove}
 							onDragEnd={onDragStageEnd}
+							
+							onMouseDown={onStageTouchStart}
 							onTouchStart={onStageTouchStart}
 							onTouchMove={onStageTouchMove}
 							onMouseMove={onStageTouchMove}
-							onTouchEnd={onStageMouseEnd}
-							
+							onTouchEnd={onStageMouseEnd}							
 							onMouseUp={onStageMouseEnd}
+
 							onTap={clickStage}
 							className="stage-container">
 							<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
 								<Group ref={ref => ((stageGroup as any).current = ref)}>
 								<Rect x={0} y={0} width={1024} height={750}></Rect>
+								<Rect 
+									x={0} 
+									y={0} 
+									width={100} 
+									height={200}
+									listening={false}
+									stroke={"#202020"}
+									hitStrokeWidth={0}			
+									strokeWidth={4}
+									dash={[5,10]}
+									opacity={0}
+									ref={ref => ((selectingRectRef as any).current = ref)}
+								></Rect>
 								{connections.length > 0 && connections.map((node, index) => {
 
 									if (canvasHasSelectedNode &&  selectedNodeRef.current) {

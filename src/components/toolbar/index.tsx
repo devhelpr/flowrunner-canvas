@@ -271,6 +271,11 @@ export const Toolbar = (props: ToolbarProps) => {
 		return false;
 	}
 
+	const addToRepository =	(event) => {
+		event.preventDefault();
+		return false;
+	}
+
 	const saveFlow = (event) => {
 		event.preventDefault();
 		props.saveFlow(selectedFlow);
@@ -532,11 +537,23 @@ export const Toolbar = (props: ToolbarProps) => {
 								{!isFlowEditorOnly && canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
 									<img title="backend flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/server-solid.svg" />
 								}
-								{canvasMode.editorMode === "canvas" && <>
+								{canvasMode.isInMultiSelect && 
+									<a href="#" onClick={addToRepository} className="mx-2 btn btn-outline-light">Add to repository</a>
+								}
+
+								{!canvasMode.isInMultiSelect && canvasMode.editorMode === "canvas" && <>
 									<input id="snapToGrid" type="checkbox" className="ml-2" checked={snapToGrid} onChange={onSnapToGridChange} />
 									<label className="text-white mr-2" htmlFor="snapToGrid">&nbsp;Snap to grid</label>								
 								</>}
-								
+
+								{!canvasMode.isInMultiSelect && 
+									(props.hasShowDependenciesInMenu === undefined || 
+									props.hasShowDependenciesInMenu === true) &&
+									!!!selectedNode.node.name && canvasMode.editorMode === "canvas" && <>
+									<input id="showDependenciesInput" type="checkbox" checked={showDependencies} onChange={onShowDependenciesChange} />
+									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
+								</>}
+
 								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit</a>
 								}
@@ -561,18 +578,13 @@ export const Toolbar = (props: ToolbarProps) => {
 									selectedNode.node.followflow !== "onsuccess" && 
 										<a href="#" onClick={markAsHappyFlow} className={"mx-2 btn btn-outline-success"}>Mark as happy flow</a>
 								}
-								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
+								{(canvasMode.isInMultiSelect || 
+									(!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line")) && 
 									<a href="#" onClick={deleteNode} className={"mx-2 btn btn-danger"}>Delete</a>
 								}
 								{!isFlowEditorOnly && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={showSchema} className={"mx-2 btn btn-info"}>Show Schema</a>
 								}
-								{(props.hasShowDependenciesInMenu === undefined || 
-									props.hasShowDependenciesInMenu === true) &&
-									!!!selectedNode.node.name && canvasMode.editorMode === "canvas" && <>
-									<input id="showDependenciesInput" type="checkbox" checked={showDependencies} onChange={onShowDependenciesChange} />
-									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
-								</>}
 								
 								{!isFlowEditorOnly && !!props.hasRunningFlowRunner && 
 									canvasMode.editorMode === "canvas" &&
