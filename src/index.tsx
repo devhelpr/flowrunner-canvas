@@ -102,6 +102,7 @@ export interface IFlowrunnerCanvasProps {
 	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;	
 	getNodeDependencies?: (nodeName: string) => INodeDependency[];
 	renderMenuOptions? : () => JSX.Element;
+	onFlowHasChanged? : (flow : any) => void;
 }
 
 export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
@@ -253,6 +254,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					modalSize={props.modalSize}
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 					getNodeDependencies={props.getNodeDependencies}
+					onFlowHasChanged={props.onFlowHasChanged}
 				></CanvasComponent>
 			</ErrorBoundary>	
 		</Suspense>		
