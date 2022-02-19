@@ -4466,6 +4466,8 @@ console.log("clearstate");
 						if (props.flowrunnerConnector.hasStorageProvider) {
 							props.saveFlow();
 						}
+
+						interactionState.current = InteractionState.idle;
 					}				
 				}
 			} else {
