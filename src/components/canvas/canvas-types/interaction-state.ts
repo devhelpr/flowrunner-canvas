@@ -9,5 +9,5 @@ export enum InteractionState {
   draggingNodesDownstream,
   draggingNodesUpstream,
   selectingNodes,
-  multiSelect
+  multiSelect,
 }

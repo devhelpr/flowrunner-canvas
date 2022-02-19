@@ -103,11 +103,11 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
       set(state => ({
         flowsUpdateId: id,
       })),
-    setIsInMultiSelect: (isInMultiSelect: boolean) => 
+    setIsInMultiSelect: (isInMultiSelect: boolean) =>
       set(state => ({
         isInMultiSelect: isInMultiSelect,
-      }))
-  };  
+      })),
+  };
 };
 
 export const useCanvasModeStateStore = create<ICanvasModeState>(set => storeHandler(set));
