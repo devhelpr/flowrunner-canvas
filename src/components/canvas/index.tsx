@@ -71,6 +71,8 @@ export interface CanvasProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
 	getNodeDependencies?: (nodeName: string) => INodeDependency[];
+
+	onFlowHasChanged? : (flow : any) => void;
 }
 
 export interface CanvasState {
@@ -682,6 +684,10 @@ export const Canvas = (props: CanvasProps) => {
 	useEffect(() => {
 		//(flowIsLoading as any).current = true;
 		
+		if (props.onFlowHasChanged) {
+			props.onFlowHasChanged(flowStore.flow);
+		}
+
 		let subscription;
 		if (props.canvasToolbarsubject) {
 			
