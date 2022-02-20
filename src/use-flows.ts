@@ -15,7 +15,7 @@ export enum FlowState {
   error,
 }
 
-export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: string | number) => {
+export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: string | number, onFlowHasChanged? : (flow : any) => void) => {
   const [flowState, setFlowState] = useState(FlowState.idle);
   const [currentFlowId, setCurrentFlowId] = useState(flowId);
   const [flow, setFlow] = useState([] as any[]);
@@ -143,6 +143,9 @@ export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: str
       if (flowrunnerConnector.hasStorageProvider) {
         console.log('flowAndUpdatedPositions', flowAndUpdatedPositions);
         flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
+        if (onFlowHasChanged) {
+          onFlowHasChanged(flowAndUpdatedPositions);
+        }
         if (selectedFlow) {
           loadFlow(selectedFlow); //,true
         }

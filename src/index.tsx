@@ -134,7 +134,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	if (!!props.developmentMode) {
 		registerPlugins(registerFlowRunnerCanvasPlugin);
 	}
-	const flows = useFlows(flowrunnerConnector.current);
+	const flows = useFlows(flowrunnerConnector.current,undefined,props.onFlowHasChanged);
 	
 	useEffect(() => {			
 
@@ -253,8 +253,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					saveFlow={flows.saveFlow}
 					modalSize={props.modalSize}
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
-					getNodeDependencies={props.getNodeDependencies}
-					onFlowHasChanged={props.onFlowHasChanged}
+					getNodeDependencies={props.getNodeDependencies}				
 				></CanvasComponent>
 			</ErrorBoundary>	
 		</Suspense>		
