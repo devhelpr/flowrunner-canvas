@@ -15,7 +15,11 @@ export enum FlowState {
   error,
 }
 
-export const useFlows = (flowrunnerConnector: IFlowrunnerConnector, flowId?: string | number, onFlowHasChanged? : (flow : any) => void) => {
+export const useFlows = (
+  flowrunnerConnector: IFlowrunnerConnector,
+  flowId?: string | number,
+  onFlowHasChanged?: (flow: any) => void,
+) => {
   const [flowState, setFlowState] = useState(FlowState.idle);
   const [currentFlowId, setCurrentFlowId] = useState(flowId);
   const [flow, setFlow] = useState([] as any[]);
