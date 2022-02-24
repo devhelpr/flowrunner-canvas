@@ -1570,6 +1570,8 @@ export const Canvas = (props: CanvasProps) => {
 			return;			
 		}
 
+		
+
 		if (!event.evt) {
 			event.persist();
 		}
@@ -1582,7 +1584,6 @@ export const Canvas = (props: CanvasProps) => {
 				mouseStartPointerY.current = touchPos.y;
 			}
 		}	
-
 		touching.current = true;
 		touchNode.current = node;
 		touchNodeGroup.current = event.currentTarget;
@@ -1592,30 +1593,8 @@ export const Canvas = (props: CanvasProps) => {
 		if (event.currentTarget) {
 			
 			document.body.classList.add("mouse--moving");
-			if (node && node.shapeType === "Line") {				
-				if (node.startshapeid) {				
-					interactionState.current = InteractionState.draggingNodesByConnection;
-					const shapeRef = shapeRefs.current[node.startshapeid];
-					if (shapeRef) {
-						determineStartPosition(shapeRef.getGroupRef(),
-							getCurrentPosition(event));
-					} else {
-						determineStartPosition(getPosition(node.startshapeid),
-							getCurrentPosition(event));
-					}	
-					
-				}
-				if (node.endshapeid) {		
-					interactionState.current = InteractionState.draggingNodesByConnection;
-					const shapeRef = shapeRefs.current[node.endshapeid];
-					if (shapeRef) {		
-						determineEndPosition(shapeRef.getGroupRef(),
-							getCurrentPosition(event));
-					} else {
-						determineEndPosition(getPosition(node.endshapeid),
-							getCurrentPosition(event));
-					}
-				}
+			if (node && node.shapeType === "Line") {	
+				
 				return;
 			} else {
 				let stageInstance = (stage.current as any).getStage();
@@ -1777,6 +1756,31 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		if (node.shapeType === "Line" || (touchNode.current && (touchNode.current as any).shapeType === "Line")) {
+			if (touching.current && interactionState.current !== InteractionState.draggingNodesByConnection) {
+				if (node.startshapeid) {				
+					interactionState.current = InteractionState.draggingNodesByConnection;
+					const shapeRef = shapeRefs.current[node.startshapeid];
+					if (shapeRef) {
+						determineStartPosition(shapeRef.getGroupRef(),
+							getCurrentPosition(event));
+					} else {
+						determineStartPosition(getPosition(node.startshapeid),
+							getCurrentPosition(event));
+					}	
+					
+				}
+				if (node.endshapeid) {		
+					interactionState.current = InteractionState.draggingNodesByConnection;
+					const shapeRef = shapeRefs.current[node.endshapeid];
+					if (shapeRef) {		
+						determineEndPosition(shapeRef.getGroupRef(),
+							getCurrentPosition(event));
+					} else {
+						determineEndPosition(getPosition(node.endshapeid),
+							getCurrentPosition(event));
+					}
+				}				
+			}
 			return;
 		}
 /*
@@ -1896,12 +1900,22 @@ console.log("clearstate");
 		canvasMode.setConnectiongNodeCanvasMode(false);
 	}
 
-	const onMouseEnd = (node, event) => {		
+	const onMouseEnd = (node, event) => {	
 		if (isPinching.current) {
 			return;			
 		}
 	
 		if (node.shapeType === "Line") {
+			if (interactionState.current !== InteractionState.draggingNodesByConnection) {
+				touching.current = false;
+				(touchNode.current as any) = undefined;
+				touchNodeGroup.current = undefined;
+				mouseDragging.current = false;
+				draggingMultipleNodes.current = [];
+				interactionState.current = InteractionState.idle;
+
+				selectNode(node.name, node);
+			}
 			return;
 		}
 
@@ -2314,7 +2328,6 @@ console.log("clearstate");
 	
 	const onStageTouchStart = (event) => {
 		isPinching.current = false;
-		
 		if (event && event.evt && !!event.evt.shiftKey) {
 			cancelDragStage();
 			selectedNodes.current = [];
@@ -3398,9 +3411,13 @@ console.log("clearstate");
 	}
 
 	const onClickLine = (node, event) => {		
+
+		console.log("onClickLine", node);
+		
 		event.cancelBubble = true;
 		event.evt.preventDefault();
 		cancelDragStage();
+		
 		if (node.notSelectable) {
 			return false;
 		}
@@ -5120,8 +5137,8 @@ console.log("clearstate");
 								<Rect 
 									x={0} 
 									y={0} 
-									width={100} 
-									height={200}
+									width={0} 
+									height={0}
 									listening={false}
 									stroke={"#202020"}
 									hitStrokeWidth={0}			
