@@ -37,6 +37,7 @@ export const Taskbar = (props: TaskbarProps) => {
 	const [metaDataInfo, setMetaDataInfo] = useState([] as any[]);
 	const [menuMode, setMenuMode] = useState(TaskMenuMode.tasks);
 	const [modules , setModules] = useState([] as IModule[]);
+	const [repositoryItems, setRepositoryItems] = useState({} as any);
 	const canvasMode = useCanvasModeStateStore();
 	const modulesMenu = useModulesStateStore();
 	
@@ -101,8 +102,26 @@ export const Taskbar = (props: TaskbarProps) => {
 		});
 	}
 
+	const loadRepositoryItems = () => {
+		fetch('/api/module?codeName=repository')
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(repositoryItems => {
+			console.log("repositoryItems", repositoryItems);
+			setRepositoryItems(repositoryItems);			
+		})
+		.catch(err => {
+			console.error(err);
+		});
+	}
+
 	useEffect(() => {
-		loadTasks();		
+		loadTasks();
+		loadRepositoryItems();	
 	}, [canvasMode]);
 
 	useEffect(() => {
@@ -172,20 +191,51 @@ export const Taskbar = (props: TaskbarProps) => {
 			</div>;	
 		}	
 
-		return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>
-			<div className="taskbar__taskname">{className}</div>
+		return <div id={`task_${className}`} className="taskbar__task" title={className} data-task={className} data-id={taskMetaData.id ?? ""} draggable={html5DragAndDrop} onDragStart={onDragStart}>
+			<div className="taskbar__taskname">{taskMetaData.title || className}</div>
 			{taskMetaData.icon && <span className={"taskbar__task-icon fas " +  taskMetaData.icon}></span>}			
 		</div>;
 	}
 
+	const testRepoItem1 : any = {
+		className : "repo-item1",
+		id: "1234-5678-9012-3456",
+		title : "Repo Item 1"	
+	};
+
+	const testRepoItem2 : any = {
+		className : "repo-item2",
+		id: "2345-5678-9012-3456",
+		title : "Repo Item 2"	
+	};
+
 	return <>
 		<div className="taskbar" style={{pointerEvents: props.isDragging?"none":"auto"}}>
 			{menuMode == TaskMenuMode.tasks ?
-				<div className="taskbar__ribbon">{metaDataInfo.map((taskMetaData : any, index) => {
+				<div className="taskbar__ribbon">
+					<>{metaDataInfo.map((taskMetaData : any, index) => {
 					return <Draggable id={taskMetaData.className} key={taskMetaData.className}>
 							{renderRect(taskMetaData.className, taskMetaData)}
 						</Draggable>					
-				})}</div> : 
+				})}
+					<div>
+						<div className="p-1 tw-mt-4 tw-bg-gray-300"><h2>Repository</h2></div>
+						{repositoryItems && repositoryItems.items && repositoryItems.items.map((repoItem : any, index) => {
+
+							const taskRepoItem : any = {
+								className :"repo-item" + index,
+								id: repoItem.id,
+								title : repoItem.name
+							};
+
+							return <Draggable id={taskRepoItem.className} key={taskRepoItem.className}>
+								{renderRect(taskRepoItem.className, taskRepoItem)}
+							</Draggable>
+						})}
+					</div>
+				</>
+				
+				</div> : 
 				<>{modules.map((module, index) => {
 						return <button key={"module-" + index} onClick={(event) => onShowModule(module, event)} className="btn btn-outline-primary w-100 mb-2">{module.name}</button>
 					})}

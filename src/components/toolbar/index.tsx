@@ -20,7 +20,7 @@ import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
-
+import { getPosition } from '../../services/position-service';
 
 import { NamePopup } from '../popups/name-popup';
 import * as uuid from 'uuid';
@@ -273,6 +273,116 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const addToRepository =	(event) => {
 		event.preventDefault();
+		console.log("addToRepository", canvasMode.selectedNodes, flow.flow);
+		if (flow.flow &&
+			canvasMode.isInMultiSelect && canvasMode.selectedNodes.length > 0) {
+			let repoFlow : any[] = [];
+			let renameIdMap : any = {};
+			let idCounter = 1;
+			let xmin = 99999999;
+			let ymin = 99999999;
+			canvasMode.selectedNodes.forEach((nodeName) => {
+				flow.flow.forEach((node) => {
+					if (node.shapeType !== "Line" && node.name === nodeName) {
+						renameIdMap[nodeName] = "node" + idCounter;
+						idCounter++;
+						repoFlow.push({...node, 
+							id :renameIdMap[nodeName], 
+							name: renameIdMap[nodeName]
+						});
+
+						const position = getPosition(node.name) || {
+							x: node.x,
+							y: node.y
+						}
+
+						if (position.x < xmin) {
+							xmin = position.x;
+						}
+
+						if (node.y < ymin) {
+							ymin = position.y;
+						}
+					}
+				 });
+			});
+
+			flow.flow.forEach((node) => {
+				if (node.shapeType === "Line" && 						
+					renameIdMap[node.startshapeid] &&
+					renameIdMap[node.endshapeid]) {
+					
+					renameIdMap[node.name] = "node" + idCounter;
+					idCounter++;
+
+					repoFlow.push({...node, 
+						id: renameIdMap[node.name], 
+						name: renameIdMap[node.name],
+						startshapeid: renameIdMap[node.startshapeid],
+						endshapeid: renameIdMap[node.endshapeid]
+					});					
+				}				
+			});
+
+
+			repoFlow = repoFlow.map((node) => {
+				if (node.shapeType === "Line") {
+
+					const position = getPosition(node.name) || {
+						xstart: node.xstart,
+						ystart: node.ystart,
+						xend: node.xend,
+						yend: node.yend,
+					}
+
+					return {...node, 
+						xstart: position.xstart - xmin, 
+						ystart: position.ystart - ymin, 
+						xend: position.xend - xmin, 
+						yend: position.yend - ymin
+					}; 
+				} else {
+					const position = getPosition(node.name) || {
+						x: node.x,
+						y: node.y
+					};
+
+					return {...node, 
+						x: position.x - xmin, 
+						y: position.y - ymin
+					};
+				}
+			});
+
+			console.log("repoFlow", repoFlow);
+
+			if (repoFlow.length > 0) {
+				const unique = new Date().getTime();
+				fetch('/api/modulecontent?moduleId=repository', {
+					method: 'POST',
+					body: JSON.stringify({
+						data: {
+							name: "repo" + unique,
+							title: "repo" + unique,
+							flow: JSON.stringify(repoFlow)
+						}
+					}),
+					headers: {
+					  'Content-Type': 'application/json',
+					},
+				  })
+				.then(res => {
+					if (res.status >= 400) {
+					throw new Error('Bad response from server');
+					}
+		
+					return true;
+				})					
+				.catch(err => {
+					console.error(err);
+				});
+			}
+		}
 		return false;
 	}
 

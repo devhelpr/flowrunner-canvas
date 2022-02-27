@@ -230,7 +230,7 @@ gulp.task('postcss', () => {
   
   var processors = [
     require('postcss-import'),
-    require('postcss-nested'),
+    require('tailwindcss/nesting'),
     require("tailwindcss"),
 		autoprefixer({
       overrideBrowserslist: ["last 2 versions", "ie >= 11"],
@@ -252,7 +252,7 @@ gulp.task('default', gulp.series('build', 'postcss', 'startFlowServer', function
   console.log("WATCHING...");
   
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
-  gulp.watch('styles/*.pcss', gulp.series('postcss'));
+  gulp.watch(['styles/*.pcss','src/**/*.{ts,tsx}'], gulp.series('postcss'));
 }));
 
 gulp.task('esbuild', gulp.series('builddev', 'postcss', 'startFlowServer', function () {

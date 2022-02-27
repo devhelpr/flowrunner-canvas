@@ -613,6 +613,38 @@ function start(flowFileName, taskPlugins, options) {
 		});	
 		app.get('/api/modulecontent', (req, res) => {		
 			// get module content item
+
+			let isSend = false;
+			if (req.query.moduleId && req.query.id) {
+				let isFound = false;
+				
+				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
+				modules.map((module) => {
+					if ((module.id === req.query.moduleId ||
+						 module.codeName === req.query.moduleId)
+						&& !isFound) {
+						isFound = true;
+						if (module.moduleType == "crud-model") {
+							const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));							
+							
+							console.log("moduleContent", moduleContent);
+							if (!isSend && moduleContent && moduleContent.length > 0) {
+								moduleContent.forEach((contentItem) => {
+									console.log("contentItem", contentItem.id);
+									if (contentItem.id === req.query.id) {
+										res.send(JSON.stringify(contentItem));
+										isSend = true;
+									}
+								});
+							}														
+						}
+					}
+				});
+			}
+
+			if (!isSend) {
+				res.status(404).send(JSON.stringify({}));
+			}
 		});
 		app.put('/api/modulecontent', (req, res) => {	
 			// save/update existing module content item	
@@ -692,12 +724,14 @@ function start(flowFileName, taskPlugins, options) {
 		});
 		app.post('/api/modulecontent', (req, res) => {	
 			// new module content item
-			
+			console.log("post modulecontent", req.query.moduleId);
 			if (req.query.moduleId) {
 				let isFound = false;
 				const modules = JSON.parse(fs.readFileSync("./data/modules/modules.json"));
 				modules.map((module) => {
-					if (module.id == req.query.moduleId && !isFound) {
+					if ((module.id == req.query.moduleId ||
+						 module.codeName === req.query.moduleId 
+						) && !isFound) {
 						const moduleContent = JSON.parse(fs.readFileSync("./data/modules/" + module.fileName));
 						const newId = uuidV4();
 						moduleContent.push({...req.body.data, id: newId});

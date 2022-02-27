@@ -1999,8 +1999,8 @@ console.log("clearstate");
 		
 		if (interactionState.current === InteractionState.selectingNodes) {
 			interactionState.current = InteractionState.multiSelect;
-			selectNodesForSelectRectangle(event);
-			canvasMode.setIsInMultiSelect(true);
+			const nodes = selectNodesForSelectRectangle(event);
+			canvasMode.setIsInMultiSelect(true, nodes);
 			return;
 		}
 		
@@ -2254,8 +2254,7 @@ console.log("clearstate");
 	
 		onStageMouseEnd(event);
 
-		if (interactionState.current === InteractionState.selectingNodes ||
-			interactionState.current === InteractionState.multiSelect) {
+		if (interactionState.current === InteractionState.selectingNodes) {
 			interactionState.current = InteractionState.idle;
 			(selectingRectRef.current as any).opacity(0);
 			selectedNodes.current = [];
@@ -2531,9 +2530,11 @@ console.log("clearstate");
 				});
 
 				selectedNodes.current = nodesInBoundary;
+				return nodesInBoundary;
 
 			}
 		}
+		return [];
 	}, [flowStore.flow]);
 	
 	const moveSelectRectangle = (event) => {
@@ -2839,7 +2840,7 @@ console.log("clearstate");
 							if (stage && stage.current) {
 								let stageInstance = (stage.current as any).getStage();
 								if (stageInstance) {
-									let touchPos = stageInstance.getPointerPosition();
+									const touchPos = getCurrentPosition(event);
 									
 									if (touchPos) {
 										const scaleFactor = (stageInstance as any).scaleX();
@@ -4060,7 +4061,7 @@ console.log("clearstate");
 		canvasMode.setSelectedTask("");
 		
 		if (interactionState.current === InteractionState.multiSelect) {
-			canvasMode.setIsInMultiSelect(false);
+			canvasMode.setIsInMultiSelect(false, []);
 		}
 		touching.current = false;
 		deselectAllNodes();
@@ -4329,7 +4330,92 @@ console.log("clearstate");
 		addTaskToCanvas(taskClassName);
 	}
 
+	const addFlowFromRepoToCanvas = (repositoryItem : any) => {
+		if (repositoryItem) {
+			let repoFlow = JSON.parse(repositoryItem.flow);
+
+			if (stage && stage.current) {		
+				let stageInstance = (stage.current as any).getStage();
+				const position = (stageInstance as any).getPointerPosition();
+				const scaleFactor = (stageInstance as any).scaleX();
+
+				const x = (position.x - (stageInstance).x()) / scaleFactor; 
+				const y = (position.y - (stageInstance).y()) / scaleFactor;
+
+				let renameIdMap : any = {}; 
+				repoFlow = repoFlow.map((node : any) => {
+					if (node.shapeType !== "Line") {
+						renameIdMap[node.name] = uuidV4();
+						return {...node,
+							name: renameIdMap[node.name],
+							id: renameIdMap[node.name]
+						}
+					}
+					return node;
+				});
+				repoFlow = repoFlow.map((node : any) => {
+					if (node.shapeType === "Line") {
+						renameIdMap[node.name] = uuidV4();
+						return {...node,
+							name: renameIdMap[node.name],
+							id: renameIdMap[node.name],
+							startshapeid: renameIdMap[node.startshapeid],
+							endshapeid: renameIdMap[node.endshapeid]
+						}
+					}
+					return node;
+				});
+
+				repoFlow.forEach((node) => {
+					if (node.shapeType === "Line") {
+						node.xstart += x;
+						node.ystart += y;
+						node.xend += x;
+						node.yend += y;
+						setPosition(node.name, {
+							xstart: node.xstart,
+							ystart: node.ystart,
+							xend: node.xend,
+							yend: node.yend
+						});
+					} else {
+						node.x += x;
+						node.y += y;
+						setPosition(node.name, {
+							x: node.x,
+							y: node.y
+						});
+					}
+				});
+				flowStore.addFlowNodes(repoFlow);
+			}
+		}
+	}
+
 	const addTaskToCanvas = (taskClassName : string) => {
+		if (taskClassName.indexOf("repo-item") == 0) {
+			const element = document.getElementById("task_"+taskClassName);
+			if (element) {
+				const taskId = element.getAttribute('data-id');
+				fetch(`/api/modulecontent?moduleId=repository&id=${taskId}`)
+				.then(res => {
+					if (res.status >= 400) {
+						throw new Error("Bad response from server");
+					}
+					return res.json();
+				})
+				.then(repositoryItem => {
+					console.log("repositoryItem", repositoryItem);
+					addFlowFromRepoToCanvas(repositoryItem);
+
+				})
+				.catch(err => {
+					console.error(err);
+				});
+			}
+			return;
+		}
+
 		//const taskClassName = event.target.getAttribute("data-task");
 		if (stage && stage.current) {			
 			let _stage = (stage.current as any).getStage();
@@ -4512,6 +4598,7 @@ console.log("clearstate");
 			// an existing node that is already connected on both ends, shall not
 			// be auto connected to other nodes
 			if (mappedNode.start.length > 0 && mappedNode.end.length > 0) {
+				console.log("movingExistingOrNewNodeOnCanvas mappedNode.start.length > 0 && mappedNode.end.length > 0");
 				return;
 			}
 		}
@@ -4531,7 +4618,21 @@ console.log("clearstate");
 					position.x = dropX;
 					position.y = dropY;
 				}
-				const minDistanceForAutoConnect = 500; // 750
+
+				/*
+					TODO : calcluate position leff/right/top/bottom for current node being dragged
+					- node can be dragged to stage (position is center, so easier to calculate)
+					- node can be already on stage
+
+					calculate the closest positions depending on where the nodes are
+					 relative to each other, for example
+						- if the node is being dragged is on the left side of a node on stage,
+							the only calculate the position of the output of the node being dragged to the input of the node on stage
+								.. and so on
+
+					
+				*/
+				const minDistanceForAutoConnect = 750; // 750
 				let minDistance = -1;
 				let closestNode : any;
 				let closestStartNode : any;
@@ -4621,8 +4722,22 @@ console.log("clearstate");
 						}
 					} else
 					if (node.shapeType !== 'Line') {
-						if (!!isConnectingToExistingNode) {
+						if (!!isConnectingToExistingNode && existingNode) {
+
+							/*
+								This doesn't work yet because when dragging
+								an existing node, the connections are not
+								connected to the thumbs while dragging
+
+								AND
+
+								in stagetouchend the nodes are not connected
+								via a connections
+							*/
 							return;
+							if (node.name === existingNode.name) {
+								return;
+							}
 						}
 
 						const nodePosition = getPosition(node.name);
@@ -4633,29 +4748,44 @@ console.log("clearstate");
 
 						}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.default);
 
+						const bottomPosition = FlowToCanvas.getStartPointForLine(node,{
+							x: nodePosition.x,
+							y: nodePosition.y
+
+						}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
+
 						const leftPosition = FlowToCanvas.getEndPointForLine(node,{
 							x: nodePosition.x,
 							y: nodePosition.y
 
 						}, undefined, props.getNodeInstance);
 
+						const topPosition = FlowToCanvas.getEndPointForLine(node,{
+							x: nodePosition.x,
+							y: nodePosition.y
+
+						}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.top);
+
 						let distanceTop = -1;
 						let distanceBottom = -1;
 						if (node.shapeType === "Diamond") {
-							const topPosition = FlowToCanvas.getStartPointForLine(node,{
+							const topPositionDiamond = FlowToCanvas.getStartPointForLine(node,{
 								x: nodePosition.x,
 								y: nodePosition.y
 	
 							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.top);
 
-							const bottomosition = FlowToCanvas.getStartPointForLine(node,{
+							const bottomPositionDiamond = FlowToCanvas.getStartPointForLine(node,{
 								x: nodePosition.x,
 								y: nodePosition.y
 	
 							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
 
-							distanceTop = getDistance(position,topPosition);
-							distanceBottom = getDistance(position,bottomosition);
+							distanceTop = getDistance(position,topPositionDiamond);
+							distanceBottom = getDistance(position,bottomPositionDiamond);
+						} else {
+							//distanceTop = getDistance(position, topPosition);
+							//distanceBottom = getDistance(position, bottomPosition);
 						}
 						const distanceLeft = getDistance(position,leftPosition);
 						const distanceRight = getDistance(position,rightPosition);
@@ -5035,6 +5165,10 @@ console.log("clearstate");
 	}
 
 	const handleDragMove = (event) => {
+		if (activeId?.indexOf("repo-item") == 0) {
+			return "";
+		}
+
 		let element	 = document.querySelector(".taskbar__task-dragging");
 		if (element) {
 			let rect = element.getBoundingClientRect();

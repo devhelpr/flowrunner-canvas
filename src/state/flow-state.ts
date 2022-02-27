@@ -12,6 +12,7 @@ interface IFlowState extends State {
   storeFlow: (flow: any[], flowId: string) => void;
   storeFlowNode: (node: any, orgNodeName: string) => void;
   addFlowNode: (node: any) => void;
+  addFlowNodes: (nodes: any[]) => void;
   addConnection: (connection: any) => void;
   deleteConnection: (node: any) => void;
   deleteNode: (node: any, deleteLines: boolean) => void;
@@ -103,6 +104,14 @@ let storeHandler = (set: SetState<IFlowState>): IFlowState => {
           end: [] as number[],
         });*/
         let flow = [...state.flow, node];
+        return {
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          flow: flow,
+        };
+      }),
+    addFlowNodes: (nodes: any[]) => 
+      set(state => {        
+        let flow = [...state.flow, ...nodes];
         return {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
           flow: flow,

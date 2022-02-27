@@ -1,9 +1,12 @@
 @tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.test {
-  @apply px-4 py-2 rounded font-semibold bg-gray-200 text-black;
+@layer components {
+	.test {
+		@apply tw-px-4 tw-py-2 tw-rounded tw-font-semibold tw-bg-gray-200 tw-text-black;
+	}
 }
-
 * {
 	box-sizing: border-box;
 }
@@ -13,7 +16,7 @@ body, html {
 	max-height: 100vh;
 	min-height: 100vh;
 	overflow: hidden;
-    overscroll-behavior-x: none;
+	overscroll-behavior-x: none;
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -67,9 +70,9 @@ img {
 .toolbar__root {
 	height: 72px;
 	position: absolute;
-    top: 0;
-    height: 72px;
-    z-index: 10000;
+	top: 0;
+	height: 72px;
+	z-index: 10000;
 	width: 100%;
 }
 
@@ -132,7 +135,7 @@ img {
 }
 .dummy {
 	height: calc(100% - 70px);
-    top: 70px;
+	top: 70px;
 }
 
 .canvas__html-elements {
@@ -167,24 +170,24 @@ img {
 
 .canvas__html-shape-thumb-start {
 	width: 16px;
-    height: 16px;
-    background: transparent;
-    position: absolute;
-    right: 0px;
-    top: 44px;
+	height: 16px;
+	background: transparent;
+	position: absolute;
+	right: 0px;
+	top: 44px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
-    height: 0px;
+	height: 0px;
 	
 	border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
+	border-bottom: 12px solid transparent;
 	border-right: 12px solid #c2c2c2;
 
 	width: 16px;
-    height: 16px;
+	height: 16px;
 	border-radius: 3px;
 	right: -8px;
 
@@ -194,12 +197,12 @@ img {
 
 .canvas__html-shape-thumb-start::before {
 	content: "";
-    position: absolute;
-    top: -4px;
+	position: absolute;
+	top: -4px;
 	z-index: 2;
 	
 	width: 20px;
-    height: 20px;
+	height: 20px;
 	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
@@ -207,48 +210,48 @@ img {
 }
 
 .canvas__html-shape-thumb-start::after {
-    content: "";
-    width: 60px;
-    height: 60px;
-    display: block;
-    border-radius: 50%;
-    position: absolute;
-    top: -24px;
-    left: -21px;
-    clip-path: ellipse(30% 100% at 72% 50%);
+	content: "";
+	width: 60px;
+	height: 60px;
+	display: block;
+	border-radius: 50%;
+	position: absolute;
+	top: -24px;
+	left: -21px;
+	clip-path: ellipse(30% 100% at 72% 50%);
 }
 
 .canvas__html-shape-thumb-startbottom {
 	width: 16px;
-    height: 16px;
-    background: transparent;
-    position: absolute;
-    left: calc(50% - 8px);
-    bottom: -14px;
+	height: 16px;
+	background: transparent;
+	position: absolute;
+	left: calc(50% - 8px);
+	bottom: -14px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
-    height: 0px;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
+	height: 0px;
+	border-top: 12px solid transparent;
+	border-bottom: 12px solid transparent;
 	border-right: 12px solid #c2c2c2;
 	
 	width: 16px;
-    height: 16px;
+	height: 16px;
 	border-radius: 3px;
 	border: 2px #ffffff solid;
 	background: #ffffff;
 }
 .canvas__html-shape-thumb-startbottom::before {
 	content: "";
-    position: absolute;
-    top: -4px;
+	position: absolute;
+	top: -4px;
 	z-index: 2;
 	
 	width: 20px;
-    height: 20px;
+	height: 20px;
 	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
@@ -256,33 +259,33 @@ img {
 }
 
 .canvas__html-shape-thumb-startbottom::after {
-    content: "";
-    width: 60px;
-    height: 60px;
-    display: block;
-    border-radius: 50%;
-    position: absolute;
-    top: -24px;
-    left: -24px;
-    clip-path: ellipse(100% 30% at 50% 72%);
+	content: "";
+	width: 60px;
+	height: 60px;
+	display: block;
+	border-radius: 50%;
+	position: absolute;
+	top: -24px;
+	left: -24px;
+	clip-path: ellipse(100% 30% at 50% 72%);
 }
 
 .canvas__html-shape-thumb-end {
 	width: 16px;
-    height: 16px;
-    background: transparent;
-    position: absolute;	
+	height: 16px;
+	background: transparent;
+	position: absolute;	
 	left: 0px;
-    top: 44px;
+	top: 44px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
-    height: 0px;
+	height: 0px;
 	
 	border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
+	border-bottom: 12px solid transparent;
 	border-left: 12px solid #c2c2c2;
 
 	width: 16px;
@@ -296,12 +299,12 @@ img {
 
 .canvas__html-shape-thumb-end::before {
 	content: "";
-    position: absolute;
-    top: -4px;
+	position: absolute;
+	top: -4px;
 	z-index: 2;
 	
 	width: 20px;
-    height: 20px;
+	height: 20px;
 	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
@@ -309,34 +312,34 @@ img {
 }
 
 .canvas__html-shape-thumb-end::after {
-    content: "";
-    width: 60px;
-    height: 60px;
-    display: block;
-    border-radius: 50%;
-    position: absolute;
-    top: -24px;
-    left: -28px;
-    clip-path: ellipse(67% 100% at -6% 50%);
+	content: "";
+	width: 60px;
+	height: 60px;
+	display: block;
+	border-radius: 50%;
+	position: absolute;
+	top: -24px;
+	left: -28px;
+	clip-path: ellipse(67% 100% at -6% 50%);
 }
 
 
 
 .canvas__html-shape-thumb-endtop {
 	width: 16px;
-    height: 16px;
-    background: transparent;
-    position: absolute;
+	height: 16px;
+	background: transparent;
+	position: absolute;
 	left: calc(50% - 8px);
-    top: -14px;
+	top: -14px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
 
 	width: 0px;
-    height: 0px;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
+	height: 0px;
+	border-top: 12px solid transparent;
+	border-bottom: 12px solid transparent;
 	border-left: 12px solid #c2c2c2;
 	
 	width: 16px;
@@ -348,12 +351,12 @@ img {
 
 .canvas__html-shape-thumb-endtop::before {
 	content: "";
-    position: absolute;
-    top: -4px;
+	position: absolute;
+	top: -4px;
 	z-index: 2;
 	
 	width: 20px;
-    height: 20px;
+	height: 20px;
 	border-radius: 5px;
 	right: -4px;
 	border: 2px #e2e2e2 solid;
@@ -361,15 +364,15 @@ img {
 }
 
 .canvas__html-shape-thumb-endtop::after {
-    content: "";
-    width: 60px;
-    height: 60px;
-    display: block;
-    border-radius: 50%;
-    position: absolute;
-    top: -24px;
-    left: -24px;
-    clip-path: ellipse(100% 67% at 50% -6%);
+	content: "";
+	width: 60px;
+	height: 60px;
+	display: block;
+	border-radius: 50%;
+	position: absolute;
+	top: -24px;
+	left: -24px;
+	clip-path: ellipse(100% 67% at 50% -6%);
 }
 
 .canvas__html-shape--no-inputs .canvas__html-shape-thumb-endtop,
@@ -385,15 +388,15 @@ img {
 
 .canvas__html-shape-event {
 	width: 16px;
-    height: 16px;
-    background: transparent;
-    position: absolute;
+	height: 16px;
+	background: transparent;
+	position: absolute;
 	right: 0px;
-    top: 44px;
-    z-index: 2;
+	top: 44px;
+	z-index: 2;
 
 	border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
+	border-bottom: 12px solid transparent;
 	border-right: 12px solid #a000a0;
 	
 	width: 16px;
@@ -440,7 +443,7 @@ img {
 
 	transition: filter 0.15s ease-in-out, background-color 0.15s ease-in-out;
 	border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
+	border-bottom-left-radius: 8px;
 
 	user-select: none;
 }
@@ -451,24 +454,24 @@ img {
 
 .html-plugin-node__visibility {
 	position: absolute;
-    left: 20px;
-    top: 15px;
-    opacity: .5;
+	left: 20px;
+	top: 15px;
+	opacity: .5;
 }
 
 .html-plugin-node__h-100 {
 	display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-    align-items: stretch;
-    padding: 10px;
-    height: calc(100%);
-    width: 100%;
-    margin: 0 auto;
-    flex: 1 0 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
+	flex-direction: column;
+	justify-content: stretch;
+	align-items: stretch;
+	padding: 10px;
+	height: calc(100%);
+	width: 100%;
+	margin: 0 auto;
+	flex: 1 0 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .html-plugin-node--animatedgridcanvashtml-plugin-node__h-100 {
@@ -551,10 +554,10 @@ img {
 	width: 100%;
 
 	flex: 1 1 100%;
-    background: white;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+	background: white;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 
 ._connecting-nodes .canvas__html-shape-body {
@@ -565,7 +568,7 @@ img {
 	/*white-space: normal;*/
 	
 	white-space: pre-wrap;
-    word-break: break-word;
+	word-break: break-word;
 }
 
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
@@ -611,15 +614,15 @@ img {
 
 
 .canvas-controller__scroll-container .html-plugin-node::before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: -27px;
-    left: 0px;
-    width: 100%;
-    height: calc(100% + 29px);
-    border: 2px transparent solid;
-    border-radius: 8px;
+	content: "";
+	display: block;
+	position: absolute;
+	top: -27px;
+	left: 0px;
+	width: 100%;
+	height: calc(100% + 29px);
+	border: 2px transparent solid;
+	border-radius: 8px;
 	transition: border 0.2s ease-in-out;
 	z-index: 2;
 }
@@ -678,18 +681,18 @@ img {
 
 .taskbar {
 	position: absolute;
-    top: 72px;
+	top: 72px;
 	width: 48px;
 	width: 128px;
-    background: #f8f8f8;
-    left: 0;
+	background: #f8f8f8;
+	left: 0;
 	height: calc(100% - 72px);
 	padding: 5px;
 	z-index: 10000;
 	
 	display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+	flex-direction: column;
+	justify-content: flex-start;
 	align-items: center;
 	padding-top: 10px;
 
@@ -710,8 +713,8 @@ img {
 	align-items: center;
 	width: 100%;
 	padding: 5px;
-    border: 1px solid #e2e2e2;
-    margin-bottom: 2px;
+	border: 1px solid #e2e2e2;
+	margin-bottom: 2px;
 	min-height: 32px;
 }
 
@@ -721,14 +724,14 @@ img {
 
 .taskbar__task svg {
 	flex: 0 0 auto;
-    justify-content: flex-end;
-    margin-left: auto;
+	justify-content: flex-end;
+	margin-left: auto;
 }
 
 .taskbar__taskname {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
 	flex: 0 1 auto;
 	font-size: 12px;
 }
@@ -764,16 +767,16 @@ img {
 
 .ui-controls-bar {
 	position: fixed;
-    top: 72px;
-    width: 150px;
-    background: #000000;
-    right: 0;
-    height: calc(100% - 127px);
+	top: 72px;
+	width: 150px;
+	background: #000000;
+	right: 0;
+	height: calc(100% - 127px);
 	z-index: 10000;
 	
 	display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+	flex-direction: column;
+	justify-content: flex-start;
 	align-items: center;
 	padding-top: 10px;
 
@@ -819,23 +822,23 @@ img {
 
 .ui-controls-bar__debug-info-content {
 	width: auto;
-    display: block;
-    white-space: pre;
+	display: block;
+	white-space: pre;
 }
 
 
 .debug-info {
 	position: fixed;
-    bottom: 10px;
-    width: 150px;
-    background: #000000;
-    right: 10px;
-    height: 200px;
+	bottom: 10px;
+	width: 150px;
+	background: #000000;
+	right: 10px;
+	height: 200px;
 	z-index: 9990;
 	
 	display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+	flex-direction: column;
+	justify-content: flex-start;
 	align-items: center;
 	padding-top: 10px;
 
@@ -878,8 +881,8 @@ img {
 
 .debug-info__debug-info-content {
 	width: auto;
-    display: block;
-    white-space: pre;
+	display: block;
+	white-space: pre;
 }
 
 @media only screen and (max-width: 1023px) {
@@ -918,16 +921,16 @@ textarea.form-control:disabled {
 }
 
 .form-inline label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 0;
 }
 
 .form-inline .form-control {
-    display: inline-block;
-    width: auto;
-    vertical-align: middle;
+	display: inline-block;
+	width: auto;
+	vertical-align: middle;
 }
 
 .taskbar {
@@ -982,14 +985,14 @@ textarea.form-control:disabled {
 		position: fixed;
 		display: block;
 		top: 88px;
-    	height: 40px;
+		height: 40px;
 		right: 0;
 		width: 50px;
 		background: black;
 		background: linear-gradient(to right, rgba(255,255,255,0) 30%,rgba(255,255,255,1) 100%);
 	}
 
-    .taskbar__ribbon {
+	.taskbar__ribbon {
 		display: flex;
 		flex-direction: row;		
 		flex: 1 1 auto;
@@ -1070,21 +1073,21 @@ textarea.form-control:disabled {
 #basic-navbar-nav {
 	overflow-x: scroll;
 	scrollbar-width: none;
-    -ms-overflow-style: none;
+	-ms-overflow-style: none;
 }
 
 #basic-navbar-nav::-webkit-scrollbar {
-    width: 0;
+	width: 0;
 	height: 0;
 	display: none;
 }
 
 .toolbar__form {
 	flex: 1 1 auto;
-    display: flex;
-    justify-items: flex-start;
-    white-space: nowrap;
-    overflow-x: auto;
+	display: flex;
+	justify-items: flex-start;
+	white-space: nowrap;
+	overflow-x: auto;
 }
 @media only screen and (max-width: 1023px) {
 	.disabled__toolbar__container .form-inline {
@@ -1118,7 +1121,7 @@ textarea.form-control:disabled {
 .xy-canvas__legend {
 	position: absolute;
 	right: 15px;
-    top: 15px;
+	top: 15px;
 	background: rgba(0,0,0,0.2);
 	padding: 5px;
 	height: auto !important;
@@ -1131,8 +1134,8 @@ textarea.form-control:disabled {
 
 
 .data-grid__row-title {
-    width: 50px;
-    text-align: center;
+	width: 50px;
+	text-align: center;
 	border: 1px #808080 solid;
 	background: #f0f0f0;
 	border-radius: 4px;
@@ -1218,8 +1221,8 @@ textarea.form-control:disabled {
 
 .ui-view-layout__container-row {
 	display: flex;
-    flex-direction: column;
-    /*justify-content: space-between;*/
+	flex-direction: column;
+	/*justify-content: space-between;*/
 }
 
 .ui-view-layout__container .canvas__html-shape:not([data-node-type="DebugTask"]) {
@@ -1288,7 +1291,7 @@ textarea.form-control:disabled {
 
 #flowstudio-root .container-fluid {
 	height: calc(100% - 100px);
-    overflow-y: hidden;
+	overflow-y: hidden;
 }
 
 

@@ -1,9 +1,10 @@
 module.exports = {
   mode:'jit',
-  purge: ["./views/**/*.ejs","./src/**/*.tsx"],
+  content: ["./views/**/*.ejs","./src/**/*.{tsx,ts,js,jsx}"],
   theme: {
     extend: {},
   },
   variants: {},
   plugins: [],
+  prefix: 'tw-'
 };

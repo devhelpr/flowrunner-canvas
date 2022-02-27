@@ -131,6 +131,27 @@
 		]
 	},
 	{
+		"id" : "72765406-8bcf-40ec-b0a6-79e757f14c57",
+		"name": "Repository",
+		"codeName" : "repository",
+		"fileName" : "repository.json",
+		"moduleType" : "crud-model",		
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fields" : [
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "title"
+			},
+			{
+				"fieldName": "flow",
+				"fieldType": "json"
+			}
+		]
+	},
+	{
 		"id" : "71402a90-8fb9-43cc-8ef9-43d4338332f8",
 		"name": "Menus",
 		"codeName" : "menu",
