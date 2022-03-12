@@ -166,14 +166,13 @@ export class FlowToCanvas {
       }
 
       if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.bottom) {
-        
         return {
           x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
           y: newPosition.y + height + 4,
         };
       }
 
-      if (taskSettings.htmlPlugin === "shapeNode") {
+      if (taskSettings.htmlPlugin === 'shapeNode') {
         height = (height || 0) / 2;
         return {
           x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
@@ -283,7 +282,7 @@ export class FlowToCanvas {
         };
       }
 
-      if (taskSettings.htmlPlugin === "shapeNode") {
+      if (taskSettings.htmlPlugin === 'shapeNode') {
         height = (height || 0) / 2;
         return {
           x: newPosition.x - 8,

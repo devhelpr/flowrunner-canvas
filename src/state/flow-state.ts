@@ -109,8 +109,8 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flow: flow,
         };
       }),
-    addFlowNodes: (nodes: any[]) => 
-      set(state => {        
+    addFlowNodes: (nodes: any[]) =>
+      set(state => {
         let flow = [...state.flow, ...nodes];
         return {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),

@@ -34,7 +34,7 @@ interface ICanvasModeState extends State {
   setCurrentPopup: (popup: PopupEnum, onPresetName: undefined | ((name: string) => void)) => void;
   setFlowsUpdateId: (id: string) => void;
   setSnapToGrid: (snapToGrid: boolean) => void;
-  setIsInMultiSelect: (isInMultiSelect: boolean, nodes : string[]) => void;
+  setIsInMultiSelect: (isInMultiSelect: boolean, nodes: string[]) => void;
 }
 
 //set(state => ({ bears: state.bears + 1 }))
@@ -105,10 +105,10 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
       set(state => ({
         flowsUpdateId: id,
       })),
-    setIsInMultiSelect: (isInMultiSelect: boolean, nodes : string[]) =>
+    setIsInMultiSelect: (isInMultiSelect: boolean, nodes: string[]) =>
       set(state => ({
         isInMultiSelect: isInMultiSelect,
-        selectedNodes: [...nodes]
+        selectedNodes: [...nodes],
       })),
   };
 };
