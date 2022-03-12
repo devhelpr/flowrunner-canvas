@@ -54,7 +54,7 @@ const handleStorageProvider = config => (set, get, api) =>
           draftState.flow = FlowToCanvas.convertFlowPackageToCanvasFlow(flow);
 }),*/
 
-let storeHandler = (set: SetState<IFlowState>): IFlowState => {
+export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
   return {
     flow: [],
     flowId: '',

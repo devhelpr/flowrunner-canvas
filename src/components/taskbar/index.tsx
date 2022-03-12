@@ -38,6 +38,8 @@ export const Taskbar = (props: TaskbarProps) => {
 	const [menuMode, setMenuMode] = useState(TaskMenuMode.tasks);
 	const [modules , setModules] = useState([] as IModule[]);
 	const [repositoryItems, setRepositoryItems] = useState({} as any);
+	const [customNodes, setCustomNodes] = useState({} as any);
+	
 	const canvasMode = useCanvasModeStateStore();
 	const modulesMenu = useModulesStateStore();
 	
@@ -119,9 +121,27 @@ export const Taskbar = (props: TaskbarProps) => {
 		});
 	}
 
+	const loadCustomNodesItems = () => {
+		fetch('/api/module?codeName=customNodes')
+		.then(res => {
+			if (res.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return res.json();
+		})
+		.then(customNodes => {
+			console.log("customNodes", customNodes);
+			setCustomNodes(customNodes);			
+		})
+		.catch(err => {
+			console.error(err);
+		});
+	}
+
 	useEffect(() => {
 		loadTasks();
 		loadRepositoryItems();	
+		loadCustomNodesItems();
 	}, [canvasMode]);
 
 	useEffect(() => {
@@ -191,23 +211,11 @@ export const Taskbar = (props: TaskbarProps) => {
 			</div>;	
 		}	
 
-		return <div id={`task_${className}`} className="taskbar__task" title={className} data-task={className} data-id={taskMetaData.id ?? ""} draggable={html5DragAndDrop} onDragStart={onDragStart}>
+		return <div id={`task_${className}`} className="taskbar__task" title={taskMetaData.title || className} data-task={className} data-id={taskMetaData.id ?? ""} draggable={html5DragAndDrop} onDragStart={onDragStart}>
 			<div className="taskbar__taskname">{taskMetaData.title || className}</div>
 			{taskMetaData.icon && <span className={"taskbar__task-icon fas " +  taskMetaData.icon}></span>}			
 		</div>;
 	}
-
-	const testRepoItem1 : any = {
-		className : "repo-item1",
-		id: "1234-5678-9012-3456",
-		title : "Repo Item 1"	
-	};
-
-	const testRepoItem2 : any = {
-		className : "repo-item2",
-		id: "2345-5678-9012-3456",
-		title : "Repo Item 2"	
-	};
 
 	return <>
 		<div className="taskbar" style={{pointerEvents: props.isDragging?"none":"auto"}}>
@@ -233,6 +241,22 @@ export const Taskbar = (props: TaskbarProps) => {
 							</Draggable>
 						})}
 					</div>
+					<div>
+						<div className="p-1 tw-mt-4 tw-bg-gray-300"><h2>CustomNodes</h2></div>
+						{customNodes && customNodes.items && customNodes.items.map((customNode : any, index) => {
+
+							const taskCustomNode : any = {
+								className :"custom-node" + index,
+								id: customNode.id,
+								title : customNode.name
+							};
+
+							return <Draggable id={taskCustomNode.className} key={taskCustomNode.className}>
+								{renderRect(taskCustomNode.className, taskCustomNode)}
+							</Draggable>
+						})}
+					</div>	
+
 				</>
 				
 				</div> : 

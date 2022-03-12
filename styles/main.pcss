@@ -571,6 +571,11 @@ img {
 	word-break: break-word;
 }
 
+[data-html-plugin="customNode"] .canvas__html-shape-body {
+	height: 100vh;
+}
+
+[data-html-plugin="customNode"] .canvas__html-shape-body,
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
@@ -579,11 +584,17 @@ img {
 	/*background: transparent;*/
 }
 
+[data-html-plugin="customNode"] .html-plugin-node,
 [data-html-plugin="dataGridNode"] .html-plugin-node,
 [data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node,
 [data-html-plugin="formNode"] .html-plugin-node {
 	height: auto;
 	min-height: 100%;
+}
+
+[data-html-plugin="customNode"] .html-plugin-node {
+	height: 100%;
+	padding: 0;
 }
 
 [data-html-plugin="dataGridNode"] .form,
@@ -604,8 +615,12 @@ img {
 	pointer-events: none;
 	z-index: 1;
 }
-.html-plugin-node > div {
+
+.canvas__html-shape:not([data-html-plugin="customNode"]) .html-plugin-node > div {
 	height: 100%;
+}
+
+.html-plugin-node > div {
 	pointer-events: auto;
 }
 ._mouse--moving .html-plugin-node > div {
@@ -1635,4 +1650,59 @@ textarea.form-control:disabled {
 
 [data-html-plugin="formNode"]:not[data-task="FormTask"] .form-control:disabled {
 	cursor: pointer;
+}
+
+/*height: 100px;*/
+/*height: 100px;*/
+/*width: 200px;*/
+
+[data-html-plugin="shapeNode"] {
+	
+
+	.canvas__html-shape-bar {
+		height: 100vh;
+		background: transparent;
+    	z-index: 10;
+	}
+
+	.canvas__html-shape-bar-title {
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	.canvas__html-shape-bar-icon {
+		display: none;
+	}
+	&:hover .canvas__html-shape-bar-icon {
+		display: block;
+		position: absolute;
+		right: 10px;
+		top: 10px;
+	}
+
+	.canvas__html-shape-thumb-start {
+		top: calc(50% - 6px);
+	}
+
+	.canvas__html-shape-thumb-end {
+		top: calc(50% - 6px);
+	}
+
+	.canvas__html-shape-body {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		z-index: 1;
+		background: transparent;
+		
+		min-height: auto;
+		transform: translate(-50%,-50%);
+
+		.html-plugin-node {
+
+			&::before {
+				display: none;;
+			}
+		}
+	}
 }

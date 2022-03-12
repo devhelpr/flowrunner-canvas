@@ -520,6 +520,18 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const onChange = (fieldName, fieldType, metaInfo, event: any) => {
 		event.preventDefault();
 		let valueForNode : any;
+
+		event.persist();
+		console.log("onChange", fieldName, event.target.files);
+
+		if (fieldType == "fileupload") {
+			valueForNode = {
+				fileName: event.target.files[0].name,
+				fileData: event.target.files[0]
+			};
+			
+			//valueForNode = event.target.value;
+		} else
 		if (metaInfo && metaInfo.dataType === "number") {
 			valueForNode = Number(event.target.value);
 		} else {
@@ -735,7 +747,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						return <React.Fragment key={"index-f-vc-" + index}></React.Fragment>;
 					}								
 				}
-				if (!fieldType || fieldType == "text" || fieldType == "fileupload" || fieldType == "color" || fieldType == "date") {
+				if (!fieldType || fieldType === "text" || fieldType === "fileupload" || fieldType === "color" || fieldType === "date") {
 					if (!!props.isReadOnly) {
 						return <React.Fragment key={"index-f-r-" + index}>
 							<div className="form-group">						
@@ -748,13 +760,27 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					// below code replace this one-liner:
 					//(values[metaInfo.fieldName] !== undefined && (values[metaInfo.fieldName] || "")) || props.node[metaInfo.fieldName] || "";
 					let inputValue = "";
-					if (values[metaInfo.fieldName] !== undefined) {
-						inputValue = values[metaInfo.fieldName];
+					let fileObject : any = undefined;
+					if (fieldType !== "fileupload") {
+						if (values[metaInfo.fieldName] !== undefined) {
+							inputValue = values[metaInfo.fieldName];
+						} else {
+							inputValue = props.node[metaInfo.fieldName] || "";
+							if (!inputValue) {
+								if (metaInfo.defaultValue) {
+									inputValue = metaInfo.defaultValue;
+								}
+							}
+						}
 					} else {
-						inputValue = props.node[metaInfo.fieldName] || "";
-						if (!inputValue) {
-							if (metaInfo.defaultValue) {
-								inputValue = metaInfo.defaultValue;
+						if (values[metaInfo.fieldName] !== undefined) {
+							fileObject = values[metaInfo.fieldName];
+						} else {
+							fileObject = props.node[metaInfo.fieldName] || "";
+							if (!fileObject) {
+								if (metaInfo.defaultValue) {
+									fileObject = metaInfo.defaultValue;
+								}
 							}
 						}
 					}
@@ -792,6 +818,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
 								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
+								{fieldType === "fileupload" && fileObject && <div>{fileObject.fileName || ""}</div>}
 								<div className="input-group mb-1">									
 									<input
 										onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || "text", metaInfo, event)}												

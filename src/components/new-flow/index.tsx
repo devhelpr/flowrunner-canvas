@@ -147,8 +147,8 @@ export const NewFlow = (props: NewFlowProps) => {
 			</Modal.Body>
 		
 			<Modal.Footer>
-				<Button variant="secondary" onClick={props.onClose}>Close</Button>
-				<Button variant="primary" onClick={saveNode}>Add</Button>
+				<button className="btn btn-secondary" onClick={props.onClose}>Close</button>
+				<button className="btn btn-primary" onClick={saveNode}>Add</button>
 			</Modal.Footer>
 		</Modal>
 	</>;

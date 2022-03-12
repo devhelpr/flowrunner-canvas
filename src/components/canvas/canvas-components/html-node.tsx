@@ -92,6 +92,11 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 // onClick={(event) => props.onClickShape(props.node, event)}
 
 // height: (height || props.node.height || 250) + "px",
+		let additionalStyles : any = {};
+
+		if (htmlPlugin === "shapeNode") {
+			additionalStyles.height = (height || props.node.height || 250) + "px";
+		}
 		return <div
 			style={{transform: "translate(" + (position.x) + "px," + 
 					( (position.y) ) + "px) " +
@@ -101,7 +106,8 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					
 					top: "0px",
 					left: "0px",
-					opacity: (!props.canvasHasSelectedNode) ? 1 : 1 //0.5 										 
+					opacity: (!props.canvasHasSelectedNode) ? 1 : 1, //0.5
+					...additionalStyles, 										 
 				}}
 			id={props.node.name}
 			data-node={props.node.name}
@@ -147,7 +153,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 						onClick={(event) => props.onShowNodeEditor(props.node, settings, event)} 
 						className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
 				</div>
-				<div className="canvas__html-shape-body">
+				<div className="canvas__html-shape-body" style={{...(settings && (settings as any).styleShapeBody)}}>
 				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId)}</div>
 				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}
 					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}

@@ -193,5 +193,58 @@
 				]
 			}
 		]
+	},
+	{
+		"id" : "eb680f3f-5971-4dbc-829c-c8015b70db1e",
+		"name": "customNodes",
+		"codeName" : "customNodes",
+		"fileName" : "custom-nodes.json",
+		"moduleType" : "crud-model",
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fields" : [
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "taskName"
+			},			
+			{
+				"fieldName": "objects",
+				"fieldType": "objectList",
+				"idProperty":"id",
+				"metaInfo": [					
+					{
+						"fieldName": "iconSpec"
+					},
+					{
+						"fieldName": "imageUrl"
+					},
+					{
+						"fieldName": "css",
+						"fieldType": "textarea"
+					},
+					{
+						"fieldName": "x"
+					},
+					{
+						"fieldName": "y"
+					},
+					{
+						"fieldName": "color"
+					},
+					{
+						"fieldName": "rotate"
+					},
+					{
+						"fieldName": "scale"
+					},
+					{
+						"fieldName": "visibilityCondition",
+						"fieldType": "textarea"
+					}
+				]
+			}
+		]
 	}
 ]

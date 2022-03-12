@@ -252,7 +252,7 @@ gulp.task('default', gulp.series('build', 'postcss', 'startFlowServer', function
   console.log("WATCHING...");
   
   gulp.watch('src/**/*.{ts,tsx}', gulp.series('build'));
-  gulp.watch(['styles/*.pcss','src/**/*.{ts,tsx}'], gulp.series('postcss'));
+  gulp.watch(['styles/*.pcss','src/**/*.{ts,tsx}',"./data/modules/*.json"], gulp.series('postcss'));
 }));
 
 gulp.task('esbuild', gulp.series('builddev', 'postcss', 'startFlowServer', function () {

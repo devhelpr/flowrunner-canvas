@@ -2,6 +2,9 @@ import * as React from 'react';
 import { Suspense } from 'react';
 import { Subject } from 'rxjs';
 
+import { CustomNodeHtmlPlugin, CustomNodeHtmlPluginInfo } from './components/html-plugins/custom-node';
+import { ShapeNodeHtmlPlugin, ShapeNodeHtmlPluginInfo } from './components/html-plugins/shape-node';
+
 import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
 import { DebugNodeHtmlPluginInfo,GridEditNodeHtmlPluginInfo } from './components/html-plugins/visualizers/info';
 import { SliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
@@ -34,6 +37,22 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 				<text x="50%" y="50%" fill="black" textAnchor="middle" dominantBaseline="middle">SVG!</text>
 			</svg>
 		</>;
+	} else
+	if (htmlPlugin == "customNode") {
+		return <CustomNodeHtmlPlugin 
+			key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
+			node={node}
+			taskSettings={taskSettings}
+		></CustomNodeHtmlPlugin>;
+	} else
+	if (htmlPlugin == "shapeNode") {
+		return <ShapeNodeHtmlPlugin 
+			key={(flowId ? "" : flowId) + node.name}
+			flowrunnerConnector={flowrunnerConnector}
+			node={node}
+			taskSettings={taskSettings}
+		></ShapeNodeHtmlPlugin>;
 	} else
 	if (htmlPlugin == "iframe") {
 		return <iframe width={node.width || 250}
@@ -133,6 +152,12 @@ export const getNodeInstance = (node: any, flowrunnerConnector?: IFlowrunnerConn
 		}
 	}
 
+	if (htmlPlugin == "customNode") {
+		return new CustomNodeHtmlPluginInfo(taskSettings);
+	} else
+	if (htmlPlugin == "shapeNode") {
+		return new ShapeNodeHtmlPluginInfo(taskSettings);
+	} else
 	if (htmlPlugin == "executeNode") {
 		return new ExecuteNodeHtmlPluginInfo();
 	} else

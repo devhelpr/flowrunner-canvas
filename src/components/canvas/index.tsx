@@ -122,6 +122,7 @@ export const Canvas = (props: CanvasProps) => {
 	let layer = useRef(null);
 	let stageGroup = useRef(null);
 	let selectingRectRef = useRef(null);
+	let lastMousePositionRef = useRef(null);
 
 	let flowIsLoading = useRef(true);
 	let flowIsFittedStageForSingleNode = useRef(false);
@@ -249,9 +250,17 @@ export const Canvas = (props: CanvasProps) => {
 
 	let wheelTimeout = useRef(null);
 
+	const onDocumentMouseMove = (event) => {
+		lastMousePositionRef.current = event;
+	};
+
 	useEffect(() => {
+		document.addEventListener("mousemove", onDocumentMouseMove);
 		gridSize.current = canvasMode.snapToGrid ? 50 : 1;
-	},[]);
+		return () => {
+			document.removeEventListener("mousemove", onDocumentMouseMove);
+		}
+	}, []);
 
 	const wheelEnableLayoutOnTimeout = useCallback(() => {
 		if (layer && layer.current) {
@@ -925,12 +934,16 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			}
 		}	
+
+		deselectAllNodes();
+		interactionState.current = InteractionState.idle;
+		(selectingRectRef.current as any).opacity(0);
 		
 		if (stage && stage.current) {
 			const stageInstance = (stage.current as any).getStage();		
 			stageInstance.batchDraw();
 		}
-		updateTouchedNodes();	
+		updateTouchedNodes();
 
 		return () => {
 			//props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
@@ -1736,8 +1749,7 @@ export const Canvas = (props: CanvasProps) => {
 		return 0;
 	}
 
-	const onMouseMove = (node, event) => {
-		
+	const onMouseMove = (node, event) => {	
 		if (interactionState.current === InteractionState.multiSelect) {
 			return;
 		}
@@ -4327,7 +4339,7 @@ console.log("clearstate");
 		event.preventDefault();
 		
 		let taskClassName = event.dataTransfer.getData("data-task");
-		addTaskToCanvas(taskClassName);
+		addTaskToCanvas(event, taskClassName);
 	}
 
 	const addFlowFromRepoToCanvas = (repositoryItem : any) => {
@@ -4345,7 +4357,7 @@ console.log("clearstate");
 				let renameIdMap : any = {}; 
 				repoFlow = repoFlow.map((node : any) => {
 					if (node.shapeType !== "Line") {
-						renameIdMap[node.name] = uuidV4();
+						renameIdMap[node.name] = "node_" + uuidV4();
 						return {...node,
 							name: renameIdMap[node.name],
 							id: renameIdMap[node.name]
@@ -4355,7 +4367,7 @@ console.log("clearstate");
 				});
 				repoFlow = repoFlow.map((node : any) => {
 					if (node.shapeType === "Line") {
-						renameIdMap[node.name] = uuidV4();
+						renameIdMap[node.name] = "node_" + uuidV4();
 						return {...node,
 							name: renameIdMap[node.name],
 							id: renameIdMap[node.name],
@@ -4392,39 +4404,62 @@ console.log("clearstate");
 		}
 	}
 
-	const addTaskToCanvas = (taskClassName : string) => {
-		if (taskClassName.indexOf("repo-item") == 0) {
-			const element = document.getElementById("task_"+taskClassName);
-			if (element) {
-				const taskId = element.getAttribute('data-id');
-				fetch(`/api/modulecontent?moduleId=repository&id=${taskId}`)
-				.then(res => {
-					if (res.status >= 400) {
-						throw new Error("Bad response from server");
-					}
-					return res.json();
-				})
-				.then(repositoryItem => {
-					console.log("repositoryItem", repositoryItem);
-					addFlowFromRepoToCanvas(repositoryItem);
+	const loadRepoItemFromModuleAndAdd = (taskClassName) => {
+		const element = document.getElementById("task_"+taskClassName);
+		if (element) {
+			const taskId = element.getAttribute('data-id');
+			fetch(`/api/modulecontent?moduleId=repository&id=${taskId}`)
+			.then(res => {
+				if (res.status >= 400) {
+					throw new Error("Bad response from server");
+				}
+				return res.json();
+			})
+			.then(repositoryItem => {
+				console.log("repositoryItem", repositoryItem);
+				addFlowFromRepoToCanvas(repositoryItem);
 
-				})
-				.catch(err => {
-					console.error(err);
-				});
-			}
-			return;
+			})
+			.catch(err => {
+				console.error(err);
+			});
 		}
+	}
 
-		//const taskClassName = event.target.getAttribute("data-task");
+	const loadCustomNodeFromModuleAndAdd = (event, taskClassName) => {
+		const element = document.getElementById("task_"+taskClassName);
+		if (element) {
+			const taskId = element.getAttribute('data-id');
+			fetch(`/api/modulecontent?moduleId=customNodes&id=${taskId}`)
+			.then(res => {
+				if (res.status >= 400) {
+					throw new Error("Bad response from server");
+				}
+				return res.json();
+			})
+			.then(customNode => {
+				console.log("customNode", customNode);
+				if (customNode.taskName) {
+					addTaskClassNameToCanvas(event, "CustomNodeTask" , {
+						nodeTask: customNode.taskName,
+						htmlPlugin: 'customNode',
+						config: customNode
+					});
+				}
+			})
+			.catch(err => {
+				console.error(err);
+			});
+		}
+	}
+
+	const addTaskClassNameToCanvas = (event: any, taskClassName: string, extraNodeProperties? : any) => {
+
 		if (stage && stage.current) {			
 			let _stage = (stage.current as any).getStage();
 
-			_stage.setPointersPositions(event);
+			//_stage.setPointersPositions(event);
 		
-			//let data = event.dataTransfer.getData("text");
-			//event.target.appendChild(document.getElementById(data));
-
 			const nodeIsSelected : boolean = !!selectedNodeRef.current;	
 			selectNode("", undefined);
 			canvasMode.setConnectiongNodeCanvasMode(false);
@@ -4437,6 +4472,9 @@ console.log("clearstate");
 
 						let stageInstance = (stage.current as any).getStage();
 						const position = (stageInstance as any).getPointerPosition();
+
+						console.log("add task position info" , position, _stage.x(), _stage.y());
+
 						const scaleFactor = (stageInstance as any).scaleX();
 						const taskType = taskClassName;
 						let presetValues = {};
@@ -4452,11 +4490,14 @@ console.log("clearstate");
 							id: taskClassName,
 							taskType: taskType,
 							shapeType: taskClassName == "IfConditionTask" ? "Diamond" : (shapeSetting.shapeType ? shapeSetting.shapeType : "Rect"), 
-							x: (position.x - (_stage).x()) / scaleFactor, 
-							y: (position.y - (_stage).y()) / scaleFactor,
-							...presetValues
+							x: ((position.x || 0) - (_stage).x() || 0) / scaleFactor, 
+							y: ((position.y || 0) - (_stage).y() || 0) / scaleFactor,
+							...presetValues,
+							...extraNodeProperties
 						},flowStore.flow);
-							
+						
+						console.log("getnewnode pos", newNode.x, newNode.y);
+
 						const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
 						let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
@@ -4577,6 +4618,27 @@ console.log("clearstate");
 				alert("select task!!");
 			}
 		}
+	}
+
+	const addTaskToCanvas = (event: any, taskClassName : string) => {
+
+		// hack to have a usuable stage position when dropping nodes on stage
+		if (lastMousePositionRef.current) {
+			const _stage = (stage.current as any).getStage();
+			_stage.setPointersPositions(lastMousePositionRef.current);
+		}
+
+		if (taskClassName.indexOf("repo-item") == 0) {
+			loadRepoItemFromModuleAndAdd(taskClassName);
+			return;
+		}
+
+		if (taskClassName.indexOf("custom-node") == 0) {
+			loadCustomNodeFromModuleAndAdd(event, taskClassName);
+			return;
+		}	
+
+		addTaskClassNameToCanvas(event, taskClassName);		
 
 		return false;
 	}
@@ -5158,14 +5220,19 @@ console.log("clearstate");
 	}
 	  
 	const handleDragEnd= (event) => {
+		console.log("event" , event);
 		if (activeId) {
-			addTaskToCanvas(activeId);
+			addTaskToCanvas(event, activeId);
 		}
 		setActiveId(undefined);
 	}
 
 	const handleDragMove = (event) => {
 		if (activeId?.indexOf("repo-item") == 0) {
+			return "";
+		}
+
+		if (activeId?.indexOf("custom-node") == 0) {
 			return "";
 		}
 
@@ -5215,14 +5282,15 @@ console.log("clearstate");
 			modifiers={[restrictToWindowEdges]}
 			onDragStart={handleDragStart} 
 			onDragMove={handleDragMove}
-			onDragEnd={handleDragEnd}>			
-		
+			onDragEnd={handleDragEnd}
+		>			
+			
 				<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
 					isDragging={activeId !== undefined}
 				></Taskbar>	
 				<DragOverlay className="taskbar__task-dragging"
 					zIndex={20000}
-					dropAnimation={null}
+					dropAnimation={null}					
 				>				
 						{activeId ? <DragginTask id={activeId} 
 							style={{}}											
@@ -5241,7 +5309,6 @@ console.log("clearstate");
 					onKeyDown={onInput}
 					onKeyUp={onKeyUp}	
 					onWheel={wheelEvent}			
-					
 					onMouseLeave={onStageMouseLeave}
 					>
 					<ErrorBoundary>

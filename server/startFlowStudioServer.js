@@ -171,7 +171,8 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
 				tasks.push({className:"PrototypeTask", fullName: "PrototypeTask", flowType:"playground"});
 				tasks.push({className:"ScriptTask", fullName: "ScriptTask", flowType:"playground"});
-									
+				tasks.push({className:"CustomNodeTask", fullName: "CustomNodeTask", flowType:"playground"});				
+				tasks.push({className:"ShapeNodeTask", fullName: "ShapeNodeTask", flowType:"playground"});				
 				tasks.push({className:"MultiFormTask", fullName: "MultiFormTask", flowType:"playground"});
 
 				tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
@@ -199,6 +200,8 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "backend"});
 				tasks.push({className:"ExpressionTask", fullName: "ExpressionTask", flowType: "backend"});
 				
+				tasks.push({className:"CustomNodeTask", fullName: "CustomNodeTask", flowType:"backend"});				
+
 				//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
 				//tasks.push({className:"LineChartVisualizer", fullName:"LineChartVisualizer"});
 			}

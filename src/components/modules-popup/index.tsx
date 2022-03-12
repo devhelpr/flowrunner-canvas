@@ -49,7 +49,7 @@ export const ModulesPopup = (props: ModulesPopupProps) => {
 			</Modal.Body>
 		
 			<Modal.Footer>
-				<Button variant="secondary" onClick={props.onClose}>Close</Button>				
+				<a href="#" className="btn btn-secondary" onClick={props.onClose}>Close</a>				
 			</Modal.Footer>
 		</Modal>
 	</>;

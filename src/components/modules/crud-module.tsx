@@ -62,9 +62,8 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 		};
 	}, [modulesMenu.selectedModule]);
 
-	const loadModule = useCallback(() => {
-		const controller = new AbortController();
-		const { signal } = controller;	
+	const loadModule = useCallback((controller : AbortController) => {
+		const { signal } = controller;
 		let isAborting = false;
 		if (modulesMenu.moduleId) {
 			fetch('/api/module?id=' + modulesMenu.moduleId, { signal })
@@ -95,9 +94,12 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 	}, [modulesMenu.selectedModule]);
 
 	useEffect(() => {
-		loadModule();
+
+		const controller = new AbortController();		
+		loadModule(controller);
 		return () => {
 			console.log("unmount crud-module");
+			controller.abort();
 		}
 	}, [modulesMenu.selectedModule, flow]);
 
@@ -129,15 +131,45 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 				if (module && module.datasource == "flows") {
 					canvasMode.setFlowsUpdateId(uuidV4());
 				}
-
-				loadModule();
+				const controller = new AbortController();	
+				loadModule(controller);
 			});
 		};
 		return false;
 	}
 
+	/*
+		TODO : search module.fields where "fieldType": "fileupload"
+			DO file upload to /api/media (see richtexteditor)
+	*/
+
+	const onStoreMediaFile = (moduleItem) => {
+		let file : any = undefined;
+		module.fields.forEach(field => {
+			if (field.fieldType === "fileupload") {
+				file = itemValues[field.fieldName].fileData;
+				// file.files
+				// file.fileName
+			}
+		});
+		console.log("onStoreMediaFile", itemValues.filename, itemValues, module.fields);
+		// filename is the field name...
+		if (file) {
+			console.log("onStoreMediaFile : call media api");
+			const xhr = new XMLHttpRequest();
+				
+			xhr.open('POST', '/api/media');
+			const data = new FormData();
+			data.append('image', file); // itemValues.filename.theFile
+			xhr.send(data);
+		}
+	}
+
 	const onSaveItem = (moduleItem, event) => {
 		event.preventDefault();
+		
+		onStoreMediaFile(moduleItem);
+
 		put(`/api/modulecontent?moduleId=${modulesMenu.moduleId}&id=${moduleItem.id}`, 
 			{
 				data: {...itemValues}
@@ -149,22 +181,24 @@ export const CrudModule = (props: CrudModulePopupProps) => {
 				if (module && module.datasource == "flows") {
 					canvasMode.setFlowsUpdateId(uuidV4());
 				}
-				
-				loadModule();
+				const controller = new AbortController();
+				loadModule(controller);
 		});
 		return false;
 	}
 
 	const onSaveNewItem = (event) => {
 		event.preventDefault();
+		onStoreMediaFile(undefined);
 		post(`/api/modulecontent?moduleId=${modulesMenu.moduleId}`, 
 			{
 				data: {...itemValues}
 			}).then(() => {
 				setItemId("");
 				setIsAddingNewItem(false);
-				setItemValues({});				
-				loadModule();
+				setItemValues({});
+				const controller = new AbortController();
+				loadModule(controller);
 		});
 		return false;
 	}

@@ -150,8 +150,8 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 			</Modal.Body>
 		
 			<Modal.Footer>
-				<Button variant="secondary" onClick={onCloseClick}>Close</Button>
-				<Button variant="primary" onClick={saveNode}>Save</Button>
+				<button className="btn btn-secondary" onClick={onCloseClick}>Close</button>
+				<button className="btn btn-primary" onClick={saveNode}>Save</button>
 			</Modal.Footer>
 		</Modal>
 	</div>;

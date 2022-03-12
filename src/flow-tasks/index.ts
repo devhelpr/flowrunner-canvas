@@ -31,6 +31,8 @@ import { PrototypeTask } from '../flowrunner-plugins/prototype-task';
 import { ScriptTask } from '../flowrunner-plugins/script-task';
 import { WhileTask } from '../flowrunner-plugins/while-task';
 import { SvgTestTask } from '../flowrunner-plugins/svg-test-task';
+import { CustomNodeTask } from '../flowrunner-plugins/custom-node-task';
+import { ShapeNodeTask } from '../flowrunner-plugins/shape-node-task';
 
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
@@ -63,4 +65,6 @@ export const registerTasks = flow => {
   flow.registerTask('PrototypeTask', PrototypeTask);
   flow.registerTask('ScriptTask', ScriptTask);
   flow.registerTask('SvgTestTask', SvgTestTask);
+  flow.registerTask('customNodeTask', CustomNodeTask);
+  flow.registerTask('shapeNodeTask', ShapeNodeTask);
 };

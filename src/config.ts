@@ -191,7 +191,8 @@ const taskTypeConfig: any = {
   },
   InjectIntoPayloadTask: {
     icon: 'fa-cubes',
-    shapeType: 'Rect',
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
     layout: {
       strokeColor: '#d61bd8',
       fillColor: '#d550d7',
@@ -201,6 +202,30 @@ const taskTypeConfig: any = {
     presetValues: {
       object: {},
     },
+    style: {
+      borderRadius: "40px",
+		  border: "2px solid purple"  
+    },
+    styleShapeBody: {
+      width: "200px",
+      height: "200px",
+    },
+    width: 200,
+    height: 200,
+    config: {
+      "objects": [
+        {
+          "id": "202809c7-964a-43a1-a590-57a93346d875",
+          "imageUrl": "/media/earth.jpg",
+          "css": "tw-h-full tw-w-full tw-object-fit"
+        },
+        {
+          "id": "c103357a-b150-4f27-8ec5-da2d179bb331",
+          "iconSpec": "far fa-smile",
+          "css": "tw-absolute tw-top-1/2 tw-left-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-white tw-h-auto"
+        }
+      ]
+    }
   },
   ClearTask: {
     shapeType: 'Rect',
@@ -1293,6 +1318,14 @@ const taskTypeConfig: any = {
         required: true,
       },
     ],
+  },
+  CustomNodeTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'customNode'    
+  },
+  ShapeNodeTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode'    
   },
 };
 

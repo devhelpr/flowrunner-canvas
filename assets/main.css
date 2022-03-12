@@ -447,12 +447,52 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-text-opacity: 1;
   color: rgb(0 0 0 / var(--tw-text-opacity));
 }
+.tw-absolute {
+  position: absolute;
+}
+.tw-top-1\/2 {
+  top: 50%;
+}
+.tw-left-1\/2 {
+  left: 50%;
+}
 .tw-mt-4 {
   margin-top: 1rem;
+}
+.tw-h-full {
+  height: 100%;
+}
+.tw-h-auto {
+  height: auto;
+}
+.tw-w-full {
+  width: 100%;
+}
+.-tw-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  -webkit-transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+          transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.-tw-translate-y-1\/2 {
+  --tw-translate-y: -50%;
+  -webkit-transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+          transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .tw-bg-gray-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+.tw-bg-purple-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(192 132 252 / var(--tw-bg-opacity));
+}
+.tw-text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+.tw-text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
 }
 * {
 	-webkit-box-sizing: border-box;
@@ -1022,6 +1062,10 @@ img {
 	white-space: pre-wrap;
 	word-break: break-word;
 }
+[data-html-plugin="customNode"] .canvas__html-shape-body {
+	height: 100vh;
+}
+[data-html-plugin="customNode"] .canvas__html-shape-body,
 [data-html-plugin="dataGridNode"] .canvas__html-shape-body,
 [data-html-plugin="debugNode"][data-visualizer="default"] .canvas__html-shape-body,
 [data-html-plugin="formNode"] .canvas__html-shape-body {
@@ -1029,11 +1073,16 @@ img {
 	overflow: visible;
 	/*background: transparent;*/
 }
+[data-html-plugin="customNode"] .html-plugin-node,
 [data-html-plugin="dataGridNode"] .html-plugin-node,
 [data-html-plugin="debugNode"][data-visualizer="default"] .html-plugin-node,
 [data-html-plugin="formNode"] .html-plugin-node {
 	height: auto;
 	min-height: 100%;
+}
+[data-html-plugin="customNode"] .html-plugin-node {
+	height: 100%;
+	padding: 0;
 }
 [data-html-plugin="dataGridNode"] .form,
 [data-html-plugin="debugNode"][data-visualizer="default"] .form,
@@ -1052,8 +1101,10 @@ img {
 	pointer-events: none;
 	z-index: 1;
 }
-.html-plugin-node > div {
+.canvas__html-shape:not([data-html-plugin="customNode"]) .html-plugin-node > div {
 	height: 100%;
+}
+.html-plugin-node > div {
 	pointer-events: auto;
 }
 ._mouse--moving .html-plugin-node > div {
@@ -2026,3 +2077,44 @@ textarea.form-control:disabled {
 [data-html-plugin="formNode"]:not[data-task="FormTask"] .form-control:disabled {
 	cursor: pointer;
 }
+/*height: 100px;*/
+/*height: 100px;*/
+/*width: 200px;*/
+[data-html-plugin="shapeNode"] .canvas__html-shape-bar {
+		height: 100vh;
+		background: transparent;
+    	z-index: 10;
+	}
+[data-html-plugin="shapeNode"] .canvas__html-shape-bar-title {
+		margin: 0 auto;
+		text-align: center;
+	}
+[data-html-plugin="shapeNode"] .canvas__html-shape-bar-icon {
+		display: none;
+	}
+[data-html-plugin="shapeNode"]:hover .canvas__html-shape-bar-icon {
+		display: block;
+		position: absolute;
+		right: 10px;
+		top: 10px;
+	}
+[data-html-plugin="shapeNode"] .canvas__html-shape-thumb-start {
+		top: calc(50% - 6px);
+	}
+[data-html-plugin="shapeNode"] .canvas__html-shape-thumb-end {
+		top: calc(50% - 6px);
+	}
+[data-html-plugin="shapeNode"] .canvas__html-shape-body {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		z-index: 1;
+		background: transparent;
+		
+		min-height: auto;
+		-webkit-transform: translate(-50%,-50%);
+		        transform: translate(-50%,-50%);
+	}
+[data-html-plugin="shapeNode"] .canvas__html-shape-body .html-plugin-node::before {
+				display: none;;
+			}

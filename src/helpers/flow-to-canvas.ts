@@ -153,23 +153,31 @@ export class FlowToCanvas {
             : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
       };
       */
+      let bodyElement = document.querySelector('#' + startShape.name + ' .html-plugin-node');
+      let element = document.querySelector(
+        '#' + startShape.name + ' .canvas__html-shape-thumb-startbottom',
+      ) as HTMLElement;
+      if (!bodyElement) {
+        bodyElement = document.querySelector('#' + startShape.name + ' .canvas__html-shape-body');
+      }
+      height = height || startShape.height || ShapeMeasures.htmlHeight;
+      if (element && bodyElement) {
+        height = bodyElement.clientHeight + 20;
+      }
 
       if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.bottom) {
-        let bodyElement = document.querySelector('#' + startShape.name + ' .html-plugin-node');
-        let element = document.querySelector(
-          '#' + startShape.name + ' .canvas__html-shape-thumb-startbottom',
-        ) as HTMLElement;
-        if (!bodyElement) {
-          bodyElement = document.querySelector('#' + startShape.name + ' .canvas__html-shape-body');
-        }
-        height = height || startShape.height || ShapeMeasures.htmlHeight;
-        if (element && bodyElement) {
-          height = bodyElement.clientHeight + 20;
-        }
-
+        
         return {
           x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
           y: newPosition.y + height + 4,
+        };
+      }
+
+      if (taskSettings.htmlPlugin === "shapeNode") {
+        height = (height || 0) / 2;
+        return {
+          x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
+          y: newPosition.y + height - 6,
         };
       }
 
@@ -259,7 +267,7 @@ export class FlowToCanvas {
       */
 
       let width = undefined;
-      let height = undefined;
+      let height = 0;
       if (getNodeInstance && endShape) {
         const nodeInstance = getNodeInstance(endShape, undefined, undefined, taskSettings);
         if (nodeInstance && nodeInstance.getWidth) {
@@ -274,6 +282,15 @@ export class FlowToCanvas {
           y: newPosition.y - 12,
         };
       }
+
+      if (taskSettings.htmlPlugin === "shapeNode") {
+        height = (height || 0) / 2;
+        return {
+          x: newPosition.x - 8,
+          y: newPosition.y + height + 2,
+        };
+      }
+
       return {
         x: newPosition.x - 8,
         y: newPosition.y + 40 + 12,
