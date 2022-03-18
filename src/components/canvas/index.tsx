@@ -3,18 +3,15 @@ import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} f
 import { Stage, Layer , Rect, Group } from 'react-konva';
 import { Shapes } from './shapes';
 import { LinesForShape } from './shapes/lines-for-shape';
-import { Thumbs }  from './shapes/thumbs';
-import { ThumbsStart }  from './shapes/thumbsstart';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { getTaskConfigForTask } from '../../config';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
 import { Subject } from 'rxjs';
-import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
 import { DragginTask} from '../../dragging-task';
 import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
 import { ShapeMeasures } from '../../helpers/shape-measures';
-import { ModifyShapeEnum, ShapeStateEnum } from './shapes/shape-types';
 import { Flow } from '../flow';
 import { calculateLineControlPoints } from '../../helpers/line-points'
 import { EditNodeSettings } from '../edit-node-settings';
@@ -22,7 +19,7 @@ import { EditNodePopup } from '../edit-node';
 import { HtmlNode} from './canvas-components/html-node';
 import { KonvaNode} from './canvas-components/konva-node';
 
-import { clearPositions, getPosition, setPosition, getPositions, 
+import { clearPositions, getPosition, setPosition, 
 	setCommittedPosition, getCommittedPosition } from '../../services/position-service';
 
 import { useFlowStore} from '../../state/flow-state';
@@ -30,7 +27,7 @@ import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useNodesTouchedStateStore} from '../../state/nodes-touched';
 
-import { ThumbFollowFlow, ThumbPositionRelativeToNode } from './shapes/shape-types';
+import { ModifyShapeEnum, ShapeStateEnum, ThumbFollowFlow, ThumbPositionRelativeToNode } from './shapes/shape-types';
 import { onFocus } from '../html-plugins/form-controls/helpers/focus';
 
 import * as uuid from 'uuid';
@@ -38,7 +35,6 @@ import * as uuid from 'uuid';
 import { FlowState } from '../../use-flows';
 import { Taskbar } from '../taskbar';
 
-import { useDroppable } from '@dnd-kit/core';
 import {
 	restrictToWindowEdges
 } from '@dnd-kit/modifiers';
@@ -402,11 +398,11 @@ export const Canvas = (props: CanvasProps) => {
 		let values : (string | any)[] = [];
 		// split on enters first for rows, then tab/white-space for columns
 		let lines = (pastedData as string).split(/\r?\n/);
-		lines.map((line, index) => {
+		lines.forEach((line, index) => {
 
 			let insertValues : (string | number)[] = [];
 			
-			(line as string).split(/\t/).map((value : string, index) => {
+			line.split(/\t/).forEach((value : string, index) => {
 				if (lines.length == 1) {
 					const numericValue = parseInt(value); 
 					if (!isNaN(numericValue)) {
@@ -730,9 +726,9 @@ export const Canvas = (props: CanvasProps) => {
 			if (stage && stage.current) {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
-					Object.keys(shapeRefs.current).map((touchNodeId) => {
+					Object.keys(shapeRefs.current).forEach((touchNodeId) => {
 						const lineRef = shapeRefs.current[touchNodeId];
-						if (lineRef && lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
+						if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
 							if (touchedNodesLocal.current[touchNodeId] ) {								
 								lineRef.modifyShape(ModifyShapeEnum.SetState, {
 									state: ShapeStateEnum.Touched
@@ -753,10 +749,10 @@ export const Canvas = (props: CanvasProps) => {
 	const recalculateStartEndpoints = useCallback((doBatchdraw : boolean) => {
 
 		const startPerf = performance.now();
-		flowStore.flow.map((node, index) => {
+		flowStore.flow.forEach((node, index) => {
 			if (node.shapeType !== "Line") {
 				let shapeRef = shapeRefs.current[node.name];
-				if (shapeRef && (shapeRef as any)) {						
+				if (shapeRef) {						
 					//let element = document.getElementById(node.name);
 					let element = elementRefs.current[node.name];
 					if (element) {
@@ -815,7 +811,7 @@ export const Canvas = (props: CanvasProps) => {
 		window.addEventListener("resize", onResize);
 
 		const lineRef = shapeRefs.current[connectionForDraggingName];
-		if (lineRef && lineRef) {
+		if (lineRef) {
 			lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
 		}
 
@@ -4342,7 +4338,7 @@ console.log("clearstate");
 		addTaskToCanvas(event, taskClassName);
 	}
 
-	const addFlowFromRepoToCanvas = (repositoryItem : any) => {
+	const addFlowFromRepoToCanvas = (repositoryItem : any, draggableElementRect) => {
 		if (repositoryItem) {
 			let repoFlow = JSON.parse(repositoryItem.flow);
 
@@ -4404,7 +4400,7 @@ console.log("clearstate");
 		}
 	}
 
-	const loadRepoItemFromModuleAndAdd = (taskClassName) => {
+	const loadRepoItemFromModuleAndAdd = (taskClassName, draggableElementRect : any) => {
 		const element = document.getElementById("task_"+taskClassName);
 		if (element) {
 			const taskId = element.getAttribute('data-id');
@@ -4417,7 +4413,7 @@ console.log("clearstate");
 			})
 			.then(repositoryItem => {
 				console.log("repositoryItem", repositoryItem);
-				addFlowFromRepoToCanvas(repositoryItem);
+				addFlowFromRepoToCanvas(repositoryItem, draggableElementRect);
 
 			})
 			.catch(err => {
@@ -4426,7 +4422,7 @@ console.log("clearstate");
 		}
 	}
 
-	const loadCustomNodeFromModuleAndAdd = (event, taskClassName) => {
+	const loadCustomNodeFromModuleAndAdd = (event, taskClassName, draggableElementRect) => {
 		const element = document.getElementById("task_"+taskClassName);
 		if (element) {
 			const taskId = element.getAttribute('data-id');
@@ -4440,11 +4436,12 @@ console.log("clearstate");
 			.then(customNode => {
 				console.log("customNode", customNode);
 				if (customNode.taskName) {
+					
 					addTaskClassNameToCanvas(event, "CustomNodeTask" , {
 						nodeTask: customNode.taskName,
 						htmlPlugin: 'customNode',
 						config: customNode
-					});
+					}, draggableElementRect);
 				}
 			})
 			.catch(err => {
@@ -4453,29 +4450,31 @@ console.log("clearstate");
 		}
 	}
 
-	const addTaskClassNameToCanvas = (event: any, taskClassName: string, extraNodeProperties? : any) => {
+	const addTaskClassNameToCanvas = (event: any, taskClassName: string, extraNodeProperties? : any, draggableElementRect?: any) => {
 
 		if (stage && stage.current) {			
-			let _stage = (stage.current as any).getStage();
+			const stageInstance = (stage.current as any).getStage();
 
-			//_stage.setPointersPositions(event);
+			// hack to have a usuable stage position when dropping nodes on stage
+			if (lastMousePositionRef.current) {
+				console.log("lastMousePositionRef.current", lastMousePositionRef.current);
+				stageInstance.setPointersPositions(lastMousePositionRef.current);
+			}
 		
-			const nodeIsSelected : boolean = !!selectedNodeRef.current;	
+			//const nodeIsSelected : boolean = !!selectedNodeRef.current;	
 			selectNode("", undefined);
 			canvasMode.setConnectiongNodeCanvasMode(false);
-
 			
 			if (taskClassName && taskClassName !== "") {
 				if (!canvasMode.isConnectingNodes) {
 					if (stage && stage.current) {
 						interactionState.current = InteractionState.addingNewNode;
 
-						let stageInstance = (stage.current as any).getStage();
-						const position = (stageInstance as any).getPointerPosition();
+						const position = stageInstance.getPointerPosition();
 
-						console.log("add task position info" , position, _stage.x(), _stage.y());
+						console.log("add task position info" , position, stageInstance.x(), stageInstance.y());
 
-						const scaleFactor = (stageInstance as any).scaleX();
+						const scaleFactor = stageInstance.scaleX();
 						const taskType = taskClassName;
 						let presetValues = {};
 						const shapeSetting = getTaskConfigForTask(taskType);
@@ -4483,15 +4482,13 @@ console.log("clearstate");
 							presetValues = shapeSetting.presetValues;
 						}
 
-						let element	 = document.querySelector(".taskbar__task-dragging");					
-
 						let newNode = getNewNode({
 							name: taskClassName,
 							id: taskClassName,
 							taskType: taskType,
-							shapeType: taskClassName == "IfConditionTask" ? "Diamond" : (shapeSetting.shapeType ? shapeSetting.shapeType : "Rect"), 
-							x: ((position.x || 0) - (_stage).x() || 0) / scaleFactor, 
-							y: ((position.y || 0) - (_stage).y() || 0) / scaleFactor,
+							shapeType: taskClassName === "IfConditionTask" ? "Diamond" : (shapeSetting.shapeType ? shapeSetting.shapeType : "Rect"), 
+							x: ((position.x || 0) - (stageInstance).x() || 0) / scaleFactor, 
+							y: ((position.y || 0) - (stageInstance).y() || 0) / scaleFactor,
 							...presetValues,
 							...extraNodeProperties
 						},flowStore.flow);
@@ -4501,14 +4498,13 @@ console.log("clearstate");
 						const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
 						let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
-						if (shapeType == "Html" && element) {
-							let rect = element.getBoundingClientRect();
+						if (shapeType === "Html" && draggableElementRect) {
 							if (props.getNodeInstance) {
-								const left = Math.round((rect.left + rect.right)/2);
+								const left = Math.round((draggableElementRect.left + draggableElementRect.right)/2);
 								let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
 								if (result && result.getWidth) {
-									newNode.x = (left - (_stage).x()) / scaleFactor;
-									newNode.y = (rect.top - (_stage).y()) / scaleFactor;
+									newNode.x = (left - (stageInstance).x()) / scaleFactor;
+									newNode.y = (draggableElementRect.top - (stageInstance).y()) / scaleFactor;
 									newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
 								}
 							}
@@ -4517,15 +4513,15 @@ console.log("clearstate");
 						let centerXCorrection = 0;
 						let centerYCorrection = 0;
 						
-						if (shapeType == "Rect" || shapeType == "Ellipse") {
+						if (shapeType === "Rect" || shapeType === "Ellipse") {
 							centerXCorrection = ShapeMeasures.rectWidht / 2;
 							centerYCorrection = ShapeMeasures.rectHeight / 2;
 						} else
-						if (shapeType == "Circle") {
+						if (shapeType === "Circle") {
 							centerXCorrection = ShapeMeasures.circleSize / 2;
 							centerYCorrection = ShapeMeasures.circleSize / 2;
 						} else
-						if (shapeType == "Diamond") {
+						if (shapeType === "Diamond") {
 							centerXCorrection = ShapeMeasures.diamondSize / 2;
 							centerYCorrection = ShapeMeasures.diamondSize / 2;
 						}
@@ -4536,12 +4532,7 @@ console.log("clearstate");
 						const lineRef = shapeRefs.current[connectionForDraggingName];
 						if (lineRef) {
 							lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: 0});
-							if (stage && stage.current) {
-								let stageInstance = (stage.current as any).getStage();
-								if (stageInstance !== undefined) {
-									stageInstance.batchDraw();
-								}
-							}
+							stageInstance.batchDraw();
 						}
 						
 						setPosition(newNode.name, {
@@ -4612,6 +4603,7 @@ console.log("clearstate");
 						}
 
 						interactionState.current = InteractionState.idle;
+						clearConnectionState();
 					}				
 				}
 			} else {
@@ -4624,22 +4616,26 @@ console.log("clearstate");
 
 		// hack to have a usuable stage position when dropping nodes on stage
 		if (lastMousePositionRef.current) {
-			const _stage = (stage.current as any).getStage();
-			_stage.setPointersPositions(lastMousePositionRef.current);
+			const stageInstance = (stage.current as any).getStage();
+			stageInstance.setPointersPositions(lastMousePositionRef.current);
 		}
+		let element	 = document.querySelector(".taskbar__task-dragging");
+		if (element) {
+			const rect = element.getBoundingClientRect();
 
-		if (taskClassName.indexOf("repo-item") == 0) {
-			loadRepoItemFromModuleAndAdd(taskClassName);
-			return;
+			if (taskClassName.indexOf("repo-item") === 0) {
+				loadRepoItemFromModuleAndAdd(taskClassName, rect);
+				return;
+			}
+
+			if (taskClassName.indexOf("custom-node") === 0) {
+				console.log("lastMousePositionRef.current", lastMousePositionRef.current);
+				loadCustomNodeFromModuleAndAdd(event, taskClassName, rect);
+				return;
+			}	
+
+			addTaskClassNameToCanvas(event, taskClassName, undefined, rect);		
 		}
-
-		if (taskClassName.indexOf("custom-node") == 0) {
-			loadCustomNodeFromModuleAndAdd(event, taskClassName);
-			return;
-		}	
-
-		addTaskClassNameToCanvas(event, taskClassName);		
-
 		return false;
 	}
 	
@@ -4668,7 +4664,7 @@ console.log("clearstate");
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				const scaleFactor = (stageInstance as any).scaleX();
+				const scaleFactor = stageInstance.scaleX();
 
 				let position = {
 					x: 0,
@@ -4737,7 +4733,6 @@ console.log("clearstate");
 							const distance = getDistance(position,leftPosition);
 							if (distance >= 0) {
 								if (distance < (400)) {
-									//minDistance = distance;
 									closestEndNode = node;
 									closestNode = undefined;
 									orientationIsLeft = false;
@@ -4771,7 +4766,6 @@ console.log("clearstate");
 							const distance = getDistance(position,rightPosition);
 							if (distance >= 0) {
 								if (distance < (400)) {
-									//minDistance = distance;
 									closestStartNode = node;
 									closestNode = undefined;
 									orientationIsLeft = false;
