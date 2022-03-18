@@ -12,6 +12,7 @@ import { DragginTask} from '../../dragging-task';
 export interface TaskbarProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	isDragging: boolean;
+	hasCustomNodesAndRepository: boolean;
 }
 
 export interface TaskbarState {
@@ -140,9 +141,11 @@ export const Taskbar = (props: TaskbarProps) => {
 
 	useEffect(() => {
 		loadTasks();
-		loadRepositoryItems();	
-		loadCustomNodesItems();
-	}, [canvasMode]);
+		if (props.hasCustomNodesAndRepository) {
+			loadRepositoryItems();	
+			loadCustomNodesItems();
+		}
+	}, [canvasMode, props.hasCustomNodesAndRepository]);
 
 	useEffect(() => {
 		if (modulesMenu.isOpen) {

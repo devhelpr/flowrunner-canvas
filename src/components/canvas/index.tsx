@@ -52,6 +52,7 @@ const uuidV4 = uuid.v4;
 export interface CanvasProps {
 
 	hasTaskNameAsNodeTitle?: boolean;
+	hasCustomNodesAndRepository: boolean;
 	canvasToolbarsubject : Subject<string>;
 	formNodesubject: Subject<any>;
 	
@@ -5281,6 +5282,7 @@ console.log("clearstate");
 			
 				<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
 					isDragging={activeId !== undefined}
+					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository}
 				></Taskbar>	
 				<DragOverlay className="taskbar__task-dragging"
 					zIndex={20000}

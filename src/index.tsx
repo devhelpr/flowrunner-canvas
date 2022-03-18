@@ -92,6 +92,7 @@ export { setCustomConfig };
 export interface IFlowrunnerCanvasProps {
 	hasShowDependenciesInMenu?: boolean;
 	hasTaskNameAsNodeTitle? : boolean;
+	hasCustomNodesAndRepository? : boolean;
 	modalSize? : IModalSize;
 
 	developmentMode? : boolean;
@@ -241,7 +242,8 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					onGetFlows={flows.onGetFlows}
 				></Toolbar>
 								
-				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current} 
+				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
+					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
 					renderHtmlNode={renderHtmlNode.current}
 					flowrunnerConnector={flowrunnerConnector.current}
 					getNodeInstance={getNodeInstance.current}
@@ -473,7 +475,8 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												onGetFlows={flows.onGetFlows}
 												></Toolbar>
 											{editorMode == "canvas" &&
-											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject} 
+											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
+												hasCustomNodesAndRepository={true} 
 												formNodesubject={formNodesubject} 
 												renderHtmlNode={renderHtmlNode}
 												flowrunnerConnector={flowrunnerConnector}
