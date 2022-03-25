@@ -9,8 +9,9 @@ interface IFlowState extends State {
   flow: any[];
   flowId: string;
   flowHashmap: any;
-  storeFlow: (flow: any[], flowId: string) => void;
+  storeFlow: (flow: any[], flowId: string) => void;  
   storeFlowNode: (node: any, orgNodeName: string) => void;
+  storeFlowNodes: (node: any) => void;
   addFlowNode: (node: any) => void;
   addFlowNodes: (nodes: any[]) => void;
   addConnection: (connection: any) => void;
@@ -91,6 +92,39 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           return currentNode;
         });
         console.log('storeFlowNode', node, flow);
+        return {
+          flow: flow,
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+        };
+      }),
+    storeFlowNodes: (nodes : any[]) => 
+      set(state => {
+        let flow = state.flow.map((currentNode, index) => {
+          let _storeNode = currentNode;
+          nodes.forEach(node => {
+        
+            if (currentNode.name === node.name) {
+              const newNode = Object.assign({}, node, {
+                name: node.name,
+                id: node.name,
+              });
+              _storeNode = newNode;
+            } else if (currentNode.startshapeid === node.name && node.shapeType !== 'Line') {
+              const newNode = Object.assign({}, currentNode, {
+                startshapeid: node.name,
+              });
+              _storeNode = newNode;
+            } else if (currentNode.endshapeid === node.name && node.shapeType !== 'Line') {
+              const newNode = Object.assign({}, currentNode, {
+                endshapeid: node.name,
+              });
+              _storeNode = newNode;
+            }
+          });
+          return _storeNode;
+
+        });
+        console.log('storeFlowNodes', nodes, flow);
         return {
           flow: flow,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),

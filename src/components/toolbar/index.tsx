@@ -277,6 +277,7 @@ export const Toolbar = (props: ToolbarProps) => {
 
 	const getSelectedNodes = () => {
 		let inputConnections : any[] = [];
+		let outputConnections : any[] = [];
 		let orgNodes : any[] = [];
 		let repoFlow : any[] = [];
 		let renameIdMap : any = {};
@@ -320,6 +321,12 @@ export const Toolbar = (props: ToolbarProps) => {
 			} else
 			if (node.shapeType === "Line" && 						
 				renameIdMap[node.startshapeid] &&
+				!renameIdMap[node.endshapeid]) {
+				node.startshapeid = renameIdMap[node.startshapeid];
+				outputConnections.push(node);
+			} else
+			if (node.shapeType === "Line" && 						
+				renameIdMap[node.startshapeid] &&
 				renameIdMap[node.endshapeid]) {
 				orgNodes.push(node);
 
@@ -356,6 +363,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		}
 		return {
 			inputConnections,
+			outputConnections,
 			orgNodes,
 			center : {
 				x: centerX,
@@ -443,12 +451,39 @@ export const Toolbar = (props: ToolbarProps) => {
 			canvasMode.isInMultiSelect && canvasMode.selectedNodes.length > 0) {
 			
 			const bundledNodesInfo = getSelectedNodes();
-			if (bundledNodesInfo.flow.length > 0 && bundledNodesInfo.inputConnections.length > 0) {
+			if (bundledNodesInfo.flow.length > 0) {
 				
 				flow.deleteNodes(bundledNodesInfo.orgNodes);
 
 				const newNodeId = "bundle_"+uuidV4();
-				let startNodeName = bundledNodesInfo.inputConnections[0].endshapeid;
+				let startNodeName : string = "";
+				if (bundledNodesInfo.inputConnections.length > 0) {
+					startNodeName = bundledNodesInfo.inputConnections[0].endshapeid;
+				} else {
+					const connections : any[] = [];
+					bundledNodesInfo.flow.forEach(node => {
+						if (node.shapeType === "Line") {
+							connections.push(node);
+						}
+					});
+					let startNode : any = undefined;
+					bundledNodesInfo.flow.forEach(node => {
+						if (node.shapeType !== "Line") {
+							let hasInputNode = false;
+							connections.forEach((connection) => {
+								if (connection.endshapeid === node.name) {
+									hasInputNode = true;
+								}
+							});
+							if (!hasInputNode && !startNode) {
+								startNode = node;
+							}
+						}
+					});
+					if (startNode) {
+						startNodeName = startNode.name;
+					}
+				}
 
 				let newNode = getNewNode({
 					name: newNodeId,
@@ -466,25 +501,56 @@ console.log("newNode", newNodeId, newNode);
 					x: newNode.x,
 					y: newNode.y
 				});
+				
+				const storeNodes : any = [];
+				if (bundledNodesInfo.inputConnections.length > 0) {
+					bundledNodesInfo.inputConnections[0].endshapeid = newNodeId;
 
-				bundledNodesInfo.inputConnections[0].endshapeid = newNodeId;
+					let newEndPosition =  FlowToCanvas.getEndPointForLine(newNode, {
+						x: newNode.x,
+						y: newNode.y
+					}, bundledNodesInfo.inputConnections[0], props.getNodeInstance,
+						bundledNodesInfo.inputConnections[0].thumbPosition as ThumbPositionRelativeToNode);
+					bundledNodesInfo.inputConnections[0].xend = newEndPosition.x;
+					bundledNodesInfo.inputConnections[0].yend = newEndPosition.y;
 
-				let newEndPosition =  FlowToCanvas.getEndPointForLine(newNode, {
-					x: newNode.x,
-					y: newNode.y
-				}, bundledNodesInfo.inputConnections[0], props.getNodeInstance,
-					bundledNodesInfo.inputConnections[0].thumbPosition as ThumbPositionRelativeToNode);
-				bundledNodesInfo.inputConnections[0].xend = newEndPosition.x;
-				bundledNodesInfo.inputConnections[0].yend = newEndPosition.y;
+					setPosition(bundledNodesInfo.inputConnections[0].name, {
+						xstart: bundledNodesInfo.inputConnections[0].xstart,
+						ystart: bundledNodesInfo.inputConnections[0].ystart,
+						xend: newEndPosition.x,
+						yend: newEndPosition.y
+					});
 
-				setPosition(bundledNodesInfo.inputConnections[0].name, {
-					xstart: bundledNodesInfo.inputConnections[0].xstart,
-					ystart: bundledNodesInfo.inputConnections[0].ystart,
-					xend: newEndPosition.x,
-					yend: newEndPosition.y
-				});
+					storeNodes.push(bundledNodesInfo.inputConnections[0]);
+				}
+								
+				//flow.storeFlowNode(bundledNodesInfo.inputConnections[0], bundledNodesInfo.inputConnections[0].id);
 
-				flow.storeFlowNode(bundledNodesInfo.inputConnections[0], bundledNodesInfo.inputConnections[0].id);
+				if (bundledNodesInfo.outputConnections.length > 0) {
+					bundledNodesInfo.outputConnections.forEach(outputConnection => {
+						outputConnection.startshapeid = newNodeId;
+
+						let newStartPosition =  FlowToCanvas.getStartPointForLine(newNode, {
+							x: newNode.x,
+							y: newNode.y
+						}, outputConnection, props.getNodeInstance,
+							outputConnection.thumbPosition as ThumbPositionRelativeToNode);
+
+						outputConnection.xstart = newStartPosition.x;
+						outputConnection.ystart = newStartPosition.y;
+		
+						setPosition(outputConnection.name, {
+							xstart: newStartPosition.x,
+							ystart: newStartPosition.y,
+							xend: outputConnection.xend,
+							yend: outputConnection.yend
+						});
+
+						//flow.storeFlowNode(outputConnection, outputConnection.id);						
+						storeNodes.push(outputConnection);
+					});
+				}
+				flow.storeFlowNodes(storeNodes);
 			}
 		}
 		return false;
