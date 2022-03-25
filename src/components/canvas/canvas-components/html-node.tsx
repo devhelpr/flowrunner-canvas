@@ -71,10 +71,14 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 
 		const isSelected = false;//selectedNode && selectedNode.node.name === props.node.name;
 		nodeClone.htmlPlugin = props.node.htmlPlugin || (settings as any).htmlPlugin || "";
+
+		let hasClone = true;
+		if ((settings as any).hasClone !== undefined) {
+			hasClone = (settings as any).hasClone; 
+		}
 		
 		let width = undefined;
 		let height = undefined;
-
 		if (props.getNodeInstance) {
 			const instance = props.getNodeInstance(props.node, props.flowrunnerConnector, flowStore.flow, settings);
 			if (instance) {
@@ -141,9 +145,9 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 				>
 					<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}
 					<span>{!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.label ? props.node.label : props.node.name}</span></span>
-					<a href="#" onClick={(event) => props.onCloneNode(props.node, event)}
+					{hasClone && <a href="#" onClick={(event) => props.onCloneNode(props.node, event)}
 						onFocus={props.onFocus}
-						className="canvas__html-shape-bar-icon far fa-clone"></a>									
+						className="canvas__html-shape-bar-icon far fa-clone"></a>}							
 					{!!settings.hasConfigMenu && <a href="#"
 						onFocus={props.onFocus} 
 						onClick={(event) => props.onShowNodeSettings(props.node, settings, event)} 

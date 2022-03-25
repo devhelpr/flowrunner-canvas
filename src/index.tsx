@@ -226,6 +226,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
 				<Toolbar 
 					hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
+					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
 					renderMenuOptions={props.renderMenuOptions}
 					canvasToolbarsubject={canvasToolbarsubject.current} 
 					hasRunningFlowRunner={true}
@@ -464,6 +465,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 											<Toolbar canvasToolbarsubject={canvasToolbarsubject}												
 												hasRunningFlowRunner={!!hasRunningFlowRunner}
 												flowrunnerConnector={flowrunnerConnector}
+												hasCustomNodesAndRepository={true}
 												onEditorMode={onEditorMode}
 												flow={flows.flow}
 												flowId={flows.flowId}

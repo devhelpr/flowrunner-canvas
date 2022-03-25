@@ -438,6 +438,7 @@ const taskTypeConfig: any = {
   },
   BundleFlowTask: {
     hasUI: false,
+    hasClone: false,
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
     layout: {

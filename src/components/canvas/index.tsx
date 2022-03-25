@@ -696,19 +696,32 @@ export const Canvas = (props: CanvasProps) => {
 					if (unmounted.current) {
 						return;
 					}
-					if (message == "loadFlow") {
+					if (message === "loadFlow") {
 						(flowIsLoading as any).current = true;
 						setCanvasOpacity(0);
 					} else
-					if (message == "fitStage") {
+					if (message === "fitStage") {
 						fitStage(undefined, true, true);
 						setCanvasOpacity(1);	
 					} else 
-					if (message == "reload") {
+					if (message === "reload") {
 						setCanvasKey(canvasKey + 1);
 					} else 
-					if (message == "export") {
+					if (message === "export") {
 						exportCanvas();
+					} else 
+					if (message === "resetMultiSelect") {
+						console.log("resetMultiSelect");
+						deselectAllNodes();
+						interactionState.current = InteractionState.idle;
+						(selectingRectRef.current as any).opacity(0);
+						
+						if (stage && stage.current) {
+							const stageInstance = (stage.current as any).getStage();		
+							stageInstance.batchDraw();
+						}
+
+						canvasMode.setIsInMultiSelect(false, []);
 					}
 				}
 			});
@@ -930,8 +943,9 @@ export const Canvas = (props: CanvasProps) => {
 					setCanvasOpacity(1);
 				}
 			}
-		}	
-
+		}
+		
+		selectedNodes.current = [];
 		deselectAllNodes();
 		interactionState.current = InteractionState.idle;
 		(selectingRectRef.current as any).opacity(0);

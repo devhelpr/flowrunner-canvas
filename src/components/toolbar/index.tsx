@@ -46,6 +46,7 @@ export interface IFlowFile {
 
 export interface ToolbarProps {
 	
+	hasCustomNodesAndRepository: boolean;
 	hasShowDependenciesInMenu?: boolean;
 	renderMenuOptions? : () => JSX.Element;
 
@@ -452,7 +453,17 @@ export const Toolbar = (props: ToolbarProps) => {
 			
 			const bundledNodesInfo = getSelectedNodes();
 			if (bundledNodesInfo.flow.length > 0) {
-				
+				let allowBundling = true;
+				bundledNodesInfo.flow.forEach((node) => {
+					if (node.taskType === "BundleFlowTask") {
+						allowBundling = false;
+					} 
+				});
+				if (!allowBundling) {
+					alert("Nested Bundles are not allowed");
+					return;
+				}
+
 				flow.deleteNodes(bundledNodesInfo.orgNodes);
 
 				const newNodeId = "bundle_"+uuidV4();
@@ -551,6 +562,10 @@ console.log("newNode", newNodeId, newNode);
 					});
 				}
 				flow.storeFlowNodes(storeNodes);
+
+				if (props.canvasToolbarsubject) {
+					props.canvasToolbarsubject.next("resetMultiSelect");
+				}
 			}
 		}
 		return false;
@@ -817,11 +832,16 @@ console.log("newNode", newNodeId, newNode);
 								{!isFlowEditorOnly && canvasMode.flowType === "backend" && canvasMode.editorMode === "canvas" && 
 									<img title="backend flow" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/server-solid.svg" />
 								}
-								{canvasMode.isInMultiSelect && 
+								{canvasMode.isInMultiSelect && props.hasCustomNodesAndRepository &&
 									<a href="#" onClick={addToRepository} className="mx-2 btn btn-outline-light">Add to repository</a>
 								}
 								{canvasMode.isInMultiSelect && 
 									<a href="#" onClick={bundleNode} className="mx-2 btn btn-outline-light">Bundle node</a>
+								}
+								
+								{!canvasMode.isInMultiSelect && 
+									!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.taskType === "BundleFlowTask" && 
+									<a href="#"  className="mx-2 btn btn-outline-light">Edit Bundle</a>
 								}
 
 								{!canvasMode.isInMultiSelect && canvasMode.editorMode === "canvas" && <>
