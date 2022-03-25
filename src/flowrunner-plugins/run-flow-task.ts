@@ -53,11 +53,10 @@ export class RunFlowTask extends FlowTask {
               }
             });
             this.flowrunnerConnector?.setFlowType('playground');
-            this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow),false, node.flowId);
+            this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow), false, node.flowId);
             this.flowrunnerConnector?.executeFlowNode(node.startNode, payload);
           });
-        } else
-        if (node.flowId && node.nodeName) {
+        } else if (node.flowId && node.nodeName) {
           const loader = new FlowLoader();
           return new Promise((resolve, reject) => {
             loader

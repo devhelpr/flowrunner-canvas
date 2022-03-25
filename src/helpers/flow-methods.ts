@@ -4,7 +4,7 @@ import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-t
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
-export const getNewNode = (node: any, flow: any[], useNameFromNode? : boolean) => {
+export const getNewNode = (node: any, flow: any[], useNameFromNode?: boolean) => {
   let indexFromName = -1;
   let indexCharsFromName = '';
   let nonNumberFound: boolean = false;

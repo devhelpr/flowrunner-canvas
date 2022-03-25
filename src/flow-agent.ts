@@ -868,7 +868,7 @@ const startFlow = (
       return undefined;
     },
     workerContext: worker,
-    getWorker: getFlowAgent
+    getWorker: getFlowAgent,
   };
   let value: boolean = false;
   let perfstart = performance.now();

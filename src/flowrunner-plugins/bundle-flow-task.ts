@@ -33,7 +33,7 @@ export class BundleFlowTask extends FlowTask {
 
   public execute(node: any, services: any) {
     try {
-      console.log("bundle flow", services, node.flow);
+      console.log('bundle flow', services, node.flow);
       if (!this.worker && !this.flowrunnerConnector) {
         this.worker = services.getWorker();
         this.flowrunnerConnector = new FlowConnector();
@@ -52,15 +52,15 @@ export class BundleFlowTask extends FlowTask {
               }
             });
             this.flowrunnerConnector?.setFlowType('playground');
-            this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow),false, node.flowId);
+            this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow), false, node.flowId);
             this.flowrunnerConnector?.executeFlowNode(node.startNode, payload);
           });
         } else {
-        return false;
-        //let payload = Object.assign({}, node.payload, this.flowrunner.convert(JSON.stringify({})));
-        //return payload;
+          return false;
+          //let payload = Object.assign({}, node.payload, this.flowrunner.convert(JSON.stringify({})));
+          //return payload;
+        }
       }
-    }
 
       //console.log("payload" , payload);
       //return false;

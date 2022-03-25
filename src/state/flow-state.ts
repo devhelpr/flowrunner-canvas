@@ -9,7 +9,7 @@ interface IFlowState extends State {
   flow: any[];
   flowId: string;
   flowHashmap: any;
-  storeFlow: (flow: any[], flowId: string) => void;  
+  storeFlow: (flow: any[], flowId: string) => void;
   storeFlowNode: (node: any, orgNodeName: string) => void;
   storeFlowNodes: (node: any) => void;
   addFlowNode: (node: any) => void;
@@ -97,12 +97,11 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
         };
       }),
-    storeFlowNodes: (nodes : any[]) => 
+    storeFlowNodes: (nodes: any[]) =>
       set(state => {
         let flow = state.flow.map((currentNode, index) => {
           let _storeNode = currentNode;
           nodes.forEach(node => {
-        
             if (currentNode.name === node.name) {
               const newNode = Object.assign({}, node, {
                 name: node.name,
@@ -122,7 +121,6 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
             }
           });
           return _storeNode;
-
         });
         console.log('storeFlowNodes', nodes, flow);
         return {
@@ -249,47 +247,48 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flow: flow,
         };
       }),
-      deleteNodes: (nodes: any[]) => {
-        set(state => { 
-          let index = -1;
-          const isNodeInList = (nodeName) => {
-            return nodes.findIndex((node) => {
+    deleteNodes: (nodes: any[]) => {
+      set(state => {
+        let index = -1;
+        const isNodeInList = nodeName => {
+          return (
+            nodes.findIndex(node => {
               return node.name === nodeName;
-            }) >= 0;
+            }) >= 0
+          );
+        };
+        let flow = state.flow.filter(draftNode => {
+          if (isNodeInList(draftNode.name)) {
+            return false;
           }
-          let flow = state.flow.filter(draftNode => {
-            if (isNodeInList(draftNode.name)) {
-              return false;
-            }
-            if (isNodeInList(draftNode.startshapeid) ||
-              isNodeInList(draftNode.endshapeid)) {
-              return false;
-            }
-            return true;
-          });
-          flow = flow.map(draftNode => {
-            if (isNodeInList(draftNode.startshapeid)) {
-              let updatedNode = { ...draftNode };
-              updatedNode.startshapeid = undefined;
-
-              if (isNodeInList(draftNode.endshapeid)) {
-                updatedNode.endshapeid = undefined;
-              }
-              return updatedNode;
-            } else if (isNodeInList(draftNode.endshapeid)) {
-              let updatedNode = { ...draftNode };
-              updatedNode.endshapeid = undefined;
-              return updatedNode;
-            }
-            return draftNode;
-          });
-
-          return {
-            flowHashmap: FlowToCanvas.createFlowHashMap(flow),
-            flow: flow,
-          };
+          if (isNodeInList(draftNode.startshapeid) || isNodeInList(draftNode.endshapeid)) {
+            return false;
+          }
+          return true;
         });
-      }
+        flow = flow.map(draftNode => {
+          if (isNodeInList(draftNode.startshapeid)) {
+            let updatedNode = { ...draftNode };
+            updatedNode.startshapeid = undefined;
+
+            if (isNodeInList(draftNode.endshapeid)) {
+              updatedNode.endshapeid = undefined;
+            }
+            return updatedNode;
+          } else if (isNodeInList(draftNode.endshapeid)) {
+            let updatedNode = { ...draftNode };
+            updatedNode.endshapeid = undefined;
+            return updatedNode;
+          }
+          return draftNode;
+        });
+
+        return {
+          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          flow: flow,
+        };
+      });
+    },
   };
 };
 

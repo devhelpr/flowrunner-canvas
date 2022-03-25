@@ -456,9 +456,8 @@ const taskTypeConfig: any = {
     },
     width: 200,
     height: 200,
-    iconBgCssClasses: "tw-text-7xl tw-opacity-20 fas fa-project-diagram",
-    metaInfo: [      
-    ],
+    iconBgCssClasses: 'tw-text-7xl tw-opacity-20 fas fa-project-diagram',
+    metaInfo: [],
     presetValues: {},
   },
   GridEditTask: {
