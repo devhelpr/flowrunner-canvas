@@ -8,7 +8,7 @@ import { EditPopup } from '../edit-popup';
 
 import fetch from 'cross-fetch';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
 import { ModulesPopup } from '../modules-popup';
@@ -20,12 +20,13 @@ import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
-import { getPosition } from '../../services/position-service';
+import { getPosition, setPosition } from '../../services/position-service';
 
 import { NamePopup } from '../popups/name-popup';
 import * as uuid from 'uuid';
 
 import { FlowState } from '../../use-flows';
+import { ThumbPositionRelativeToNode } from '../canvas/shapes/shape-types';
 
 const uuidV4 = uuid.v4;
 
@@ -66,6 +67,9 @@ export interface ToolbarProps {
 	loadFlow : (flowId) => void;
 	saveFlow : (flowId?) => void;
 	onGetFlows : (id? : string | number) => void;
+
+	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
+
 }
 
 export interface ToolbarState {
@@ -271,61 +275,93 @@ export const Toolbar = (props: ToolbarProps) => {
 		return false;
 	}
 
-	const addToRepository =	(event) => {
-		event.preventDefault();
-		console.log("addToRepository", canvasMode.selectedNodes, flow.flow);
-		if (flow.flow &&
-			canvasMode.isInMultiSelect && canvasMode.selectedNodes.length > 0) {
-			let repoFlow : any[] = [];
-			let renameIdMap : any = {};
-			let idCounter = 1;
-			let xmin = 99999999;
-			let ymin = 99999999;
-			canvasMode.selectedNodes.forEach((nodeName) => {
-				flow.flow.forEach((node) => {
-					if (node.shapeType !== "Line" && node.name === nodeName) {
-						renameIdMap[nodeName] = "node" + idCounter;
-						idCounter++;
-						repoFlow.push({...node, 
-							id :renameIdMap[nodeName], 
-							name: renameIdMap[nodeName]
-						});
-
-						const position = getPosition(node.name) || {
-							x: node.x,
-							y: node.y
-						}
-
-						if (position.x < xmin) {
-							xmin = position.x;
-						}
-
-						if (node.y < ymin) {
-							ymin = position.y;
-						}
-					}
-				 });
-			});
-
+	const getSelectedNodes = () => {
+		let inputConnections : any[] = [];
+		let orgNodes : any[] = [];
+		let repoFlow : any[] = [];
+		let renameIdMap : any = {};
+		let idCounter = 1;
+		let xmin = 99999999;
+		let ymin = 99999999;
+		canvasMode.selectedNodes.forEach((nodeName) => {
 			flow.flow.forEach((node) => {
-				if (node.shapeType === "Line" && 						
-					renameIdMap[node.startshapeid] &&
-					renameIdMap[node.endshapeid]) {
-					
-					renameIdMap[node.name] = "node" + idCounter;
+				if (node.shapeType !== "Line" && node.name === nodeName) {
+					renameIdMap[nodeName] = "node" + idCounter;
 					idCounter++;
-
 					repoFlow.push({...node, 
-						id: renameIdMap[node.name], 
-						name: renameIdMap[node.name],
-						startshapeid: renameIdMap[node.startshapeid],
-						endshapeid: renameIdMap[node.endshapeid]
-					});					
-				}				
-			});
+						id :renameIdMap[nodeName], 
+						name: renameIdMap[nodeName]
+					});
+					orgNodes.push(node);
 
+					const position = getPosition(node.name) || {
+						x: node.x,
+						y: node.y
+					}
 
-			repoFlow = repoFlow.map((node) => {
+					if (position.x < xmin) {
+						xmin = position.x;
+					}
+
+					if (node.y < ymin) {
+						ymin = position.y;
+					}
+				}
+			 });
+		});
+
+		flow.flow.forEach((node) => {
+
+			if (node.shapeType === "Line" && 						
+				!renameIdMap[node.startshapeid] &&
+				renameIdMap[node.endshapeid]) {
+				node.endshapeid = renameIdMap[node.endshapeid];
+				inputConnections.push(node);
+			} else
+			if (node.shapeType === "Line" && 						
+				renameIdMap[node.startshapeid] &&
+				renameIdMap[node.endshapeid]) {
+				orgNodes.push(node);
+
+				renameIdMap[node.name] = "node" + idCounter;
+				idCounter++;
+
+				repoFlow.push({...node, 
+					id: renameIdMap[node.name], 
+					name: renameIdMap[node.name],
+					startshapeid: renameIdMap[node.startshapeid],
+					endshapeid: renameIdMap[node.endshapeid]
+				});					
+			}				
+		});
+
+		let centerX = 0;
+		let centerY = 0;
+		let positionsAdded = 0;
+		repoFlow.forEach((node) => {
+			if (node.shapeType !== "Line") {
+				const position = getPosition(node.name) || {
+					x: node.x,
+					y: node.y
+				};
+
+				centerX += position.x;
+				centerY += position.y; 
+				positionsAdded++;
+			}
+		});
+		if (positionsAdded > 0) {
+			centerX /= positionsAdded;
+			centerY /= positionsAdded;
+		}
+		return {
+			inputConnections,
+			orgNodes,
+			center : {
+				x: centerX,
+				y: centerY
+			},
+			flow: repoFlow.map((node) => {
 				if (node.shapeType === "Line") {
 
 					const position = getPosition(node.name) || {
@@ -352,11 +388,21 @@ export const Toolbar = (props: ToolbarProps) => {
 						y: position.y - ymin
 					};
 				}
-			});
+			})
+		};
+	}
 
-			console.log("repoFlow", repoFlow);
+	const addToRepository =	(event) => {
+		event.preventDefault();
+		console.log("addToRepository", canvasMode.selectedNodes, flow.flow);
+		if (flow.flow &&
+			canvasMode.isInMultiSelect && canvasMode.selectedNodes.length > 0) {
+			
+			const repoFlowInfo = getSelectedNodes();
 
-			if (repoFlow.length > 0) {
+			console.log("repoFlow", repoFlowInfo);
+
+			if (repoFlowInfo.flow.length > 0) {
 				const unique = new Date().getTime();
 				fetch('/api/modulecontent?moduleId=repository', {
 					method: 'POST',
@@ -364,7 +410,7 @@ export const Toolbar = (props: ToolbarProps) => {
 						data: {
 							name: "repo" + unique,
 							title: "repo" + unique,
-							flow: JSON.stringify(repoFlow)
+							flow: JSON.stringify(repoFlowInfo.flow)
 						}
 					}),
 					headers: {
@@ -381,6 +427,64 @@ export const Toolbar = (props: ToolbarProps) => {
 				.catch(err => {
 					console.error(err);
 				});
+			}
+		}
+		return false;
+	}
+
+	const bundleNode = (event) => {
+		
+		/*
+			TODO : also handle output node ...
+		*/
+
+		event.preventDefault();
+		if (flow.flow &&
+			canvasMode.isInMultiSelect && canvasMode.selectedNodes.length > 0) {
+			
+			const bundledNodesInfo = getSelectedNodes();
+			if (bundledNodesInfo.flow.length > 0 && bundledNodesInfo.inputConnections.length > 0) {
+				
+				flow.deleteNodes(bundledNodesInfo.orgNodes);
+
+				const newNodeId = "bundle_"+uuidV4();
+				let startNodeName = bundledNodesInfo.inputConnections[0].endshapeid;
+
+				let newNode = getNewNode({
+					name: newNodeId,
+					id: newNodeId,
+					taskType: "BundleFlowTask",
+					shapeType: "Circle",
+					x: bundledNodesInfo.center.x || bundledNodesInfo.flow[0].x || bundledNodesInfo.flow[0].xstart,
+					y: bundledNodesInfo.center.y || bundledNodesInfo.flow[0].y || bundledNodesInfo.flow[0].ystart,
+					flow: JSON.stringify(bundledNodesInfo.flow),
+					startNode: startNodeName
+				}, flow.flow, true);
+				flow.addFlowNode(newNode);
+console.log("newNode", newNodeId, newNode);
+				setPosition(newNode.name, {
+					x: newNode.x,
+					y: newNode.y
+				});
+
+				bundledNodesInfo.inputConnections[0].endshapeid = newNodeId;
+
+				let newEndPosition =  FlowToCanvas.getEndPointForLine(newNode, {
+					x: newNode.x,
+					y: newNode.y
+				}, bundledNodesInfo.inputConnections[0], props.getNodeInstance,
+					bundledNodesInfo.inputConnections[0].thumbPosition as ThumbPositionRelativeToNode);
+				bundledNodesInfo.inputConnections[0].xend = newEndPosition.x;
+				bundledNodesInfo.inputConnections[0].yend = newEndPosition.y;
+
+				setPosition(bundledNodesInfo.inputConnections[0].name, {
+					xstart: bundledNodesInfo.inputConnections[0].xstart,
+					ystart: bundledNodesInfo.inputConnections[0].ystart,
+					xend: newEndPosition.x,
+					yend: newEndPosition.y
+				});
+
+				flow.storeFlowNode(bundledNodesInfo.inputConnections[0], bundledNodesInfo.inputConnections[0].id);
 			}
 		}
 		return false;
@@ -649,6 +753,9 @@ export const Toolbar = (props: ToolbarProps) => {
 								}
 								{canvasMode.isInMultiSelect && 
 									<a href="#" onClick={addToRepository} className="mx-2 btn btn-outline-light">Add to repository</a>
+								}
+								{canvasMode.isInMultiSelect && 
+									<a href="#" onClick={bundleNode} className="mx-2 btn btn-outline-light">Bundle node</a>
 								}
 
 								{!canvasMode.isInMultiSelect && canvasMode.editorMode === "canvas" && <>

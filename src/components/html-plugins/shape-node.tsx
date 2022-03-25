@@ -46,9 +46,14 @@ export const  ShapeNodeHtmlPlugin = (props :  ShapeNodeHtmlPluginProps) => {
 		style = props.node.style;
 	}
 
+	let iconBgCssClasses = "";
+	if (props.taskSettings && props.taskSettings.iconBgCssClasses) {
+		iconBgCssClasses = props.taskSettings.iconBgCssClasses;
+	}
+
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "transparent",
 			...style
-		}}>		
+		}}>{iconBgCssClasses && <span className={`html-plugin-node__icon ${iconBgCssClasses}`}></span>}		
 	</div>;	
 }

@@ -486,6 +486,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-bg-opacity: 1;
   background-color: rgb(192 132 252 / var(--tw-bg-opacity));
 }
+.tw-text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+.tw-text-7xl {
+  font-size: 4.5rem;
+  line-height: 1;
+}
 .tw-text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -493,6 +501,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-text-black {
   --tw-text-opacity: 1;
   color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+.tw-opacity-50 {
+  opacity: 0.5;
+}
+.tw-opacity-20 {
+  opacity: 0.2;
 }
 * {
 	-webkit-box-sizing: border-box;
@@ -2118,3 +2132,10 @@ textarea.form-control:disabled {
 [data-html-plugin="shapeNode"] .canvas__html-shape-body .html-plugin-node::before {
 				display: none;;
 			}
+[data-html-plugin="shapeNode"] .html-plugin-node__icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		-webkit-transform: translate(-50%,-50%);
+		        transform: translate(-50%,-50%);
+	}

@@ -861,13 +861,14 @@ const startFlow = (
     flowEventRunner: worker.flow,
     pluginClasses: {},
     logMessage: (arg1, arg2) => {
-      //console.log(arg1, arg2);
+      console.log(arg1, arg2);
     },
     registerModel: (modelName: string, definition: any) => {},
     getWebAssembly: () => {
       return undefined;
     },
     workerContext: worker,
+    getWorker: getFlowAgent
   };
   let value: boolean = false;
   let perfstart = performance.now();
@@ -884,7 +885,7 @@ const startFlow = (
         return webAssembly;
       }
       */
-      services.getWorker = getFlowAgent;
+      //services.getWorker = getFlowAgent;
 
       for (var key of Object.keys(worker.observables)) {
         const observable = worker.flow?.getObservableNode(key);

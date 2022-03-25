@@ -436,6 +436,31 @@ const taskTypeConfig: any = {
     ],
     presetValues: {},
   },
+  BundleFlowTask: {
+    hasUI: false,
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
+    layout: {
+      strokeColor: '#d61bd8',
+      fillColor: '#d550d7',
+      fillSelectedColor: '#d32cd5',
+      textColor: '#ffffff',
+    },
+    style: {
+      borderRadius: '40px',
+      border: '4px solid black',
+    },
+    styleShapeBody: {
+      width: '200px',
+      height: '200px',
+    },
+    width: 200,
+    height: 200,
+    iconBgCssClasses: "tw-text-7xl tw-opacity-20 fas fa-project-diagram",
+    metaInfo: [      
+    ],
+    presetValues: {},
+  },
   GridEditTask: {
     hasUI: true,
     shapeType: 'Html',

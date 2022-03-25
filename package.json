@@ -13,6 +13,7 @@
     "rust/**/*"
   ],
   "scripts": {
+    "start": "gulp",
     "test": "jest --config jestconfig.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",

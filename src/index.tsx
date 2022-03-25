@@ -240,6 +240,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					loadFlow={flows.loadFlow}
 					saveFlow={flows.saveFlow}
 					onGetFlows={flows.onGetFlows}
+					getNodeInstance={getNodeInstance.current}
 				></Toolbar>
 								
 				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
@@ -473,6 +474,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												loadFlow={flows.loadFlow}
 												saveFlow={flows.saveFlow}
 												onGetFlows={flows.onGetFlows}
+												getNodeInstance={getNodeInstance}
 												></Toolbar>
 											{editorMode == "canvas" &&
 											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}

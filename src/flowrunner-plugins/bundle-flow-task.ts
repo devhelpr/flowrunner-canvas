@@ -1,5 +1,4 @@
 import { FlowTask, FlowEventRunner } from '@devhelpr/flowrunner';
-import { FlowLoader } from './components/flow-loader';
 import { FlowConnector } from '../flow-connector';
 import { IFlowAgent } from '../interfaces/IFlowAgent';
 
@@ -27,25 +26,25 @@ import { IFlowAgent } from '../interfaces/IFlowAgent';
 */
 interface Worker {}
 
-export class RunFlowTask extends FlowTask {
+export class BundleFlowTask extends FlowTask {
   flowrunner: any = undefined;
   worker?: Worker = undefined;
   flowrunnerConnector?: FlowConnector;
 
   public execute(node: any, services: any) {
     try {
+      console.log("bundle flow", services, node.flow);
       if (!this.worker && !this.flowrunnerConnector) {
         this.worker = services.getWorker();
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IFlowAgent);
-
         if (node.flow) {
           return new Promise((resolve, reject) => {
             let payload = { ...node.payload };
             payload.sendMessageOnResolve = true;
 
             this.flowrunnerConnector?.registerOnReceiveFlowNodeExecuteResult(payload => {
-              console.log('RunFlowTask payload', node.name, payload);
+              console.log('BundleFlowTask payload', node.name, payload);
               if (payload === false) {
                 return false;
               } else {
@@ -56,44 +55,12 @@ export class RunFlowTask extends FlowTask {
             this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow),false, node.flowId);
             this.flowrunnerConnector?.executeFlowNode(node.startNode, payload);
           });
-        } else
-        if (node.flowId && node.nodeName) {
-          const loader = new FlowLoader();
-          return new Promise((resolve, reject) => {
-            loader
-              .getFlow(node.flowId, true)
-              .then(flow => {
-                console.log('RunFlowTask', node.name, flow);
-
-                let payload = { ...node.payload };
-                payload.sendMessageOnResolve = true;
-
-                this.flowrunnerConnector?.registerOnReceiveFlowNodeExecuteResult(payload => {
-                  console.log('RunFlowTask payload', node.name, payload);
-                  if (payload === false) {
-                    reject();
-                  } else {
-                    resolve(payload);
-                  }
-                });
-                this.flowrunnerConnector?.setFlowType('playground');
-                this.flowrunnerConnector?.pushFlowToFlowrunner(flow, false, node.flowId);
-                this.flowrunnerConnector?.executeFlowNode(node.nodeName, payload);
-              })
-              .catch(() => {
-                reject();
-              });
-          });
-        }
-        /*const webAssembly = services.getWebAssembly();
-				this.webassemblyFlowrunner = webAssembly.Flowrunner.new(`[]`,
-					`{"flow":${JSON.stringify(node.flow)}}`);
-				*/
-      } else {
+        } else {
         return false;
         //let payload = Object.assign({}, node.payload, this.flowrunner.convert(JSON.stringify({})));
         //return payload;
       }
+    }
 
       //console.log("payload" , payload);
       //return false;
@@ -112,6 +79,6 @@ export class RunFlowTask extends FlowTask {
   }
 
   public getName() {
-    return 'RunFlowTask';
+    return 'BundleFlowTask';
   }
 }

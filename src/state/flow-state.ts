@@ -16,6 +16,7 @@ interface IFlowState extends State {
   addConnection: (connection: any) => void;
   deleteConnection: (node: any) => void;
   deleteNode: (node: any, deleteLines: boolean) => void;
+  deleteNodes: (nodes: any[]) => void;
 }
 
 const handleStorageProvider = config => (set, get, api) =>
@@ -214,6 +215,47 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flow: flow,
         };
       }),
+      deleteNodes: (nodes: any[]) => {
+        set(state => { 
+          let index = -1;
+          const isNodeInList = (nodeName) => {
+            return nodes.findIndex((node) => {
+              return node.name === nodeName;
+            }) >= 0;
+          }
+          let flow = state.flow.filter(draftNode => {
+            if (isNodeInList(draftNode.name)) {
+              return false;
+            }
+            if (isNodeInList(draftNode.startshapeid) ||
+              isNodeInList(draftNode.endshapeid)) {
+              return false;
+            }
+            return true;
+          });
+          flow = flow.map(draftNode => {
+            if (isNodeInList(draftNode.startshapeid)) {
+              let updatedNode = { ...draftNode };
+              updatedNode.startshapeid = undefined;
+
+              if (isNodeInList(draftNode.endshapeid)) {
+                updatedNode.endshapeid = undefined;
+              }
+              return updatedNode;
+            } else if (isNodeInList(draftNode.endshapeid)) {
+              let updatedNode = { ...draftNode };
+              updatedNode.endshapeid = undefined;
+              return updatedNode;
+            }
+            return draftNode;
+          });
+
+          return {
+            flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+            flow: flow,
+          };
+        });
+      }
   };
 };
 

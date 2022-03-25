@@ -33,6 +33,7 @@ import { WhileTask } from '../flowrunner-plugins/while-task';
 import { SvgTestTask } from '../flowrunner-plugins/svg-test-task';
 import { CustomNodeTask } from '../flowrunner-plugins/custom-node-task';
 import { ShapeNodeTask } from '../flowrunner-plugins/shape-node-task';
+import { BundleFlowTask } from '../flowrunner-plugins/bundle-flow-task';
 
 export const registerTasks = flow => {
   flow.registerTask('SliderTask', SliderTask);
@@ -45,6 +46,7 @@ export const registerTasks = flow => {
   flow.registerTask('ScreenTask', ScreenTask);
   flow.registerTask('FormTask', FormTask);
   flow.registerTask('RunFlowTask', RunFlowTask);
+  flow.registerTask('BundleFlowTask', BundleFlowTask);
   flow.registerTask('SearchDataGridTask', SearchDataGridTask);
   flow.registerTask('FilterDataGridTask', FilterDataGridTask);
   flow.registerTask('WeightedSumTask', WeightedSumTask);
