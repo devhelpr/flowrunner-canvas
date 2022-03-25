@@ -7,7 +7,7 @@ import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { getPosition } from '../../../services/position-service';
 import { useSelectedNodeStore} from '../../../state/selected-node-state';
-import { useFlowStore} from '../../../state/flow-state';
+import { IFlowState} from '../../../state/flow-state';
 import { Subject } from 'rxjs';
 import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
 
@@ -49,6 +49,7 @@ export interface IHtmlNodeProps {
 	onMouseConnectionEndEnd: any;
 	onMouseConnectionEndLeave: any;
 
+	useFlowStore : () => IFlowState;
 }
 
 export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
@@ -59,7 +60,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.node.taskType, props.node), [props.node]);
 
 	//const selectedNode = useSelectedNodeStore();
-	const flowStore = useFlowStore();
+	const flowStore = props.useFlowStore();
 
 	const Shape = Shapes[shapeType];
 	
@@ -158,7 +159,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 						className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
 				</div>
 				<div className="canvas__html-shape-body" style={{...(settings && (settings as any).styleShapeBody)}}>
-				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId)}</div>
+				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId, props.useFlowStore)}</div>
 				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}
 					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}
 					onMouseOut={(event) => props.onMouseConnectionStartOut(props.node,false,event)}

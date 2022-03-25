@@ -22,8 +22,8 @@ import { KonvaNode} from './canvas-components/konva-node';
 import { clearPositions, getPosition, setPosition, 
 	setCommittedPosition, getCommittedPosition } from '../../services/position-service';
 
-import { useFlowStore} from '../../state/flow-state';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { IFlowState} from '../../state/flow-state';
+import { ICanvasModeState} from '../../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useNodesTouchedStateStore} from '../../state/nodes-touched';
 
@@ -63,11 +63,14 @@ export interface CanvasProps {
 	saveFlow : (flowId?) => void;
 
 	modalSize? : IModalSize;
-
-	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
+	initialOpacity : number;
 	flowrunnerConnector : IFlowrunnerConnector;
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
 	getNodeDependencies?: (nodeName: string) => INodeDependency[];
+
+	useFlowStore : () => IFlowState;
+	useCanvasModeStateStore: () => ICanvasModeState;
 }
 
 export interface CanvasState {
@@ -102,8 +105,8 @@ export const Canvas = (props: CanvasProps) => {
 
 	const {isOver, setNodeRef} = useDroppable({id: 'droppable' });
 
-	const flowStore = useFlowStore();
-	const canvasMode = useCanvasModeStateStore();
+	const flowStore = props.useFlowStore();
+	const canvasMode = props.useCanvasModeStateStore();
 	//const selectedNode = useSelectedNodeStore();
 	const selectNode = useSelectedNodeStore(state => state.selectNode);
 	const touchedNodesStore = useNodesTouchedStateStore();
@@ -286,11 +289,11 @@ export const Canvas = (props: CanvasProps) => {
 
 		(wheelTimeout.current as any) = setTimeout(wheelEnableLayoutOnTimeout, 500);
 		
-		/*
+		
 		if (e.preventDefault) {
 			e.preventDefault();
 		}
-		*/
+		
 		
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -366,6 +369,10 @@ export const Canvas = (props: CanvasProps) => {
 			if (heightCanvas < 500) {
 				heightCanvas = 500;
 			}
+			if (widthCanvas === 0) {
+				widthCanvas = bodyElement.clientWidth;
+			}
+			console.log("updateDimensions", stageContainerElement, widthCanvas, heightCanvas);
 			setStageWidth(widthCanvas);
 			setStageHeight(heightCanvas);
 		}
@@ -666,6 +673,13 @@ export const Canvas = (props: CanvasProps) => {
 		window.addEventListener("resize", onResize);
 		window.addEventListener("scroll", cancelScroll);
 		document.addEventListener('paste', onPaste);
+		if (canvasWrapper.current) {
+			console.log("ONWHEEL");
+			(canvasWrapper.current as unknown as any).addEventListener("wheel", wheelEvent, {
+				passive: false
+			});
+		}
+		console.log("updateDimensions");
 		updateDimensions();	        
 		document.body.scrollTop = 0;
 
@@ -677,6 +691,9 @@ export const Canvas = (props: CanvasProps) => {
 			props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
 			window.removeEventListener("resize", onResize);
 			window.removeEventListener("scroll", cancelScroll);
+			if (canvasWrapper.current) {
+				(canvasWrapper.current as unknown as any).removeEventListener("wheel", wheelEvent);
+			}
 		}
 	}, []);
 
@@ -698,9 +715,10 @@ export const Canvas = (props: CanvasProps) => {
 					}
 					if (message === "loadFlow") {
 						(flowIsLoading as any).current = true;
-						setCanvasOpacity(0);
+						setCanvasOpacity(props.initialOpacity);
 					} else
 					if (message === "fitStage") {
+						console.log("FITSTAGE");
 						fitStage(undefined, true, true);
 						setCanvasOpacity(1);	
 					} else 
@@ -834,7 +852,7 @@ export const Canvas = (props: CanvasProps) => {
 		if (props.flow && props.flow.length > 0) {
 						
 			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
-				setCanvasOpacity(0);
+				setCanvasOpacity(props.initialOpacity);
 				(flowIsLoading as any).current = true;
 
 				if (selectedNodeRef.current && selectedNodeRef.current.node !== undefined) {
@@ -5311,14 +5329,14 @@ console.log("clearstate");
 				<div 
 					key={"stage-layer-wrapper-" + canvasKey} 
 					ref={ref => ((canvasWrapper as any).current = ref)} 
-					style={{opacity: canvasOpacity}} 
+					style={{opacity: canvasOpacity || props.initialOpacity}} 
 					className="canvas-controller__scroll-container"
 					
 					tabIndex={0} 
 					onInput={onInput}
 					onKeyDown={onInput}
 					onKeyUp={onKeyUp}	
-					onWheel={wheelEvent}			
+					//onWheel={wheelEvent}			
 					onMouseLeave={onStageMouseLeave}
 					>
 					<ErrorBoundary>
@@ -5558,7 +5576,7 @@ console.log("clearstate");
 										flowId={props.flowId}
 										flowMemo={flowMemo}
 										nodesConnectedToSelectedNode={nodesConnectedToSelectedNode}
-
+										useFlowStore={props.useFlowStore}
 										shapeRefs={shapeRefs}
 
 										onMouseStart={onMouseStart}
@@ -5646,6 +5664,9 @@ console.log("clearstate");
 								flowId={flowStore.flowId}
 								flowMemo={flowMemo}
 								formNodesubject={props.formNodesubject}
+
+								useFlowStore={props.useFlowStore}
+
 								onMouseStart={onMouseStart}
 								onMouseOver={onMouseOver}
 								onMouseOut={onMouseOut}

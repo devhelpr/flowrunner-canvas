@@ -468,6 +468,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-w-full {
   width: 100%;
 }
+.tw-max-w-full {
+  max-width: 100%;
+}
 .-tw-translate-x-1\/2 {
   --tw-translate-x: -50%;
   -webkit-transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -559,6 +562,7 @@ img {
 }
 .modal-backdrop.fade {
 	z-index: 10040;
+	pointer-events: none;
 }
 .toolbar__root {
 	position: absolute;
@@ -2135,4 +2139,11 @@ textarea.form-control:disabled {
 		left: 50%;
 		-webkit-transform: translate(-50%,-50%);
 		        transform: translate(-50%,-50%);
+	}
+.modal-body .taskbar {
+		top: 16px;
+		height: calc(100% - 32px);
+	}
+.modal-body .konvajs-content {
+		margin-bottom: 0;
 	}

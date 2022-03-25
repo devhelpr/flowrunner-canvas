@@ -27,6 +27,7 @@ import * as uuid from 'uuid';
 
 import { FlowState } from '../../use-flows';
 import { ThumbPositionRelativeToNode } from '../canvas/shapes/shape-types';
+import { EditBundle } from '../edit-bundle';
 
 const uuidV4 = uuid.v4;
 
@@ -70,6 +71,7 @@ export interface ToolbarProps {
 	onGetFlows : (id? : string | number) => void;
 
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
+	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 
 }
 
@@ -87,6 +89,7 @@ export interface ToolbarState {
 export const Toolbar = (props: ToolbarProps) => {
 	const [showModulesPopup, setShowModulesPopup]	= useState(false);
 	const [showEditPopup, setShowEditPopup]	= useState(false);
+	const [showEditBundle, setShowEditBundle]	= useState(false);
 	const [showSchemaPopup, setShowSchemaPopup]	= useState(false);
 	const [showNewFlow, setShowNewFlow]	= useState(false);
 	const [selectedTask, setSelectedTask]	= useState("");
@@ -226,6 +229,14 @@ export const Toolbar = (props: ToolbarProps) => {
 		if (!canvasMode.isConnectingNodes) {
 			setShowEditPopup(true);
 			setShowSchemaPopup(false);
+		}
+		return false;
+	}
+
+	const editBundle = (event) => {
+		event.preventDefault();
+		if (!canvasMode.isConnectingNodes) {
+			setShowEditBundle(true);
 		}
 		return false;
 	}
@@ -502,7 +513,7 @@ export const Toolbar = (props: ToolbarProps) => {
 					taskType: "BundleFlowTask",
 					shapeType: "Circle",
 					x: bundledNodesInfo.center.x || bundledNodesInfo.flow[0].x || bundledNodesInfo.flow[0].xstart,
-					y: bundledNodesInfo.center.y || bundledNodesInfo.flow[0].y || bundledNodesInfo.flow[0].ystart,
+					y: (bundledNodesInfo.center.y || bundledNodesInfo.flow[0].y || bundledNodesInfo.flow[0].ystart) - 50,
 					flow: JSON.stringify(bundledNodesInfo.flow),
 					startNode: startNodeName
 				}, flow.flow, true);
@@ -578,6 +589,7 @@ console.log("newNode", newNodeId, newNode);
 	}
 
 	const onClose = (pushFlow? : boolean) => {
+		setShowEditBundle(false);
 		setShowEditPopup(false);
 		setShowSchemaPopup(false);
 		setShowNewFlow(false);
@@ -838,10 +850,10 @@ console.log("newNode", newNodeId, newNode);
 								{canvasMode.isInMultiSelect && 
 									<a href="#" onClick={bundleNode} className="mx-2 btn btn-outline-light">Bundle node</a>
 								}
-								
+
 								{!canvasMode.isInMultiSelect && 
 									!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.taskType === "BundleFlowTask" && 
-									<a href="#"  className="mx-2 btn btn-outline-light">Edit Bundle</a>
+									<a href="#" onClick={editBundle} className="mx-2 btn btn-outline-light">Edit Bundle</a>
 								}
 
 								{!canvasMode.isInMultiSelect && canvasMode.editorMode === "canvas" && <>
@@ -920,6 +932,10 @@ console.log("newNode", newNodeId, newNode);
 				</Navbar>
 			</div>
 		</div>
+		{showEditBundle && <EditBundle 
+			renderHtmlNode={props.renderHtmlNode}
+			getNodeInstance={props.getNodeInstance}
+			flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditBundle>}
 		{showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditPopup>}
 		{showNewFlow && <NewFlow onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
 		{showTaskHelp && <HelpPopup taskName={selectedNode && selectedNode.node ? (selectedNode.node as any).taskType : ""}></HelpPopup>}

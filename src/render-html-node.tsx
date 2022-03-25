@@ -13,6 +13,7 @@ import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-p
 
 import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
 import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
+import { IFlowState, useFlowStore } from './state/flow-state';
 
 const DebugNodeHtmlPlugin = React.lazy(() => import('./components/html-plugins/debug-node').then(({ DebugNodeHtmlPlugin }) => ({ default: DebugNodeHtmlPlugin })));
 const GridEditNodeHtmlPlugin = React.lazy(() => import('./components/html-plugins/grid-edit').then(({ GridEditNodeHtmlPlugin }) => ({ default: GridEditNodeHtmlPlugin })));
@@ -23,7 +24,7 @@ export const setPluginRegistry = (pluginRegistry) => {
 	_pluginRegistry = pluginRegistry;
 }
 
-export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>, flowId? : string) => {
+export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>, flowId? : string, overideUseFlowStore? : () => IFlowState) => {
 
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -98,7 +99,8 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 			node={node}
 			taskSettings={taskSettings}
 			isInFlowEditor={true}
-			formNodesubject={formNodesubject}			
+			formNodesubject={formNodesubject}		
+			useFlowStore={overideUseFlowStore || useFlowStore}	
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {

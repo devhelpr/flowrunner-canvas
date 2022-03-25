@@ -65,6 +65,7 @@ img {
 
 .modal-backdrop.fade {
 	z-index: 10040;
+	pointer-events: none;
 }
 
 .toolbar__root {
@@ -1715,5 +1716,15 @@ textarea.form-control:disabled {
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%,-50%);
+	}
+}
+
+.modal-body {
+	.taskbar {
+		top: 16px;
+		height: calc(100% - 32px);
+	}
+	.konvajs-content {
+		margin-bottom: 0;
 	}
 }

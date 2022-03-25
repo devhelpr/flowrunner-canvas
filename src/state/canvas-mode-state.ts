@@ -6,7 +6,7 @@ export enum PopupEnum {
   editNamePopup,
 }
 
-interface ICanvasModeState extends State {
+export interface ICanvasModeState extends State {
   isConnectingNodes: boolean;
   selectedTask: string;
   showDependencies: boolean;
@@ -115,3 +115,4 @@ let storeHandler = (set: SetState<ICanvasModeState>): ICanvasModeState => {
 
 export const useCanvasModeStateStore = create<ICanvasModeState>(set => storeHandler(set));
 export const useCanvasModeStateForMultiFormStore = create<ICanvasModeState>(set => storeHandler(set));
+export const useBundleCanvasModeStateStore = create<ICanvasModeState>(set => storeHandler(set));

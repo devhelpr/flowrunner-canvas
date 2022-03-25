@@ -7,7 +7,7 @@ import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { getPosition, setPosition } from '../../../services/position-service';
 import { useSelectedNodeStore} from '../../../state/selected-node-state';
-import { useFlowStore} from '../../../state/flow-state';
+import { IFlowState } from '../../../state/flow-state';
 import { LinesForShape } from '../shapes/lines-for-shape';
 import { Thumbs }  from '../shapes/thumbs';
 import { ThumbsStart }  from '../shapes/thumbsstart';
@@ -59,6 +59,8 @@ export interface IKonvaNodeProps {
 	onMouseConnectionEndEnd: any;
 	onMouseConnectionEndLeave: any;
 
+	useFlowStore : () => IFlowState;
+
 }
 
 export const KonvaNode = (props: IKonvaNodeProps) => {
@@ -69,7 +71,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.node.taskType, props.node), [props.node]);
 
 	//const selectedNode = useSelectedNodeStore();
-	const flowStore = useFlowStore();
+	const flowStore = props.useFlowStore();
 	const touchedNodesStore = useNodesTouchedStateStore();
 
 	if (shapeType === "Html") {

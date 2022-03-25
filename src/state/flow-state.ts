@@ -5,7 +5,7 @@ import produce from 'immer';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 import { FlowStorageProviderService } from '../services/FlowStorageProviderService';
 
-interface IFlowState extends State {
+export interface IFlowState extends State {
   flow: any[];
   flowId: string;
   flowHashmap: any;
@@ -294,3 +294,4 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
 
 export const useFlowStore = create<IFlowState>(handleStorageProvider(set => storeHandler(set)));
 export const useFlowForMultiFormStore = create<IFlowState>(set => storeHandler(set));
+export const useBundleFlowStore = create<IFlowState>(set => storeHandler(set));

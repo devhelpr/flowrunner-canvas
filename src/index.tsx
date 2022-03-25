@@ -26,6 +26,9 @@ import {
 	readOnlyFlowrunnerStorageProvider
 } from './flow-localstorage-provider';
 
+import { useFlowStore } from './state/flow-state';
+import { useCanvasModeStateStore } from './state/canvas-mode-state';
+
 import { useFlows, FlowState } from './use-flows';
 import { registerPlugins } from './external-plugins';
 import { IFlowAgent } from './interfaces/IFlowAgent';
@@ -242,6 +245,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					saveFlow={flows.saveFlow}
 					onGetFlows={flows.onGetFlows}
 					getNodeInstance={getNodeInstance.current}
+					renderHtmlNode={renderHtmlNode.current}
 				></Toolbar>
 								
 				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
@@ -256,8 +260,11 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					flowState={flows.flowState}
 					saveFlow={flows.saveFlow}
 					modalSize={props.modalSize}
+					initialOpacity={0}
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
-					getNodeDependencies={props.getNodeDependencies}				
+					getNodeDependencies={props.getNodeDependencies}
+					useFlowStore={useFlowStore}
+					useCanvasModeStateStore={useCanvasModeStateStore}
 				></CanvasComponent>
 			</ErrorBoundary>	
 		</Suspense>		
@@ -477,6 +484,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												saveFlow={flows.saveFlow}
 												onGetFlows={flows.onGetFlows}
 												getNodeInstance={getNodeInstance}
+												renderHtmlNode={renderHtmlNode}
 												></Toolbar>
 											{editorMode == "canvas" &&
 											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
@@ -491,6 +499,9 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												flowState={flows.flowState}
 												saveFlow={flows.saveFlow}
 												hasTaskNameAsNodeTitle={true}
+												initialOpacity={0}
+												useFlowStore={useFlowStore}
+												useCanvasModeStateStore={useCanvasModeStateStore}
 											></CanvasComponent>}
 											{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
 												<UserInterfaceViewEditor 

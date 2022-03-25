@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 
-import { useFlowStore} from '../../state/flow-state';
+import { IFlowState, useFlowStore } from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 
 import { onFocus } from './form-controls/helpers/focus';
@@ -17,6 +17,7 @@ import { onFocus } from './form-controls/helpers/focus';
 import { PresetManager } from './components/preset-manager';
 
 import * as uuid from 'uuid';
+import create from 'zustand';
 const uuidV4 = uuid.v4;
 
 /*
@@ -104,6 +105,8 @@ export interface FormNodeHtmlPluginProps {
 	isNodeSettingsUI? : boolean;
 	datasources? : any;
 	onSetValue? : (value, fieldName) => void;
+
+	useFlowStore? : (param? : any) => IFlowState;
 }
 
 export interface FormNodeHtmlPluginState {
@@ -127,7 +130,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 	//const flow = useFlowStore();
 	//const [storeFlowNode] = useFlowStore();
-	const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
+	const storeFlowNode = (props.useFlowStore && props.useFlowStore(useCallback(state => state.storeFlowNode, [])) as any) || useFlowStore(useCallback(state => state.storeFlowNode, []));
+	//const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
 	//const canvasMode = useCanvasModeStateStore();
 	const flowsPlayground = useCanvasModeStateStore(state => state.flowsPlayground);
 	const flowsWasm = useCanvasModeStateStore(state => state.flowsWasm);
