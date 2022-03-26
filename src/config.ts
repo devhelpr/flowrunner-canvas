@@ -202,9 +202,12 @@ const taskTypeConfig: any = {
     presetValues: {
       object: {},
     },
+    styleNode: {
+      "--thumb-color": "purple"
+    },
     style: {
       borderRadius: '40px',
-      border: '2px solid purple',
+      border: '2px solid purple'
     },
     styleShapeBody: {
       width: '200px',

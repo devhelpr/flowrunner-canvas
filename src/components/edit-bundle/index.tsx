@@ -6,7 +6,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { FlowConnector } from '../../flow-connector';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useBundleFlowStore, useFlowStore} from '../../state/flow-state';
-import { useSelectedNodeStore} from '../../state/selected-node-state';
+import { useBundleSelectedNodeStore, useSelectedNodeStore} from '../../state/selected-node-state';
 import { useBundleCanvasModeStateStore } from '../../state/canvas-mode-state';
 import { useFlows } from '../../use-flows';
 import * as uuid from 'uuid';
@@ -167,6 +167,7 @@ export const EditBundle = (props: EditBundleProps) => {
 							hasTaskNameAsNodeTitle={true}
 							useFlowStore={useBundleFlowStore}
 							useCanvasModeStateStore={useBundleCanvasModeStateStore}
+							useSelectedNodeStore={useBundleSelectedNodeStore}
 						></CanvasComponent>}</>
 					</React.Suspense>
 				</Modal.Body>

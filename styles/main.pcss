@@ -7,8 +7,13 @@
 		@apply tw-px-4 tw-py-2 tw-rounded tw-font-semibold tw-bg-gray-200 tw-text-black;
 	}
 }
+
 * {
 	box-sizing: border-box;
+}
+
+:root {
+	--thumb-color : #000;
 }
 
 body, html {
@@ -170,43 +175,34 @@ img {
 }
 
 .canvas__html-shape-thumb-start {
-	width: 16px;
+	width: 10px;
 	height: 16px;
 	background: transparent;
 	position: absolute;
-	right: 0px;
+
 	top: 44px;
+	right: -6px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
 
-	width: 0px;
-	height: 0px;
-	
-	border-top: 12px solid transparent;
-	border-bottom: 12px solid transparent;
-	border-right: 12px solid #c2c2c2;
-
-	width: 16px;
-	height: 16px;
 	border-radius: 3px;
-	right: -8px;
 
-	border: 2px #ffffff solid;
-	background: #ffffff;
+	border: 0 none transparent;
+	background: var(--thumb-color);
 }
 
 .canvas__html-shape-thumb-start::before {
 	content: "";
 	position: absolute;
-	top: -4px;
+	top: -2px;
 	z-index: 2;
 	
-	width: 20px;
+	width: 14px;
 	height: 20px;
-	border-radius: 5px;
-	right: -4px;
-	border: 2px #e2e2e2 solid;
+	border-radius: 6px;
+	right: -2px;
+	border: 3px #e2e2e2 solid;
 	background: transparent;
 }
 
@@ -223,39 +219,30 @@ img {
 }
 
 .canvas__html-shape-thumb-startbottom {
-	width: 16px;
-	height: 16px;
-	background: transparent;
 	position: absolute;
 	left: calc(50% - 8px);
-	bottom: -14px;
+	bottom: -6px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
-
-	width: 0px;
-	height: 0px;
-	border-top: 12px solid transparent;
-	border-bottom: 12px solid transparent;
-	border-right: 12px solid #c2c2c2;
 	
 	width: 16px;
-	height: 16px;
+	height: 10px;
 	border-radius: 3px;
-	border: 2px #ffffff solid;
-	background: #ffffff;
+	border: 0 none transparent;
+	background: var(--thumb-color);
 }
 .canvas__html-shape-thumb-startbottom::before {
 	content: "";
 	position: absolute;
-	top: -4px;
+	top: -2px;
 	z-index: 2;
 	
 	width: 20px;
-	height: 20px;
-	border-radius: 5px;
-	right: -4px;
-	border: 2px #e2e2e2 solid;
+	height: 14px;
+	border-radius: 6px;
+	right: -3px;
+	border: 3px #e2e2e2 solid;
 	background: transparent;
 }
 
@@ -272,43 +259,33 @@ img {
 }
 
 .canvas__html-shape-thumb-end {
-	width: 16px;
+	width: 10px;
 	height: 16px;
 	background: transparent;
 	position: absolute;	
-	left: 0px;
+	left: -7px;
 	top: 44px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
-
-	width: 0px;
-	height: 0px;
 	
-	border-top: 12px solid transparent;
-	border-bottom: 12px solid transparent;
-	border-left: 12px solid #c2c2c2;
-
-	width: 16px;
-	height: 16px;
-	left: -8px;
 	border-radius: 3px;
 
-	border: 2px #ffffff solid;
-	background: #ffffff;
+	border: 0 none transparent;
+	background: var(--thumb-color);
 }
 
 .canvas__html-shape-thumb-end::before {
 	content: "";
 	position: absolute;
-	top: -4px;
+	top: -2px;
 	z-index: 2;
 	
-	width: 20px;
+	width: 14px;
 	height: 20px;
-	border-radius: 5px;
-	right: -4px;
-	border: 2px #e2e2e2 solid;
+	border-radius: 6px;
+	right: -2px;
+	border: 3px #e2e2e2 solid;
 	background: transparent;
 }
 
@@ -327,40 +304,32 @@ img {
 
 
 .canvas__html-shape-thumb-endtop {
-	width: 16px;
-	height: 16px;
 	background: transparent;
 	position: absolute;
 	left: calc(50% - 8px);
-	top: -14px;
+	top: -6px;
 	z-index: 2;
 	pointer-events: auto;
 	cursor: pointer;
-
-	width: 0px;
-	height: 0px;
-	border-top: 12px solid transparent;
-	border-bottom: 12px solid transparent;
-	border-left: 12px solid #c2c2c2;
 	
 	width: 16px;
-	height: 16px;
+	height: 10px;
 	border-radius: 3px;
-	border: 2px #ffffff solid;
-	background: #ffffff;
+	border: 0 transparent none;
+	background: var(--thumb-color);
 }
 
 .canvas__html-shape-thumb-endtop::before {
 	content: "";
 	position: absolute;
-	top: -4px;
+	top: -2px;
 	z-index: 2;
 	
 	width: 20px;
-	height: 20px;
-	border-radius: 5px;
-	right: -4px;
-	border: 2px #e2e2e2 solid;
+	height: 14px;
+	border-radius: 6px;
+	right: -2px;
+	border: 3px #e2e2e2 solid;
 	background: transparent;
 }
 
@@ -1520,6 +1489,8 @@ textarea.form-control:disabled {
 	.html-plugin-node {
 		background: #fbf791 !important;
 	}
+
+	--thumb-color : #fbf791;
 }
 
 .background-dark-yellow {
@@ -1534,6 +1505,8 @@ textarea.form-control:disabled {
 	.html-plugin-node {
 		background: #f0e938 !important;
 	}
+
+	--thumb-color : #fbf791;
 }
 
 .background-orange {
@@ -1547,6 +1520,8 @@ textarea.form-control:disabled {
 	.html-plugin-node {
 		background: #f4c67d !important;
 	}
+
+	--thumb-color : #f4c67d;
 }
 
 .background-dark-orange {
@@ -1561,6 +1536,8 @@ textarea.form-control:disabled {
 	.html-plugin-node {
 		background: #f4c67d !important;
 	}
+
+	--thumb-color : #f4c67d;
 }
 
 

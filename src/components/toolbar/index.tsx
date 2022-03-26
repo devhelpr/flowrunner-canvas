@@ -848,7 +848,7 @@ console.log("newNode", newNodeId, newNode);
 									<a href="#" onClick={addToRepository} className="mx-2 btn btn-outline-light">Add to repository</a>
 								}
 								{canvasMode.isInMultiSelect && 
-									<a href="#" onClick={bundleNode} className="mx-2 btn btn-outline-light">Bundle node</a>
+									<a href="#" onClick={bundleNode} className="mx-2 btn btn-outline-light">Bundle nodes</a>
 								}
 
 								{!canvasMode.isInMultiSelect && 

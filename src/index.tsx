@@ -28,6 +28,7 @@ import {
 
 import { useFlowStore } from './state/flow-state';
 import { useCanvasModeStateStore } from './state/canvas-mode-state';
+import { useSelectedNodeStore } from './state/selected-node-state';
 
 import { useFlows, FlowState } from './use-flows';
 import { registerPlugins } from './external-plugins';
@@ -265,6 +266,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					getNodeDependencies={props.getNodeDependencies}
 					useFlowStore={useFlowStore}
 					useCanvasModeStateStore={useCanvasModeStateStore}
+					useSelectedNodeStore={useSelectedNodeStore}
 				></CanvasComponent>
 			</ErrorBoundary>	
 		</Suspense>		
@@ -502,6 +504,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 												initialOpacity={0}
 												useFlowStore={useFlowStore}
 												useCanvasModeStateStore={useCanvasModeStateStore}
+												useSelectedNodeStore={useSelectedNodeStore}
 											></CanvasComponent>}
 											{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
 												<UserInterfaceViewEditor 

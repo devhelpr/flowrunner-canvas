@@ -68,7 +68,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		
 		const nodeClone = {...props.node};
 		const position = getPosition(props.node.name) || props.node;
-		let nodeState = (props.nodesStateLocal || "") == "error" ? " has-error" : "";
+		let nodeState = (props.nodesStateLocal || "") === "error" ? " has-error" : "";
 
 		const isSelected = false;//selectedNode && selectedNode.node.name === props.node.name;
 		nodeClone.htmlPlugin = props.node.htmlPlugin || (settings as any).htmlPlugin || "";
@@ -102,6 +102,16 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		if (htmlPlugin === "shapeNode") {
 			additionalStyles.height = (height || props.node.height || 250) + "px";
 		}
+		if ((settings as any).styleNode) {
+			additionalStyles = {...additionalStyles, ...(settings as any).styleNode};
+		}
+		let selected = "";
+		if (isSelected) {
+			selected = "canvas__html-shape--selected ";
+			
+			// TODO : handle this in canvas in  useEffect(() => useSelectedNodeStore.subscribe( 
+
+		}
 		return <div
 			style={{transform: "translate(" + (position.x) + "px," + 
 					( (position.y) ) + "px) " +
@@ -124,9 +134,9 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 			data-height={(height || props.node.height || 250)}
 			ref={ref as React.LegacyRef<HTMLDivElement>}
 												 
-			className={"canvas__html-shape canvas__html-shape-" + props.node.name + nodeState + 
+			className={selected + "canvas__html-shape canvas__html-shape-" + props.node.name + 			
+				nodeState + 
 				(settings.background ? " " + settings.background : "") + 
-				(isSelected ? " canvas__html-shap--selected" :"") + " " +
 				(FlowToCanvas.getHasOutputs(shapeType, settings) ? "" : "canvas__html-shape--no-outputs") + " " +
 				(FlowToCanvas.getHasInputs(shapeType, settings) ? "" : "canvas__html-shape--no-inputs")
 				}

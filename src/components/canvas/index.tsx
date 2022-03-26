@@ -24,7 +24,7 @@ import { clearPositions, getPosition, setPosition,
 
 import { IFlowState} from '../../state/flow-state';
 import { ICanvasModeState} from '../../state/canvas-mode-state';
-import { useSelectedNodeStore} from '../../state/selected-node-state';
+import { useSelectedNodeStore, INodeState} from '../../state/selected-node-state';
 import { useNodesTouchedStateStore} from '../../state/nodes-touched';
 
 import { ModifyShapeEnum, ShapeStateEnum, ThumbFollowFlow, ThumbPositionRelativeToNode } from './shapes/shape-types';
@@ -71,6 +71,7 @@ export interface CanvasProps {
 
 	useFlowStore : () => IFlowState;
 	useCanvasModeStateStore: () => ICanvasModeState;
+	useSelectedNodeStore : (param? : any) => INodeState;
 }
 
 export interface CanvasState {
@@ -198,6 +199,10 @@ export const Canvas = (props: CanvasProps) => {
 			selectedNodeRef.current = node;
 
 			if (previousNode && previousNode.node) {
+				const nodeElement = document.querySelector(`#${previousNode.node.id}`);
+				if (nodeElement) {
+					nodeElement.classList.remove("canvas__html-shape--selected");
+				}
 				const barElement = document.querySelector(`#${previousNode.node.id} .canvas__html-shape-bar`);
 				if (barElement) {
 					barElement.classList.remove("canvas__html-shape-bar--selected");
@@ -216,6 +221,10 @@ export const Canvas = (props: CanvasProps) => {
 			}
 
 			if (node && node.node) {
+				const nodeElement = document.querySelector(`#${node.node.id}`);
+				if (nodeElement) {
+					nodeElement.classList.add("canvas__html-shape--selected");
+				}
 				const barElement = document.querySelector(`#${node.node.id} .canvas__html-shape-bar`);
 				if (barElement) {
 					barElement.classList.add("canvas__html-shape-bar--selected");
