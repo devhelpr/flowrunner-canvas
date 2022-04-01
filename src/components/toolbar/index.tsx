@@ -49,6 +49,7 @@ export interface ToolbarProps {
 	
 	hasCustomNodesAndRepository: boolean;
 	hasShowDependenciesInMenu?: boolean;
+	hasJSONEditInMenu?: boolean;
 	renderMenuOptions? : () => JSX.Element;
 
 	flow : any[];
@@ -871,10 +872,10 @@ console.log("newNode", newNodeId, newNode);
 									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 								</>}
 
-								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
+								{!!props.hasJSONEditInMenu && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit</a>
 								}
-								{!!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 
+								{!!props.hasJSONEditInMenu && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit connection</a>
 								}
 								{false && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line" && 

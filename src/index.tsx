@@ -98,6 +98,7 @@ export interface IFlowrunnerCanvasProps {
 	hasShowDependenciesInMenu?: boolean;
 	hasTaskNameAsNodeTitle? : boolean;
 	hasCustomNodesAndRepository? : boolean;
+	hasJSONEditInMenu? : boolean;
 	modalSize? : IModalSize;
 
 	developmentMode? : boolean;
@@ -233,6 +234,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					<Toolbar 
 						hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
 						hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
+						hasJSONEditInMenu={props.hasJSONEditInMenu || false}
 						renderMenuOptions={props.renderMenuOptions}
 						canvasToolbarsubject={canvasToolbarsubject.current} 
 						hasRunningFlowRunner={true}
@@ -480,6 +482,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 													hasRunningFlowRunner={!!hasRunningFlowRunner}
 													flowrunnerConnector={flowrunnerConnector}
 													hasCustomNodesAndRepository={true}
+													hasJSONEditInMenu={true}
 													onEditorMode={onEditorMode}
 													flow={flows.flow}
 													flowId={flows.flowId}
