@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import fetch from 'cross-fetch';
 
-import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
-import { useFlowStore } from './state/flow-state';
+import { IFlowrunnerConnector } from './interfaces/FlowrunnerConnector';
+import { IFlowState } from './state/flow-state';
 import { useLayoutStore } from './state/layout-state';
 import { useCanvasModeStateStore } from './state/canvas-mode-state';
 
-import { getPosition } from './services/position-service';
+import { usePositionContext } from './components/contexts/position-context';
 
 export enum FlowState {
   idle = 0,
@@ -17,9 +17,11 @@ export enum FlowState {
 
 export const useFlows = (
   flowrunnerConnector: IFlowrunnerConnector,
+  useFlowStore : () => IFlowState,
   flowId?: string | number,
   onFlowHasChanged?: (flow: any) => void,
 ) => {
+  const positionContext = usePositionContext();
   const [flowState, setFlowState] = useState(FlowState.idle);
   const [currentFlowId, setCurrentFlowId] = useState(flowId);
   const [flow, setFlow] = useState([] as any[]);
@@ -79,7 +81,21 @@ export const useFlows = (
     setFlowState(FlowState.loading);
   };
 
+  const loadFlowFromMemory = (inputFlow : any[], flowId? :string | number) => {
+    setFlowState(FlowState.loading);
+    setTimeout(() => {
+      setCurrentFlowId(flowId);
+      setFlowType('playground');
+      flowStore.storeFlow(inputFlow, currentFlowId as string);
+      setFlow(inputFlow);
+      setFlowState(FlowState.loaded);
+    }, 10);
+  };
+
   useEffect(() => {
+    if (!currentFlowId) {
+      return;
+    }
     if (flowState == FlowState.loading) {
       if (flowrunnerConnector.hasStorageProvider) {
         const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
@@ -131,16 +147,19 @@ export const useFlows = (
       const flowAndUpdatedPositions = flowStore.flow.map(node => {
         let updatedNode = { ...node };
         if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
-          const position = getPosition(node.name);
-          updatedNode.x = position.x;
-          updatedNode.y = position.y;
+          const position = positionContext.getPosition(node.name);
+          if (position) {
+            updatedNode.x = position.x;
+            updatedNode.y = position.y;
+          }
         } else if (node.xstart !== undefined && node.ystart !== undefined && node.shapeType === 'Line') {
-          const position = getPosition(node.name);
-
-          updatedNode.xstart = position.xstart;
-          updatedNode.ystart = position.ystart;
-          updatedNode.xend = position.xend;
-          updatedNode.yend = position.yend;
+          const position =positionContext.getPosition(node.name);
+          if (position) {
+            updatedNode.xstart = position.xstart;
+            updatedNode.ystart = position.ystart;
+            updatedNode.xend = position.xend;
+            updatedNode.yend = position.yend;
+          }
         }
         return updatedNode;
       });
@@ -196,5 +215,6 @@ export const useFlows = (
     onGetFlows,
     saveFlow,
     reloadFlow,
+    loadFlowFromMemory
   };
 };

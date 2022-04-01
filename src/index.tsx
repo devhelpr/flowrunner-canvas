@@ -13,7 +13,8 @@ import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/FlowrunnerConnector';
+export type { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/FlowrunnerConnector';
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
@@ -38,6 +39,8 @@ import { ErrorBoundary } from './helpers/error';
 
 import { IModalSize } from './interfaces/IModalSize';
 import { INodeDependency } from './interfaces/INodeDependency';
+
+import { PositionProvider } from './components/contexts/position-context';
 
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
@@ -83,13 +86,10 @@ export const addRegisterFunction = (registerFunction : () => void) => {
 	flowRunnerCanvasPluginRegisterFunctions.push(registerFunction);
 }
 
-export { INodeDependency };
-export { IExecutionEvent };
-export { IFlowrunnerConnector };
-export { IFlowAgent };
-export { IStorageProvider };
+export type { INodeDependency };
+export type { IFlowAgent };
+export type { IStorageProvider };
 export { FlowConnector };
-export { ApplicationMode };
 
 export { setCustomConfig };
 
@@ -139,7 +139,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	if (!!props.developmentMode) {
 		registerPlugins(registerFlowRunnerCanvasPlugin);
 	}
-	const flows = useFlows(flowrunnerConnector.current,undefined,props.onFlowHasChanged);
+	const flows = useFlows(flowrunnerConnector.current, useFlowStore, undefined,props.onFlowHasChanged);
 	
 	useEffect(() => {			
 
@@ -228,46 +228,49 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		<Suspense fallback={<div>Loading...</div>}>
 			<ErrorBoundary>
 				<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
-				<Toolbar 
-					hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
-					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
-					renderMenuOptions={props.renderMenuOptions}
-					canvasToolbarsubject={canvasToolbarsubject.current} 
-					hasRunningFlowRunner={true}
-					isFlowEditorOnly={true}
-					flowrunnerConnector={flowrunnerConnector.current}
-					flow={flows.flow}
-					flowId={flows.flowId}
-					flows={flows.flows}
-					flowType={flows.flowType}
-					flowState={flows.flowState}
-					getFlows={flows.getFlows}
-					loadFlow={flows.loadFlow}
-					saveFlow={flows.saveFlow}
-					onGetFlows={flows.onGetFlows}
-					getNodeInstance={getNodeInstance.current}
-					renderHtmlNode={renderHtmlNode.current}
-				></Toolbar>
-								
-				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
-					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
-					renderHtmlNode={renderHtmlNode.current}
-					flowrunnerConnector={flowrunnerConnector.current}
-					getNodeInstance={getNodeInstance.current}
-					formNodesubject={formNodesubject.current}
-					flow={flows.flow}
-					flowId={flows.flowId}
-					flowType={flows.flowType}
-					flowState={flows.flowState}
-					saveFlow={flows.saveFlow}
-					modalSize={props.modalSize}
-					initialOpacity={0}
-					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
-					getNodeDependencies={props.getNodeDependencies}
-					useFlowStore={useFlowStore}
-					useCanvasModeStateStore={useCanvasModeStateStore}
-					useSelectedNodeStore={useSelectedNodeStore}
-				></CanvasComponent>
+				<PositionProvider>
+					<Toolbar 
+						hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
+						hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
+						renderMenuOptions={props.renderMenuOptions}
+						canvasToolbarsubject={canvasToolbarsubject.current} 
+						hasRunningFlowRunner={true}
+						isFlowEditorOnly={true}
+						flowrunnerConnector={flowrunnerConnector.current}
+						flow={flows.flow}
+						flowId={flows.flowId}
+						flows={flows.flows}
+						flowType={flows.flowType}
+						flowState={flows.flowState}
+						getFlows={flows.getFlows}
+						loadFlow={flows.loadFlow}
+						saveFlow={flows.saveFlow}
+						onGetFlows={flows.onGetFlows}
+						getNodeInstance={getNodeInstance.current}
+						renderHtmlNode={renderHtmlNode.current}
+					></Toolbar>
+												
+					<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
+						hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
+						renderHtmlNode={renderHtmlNode.current}
+						flowrunnerConnector={flowrunnerConnector.current}
+						getNodeInstance={getNodeInstance.current}
+						formNodesubject={formNodesubject.current}
+						flowHasNodes={flows.flow && flows.flow.length > 0}
+						flowId={flows.flowId}
+						flowType={flows.flowType}
+						flowState={flows.flowState}
+						saveFlow={flows.saveFlow}
+						modalSize={props.modalSize}
+						initialOpacity={0}
+						hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
+						getNodeDependencies={props.getNodeDependencies}
+						useFlowStore={useFlowStore}
+						useCanvasModeStateStore={useCanvasModeStateStore}
+						useSelectedNodeStore={useSelectedNodeStore}
+						externalId="AppCanvas" 
+					></CanvasComponent>
+				</PositionProvider>
 			</ErrorBoundary>	
 		</Suspense>		
 	</>;
@@ -448,7 +451,7 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					const App = (props : IAppProps) => {
 						const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
 						const [editorMode, setEditorMode] = useState("canvas");					
-						const flows = useFlows(flowrunnerConnector);
+						const flows = useFlows(flowrunnerConnector, useFlowStore);
 
 						const onClose = () => {
 							setLoggedIn(true);
@@ -468,50 +471,53 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 								<>
 									<Suspense fallback={<div>Loading...</div>}>
 										<ErrorBoundary>									
-											{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
-												flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+											<PositionProvider>
+												{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+													flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
-											<Toolbar canvasToolbarsubject={canvasToolbarsubject}												
-												hasRunningFlowRunner={!!hasRunningFlowRunner}
-												flowrunnerConnector={flowrunnerConnector}
-												hasCustomNodesAndRepository={true}
-												onEditorMode={onEditorMode}
-												flow={flows.flow}
-												flowId={flows.flowId}
-												flows={flows.flows}
-												flowType={flows.flowType}
-												flowState={flows.flowState}
-												getFlows={flows.getFlows}
-												loadFlow={flows.loadFlow}
-												saveFlow={flows.saveFlow}
-												onGetFlows={flows.onGetFlows}
-												getNodeInstance={getNodeInstance}
-												renderHtmlNode={renderHtmlNode}
-												></Toolbar>
-											{editorMode == "canvas" &&
-											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
-												hasCustomNodesAndRepository={true} 
-												formNodesubject={formNodesubject} 
-												renderHtmlNode={renderHtmlNode}
-												flowrunnerConnector={flowrunnerConnector}
-												getNodeInstance={getNodeInstance}
-												flow={flows.flow}
-												flowId={flows.flowId}
-												flowType={flows.flowType}
-												flowState={flows.flowState}
-												saveFlow={flows.saveFlow}
-												hasTaskNameAsNodeTitle={true}
-												initialOpacity={0}
-												useFlowStore={useFlowStore}
-												useCanvasModeStateStore={useCanvasModeStateStore}
-												useSelectedNodeStore={useSelectedNodeStore}
-											></CanvasComponent>}
-											{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
-												<UserInterfaceViewEditor 
-												renderHtmlNode={renderHtmlNode}
-												flowrunnerConnector={flowrunnerConnector}
-												getNodeInstance={getNodeInstance} /></Suspense>}
-											<FooterToolbar></FooterToolbar>
+												<Toolbar canvasToolbarsubject={canvasToolbarsubject}												
+													hasRunningFlowRunner={!!hasRunningFlowRunner}
+													flowrunnerConnector={flowrunnerConnector}
+													hasCustomNodesAndRepository={true}
+													onEditorMode={onEditorMode}
+													flow={flows.flow}
+													flowId={flows.flowId}
+													flows={flows.flows}
+													flowType={flows.flowType}
+													flowState={flows.flowState}
+													getFlows={flows.getFlows}
+													loadFlow={flows.loadFlow}
+													saveFlow={flows.saveFlow}
+													onGetFlows={flows.onGetFlows}
+													getNodeInstance={getNodeInstance}
+													renderHtmlNode={renderHtmlNode}
+													></Toolbar>
+												{editorMode == "canvas" &&
+												<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
+													hasCustomNodesAndRepository={true} 
+													formNodesubject={formNodesubject} 
+													renderHtmlNode={renderHtmlNode}
+													flowrunnerConnector={flowrunnerConnector}
+													getNodeInstance={getNodeInstance}
+													flowHasNodes={flows.flow && flows.flow.length > 0}
+													flowId={flows.flowId}
+													flowType={flows.flowType}
+													flowState={flows.flowState}
+													saveFlow={flows.saveFlow}
+													hasTaskNameAsNodeTitle={true}
+													initialOpacity={0}
+													useFlowStore={useFlowStore}
+													useCanvasModeStateStore={useCanvasModeStateStore}
+													useSelectedNodeStore={useSelectedNodeStore}
+													externalId="AppCanvas"
+												></CanvasComponent>}
+												{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
+													<UserInterfaceViewEditor 
+													renderHtmlNode={renderHtmlNode}
+													flowrunnerConnector={flowrunnerConnector}
+													getNodeInstance={getNodeInstance} /></Suspense>}
+												<FooterToolbar></FooterToolbar>
+											</PositionProvider>
 										</ErrorBoundary>		
 									</Suspense>
 								</>

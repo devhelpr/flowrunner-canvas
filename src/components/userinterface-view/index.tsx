@@ -13,7 +13,7 @@ import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 
 const uuidV4 = uuid.v4;
 
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 
 export interface UserInterfaceViewProps {	
 

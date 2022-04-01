@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 
-import { Modal, Button } from 'react-bootstrap';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { FlowConnector } from '../../flow-connector';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { Modal } from 'react-bootstrap';
+import { Subject } from 'rxjs';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { useBundleFlowStore, useFlowStore} from '../../state/flow-state';
 import { useBundleSelectedNodeStore, useSelectedNodeStore} from '../../state/selected-node-state';
 import { useBundleCanvasModeStateStore } from '../../state/canvas-mode-state';
 import { useFlows } from '../../use-flows';
+import { PositionProvider, usePositionContext } from '../contexts/position-context';
+import { Canvas } from '../canvas';
+
 import * as uuid from 'uuid';
+import { FlowConnector } from '../../flow-connector';
 const uuidV4 = uuid.v4;
 
-const CanvasComponent = React.lazy(() => import('../canvas').then(({ Canvas }) => ({ default: Canvas })));
 
 export interface EditBundleProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -23,7 +25,7 @@ export interface EditBundleProps {
 }
 
 export const EditBundle = (props: EditBundleProps) => {
-
+	const positionContext = usePositionContext();
 	const [value, setValue] = useState("");
 	const [orgNodeName, setOrgNodeName] = useState("");
 	const [orgNodeValues, setOrgNodeValues] = useState({});
@@ -32,14 +34,14 @@ export const EditBundle = (props: EditBundleProps) => {
 	const containerRef = useRef(null);
 	const canvasToolbarsubject = useRef(undefined as any);
 	const formNodesubject = useRef(undefined as any);
-	const flows = useFlows(props.flowrunnerConnector);
+	const flows = useFlows(props.flowrunnerConnector, useBundleFlowStore);
 	
 	const flow = useBundleFlowStore();
 	const orgFlow = useFlowStore();
 	const selectedNode = useSelectedNodeStore();
-
+	const flowrunnerConnector = useRef(new FlowConnector());
 	useEffect(() => {		
-		canvasToolbarsubject.current = new BehaviorSubject<string>("");
+		canvasToolbarsubject.current = new Subject<string>();
 		formNodesubject.current = new Subject<any>();
 
 		const node = {...selectedNode.node.node};
@@ -59,6 +61,7 @@ export const EditBundle = (props: EditBundleProps) => {
 			newRequiredNodeValues = {
 				_id : node._id,
 				id: node.id,
+				name: node.id,
 				startshapeid: node.startshapeid,
 				endshapeid: node.endshapeid,
 				xstart: node.xstart,
@@ -89,38 +92,63 @@ export const EditBundle = (props: EditBundleProps) => {
 		setRequiredNodeValues(newRequiredNodeValues);
 		if (node.flow) {
 			let parsedFlow = JSON.parse(node.flow);
-			flow.storeFlow(parsedFlow, uuidV4());
+			flows.loadFlowFromMemory(parsedFlow, uuidV4());
 		}
-		canvasToolbarsubject.current.next("fitStage");
+		
 	}, []);
-
-	useEffect(() => {
-		console.log("flow in bundle useffect" , flow.flow);
-	}, [flow.flow]);
 
 	const saveNode = (e) => {
 		try {
 			console.log("flow in saveNode" , flow.flow);
 			
-			const changedProperties = JSON.parse(value);
+			const editedNode = JSON.parse(value);
+			//const editedFlow = JSON.parse(editedNode.flow);						
+			// How to have positionContext here??
+			// ... it's outside of the provider..
+			//  ... move the provider to outside of the EditBundle component??
+			//   ... Which is the toolbar
+
+			const flowAndUpdatedPositions = flow.flow.map(node => {
+				let updatedNode = { ...node };
+				if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
+				  const position = positionContext.getPosition(node.name);
+				  if (position) {
+					updatedNode.x = position.x;
+					updatedNode.y = position.y;
+				  }
+				} else if (node.xstart !== undefined && node.ystart !== undefined && node.shapeType === 'Line') {
+				  const position = positionContext.getPosition(node.name);
+				  if (position) {
+					updatedNode.xstart = position.xstart;
+					updatedNode.ystart = position.ystart;
+					updatedNode.xend = position.xend;
+					updatedNode.yend = position.yend;
+				  }
+				}
+				return updatedNode;
+			  });
 			
-			if (changedProperties.id !== undefined) {
-				delete changedProperties.id;
-			}
 
 			const node = {
 				...requiredNodeValues,
-				...changedProperties, 
-				flow: JSON.stringify(flow.flow)
+				...editedNode,
+				name: orgNodeName,
+				id: orgNodeName,
+				flow: JSON.stringify(flowAndUpdatedPositions)
 			};
+			//props.flowrunnerConnector.forcePushToFlowRunner = true;
 			orgFlow.storeFlowNode(node, orgNodeName);
-			
+			props.flowrunnerConnector?.modifyFlowNode(
+				orgNodeName, 
+				"flow", 
+				JSON.stringify(flowAndUpdatedPositions),
+				orgNodeName				
+			);
 			selectedNode.selectNode(node.name, node);
 			
-			// TODO : trigger RUN flow
-
 			props.onClose(true);
 		} catch (err) {
+			console.log(`Error while storing bundle: ${err}`);
 			alert("The json in the 'Node JSON' field is invalid");
 		}
 
@@ -138,6 +166,10 @@ export const EditBundle = (props: EditBundleProps) => {
 		return <></>;
 	}
 
+	if (!flow.flow) {
+		return <></>;
+	}
+
 	return <div ref={ref => ((containerRef as any).current = ref)}>
 			<Modal 
 				show={true} 
@@ -149,27 +181,26 @@ export const EditBundle = (props: EditBundleProps) => {
 					<Modal.Title>Edit Bundle</Modal.Title>
 				</Modal.Header>
 		
-				<Modal.Body>
-					<React.Suspense fallback={<div>Loading...</div>}>
-						<>{flow.flow && <CanvasComponent 
-							canvasToolbarsubject={canvasToolbarsubject.current}
-							hasCustomNodesAndRepository={true} 
-							formNodesubject={formNodesubject.current} 
-							renderHtmlNode={props.renderHtmlNode}
-							flowrunnerConnector={props.flowrunnerConnector}
-							getNodeInstance={props.getNodeInstance}
-							initialOpacity={1}
-							flow={flows.flow}
-							flowId={flows.flowId}
-							flowType={flows.flowType}
-							flowState={flows.flowState}
-							saveFlow={flows.saveFlow}
-							hasTaskNameAsNodeTitle={true}
-							useFlowStore={useBundleFlowStore}
-							useCanvasModeStateStore={useBundleCanvasModeStateStore}
-							useSelectedNodeStore={useBundleSelectedNodeStore}
-						></CanvasComponent>}</>
-					</React.Suspense>
+				<Modal.Body>					
+					<Canvas
+						externalId="EditBundleCanvas" 
+						canvasToolbarsubject={canvasToolbarsubject.current}
+						hasCustomNodesAndRepository={true} 
+						formNodesubject={formNodesubject.current} 
+						renderHtmlNode={props.renderHtmlNode}
+						flowrunnerConnector={flowrunnerConnector.current}
+						getNodeInstance={props.getNodeInstance}
+						initialOpacity={0}
+						flowHasNodes={true}
+						flowId={flows.flowId}
+						flowType={flows.flowType}
+						flowState={flows.flowState}
+						saveFlow={flows.saveFlow}
+						hasTaskNameAsNodeTitle={true}
+						useFlowStore={useBundleFlowStore}
+						useCanvasModeStateStore={useBundleCanvasModeStateStore}
+						useSelectedNodeStore={useBundleSelectedNodeStore}
+					></Canvas>													
 				</Modal.Body>
 		
 			<Modal.Footer>

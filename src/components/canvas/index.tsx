@@ -5,7 +5,7 @@ import { Shapes } from './shapes';
 import { LinesForShape } from './shapes/lines-for-shape';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { getTaskConfigForTask } from '../../config';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
 import { Subject } from 'rxjs';
 import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
@@ -18,9 +18,6 @@ import { EditNodeSettings } from '../edit-node-settings';
 import { EditNodePopup } from '../edit-node';
 import { HtmlNode} from './canvas-components/html-node';
 import { KonvaNode} from './canvas-components/konva-node';
-
-import { clearPositions, getPosition, setPosition, 
-	setCommittedPosition, getCommittedPosition } from '../../services/position-service';
 
 import { IFlowState} from '../../state/flow-state';
 import { ICanvasModeState} from '../../state/canvas-mode-state';
@@ -47,16 +44,19 @@ import { InteractionState } from "./canvas-types/interaction-state";
 import { IModalSize } from '../../interfaces/IModalSize';
 import { INodeDependency } from '../../interfaces/INodeDependency';
 
+import { usePositionContext } from '../contexts/position-context';
+
 const uuidV4 = uuid.v4;
 
 export interface CanvasProps {
 
+	externalId: string;
 	hasTaskNameAsNodeTitle?: boolean;
 	hasCustomNodesAndRepository: boolean;
 	canvasToolbarsubject : Subject<string>;
 	formNodesubject: Subject<any>;
 	
-	flow : any[];
+	flowHasNodes : boolean;
 	flowId? : number | string;
 	flowState : FlowState;
 	flowType : string;
@@ -89,7 +89,7 @@ export interface CanvasState {
 }
 
 export const Canvas = (props: CanvasProps) => {	
-
+	const positionContext = usePositionContext();
 	const [stageWidth, setStageWidth] = useState(0);
 	const [stageHeight, setStageHeight] = useState(0);
 	const [canvasOpacity, setCanvasOpacity ] = useState(0);
@@ -109,7 +109,7 @@ export const Canvas = (props: CanvasProps) => {
 	const flowStore = props.useFlowStore();
 	const canvasMode = props.useCanvasModeStateStore();
 	//const selectedNode = useSelectedNodeStore();
-	const selectNode = useSelectedNodeStore(state => state.selectNode);
+	const selectNode = props.useSelectedNodeStore(state => state.selectNode) as any;
 	const touchedNodesStore = useNodesTouchedStateStore();
 	
 	//let flowHashMap = useRef({} as any);
@@ -123,7 +123,8 @@ export const Canvas = (props: CanvasProps) => {
 	let layer = useRef(null);
 	let stageGroup = useRef(null);
 	let selectingRectRef = useRef(null);
-	let lastMousePositionRef = useRef(null);
+	let lastMousePositionRef = useRef<any>(null);
+	let canvasTopLeftPositionRef = useRef({x:0, y:0});
 
 	let flowIsLoading = useRef(true);
 	let flowIsFittedStageForSingleNode = useRef(false);
@@ -194,7 +195,7 @@ export const Canvas = (props: CanvasProps) => {
 	const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
 	
 	useEffect(() => useSelectedNodeStore.subscribe(
-		(node : any, previousNode : any) => {
+		(node : any, previousNode : any) => {			
 			console.log("useSelectedNodeStore.subscribe", node.name);
 			selectedNodeRef.current = node;
 
@@ -260,7 +261,11 @@ export const Canvas = (props: CanvasProps) => {
 	let wheelTimeout = useRef(null);
 
 	const onDocumentMouseMove = (event) => {
-		lastMousePositionRef.current = event;
+		lastMousePositionRef.current = {
+			clientX: event.clientX - canvasTopLeftPositionRef.current.x,
+			clientY: event.clientY - canvasTopLeftPositionRef.current.y
+		} 
+		//canvasTopLeftPositionRef
 	};
 
 	useEffect(() => {
@@ -370,7 +375,7 @@ export const Canvas = (props: CanvasProps) => {
 	}, [flowStore.flow]);
 
 	const updateDimensions = () => {
-		const stageContainerElement = document.querySelector(".stage-container");
+		const stageContainerElement = (stage as any).current.attrs["container"];//document.querySelector(".stage-container");
 		const bodyElement = document.querySelector("body");
 		if (stageContainerElement !== null && bodyElement !== null) {
 			let widthCanvas = stageContainerElement.clientWidth;
@@ -514,12 +519,12 @@ export const Canvas = (props: CanvasProps) => {
 					newNode.x = newNode.x - centerXCorrection;
 					newNode.y = newNode.y - centerYCorrection;
 					
-					setPosition(newNode.name, {
+					positionContext.setPosition(newNode.name, {
 						x: newNode.x,
 						y: newNode.y
 					});
 
-					setCommittedPosition(newNode.name, {
+					positionContext.setCommittedPosition(newNode.name, {
 						x: newNode.x,
 						y: newNode.y
 					});
@@ -688,9 +693,13 @@ export const Canvas = (props: CanvasProps) => {
 				passive: false
 			});
 		}
-		console.log("updateDimensions");
 		updateDimensions();	        
 		document.body.scrollTop = 0;
+		
+		canvasTopLeftPositionRef.current = {x:0 , y: 0};
+		const rect = (canvasWrapper as any).current.getBoundingClientRect();
+		
+		canvasTopLeftPositionRef.current = {x:rect.left , y: rect.top};
 
 		touchedNodesStore.clearNodesTouched();
 		props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
@@ -704,6 +713,13 @@ export const Canvas = (props: CanvasProps) => {
 				(canvasWrapper.current as unknown as any).removeEventListener("wheel", wheelEvent);
 			}
 		}
+	}, []);
+
+	useEffect(() => {
+		const rect = (canvasWrapper as any).current.getBoundingClientRect();
+		canvasTopLeftPositionRef.current = {x:rect.left , y: rect.top};
+
+		console.log("CANVAS BOUNDING RECT USEEFFECT" , rect, (canvasWrapper as any).current);
 	}, []);
 
 	const onResize = useCallback((event) => {
@@ -797,7 +813,7 @@ export const Canvas = (props: CanvasProps) => {
 					//let element = document.getElementById(node.name);
 					let element = elementRefs.current[node.name];
 					if (element) {
-						const position = getPosition(node.name) || {x:node.x,y:node.y};
+						const position = positionContext.getPosition(node.name) || {x:node.x,y:node.y};
 						//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,
 						//	position.x,position.y,node);
 
@@ -858,7 +874,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		const startPerf = performance.now();
 
-		if (props.flow && props.flow.length > 0) {
+		if (props.flowHasNodes) {
 						
 			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
 				setCanvasOpacity(props.initialOpacity);
@@ -879,32 +895,32 @@ export const Canvas = (props: CanvasProps) => {
 
 				let perfstart = performance.now();
 
-				clearPositions();
+				positionContext.clearPositions();
 
 				perfstart = performance.now();
 				
 				flowStore.flow.map((node, index) => {					
 
 					if (node.x !== undefined && node.y !== undefined) {						
-						setPosition(node.name , {
+						positionContext.setPosition(node.name , {
 							x:node.x,
 							y:node.y
 						});
 
-						setCommittedPosition(node.name, {
+						positionContext.setCommittedPosition(node.name, {
 							x:node.x,
 							y:node.y
 						});
 					}
 					if (node.xstart !== undefined && node.ystart !== undefined) {						
-						setPosition(node.name , {
+						positionContext.setPosition(node.name , {
 							xstart: node.xstart,
 							ystart: node.ystart,
 							xend: node.xend,
 							yend: node.yend
 						});
 
-						setCommittedPosition(node.name , {
+						positionContext.setCommittedPosition(node.name , {
 							xstart: node.xstart,
 							ystart: node.ystart,
 							xend: node.xend,
@@ -1005,7 +1021,8 @@ export const Canvas = (props: CanvasProps) => {
 		editNodeSettings,
 		isConnectingNodesByDragging,
 		connectionX,
-		connectionY
+		connectionY,
+		positionContext
 	]);	
 	
 	const setNewPositionForNode = useCallback((event, node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
@@ -1043,7 +1060,7 @@ export const Canvas = (props: CanvasProps) => {
 				let flowNode = flowStore.flow[mappedNode.index];
 				if (flowNode) {
 
-					let committedPosition = getCommittedPosition(flowNode.name);
+					let committedPosition = positionContext.getCommittedPosition(flowNode.name);
 					if (committedPosition) {
 						newPosition = {
 							x: committedPosition.x + offsetPosition.x,
@@ -1177,7 +1194,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 		
 		if (node.shapeType !== "Line") {
-			setPosition(node.name, {...newPosition});
+			positionContext.setPosition(node.name, {...newPosition});
 		}
 
 		if (skipSetHtml === undefined || skipSetHtml === false) {
@@ -1221,14 +1238,14 @@ export const Canvas = (props: CanvasProps) => {
 				let endNode = endNodes[0];
 				*/
 
-				const positionLine = getPosition(lineNode.name) || lineNode;
+				const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
 				let endPos = {
 					x : positionLine.xend,
 					y : positionLine.yend
 				};
 				let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
 				if (endNode) {
-					const positionNode = getPosition(endNode.name) || endNode;
+					const positionNode = positionContext.getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 							x: positionNode.x,
 							y: positionNode.y
@@ -1257,7 +1274,7 @@ export const Canvas = (props: CanvasProps) => {
 						endNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
 					}
 
-					setPosition(lineNode.name, {
+					positionContext.setPosition(lineNode.name, {
 						xstart: newStartPosition.x, ystart: newStartPosition.y,
 						xend: newEndPosition.x, yend: newEndPosition.y
 					});
@@ -1279,7 +1296,7 @@ export const Canvas = (props: CanvasProps) => {
 							endPos.x, endPos.y]});					
 						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
 
-						setPosition(lineNode.name, {
+						positionContext.setPosition(lineNode.name, {
 							xstart: newStartPosition.x, ystart: newStartPosition.y,
 							xend: endPos.x, yend: endPos.y
 						});
@@ -1298,7 +1315,7 @@ export const Canvas = (props: CanvasProps) => {
 					lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
 				);
 
-				const positionLine = getPosition(lineNode.name) || lineNode;
+				const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
 				let startPos = {
 					x : positionLine.xstart,
 					y : positionLine.ystart
@@ -1306,7 +1323,7 @@ export const Canvas = (props: CanvasProps) => {
 
 				let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];	
 				if (startNode) {
-					const positionNode = getPosition(startNode.name) || startNode;
+					const positionNode = positionContext.getPosition(startNode.name) || startNode;
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
 							x: positionNode.x,
 							y: positionNode.y
@@ -1333,7 +1350,7 @@ export const Canvas = (props: CanvasProps) => {
 						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
 					}
 					
-					setPosition(lineNode.name, {
+					positionContext.setPosition(lineNode.name, {
 						xstart: newStartPosition.x, ystart: newStartPosition.y,
 						xend: newEndPosition.x, yend: newEndPosition.y
 					});
@@ -1363,13 +1380,13 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		if (node.shapeType === "Line") {
-			newPosition = getPosition(node.name);
+			newPosition = positionContext.getPosition(node.name);
 
 			if (node.endshapeid) {
 				let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
 				if (endNode) {
 					
-					const positionNode = getPosition(endNode.name) || endNode;
+					const positionNode = positionContext.getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 							x: positionNode.x,
 							y: positionNode.y
@@ -1385,7 +1402,7 @@ export const Canvas = (props: CanvasProps) => {
 				let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];	
 				if (startNode) {
 					
-					const positionNode = getPosition(startNode.name) || startNode;
+					const positionNode = positionContext.getPosition(startNode.name) || startNode;
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
 							x: positionNode.x,
 							y: positionNode.y
@@ -1396,7 +1413,7 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			}
 
-			setPosition(node.name, newPosition);
+			positionContext.setPosition(node.name, newPosition);
 		}
 		
 		if (!!doDraw) {
@@ -1411,14 +1428,14 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (!!isCommitingToStore) {
 			// possible "performance"-dropper
-			setCommittedPosition(node.name, {...newPosition});			
+			positionContext.setCommittedPosition(node.name, {...newPosition});			
 
 			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
-				selectNode(node.name, node);
+				//selectNode(node.name, node);
 
 				// TODO : do this only after last node directly from stagemouseend
 				//  when draggingMultipleNodes.current.length >0
-				canvasMode.setConnectiongNodeCanvasMode(false);
+				//canvasMode.setConnectiongNodeCanvasMode(false);
 
 				if (props.flowrunnerConnector.hasStorageProvider) {
 					props.saveFlow();
@@ -1433,12 +1450,12 @@ export const Canvas = (props: CanvasProps) => {
 		newNode.x = newNode.x + 100;
 		newNode.y = newNode.y + 100;
 		
-		setPosition(newNode.name, {
+		positionContext.setPosition(newNode.name, {
 			x: newNode.x,
 			y: newNode.y
 		});
 
-		setCommittedPosition(newNode.name, {
+		positionContext.setCommittedPosition(newNode.name, {
 			x: newNode.x,
 			y: newNode.y
 		});
@@ -1567,6 +1584,7 @@ export const Canvas = (props: CanvasProps) => {
 				return true;
 			}
 		}
+		console.log("mouseStart ", mouseStartX.current, mouseStartY.current);
 		return false;
 	}
 
@@ -1650,9 +1668,8 @@ export const Canvas = (props: CanvasProps) => {
 			} else {
 				let stageInstance = (stage.current as any).getStage();
 				const scaleFactor = (stageInstance as any).scaleX();
-
-				let _x = ((event.clientX) / scaleFactor);
-				let _y = ((event.clientY) / scaleFactor);
+				let _x = ((event.clientX - canvasTopLeftPositionRef.current.x) / scaleFactor);
+				let _y = ((event.clientY - canvasTopLeftPositionRef.current.y) / scaleFactor);
 
 /*
 	What is the issue?
@@ -1677,11 +1694,12 @@ export const Canvas = (props: CanvasProps) => {
 	
 */
 
-				if (determineStartPosition(event.evt ? event.currentTarget : getPosition(node.id), 
+				if (determineStartPosition(event.evt ? event.currentTarget : positionContext.getPosition(node.id), 
 						getCurrentPosition(event),
 						{x:stageX.current+_x,y:stageY.current+_y,
-						screenX:event.clientX,screenY:event.clientY,
-						canvasPointer: stageInstance.getPointerPosition()}
+						screenX:event.clientX - canvasTopLeftPositionRef.current.x,
+						screenY:event.clientY - canvasTopLeftPositionRef.current.y,
+						canvasPointer: getCurrentPosition(event)}
 					)) {
 					if (node && 						
 						((event.evt && !!event.evt.shiftKey) ||
@@ -1814,7 +1832,7 @@ export const Canvas = (props: CanvasProps) => {
 						determineStartPosition(shapeRef.getGroupRef(),
 							getCurrentPosition(event));
 					} else {
-						determineStartPosition(getPosition(node.startshapeid),
+						determineStartPosition(positionContext.getPosition(node.startshapeid),
 							getCurrentPosition(event));
 					}	
 					
@@ -1826,7 +1844,7 @@ export const Canvas = (props: CanvasProps) => {
 						determineEndPosition(shapeRef.getGroupRef(),
 							getCurrentPosition(event));
 					} else {
-						determineEndPosition(getPosition(node.endshapeid),
+						determineEndPosition(positionContext.getPosition(node.endshapeid),
 							getCurrentPosition(event));
 					}
 				}				
@@ -1939,7 +1957,7 @@ console.log("clearstate");
 		
 		clearConnectionState();
 
-		setPosition(connection.name, {
+		positionContext.setPosition(connection.name, {
 			xstart: connection.xstart,
 			ystart: connection.ystart,
 			xend: connection.xend,
@@ -2169,12 +2187,12 @@ console.log("clearstate");
 						newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
 						newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
 						
-						let endPosition = getPosition(connectionNodeThumbsLineNode.current.name) || {
+						let endPosition = positionContext.getPosition(connectionNodeThumbsLineNode.current.name) || {
 								xend : connectionNodeThumbsLineNode.current.xend,
 								yend: connectionNodeThumbsLineNode.current.yend
 							};
 
-						setPosition(connectionNodeThumbsLineNode.current.name, {
+							positionContext.setPosition(connectionNodeThumbsLineNode.current.name, {
 							xstart: newPosition.x,
 							ystart: newPosition.y,
 							xend:endPosition.xend,
@@ -2204,12 +2222,12 @@ console.log("clearstate");
 						newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
 						newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
 						
-						let startPosition = getPosition(connectionNodeThumbsLineNode.current.name) || {
+						let startPosition = positionContext.getPosition(connectionNodeThumbsLineNode.current.name) || {
 							xstart : connectionNodeThumbsLineNode.current.xstart,
 							ystart: connectionNodeThumbsLineNode.current.ystart
 						};
 
-						setPosition(connectionNodeThumbsLineNode.current.name, {							
+						positionContext.setPosition(connectionNodeThumbsLineNode.current.name, {							
 							xstart: startPosition.xstart,
 							ystart: startPosition.ystart,
 							xend: newPosition.x,
@@ -2507,7 +2525,7 @@ console.log("clearstate");
 						const taskSettings = FlowToCanvas.getTaskSettings(node.taskType);
 						let shapeType = FlowToCanvas.getShapeTypeUsingSettings(node.shapeType, node.taskType, node.isStartEnd, taskSettings);
 					
-						const position = getPosition(node.name) || {x:node.x,y:node.y};
+						const position = positionContext.getPosition(node.name) || {x:node.x,y:node.y};
 
 						if (shapeType === "Html") {
 														
@@ -2557,7 +2575,6 @@ console.log("clearstate");
 						if (x <= position.x && y <= position.y && 
 							(position.x+nodeWidth < x + scaledWidth) && 
 							(position.y+nodeHeight < y + scaledHeight)) {
-							console.log("selected node:", node.name);
 							nodesInBoundary.push(node.name);
 
 							if (shapeType === "Html") {
@@ -2724,7 +2741,7 @@ console.log("clearstate");
 						if (connectionNodeThumbs.current === "thumbstart" && connectionNodeThumbsLineNode.current) { 
 							const lineRef = shapeRefs.current[connectionNodeThumbsLineNode.current.name];
 							if (lineRef) {
-								let lineEndPosition = getPosition(connectionNodeThumbsLineNode.current.name);
+								let lineEndPosition = positionContext.getPosition(connectionNodeThumbsLineNode.current.name);
 								let controlPoints = calculateLineControlPoints(									
 									newPosition.x, newPosition.y,
 									(lineEndPosition && lineEndPosition.xend) || connectionNodeThumbsLineNode.current.xend,
@@ -2753,7 +2770,7 @@ console.log("clearstate");
 						if (connectionNodeThumbs.current === "thumbend" && connectionNodeThumbsLineNode.current) { 
 							const lineRef = shapeRefs.current[connectionNodeThumbsLineNode.current.name];
 							if (lineRef) {
-								let lineStartPosition = getPosition(connectionNodeThumbsLineNode.current.name);
+								let lineStartPosition = positionContext.getPosition(connectionNodeThumbsLineNode.current.name);
 								let controlPoints = calculateLineControlPoints(									
 									(lineStartPosition && lineStartPosition.xstart) || connectionNodeThumbsLineNode.current.xstart,
 									(lineStartPosition && lineStartPosition.ystart) || connectionNodeThumbsLineNode.current.ystart,
@@ -2880,11 +2897,11 @@ console.log("clearstate");
 						if (touchNode.current) { 
 							setNewPositionForNode(event, touchNode.current, shapeRefs.current[(touchNode.current as any).name], 
 								event.evt && event.evt.screenX ? {
-									x: event.evt.screenX ,
-									y: event.evt.screenY 
+									x: event.evt.screenX - canvasTopLeftPositionRef.current.x ,
+									y: event.evt.screenY - canvasTopLeftPositionRef.current.y 
 								} : (event.screenX ? {
-									x: event.screenX ,
-									y: event.screenY 
+									x: event.screenX - canvasTopLeftPositionRef.current.x,
+									y: event.screenY - canvasTopLeftPositionRef.current.y
 								} : undefined), false, false, true);
 
 							if (stage && stage.current) {
@@ -2970,8 +2987,8 @@ console.log("clearstate");
 				y = stageInstance.getPointerPosition().y;
 			}
 		} else {
-			x = event.clientX;
-			y = event.clientY;
+			x = event.clientX - canvasTopLeftPositionRef.current.x;
+			y = event.clientY - canvasTopLeftPositionRef.current.y;
 		}
 		return {
 			x: x,
@@ -3730,7 +3747,7 @@ console.log("clearstate");
 					let flowHeight = Math.abs(yMax-yMin) ;//+ 200;
 
 					// .canvas-controller__scroll-container
-					const stageContainerElement = document.querySelector("body .canvas-controller__scroll-container");
+					const stageContainerElement = (canvasWrapper as any).current;//document.querySelector("body .canvas-controller__scroll-container");
 					const bodyElement = document.querySelector("body");
 					if (stageContainerElement !== null && bodyElement !== null) {
 						let subtractWidth = 128;
@@ -3827,6 +3844,7 @@ console.log("clearstate");
 							if (animationScript.current) {
 								let nodesToAnimate = animationScript.current.nodes;
 								if (animationScript.current.zoom && stageInstance) {
+									
 									//stageScale.current = animationScript.current.zoom;
 									scale = animationScript.current.zoom;
 									// 
@@ -3855,7 +3873,7 @@ console.log("clearstate");
 								}
 								animationScript.current.loop = 0;
 								if (animationScript.current.loop < nodesToAnimate.length) {
-									let position = getPosition(nodesToAnimate[animationScript.current.loop]);
+									let position = positionContext.getPosition(nodesToAnimate[animationScript.current.loop]);
 
 									
 									if (stageInstance && position) {
@@ -3869,8 +3887,8 @@ console.log("clearstate");
 										//let offsetY = newPos.y;//stageY.current;
 										const triggerAnimation = () => {
 											let isDrawing = false;
-											newPos.x = offsetX + (-position.x*scale) + (stageWidth)/2 - (150*scale);
-											newPos.y = (-position.y*scale) + (stageHeight + 64)/2 - (150*scale);;
+											newPos.x = offsetX + (-(position?.x ?? 0)*scale) + (stageWidth)/2 - (150*scale);
+											newPos.y = (-(position?.y ?? 0)*scale) + (stageHeight + 64)/2 - (150*scale);;
 											let tween = animateTo(stageInstance, {												
 												x:  newPos.x,
 												y:  newPos.y,
@@ -3898,7 +3916,7 @@ console.log("clearstate");
 													if (!stopAnimation) {
 														animationScript.current.loop++;
 														if (animationScript.current.loop < nodesToAnimate.length) {
-															position = getPosition(nodesToAnimate[animationScript.current.loop]);
+															position = positionContext.getPosition(nodesToAnimate[animationScript.current.loop]);
 															if (position) {
 
 																triggerAnimation();
@@ -3932,7 +3950,7 @@ console.log("clearstate");
 					};
 					let scale = 1;
 
-					const stageContainerElement = document.querySelector(".canvas-controller__scroll-container");
+					const stageContainerElement = (canvasWrapper as any).current;//document.querySelector(".canvas-controller__scroll-container");
 					if (stageContainerElement !== null) {
 						if (stageContainerElement.clientWidth < 1024) {
 							scale = 0.5;
@@ -3986,7 +4004,7 @@ console.log("clearstate");
 					
 					clearConnectionState();
 			
-					setPosition(connection.name, {
+					positionContext.setPosition(connection.name, {
 						xstart: connection.xstart,
 						ystart: connection.ystart,
 						xend: connection.xend,
@@ -4092,11 +4110,11 @@ console.log("clearstate");
 						}
 					}
 					
-					setPosition(newNode.name, {
+					positionContext.setPosition(newNode.name, {
 						x: newNode.x,
 						y: newNode.y
 					});
-					setCommittedPosition(newNode.name, {
+					positionContext.setCommittedPosition(newNode.name, {
 						x: newNode.x,
 						y: newNode.y
 					});
@@ -4169,8 +4187,8 @@ console.log("clearstate");
 					if (!breakOut) {
 						const startNode = getNodeByName(nodeDependency.startNodeName);
 						const endNode = getNodeByName(nodeDependency.endNodeName);
-						const startPositionNode = getPosition(startNode.name) || startNode;
-						const endPositionNode = getPosition(endNode.name) || endNode;
+						const startPositionNode = positionContext.getPosition(startNode.name) || startNode;
+						const endPositionNode = positionContext.getPosition(endNode.name) || endNode;
 
 						const startPosition = FlowToCanvas.getStartPointForLine(startNode, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
 						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
@@ -4331,8 +4349,8 @@ console.log("clearstate");
 										return;
 									}
 
-									const startPositionNode = getPosition(node.name) || node;
-									const endPositionNode = getPosition(nodeEnd.name) || nodeEnd;
+									const startPositionNode = positionContext.getPosition(node.name) || node;
+									const endPositionNode = positionContext.getPosition(nodeEnd.name) || nodeEnd;
 			
 									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
 									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
@@ -4422,7 +4440,7 @@ console.log("clearstate");
 						node.ystart += y;
 						node.xend += x;
 						node.yend += y;
-						setPosition(node.name, {
+						positionContext.setPosition(node.name, {
 							xstart: node.xstart,
 							ystart: node.ystart,
 							xend: node.xend,
@@ -4431,7 +4449,7 @@ console.log("clearstate");
 					} else {
 						node.x += x;
 						node.y += y;
-						setPosition(node.name, {
+						positionContext.setPosition(node.name, {
 							x: node.x,
 							y: node.y
 						});
@@ -4499,10 +4517,15 @@ console.log("clearstate");
 
 			// hack to have a usuable stage position when dropping nodes on stage
 			if (lastMousePositionRef.current) {
-				console.log("lastMousePositionRef.current", lastMousePositionRef.current);
-				stageInstance.setPointersPositions(lastMousePositionRef.current);
+				const correctedPointerPosition = {...lastMousePositionRef.current};
+				correctedPointerPosition.clientX += canvasTopLeftPositionRef.current.x;
+				correctedPointerPosition.clientY += canvasTopLeftPositionRef.current.y;
+				
+				stageInstance.setPointersPositions(correctedPointerPosition);
 			}
-		
+			
+			const position = stageInstance.getPointerPosition();
+
 			//const nodeIsSelected : boolean = !!selectedNodeRef.current;	
 			selectNode("", undefined);
 			canvasMode.setConnectiongNodeCanvasMode(false);
@@ -4511,10 +4534,6 @@ console.log("clearstate");
 				if (!canvasMode.isConnectingNodes) {
 					if (stage && stage.current) {
 						interactionState.current = InteractionState.addingNewNode;
-
-						const position = stageInstance.getPointerPosition();
-
-						console.log("add task position info" , position, stageInstance.x(), stageInstance.y());
 
 						const scaleFactor = stageInstance.scaleX();
 						const taskType = taskClassName;
@@ -4535,18 +4554,17 @@ console.log("clearstate");
 							...extraNodeProperties
 						},flowStore.flow);
 						
-						console.log("getnewnode pos", newNode.x, newNode.y);
-
 						const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
 
 						let shapeType = FlowToCanvas.getShapeType(newNode.shapeType, newNode.taskType, newNode.isStartEnd);							
 						if (shapeType === "Html" && draggableElementRect) {
 							if (props.getNodeInstance) {
-								const left = Math.round((draggableElementRect.left + draggableElementRect.right)/2);
+								const left = Math.round((draggableElementRect.left + draggableElementRect.right)/2) - canvasTopLeftPositionRef.current.x;
+								const top  = Math.round((draggableElementRect.top + draggableElementRect.bottom)/2) - canvasTopLeftPositionRef.current.y;
 								let result = props.getNodeInstance(newNode, props.flowrunnerConnector,undefined,settings);
 								if (result && result.getWidth) {
 									newNode.x = (left - (stageInstance).x()) / scaleFactor;
-									newNode.y = (draggableElementRect.top - (stageInstance).y()) / scaleFactor;
+									newNode.y = (top - (stageInstance).y()) / scaleFactor;
 									newNode.x -= (result.getWidth(newNode) || newNode.width || 250)/2;
 								}
 							}
@@ -4577,11 +4595,11 @@ console.log("clearstate");
 							stageInstance.batchDraw();
 						}
 						
-						setPosition(newNode.name, {
+						positionContext.setPosition(newNode.name, {
 							x: newNode.x,
 							y: newNode.y
 						});
-						setCommittedPosition(newNode.name, {
+						positionContext.setCommittedPosition(newNode.name, {
 							x: newNode.x,
 							y: newNode.y
 						});
@@ -4624,13 +4642,13 @@ console.log("clearstate");
 									}
 								}
 
-								setPosition(connection.name, {
+								positionContext.setPosition(connection.name, {
 									xstart: connection.xstart,
 									ystart: connection.ystart,
 									xend: connection.xend,
 									yend: connection.yend
 								});
-								setCommittedPosition(connection.name, {
+								positionContext.setCommittedPosition(connection.name, {
 									xstart: connection.xstart,
 									ystart: connection.ystart,
 									xend: connection.xend,
@@ -4659,7 +4677,12 @@ console.log("clearstate");
 		// hack to have a usuable stage position when dropping nodes on stage
 		if (lastMousePositionRef.current) {
 			const stageInstance = (stage.current as any).getStage();
-			stageInstance.setPointersPositions(lastMousePositionRef.current);
+
+			const correctedPointerPosition = {...lastMousePositionRef.current};
+			correctedPointerPosition.clientX += canvasTopLeftPositionRef.current.x;
+			correctedPointerPosition.clientY += canvasTopLeftPositionRef.current.y;
+
+			stageInstance.setPointersPositions(correctedPointerPosition);
 		}
 		let element	 = document.querySelector(".taskbar__task-dragging");
 		if (element) {
@@ -4675,7 +4698,6 @@ console.log("clearstate");
 				loadCustomNodeFromModuleAndAdd(event, taskClassName, rect);
 				return;
 			}	
-
 			addTaskClassNameToCanvas(event, taskClassName, undefined, rect);		
 		}
 		return false;
@@ -4758,7 +4780,7 @@ console.log("clearstate");
 							if (isConnectingToExistingNode && existingNode && node.endshapeid === existingNode.name) {
 								return;
 							}
-							let nodePosition = getPosition(node.name);
+							let nodePosition = positionContext.getPosition(node.name);
 							if (!nodePosition) {
 								nodePosition = {
 									xstart: node.xstart,
@@ -4791,7 +4813,7 @@ console.log("clearstate");
 								return;
 							}
 							
-							let nodePosition = getPosition(node.name);
+							let nodePosition = positionContext.getPosition(node.name);
 							if (!nodePosition) {
 								nodePosition = {
 									xstart: node.xstart,
@@ -4838,7 +4860,10 @@ console.log("clearstate");
 							}
 						}
 
-						const nodePosition = getPosition(node.name);
+						const nodePosition = positionContext.getPosition(node.name);
+						if (!nodePosition) {
+							return;
+						}
 
 						const rightPosition = FlowToCanvas.getStartPointForLine(node,{
 							x: nodePosition.x,
@@ -4971,10 +4996,13 @@ console.log("clearstate");
 						closestEndNodeWhenAddingNewNode.current = closestEndNode;
 						const lineRef = shapeRefs.current[closestEndNode.name];
 						if (lineRef) {
-							const nodePosition = getPosition(closestEndNode.name);
+							const nodePosition = positionContext.getPosition(closestEndNode.name);
+							if (!nodePosition) {
+								return;
+							}
 
 							if (isConnectingToExistingNode && existingNode) {
-								const positionNode = getPosition(existingNode.name) || existingNode;
+								const positionNode = positionContext.getPosition(existingNode.name) || existingNode;
 								let newStartPosition =  FlowToCanvas.getStartPointForLine(existingNode, {
 										x: positionNode.x,
 										y: positionNode.y
@@ -5024,10 +5052,13 @@ console.log("clearstate");
 						closestStartNodeWhenAddingNewNode.current = closestStartNode;
 						const lineRef = shapeRefs.current[closestStartNode.name];
 						if (lineRef) {
-							const nodePosition = getPosition(closestStartNode.name);
+							const nodePosition = positionContext.getPosition(closestStartNode.name);
+							if (!nodePosition) {
+								return;
+							}
 
 							if (isConnectingToExistingNode && existingNode) {
-								const positionNode = getPosition(existingNode.name) || existingNode;
+								const positionNode = positionContext.getPosition(existingNode.name) || existingNode;
 								let newEndPosition =  FlowToCanvas.getEndPointForLine(existingNode, {
 										x: positionNode.x,
 										y: positionNode.y
@@ -5116,7 +5147,10 @@ console.log("clearstate");
 						let thumbPosition = ThumbPositionRelativeToNode.default;
 						let lineStartPosition;
 
-						const nodePosition = getPosition(closestNode.name);
+						const nodePosition = positionContext.getPosition(closestNode.name);
+						if (!nodePosition) {
+							return;
+						}
 
 						if (closestNode.shapeType === "Diamond" && nodeOrientation !== ThumbPositionRelativeToNode.default) {
 							lineStartPosition = FlowToCanvas.getStartPointForLine(closestNode,{
@@ -5276,8 +5310,8 @@ console.log("clearstate");
 		if (element) {
 			let rect = element.getBoundingClientRect();
 			movingExistingOrNewNodeOnCanvas(
-				Math.round((rect.left + rect.right)/2), 
-				Math.round((rect.top+rect.bottom)/2),
+				Math.round(((rect.left + rect.right)/2) - canvasTopLeftPositionRef.current.x), 
+				Math.round(((rect.top+rect.bottom)/2) - canvasTopLeftPositionRef.current.y),
 				false
 			);
 		}		
@@ -5312,6 +5346,7 @@ console.log("clearstate");
 							/> : null}
 					</DragOverlay>
 */
+
 	return <>
 		<DndContext 
 			id={"canvas-dndcontext"}
@@ -5340,7 +5375,7 @@ console.log("clearstate");
 					ref={ref => ((canvasWrapper as any).current = ref)} 
 					style={{opacity: canvasOpacity || props.initialOpacity}} 
 					className="canvas-controller__scroll-container"
-					
+					data-id={props.externalId}
 					tabIndex={0} 
 					onInput={onInput}
 					onKeyDown={onInput}
@@ -5421,28 +5456,32 @@ console.log("clearstate");
 								{flowMemo.map((node, index) => {
 									if (node.shapeType !== "Line") {
 
-										let position = getPosition(node.name);
+										let position = positionContext.getPosition(node.name);
 										if (!position) {
 											if (node.shapeType !== "Line") {
 												
-												setPosition(node.name, {
+												positionContext.setPosition(node.name, {
 													x: node.x,
 													y: node.y
 												});
 											} else {
 												
-												setPosition(node.name, {
+												positionContext.setPosition(node.name, {
 													xstart: node.xstart,
 													ystart: node.ystart,
 													xend: node.xend,
 													yend: node.yend
 												});
 											}  
-											position = getPosition(node.name);
+											position = positionContext.getPosition(node.name);
 										}
+										if (!position) {
+											return null;
+										}
+
 										return <LinesForShape key={"node-linshahe-"+index} 
-											x={position.x} 
-											y={position.y} 
+											x={position?.x ?? 0} 
+											y={position?.y ?? 0} 
 											name={node.name}
 											flow={flowMemo}
 											taskType={node.taskType}
@@ -5450,7 +5489,7 @@ console.log("clearstate");
 											flowHash={flowStore.flowHashmap}
 											shapeRefs={shapeRefs as any}
 											
-											positions={getPosition}
+											positions={positionContext.getPosition}
 											canvasHasSelectedNode={canvasHasSelectedNode}
 											
 											nodeState={""}
@@ -5496,15 +5535,19 @@ console.log("clearstate");
 										// TODO : check here if line and startshapeid or endshapeid == undefined
 										if (node.shapeType === "Line") {
 											if (node.startshapeid === undefined) {
-												let position = getPosition(node.name);
+												let position = positionContext.getPosition(node.name);
 												if (!position) {														
-														setPosition(node.name, {
+													positionContext.setPosition(node.name, {
 															xstart: node.xstart,
 															ystart: node.ystart,
 															xend: node.xend,
 															yend: node.yend
 														});
-														position = getPosition(node.name);
+														position = positionContext.getPosition(node.name);
+												}
+
+												if (!position) {
+													return null;
 												}
 
 												if (node.endshapeid !== undefined) {
@@ -5512,7 +5555,7 @@ console.log("clearstate");
 													if (endIndex >= 0) {													
 														const endNode =  flowMemo[endIndex];
 														if (endNode) {
-															let positionNode = getPosition(node.endshapeid) || endNode;
+															let positionNode = positionContext.getPosition(node.endshapeid) || endNode;
 															let newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 																x: positionNode.x,
 																y: positionNode.y
@@ -5524,6 +5567,10 @@ console.log("clearstate");
 													}
 												}
 
+												if (!position) {
+													return null;
+												}
+
 												return <Shapes.Line key={"ln-node-" + index}
 													ref={ref => (shapeRefs.current[node.name] = ref)}
 													onMouseOver={(event) => onMouseOver(node, event)}
@@ -5532,10 +5579,10 @@ console.log("clearstate");
 													isSelected={false}
 													isAltColor={true}									
 													canvasHasSelectedNode={canvasHasSelectedNode}													
-													xstart={position.xstart} 
-													ystart={position.ystart}									
-													xend={position.xend} 
-													yend={position.yend}
+													xstart={position?.xstart ?? 0} 
+													ystart={position?.ystart ?? 0}									
+													xend={position?.xend ?? 0} 
+													yend={position?.yend ?? 0}
 													selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ""}
 													startNodeName={node.startshapeid}
 													endNodeName={node.endshapeid}

@@ -673,12 +673,14 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         return;
       }
       if (data.propertyName) {
+        console.log("modifyFlowNode",data.nodeName, data.propertyName, data.value );
         worker.flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value, data.additionalValues || {});
       } else {
         worker.flow.setPropertiesOnNode(data.nodeName, data.additionalValues || {});
       }
       //console.log('modifyFlowNode', data);
       if (data.executeNode !== undefined && data.executeNode !== '') {
+        console.log('pre modifyFlowNode executeNode', data);
         worker.flow
           .retriggerNode(data.executeNode)
           .then(result => {

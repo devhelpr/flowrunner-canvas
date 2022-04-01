@@ -1,4 +1,4 @@
-import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/FlowrunnerConnector';
 import { IFlowAgent } from '../interfaces/IFlowAgent';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 
@@ -358,6 +358,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     this.nodeState = {};
 
     if (this.worker) {
+      console.log("should destroy?", this.currentFlowId , flowId);
       if (this.onDestroyAndRecreateWorker && this.currentFlowId != flowId) {
         this.onDestroyAndRecreateWorker();
       }

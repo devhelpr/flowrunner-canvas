@@ -13,7 +13,7 @@ import { useCanvasModeStateForMultiFormStore} from '../../state/canvas-mode-stat
 
 const uuidV4 = uuid.v4;
 
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 
 export interface MultiFormViewProps {	
 

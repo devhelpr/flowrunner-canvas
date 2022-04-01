@@ -1,6 +1,7 @@
 import { FlowTask, FlowEventRunner } from '@devhelpr/flowrunner';
 import { FlowConnector } from '../flow-connector';
 import { IFlowAgent } from '../interfaces/IFlowAgent';
+import { getFlowAgent } from '../flow-agent';
 
 /*
   can we create a worker here an use that to run?
@@ -35,7 +36,7 @@ export class BundleFlowTask extends FlowTask {
     try {
       console.log('bundle flow', services, node.flow);
       if (!this.worker && !this.flowrunnerConnector) {
-        this.worker = services.getWorker();
+        this.worker = getFlowAgent();//services.getWorker();
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IFlowAgent);
         if (node.flow) {

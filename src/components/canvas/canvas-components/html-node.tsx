@@ -3,13 +3,12 @@ import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} f
 import { Shapes } from '../shapes';
 
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../../interfaces/FlowrunnerConnector';
 import { ShapeSettings } from '../../../helpers/shape-settings';
-import { getPosition } from '../../../services/position-service';
-import { useSelectedNodeStore} from '../../../state/selected-node-state';
 import { IFlowState} from '../../../state/flow-state';
 import { Subject } from 'rxjs';
 import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
+import { usePositionContext } from '../../contexts/position-context';
 
 export interface IHtmlNodeProps {
 	hasTaskNameAsNodeTitle?: boolean;
@@ -53,6 +52,7 @@ export interface IHtmlNodeProps {
 }
 
 export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
+	const positionContext = usePositionContext();
 
 	let shapeType = useMemo(() => FlowToCanvas.getShapeType(props.node.shapeType, props.node.taskType, props.node.isStartEnd), 
 		[props.node]);
@@ -67,7 +67,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 	if (shapeType === "Html" && Shape) {
 		
 		const nodeClone = {...props.node};
-		const position = getPosition(props.node.name) || props.node;
+		const position = positionContext.getPosition(props.node.name) || props.node;
 		let nodeState = (props.nodesStateLocal || "") === "error" ? " has-error" : "";
 
 		const isSelected = false;//selectedNode && selectedNode.node.name === props.node.name;
@@ -108,7 +108,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		let selected = "";
 		if (isSelected) {
 			selected = "canvas__html-shape--selected ";
-			
+
 			// TODO : handle this in canvas in  useEffect(() => useSelectedNodeStore.subscribe( 
 
 		}

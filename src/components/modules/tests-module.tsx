@@ -6,7 +6,7 @@ import { Button } from 'react-bootstrap';
 import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { useFlowStore} from '../../state/flow-state';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { getFlowAgent } from '../../flow-agent';
 import { IFlowAgent } from '../../interfaces/IFlowAgent';
 

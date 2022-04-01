@@ -1,7 +1,7 @@
 /*import * as React from 'react';
 import fetch from 'cross-fetch';
 import { setCustomConfig } from "../../config";
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 
 export interface TaskSelectorProps {
 	selectTask : (taskClassName : string) => void;

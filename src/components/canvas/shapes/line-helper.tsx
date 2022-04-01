@@ -4,7 +4,7 @@ import { Line } from './line';
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ErrorBoundary } from '../../../helpers/error';
 import { ThumbPositionRelativeToNode } from './shape-types';
-import {  getPosition, setPosition } from '../../../services/position-service';
+import { usePositionContext } from '../../contexts/position-context';
 
 export interface ILineHelperProps {
 	flow: any[],
@@ -42,7 +42,7 @@ export interface ILineHelperProps {
 }
 
 export const LineHelper = (props : ILineHelperProps) => {
-
+	const positionContext = usePositionContext();
 	
 	const endNode = useMemo(() => {
 		const endIndex = props.flowHash.get(props.endshapeid).index;
@@ -77,20 +77,22 @@ export const LineHelper = (props : ILineHelperProps) => {
 		}, endNode, props.getNodeInstance,
 			props.lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 	} else {
-		let position = getPosition(props.lineNode.name);
+		let position = positionContext.getPosition(props.lineNode.name);
 		if (!position) {				
-				setPosition(props.lineNode.name, {
+				positionContext.setPosition(props.lineNode.name, {
 					xstart: props.lineNode.xstart,
 					ystart: props.lineNode.ystart,
 					xend: props.lineNode.xend,
 					yend: props.lineNode.yend
 				});
-				position = getPosition(props.lineNode.name);
+				position = positionContext.getPosition(props.lineNode.name);
 		}
-		newEndPosition = {
-			x: position.xend,
-			y: position.yend
-		};
+		if (position) {
+			newEndPosition = {
+				x: position.xend || 0,
+				y: position.yend || 0
+			};
+		}
 	}
 	
 	return <Line

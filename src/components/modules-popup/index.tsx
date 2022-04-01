@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 import { useModulesStateStore } from '../../state/modules-menu-state';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { TestsModule } from '../modules/tests-module';
 import { CrudModule } from '../modules/crud-module';
 import { ObjectModule } from '../modules/object-module';

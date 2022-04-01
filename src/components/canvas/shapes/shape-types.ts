@@ -1,4 +1,4 @@
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../../interfaces/FlowrunnerConnector';
 
 export interface ShapeTypeProps {
   x: number;

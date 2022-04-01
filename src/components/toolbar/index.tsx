@@ -7,7 +7,7 @@ import { EditPopup } from '../edit-popup';
 //import { ShowSchemaPopup } from '../show-schema-popup';
 
 import fetch from 'cross-fetch';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
@@ -20,7 +20,7 @@ import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 import { useLayoutStore } from '../../state/layout-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
-import { getPosition, setPosition } from '../../services/position-service';
+import { PositionProvider, usePositionContext } from '../contexts/position-context';
 
 import { NamePopup } from '../popups/name-popup';
 import * as uuid from 'uuid';
@@ -87,6 +87,7 @@ export interface ToolbarState {
 }
 
 export const Toolbar = (props: ToolbarProps) => {
+	const positionContext = usePositionContext();
 	const [showModulesPopup, setShowModulesPopup]	= useState(false);
 	const [showEditPopup, setShowEditPopup]	= useState(false);
 	const [showEditBundle, setShowEditBundle]	= useState(false);
@@ -307,17 +308,18 @@ export const Toolbar = (props: ToolbarProps) => {
 					});
 					orgNodes.push(node);
 
-					const position = getPosition(node.name) || {
+					const position = positionContext.getPosition(node.name) || {
 						x: node.x,
 						y: node.y
 					}
+					if (position) {
+						if (position.x < xmin) {
+							xmin = position.x;
+						}
 
-					if (position.x < xmin) {
-						xmin = position.x;
-					}
-
-					if (node.y < ymin) {
-						ymin = position.y;
+						if (node.y < ymin) {
+							ymin = position.y;
+						}
 					}
 				}
 			 });
@@ -359,7 +361,7 @@ export const Toolbar = (props: ToolbarProps) => {
 		let positionsAdded = 0;
 		repoFlow.forEach((node) => {
 			if (node.shapeType !== "Line") {
-				const position = getPosition(node.name) || {
+				const position = positionContext.getPosition(node.name) || {
 					x: node.x,
 					y: node.y
 				};
@@ -384,7 +386,7 @@ export const Toolbar = (props: ToolbarProps) => {
 			flow: repoFlow.map((node) => {
 				if (node.shapeType === "Line") {
 
-					const position = getPosition(node.name) || {
+					const position = positionContext.getPosition(node.name) || {
 						xstart: node.xstart,
 						ystart: node.ystart,
 						xend: node.xend,
@@ -398,7 +400,7 @@ export const Toolbar = (props: ToolbarProps) => {
 						yend: position.yend - ymin
 					}; 
 				} else {
-					const position = getPosition(node.name) || {
+					const position = positionContext.getPosition(node.name) || {
 						x: node.x,
 						y: node.y
 					};
@@ -519,7 +521,7 @@ export const Toolbar = (props: ToolbarProps) => {
 				}, flow.flow, true);
 				flow.addFlowNode(newNode);
 console.log("newNode", newNodeId, newNode);
-				setPosition(newNode.name, {
+				positionContext.setPosition(newNode.name, {
 					x: newNode.x,
 					y: newNode.y
 				});
@@ -536,7 +538,7 @@ console.log("newNode", newNodeId, newNode);
 					bundledNodesInfo.inputConnections[0].xend = newEndPosition.x;
 					bundledNodesInfo.inputConnections[0].yend = newEndPosition.y;
 
-					setPosition(bundledNodesInfo.inputConnections[0].name, {
+					positionContext.setPosition(bundledNodesInfo.inputConnections[0].name, {
 						xstart: bundledNodesInfo.inputConnections[0].xstart,
 						ystart: bundledNodesInfo.inputConnections[0].ystart,
 						xend: newEndPosition.x,
@@ -561,7 +563,7 @@ console.log("newNode", newNodeId, newNode);
 						outputConnection.xstart = newStartPosition.x;
 						outputConnection.ystart = newStartPosition.y;
 		
-						setPosition(outputConnection.name, {
+						positionContext.setPosition(outputConnection.name, {
 							xstart: newStartPosition.x,
 							ystart: newStartPosition.y,
 							xend: outputConnection.xend,
@@ -932,10 +934,13 @@ console.log("newNode", newNodeId, newNode);
 				</Navbar>
 			</div>
 		</div>
-		{showEditBundle && <EditBundle 
-			renderHtmlNode={props.renderHtmlNode}
-			getNodeInstance={props.getNodeInstance}
-			flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditBundle>}
+		{showEditBundle && <PositionProvider>
+				<EditBundle 
+					renderHtmlNode={props.renderHtmlNode}
+					getNodeInstance={props.getNodeInstance}
+					flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} />
+			</PositionProvider>
+		}
 		{showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditPopup>}
 		{showNewFlow && <NewFlow onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
 		{showTaskHelp && <HelpPopup taskName={selectedNode && selectedNode.node ? (selectedNode.node as any).taskType : ""}></HelpPopup>}

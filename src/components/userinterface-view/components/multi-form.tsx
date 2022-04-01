@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState , useRef, useEffect } from 'react';
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../../interfaces/FlowrunnerConnector';
 import { FlowConnector } from '../../../flow-connector';
 import { MultiFormView } from '../../userinterface-view/multi-form-view';
 import { getFlowAgent } from '../../../flow-agent';

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Draggable } from './draggable';
 import fetch from 'cross-fetch';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { DragginTask} from '../../dragging-task';
@@ -43,6 +43,8 @@ export const Taskbar = (props: TaskbarProps) => {
 	
 	const canvasMode = useCanvasModeStateStore();
 	const modulesMenu = useModulesStateStore();
+
+	const abortableControllerRef = useRef<any>(null);
 	
 	const setupTasks = (metaDataInfo : any[]) => {
 		const taskPluginsSortedList = metaDataInfo.sort((a, b) => {
@@ -66,14 +68,14 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	const loadTasks = () => {
-
+		const { signal } = abortableControllerRef.current;
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			let tasks : any[] = props.flowrunnerConnector.storageProvider?.getTasks() || [];
 			setupTasks([...tasks, ...props.flowrunnerConnector.getTasksFromPluginRegistry()]);
 			return;
 		}
 
-		fetch('/tasks')
+		fetch('/tasks', { signal })
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -89,7 +91,8 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	const loadModules = () => {
-		fetch('/api/modules')
+		const { signal } = abortableControllerRef.current;
+		fetch('/api/modules', { signal })
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -106,7 +109,8 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	const loadRepositoryItems = () => {
-		fetch('/api/module?codeName=repository')
+		const { signal } = abortableControllerRef.current;
+		fetch('/api/module?codeName=repository', { signal })
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -123,7 +127,8 @@ export const Taskbar = (props: TaskbarProps) => {
 	}
 
 	const loadCustomNodesItems = () => {
-		fetch('/api/module?codeName=customNodes')
+		const { signal } = abortableControllerRef.current;	
+		fetch('/api/module?codeName=customNodes', { signal })
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -138,6 +143,14 @@ export const Taskbar = (props: TaskbarProps) => {
 			console.error(err);
 		});
 	}
+
+	useEffect(() => {
+		const controller = new AbortController();
+		abortableControllerRef.current = controller;
+		return () => {
+			controller.abort();
+		}
+	}, []);
 
 	useEffect(() => {
 		loadTasks();

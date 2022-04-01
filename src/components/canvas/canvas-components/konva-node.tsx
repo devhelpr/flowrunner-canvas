@@ -1,18 +1,16 @@
 import * as React from 'react';
-import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} from 'react';
+import { useMemo } from 'react';
 import { Shapes } from '../shapes';
 
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../../interfaces/FlowrunnerConnector';
 import { ShapeSettings } from '../../../helpers/shape-settings';
-import { getPosition, setPosition } from '../../../services/position-service';
-import { useSelectedNodeStore} from '../../../state/selected-node-state';
 import { IFlowState } from '../../../state/flow-state';
-import { LinesForShape } from '../shapes/lines-for-shape';
 import { Thumbs }  from '../shapes/thumbs';
 import { ThumbsStart }  from '../shapes/thumbsstart';
 import { useNodesTouchedStateStore} from '../../../state/nodes-touched';
 import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
+import { usePositionContext } from '../../contexts/position-context';
 
 export interface IKonvaNodeProps {
 	hasTaskNameAsNodeTitle?: boolean;
@@ -64,6 +62,7 @@ export interface IKonvaNodeProps {
 }
 
 export const KonvaNode = (props: IKonvaNodeProps) => {
+	const positionContext = usePositionContext();
 
 	let shapeType = useMemo(() => FlowToCanvas.getShapeType(props.node.shapeType, props.node.taskType, props.node.isStartEnd), 
 		[props.node]);
@@ -78,27 +77,27 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 		return null;
 	}
 	const Shape = Shapes[shapeType];
-	let position = getPosition(props.node.name);
+	let position = positionContext.getPosition(props.node.name);
 	if (!position) {
 		if (props.node.shapeType !== "Line") {
 			
-			setPosition(props.node.name, {
+			positionContext.setPosition(props.node.name, {
 				x: props.node.x,
 				y: props.node.y
 			});
 		} else {
 			
-			setPosition(props.node.name, {
+			positionContext.setPosition(props.node.name, {
 				xstart: props.node.xstart,
 				ystart: props.node.ystart,
 				xend: props.node.xend,
 				yend: props.node.yend
 			});
 		}  
-		position = getPosition(props.node.name);
+		position = positionContext.getPosition(props.node.name);
 	}
 
-	if (props.node.shapeType !== "Line" && Shape) {
+	if (props.node.shapeType !== "Line" && Shape && position) {
 
 		let nodeState = "";
 		
@@ -130,7 +129,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 			ref={ref => (props.shapeRefs.current[props.node.name] = ref)}
 
 			shapeRefs={props.shapeRefs}
-			positions={getPosition}
+			positions={positionContext.getPosition}
 			canvasHasSelectedNode={props.canvasHasSelectedNode}
 			
 			nodeState={nodeState}

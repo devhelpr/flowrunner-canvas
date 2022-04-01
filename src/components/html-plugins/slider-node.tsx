@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
 
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import Slider from '@material-ui/core/Slider';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';

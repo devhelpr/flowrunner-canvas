@@ -6,7 +6,7 @@ import { LayoutWithDropArea } from './components/layout-with-droparea';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { ShapeSettings } from '../../helpers/shape-settings';
 
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { renderFlowNode } from '../userinterface-view/components/layout-renderer';
 import { Flow } from '../flow';
 
