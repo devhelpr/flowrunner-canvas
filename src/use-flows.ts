@@ -17,7 +17,7 @@ export enum FlowState {
 
 export const useFlows = (
   flowrunnerConnector: IFlowrunnerConnector,
-  useFlowStore : () => IFlowState,
+  useFlowStore: () => IFlowState,
   flowId?: string | number,
   onFlowHasChanged?: (flow: any) => void,
 ) => {
@@ -81,7 +81,7 @@ export const useFlows = (
     setFlowState(FlowState.loading);
   };
 
-  const loadFlowFromMemory = (inputFlow : any[], flowId? :string | number) => {
+  const loadFlowFromMemory = (inputFlow: any[], flowId?: string | number) => {
     setFlowState(FlowState.loading);
     setTimeout(() => {
       setCurrentFlowId(flowId);
@@ -153,7 +153,7 @@ export const useFlows = (
             updatedNode.y = position.y;
           }
         } else if (node.xstart !== undefined && node.ystart !== undefined && node.shapeType === 'Line') {
-          const position =positionContext.getPosition(node.name);
+          const position = positionContext.getPosition(node.name);
           if (position) {
             updatedNode.xstart = position.xstart;
             updatedNode.ystart = position.ystart;
@@ -215,6 +215,6 @@ export const useFlows = (
     onGetFlows,
     saveFlow,
     reloadFlow,
-    loadFlowFromMemory
+    loadFlowFromMemory,
   };
 };

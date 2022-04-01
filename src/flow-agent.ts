@@ -673,7 +673,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         return;
       }
       if (data.propertyName) {
-        console.log("modifyFlowNode",data.nodeName, data.propertyName, data.value );
+        console.log('modifyFlowNode', data.nodeName, data.propertyName, data.value);
         worker.flow.setPropertyOnNode(data.nodeName, data.propertyName, data.value, data.additionalValues || {});
       } else {
         worker.flow.setPropertiesOnNode(data.nodeName, data.additionalValues || {});

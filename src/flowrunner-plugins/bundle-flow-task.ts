@@ -36,7 +36,7 @@ export class BundleFlowTask extends FlowTask {
     try {
       console.log('bundle flow', services, node.flow);
       if (!this.worker && !this.flowrunnerConnector) {
-        this.worker = getFlowAgent();//services.getWorker();
+        this.worker = getFlowAgent(); //services.getWorker();
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IFlowAgent);
         if (node.flow) {

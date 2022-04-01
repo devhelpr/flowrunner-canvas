@@ -358,7 +358,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     this.nodeState = {};
 
     if (this.worker) {
-      console.log("should destroy?", this.currentFlowId , flowId);
+      console.log('should destroy?', this.currentFlowId, flowId);
       if (this.onDestroyAndRecreateWorker && this.currentFlowId != flowId) {
         this.onDestroyAndRecreateWorker();
       }
