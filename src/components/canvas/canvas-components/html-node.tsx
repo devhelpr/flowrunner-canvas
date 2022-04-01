@@ -136,7 +136,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 												 
 			className={selected + "canvas__html-shape canvas__html-shape-" + props.node.name + 			
 				nodeState + 
-				(settings.background ? " " + settings.background : "") + 
+				(settings.background ? ` ${settings.background} ` : "") + 
 				(FlowToCanvas.getHasOutputs(shapeType, settings) ? "" : "canvas__html-shape--no-outputs") + " " +
 				(FlowToCanvas.getHasInputs(shapeType, settings) ? "" : "canvas__html-shape--no-inputs")
 				}
