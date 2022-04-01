@@ -39,7 +39,16 @@ export const EditBundle = (props: EditBundleProps) => {
 	const flow = useBundleFlowStore();
 	const orgFlow = useFlowStore();
 	const selectedNode = useSelectedNodeStore();
-	const flowrunnerConnector = useRef(new FlowConnector());
+	const flowrunnerConnector = useRef((() => {
+		const flowConnector = new FlowConnector();
+		if (props.flowrunnerConnector.storageProvider && 
+			props.flowrunnerConnector.hasStorageProvider) {
+			flowConnector.storageProvider = props.flowrunnerConnector.storageProvider;
+			flowConnector.hasStorageProvider = true;
+			console.log("tasks", props.flowrunnerConnector.storageProvider.getTasks());
+		}
+		return flowConnector;
+	})());
 	useEffect(() => {		
 		canvasToolbarsubject.current = new Subject<string>();
 		formNodesubject.current = new Subject<any>();

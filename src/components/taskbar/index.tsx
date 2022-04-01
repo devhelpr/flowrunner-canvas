@@ -243,7 +243,9 @@ export const Taskbar = (props: TaskbarProps) => {
 						</Draggable>					
 				})}
 					<div>
-						<div className="p-1 tw-mt-4 tw-bg-gray-300"><h2>Repository</h2></div>
+						{repositoryItems && repositoryItems.items && repositoryItems.items.length > 0 &&
+							<div className="p-1 tw-mt-4 tw-bg-gray-300"><h2>Repository</h2></div>
+						}
 						{repositoryItems && repositoryItems.items && repositoryItems.items.map((repoItem : any, index) => {
 
 							const taskRepoItem : any = {
@@ -258,7 +260,8 @@ export const Taskbar = (props: TaskbarProps) => {
 						})}
 					</div>
 					<div>
-						<div className="p-1 tw-mt-4 tw-bg-gray-300"><h2>CustomNodes</h2></div>
+						{customNodes && customNodes.items && customNodes.items.length > 0 &&
+							<div className="p-1 tw-mt-4 tw-bg-gray-300"><h2>CustomNodes</h2></div>}
 						{customNodes && customNodes.items && customNodes.items.map((customNode : any, index) => {
 
 							const taskCustomNode : any = {
