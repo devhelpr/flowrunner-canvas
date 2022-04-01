@@ -2042,6 +2042,9 @@ textarea.form-control:disabled {
 .background-blue .canvas__html-shape-body {
 		background: #86c6f8 !important;
 	}
+.background-blue {
+	--thumb-color : #86c6f8;
+}
 .background-dark-blue .canvas__html-shape-bar {
 		background: #86c6f8 !important;
 	}
@@ -2051,6 +2054,9 @@ textarea.form-control:disabled {
 .background-dark-blue .canvas__html-shape-body {
 		background: #36a4f9 !important;
 	}
+.background-dark-blue {
+	--thumb-color : #86c6f8;
+}
 .background-green .canvas__html-shape-bar {
 		background: #3bee76 !important;
 	}
@@ -2060,6 +2066,9 @@ textarea.form-control:disabled {
 .background-green .canvas__html-shape-body {
 		background: #7df4a4 !important;
 	}
+.background-green {
+	--thumb-color : #7df4a4;
+}
 .background-dark-green .canvas__html-shape-bar {
 		background: #7df4a4 !important;
 	}
@@ -2069,6 +2078,9 @@ textarea.form-control:disabled {
 .background-dark-green .canvas__html-shape-body {
 		background: #3bee76 !important;
 	}
+.background-dark-green {
+	--thumb-color : #7df4a4;
+}
 .background-purple .canvas__html-shape-bar {
 		background: #cc8aee !important;
 	}
@@ -2078,6 +2090,9 @@ textarea.form-control:disabled {
 .background-purple .canvas__html-shape-body {
 		background: #e2bcf5 !important;
 	}
+.background-purple {
+	--thumb-color : #e2bcf5;
+}
 .background-dark-purple .canvas__html-shape-bar {
 		background: #e2bcf5 !important;
 	}
@@ -2087,6 +2102,9 @@ textarea.form-control:disabled {
 .background-dark-purple .canvas__html-shape-body {
 		background: #cc8aee !important;
 	}
+.background-dark-purple {
+	--thumb-color : #e2bcf5;
+}
 .static-control__form-node-input-as-label {
 	word-break: break-word;
 }
