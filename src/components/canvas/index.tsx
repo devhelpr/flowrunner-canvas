@@ -5759,6 +5759,8 @@ console.log("clearstate");
 			modalSize={props.modalSize}
 			hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 			formNodesubject={props.formNodesubject}
+			useFlowStore={props.useFlowStore}
+			useSelectedNodeStore={props.useSelectedNodeStore}
 			settings={editNodeSettings} flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseEditNode}></EditNodePopup>}
 		<Flow 
 			flow={flowStore.flow}

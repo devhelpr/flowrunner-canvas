@@ -3,8 +3,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
 import { FormNodeHtmlPlugin } from '../html-plugins/form-node';
-import { useFlowStore} from '../../state/flow-state';
-import { useSelectedNodeStore} from '../../state/selected-node-state';
+import { IFlowState, useFlowStore} from '../../state/flow-state';
+import { INodeState, useSelectedNodeStore} from '../../state/selected-node-state';
 import { Subject } from 'rxjs';
 import { IModalSize } from '../../interfaces/IModalSize';
 
@@ -15,6 +15,8 @@ export interface EditNodeProps {
 	formNodesubject?: Subject<any>;
 	modalSize?: IModalSize;
 	hasTaskNameAsNodeTitle?: boolean;
+	useFlowStore : () => IFlowState;
+	useSelectedNodeStore : (param? : any) => INodeState;
 	onClose: (pushFlow? : boolean) => void;
 }
 
@@ -34,15 +36,15 @@ export const EditNodePopup = (props: EditNodeProps) => {
 	
 	const containerRef = useRef(null);
 
-	const flow = useFlowStore();
-	const selectedNode = useSelectedNodeStore();
+	const flow = props.useFlowStore();
+	const selectNode = props.useSelectedNodeStore(state => state.selectNode) as any;
 
 	useEffect(() => {
 		if (!props.node) {
 			return;
 		}
 		const node = {...props.node};
-		selectedNode.selectNode(props.node.name, props.node);
+		selectNode(props.node.name, props.node);
 
 		let newRequiredNodeValues;
 		if (node.shapeType !== "Line") {
@@ -150,7 +152,8 @@ export const EditNodePopup = (props: EditNodeProps) => {
 						onSetValue={onSetValue}
 						isInFlowEditor={true}
 						flowrunnerConnector={props.flowrunnerConnector}
-						></FormNodeHtmlPlugin>
+						useFlowStore={props.useFlowStore}
+					></FormNodeHtmlPlugin>
 				</div>
 			</Modal.Body>
 		

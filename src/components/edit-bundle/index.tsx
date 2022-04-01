@@ -32,8 +32,8 @@ export const EditBundle = (props: EditBundleProps) => {
 	const [requiredNodeValues , setRequiredNodeValues] = useState({});
 	
 	const containerRef = useRef(null);
-	const canvasToolbarsubject = useRef(undefined as any);
-	const formNodesubject = useRef(undefined as any);
+	const canvasToolbarsubject = useRef(new Subject<string>());
+	const formNodesubject = useRef(new Subject<any>());
 	const flows = useFlows(props.flowrunnerConnector, useBundleFlowStore);
 	
 	const flow = useBundleFlowStore();
@@ -50,8 +50,8 @@ export const EditBundle = (props: EditBundleProps) => {
 		return flowConnector;
 	})());
 	useEffect(() => {		
-		canvasToolbarsubject.current = new Subject<string>();
-		formNodesubject.current = new Subject<any>();
+		//canvasToolbarsubject.current = new Subject<string>();
+		//formNodesubject.current = new Subject<any>();
 
 		const node = {...selectedNode.node.node};
 		let newRequiredNodeValues;
