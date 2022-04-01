@@ -14,7 +14,8 @@ import { Login } from './components/login';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
 import { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/FlowrunnerConnector';
-export type { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/FlowrunnerConnector';
+export type { IFlowrunnerConnector, IExecutionEvent } from './interfaces/FlowrunnerConnector';
+export { ApplicationMode } from './interfaces/FlowrunnerConnector';
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
