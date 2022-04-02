@@ -36,31 +36,31 @@ export class BundleFlowTask extends FlowTask {
     try {
       console.log('bundle flow', services, node.flow);
       //if (!this.worker && !this.flowrunnerConnector) {
-        this.worker = getFlowAgent(); //services.getWorker();
-        this.flowrunnerConnector = new FlowConnector();
-        this.flowrunnerConnector.registerWorker(this.worker as IFlowAgent);
-        if (node.flow) {
-          return new Promise((resolve, reject) => {
-            let payload = { ...node.payload };
-            payload.sendMessageOnResolve = true;
+      this.worker = getFlowAgent(); //services.getWorker();
+      this.flowrunnerConnector = new FlowConnector();
+      this.flowrunnerConnector.registerWorker(this.worker as IFlowAgent);
+      if (node.flow) {
+        return new Promise((resolve, reject) => {
+          let payload = { ...node.payload };
+          payload.sendMessageOnResolve = true;
 
-            this.flowrunnerConnector?.registerOnReceiveFlowNodeExecuteResult(payload => {
-              console.log('BundleFlowTask payload', node.name, payload);
-              if (payload === false) {
-                return false;
-              } else {
-                resolve(payload);
-              }
-            });
-            this.flowrunnerConnector?.setFlowType('playground');
-            this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow), false, node.flowId);
-            this.flowrunnerConnector?.executeFlowNode(node.startNode, payload);
+          this.flowrunnerConnector?.registerOnReceiveFlowNodeExecuteResult(payload => {
+            console.log('BundleFlowTask payload', node.name, payload);
+            if (payload === false) {
+              return false;
+            } else {
+              resolve(payload);
+            }
           });
-        } else {
-          return false;
-          //let payload = Object.assign({}, node.payload, this.flowrunner.convert(JSON.stringify({})));
-          //return payload;
-        }
+          this.flowrunnerConnector?.setFlowType('playground');
+          this.flowrunnerConnector?.pushFlowToFlowrunner(JSON.parse(node.flow), false, node.flowId);
+          this.flowrunnerConnector?.executeFlowNode(node.startNode, payload);
+        });
+      } else {
+        return false;
+        //let payload = Object.assign({}, node.payload, this.flowrunner.convert(JSON.stringify({})));
+        //return payload;
+      }
       //}
 
       //console.log("payload" , payload);
