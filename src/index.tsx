@@ -258,6 +258,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
 						hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
 						renderHtmlNode={renderHtmlNode.current}
+						isEditingInModal={false}
 						flowrunnerConnector={flowrunnerConnector.current}
 						getNodeInstance={getNodeInstance.current}
 						formNodesubject={formNodesubject.current}
@@ -501,7 +502,8 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 													></Toolbar>
 												{editorMode == "canvas" &&
 												<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
-													hasCustomNodesAndRepository={true} 
+													hasCustomNodesAndRepository={true}
+													isEditingInModal={false} 
 													formNodesubject={formNodesubject} 
 													renderHtmlNode={renderHtmlNode}
 													flowrunnerConnector={flowrunnerConnector}

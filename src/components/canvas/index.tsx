@@ -62,6 +62,7 @@ export interface CanvasProps {
 	flowType : string;
 	saveFlow : (flowId?) => void;
 
+	isEditingInModal : boolean;
 	modalSize? : IModalSize;
 	initialOpacity : number;
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -375,13 +376,20 @@ export const Canvas = (props: CanvasProps) => {
 	}, [flowStore.flow]);
 
 	const updateDimensions = () => {
-		const stageContainerElement = (stage as any).current.attrs["container"];//document.querySelector(".stage-container");
+		//const stageContainerElement = (stage as any).current.attrs["container"];//document.querySelector(".stage-container");
+		const stageContainerElement = (canvasWrapper as any).current;//document.querySelector("body .canvas-controller__scroll-container");
+
 		const bodyElement = document.querySelector("body");
 		if (stageContainerElement !== null && bodyElement !== null) {
 			let widthCanvas = stageContainerElement.clientWidth;
-			let heightCanvas = bodyElement.clientHeight;// - 112;
-			if (heightCanvas < 500) {
-				heightCanvas = 500;
+			let heightCanvas = stageContainerElement.clientHeight;// - 112;
+			
+			if (heightCanvas === 0) {
+				console.log("heightCanvas was 0");
+				heightCanvas = bodyElement.clientHeight;// - 112;
+				if (heightCanvas < 500) {
+					heightCanvas = 500;
+				}
 			}
 			if (widthCanvas === 0) {
 				widthCanvas = bodyElement.clientWidth;
@@ -718,7 +726,7 @@ export const Canvas = (props: CanvasProps) => {
 	useEffect(() => {
 		const rect = (canvasWrapper as any).current.getBoundingClientRect();
 		canvasTopLeftPositionRef.current = {x:rect.left , y: rect.top};
-
+		updateDimensions();
 		console.log("CANVAS BOUNDING RECT USEEFFECT" , rect, (canvasWrapper as any).current);
 	}, []);
 
@@ -3628,6 +3636,7 @@ console.log("clearstate");
 	}
 
 	const fitStage = useCallback((node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean, doAnimate? : boolean) => {
+		console.log("FITSTAGE");
 		let xMin;
 		let yMin;
 		let xMax;
@@ -3795,14 +3804,16 @@ console.log("clearstate");
 						//let stageWidth = stageInstance.getWidth() || stageContainerElement.clientWidth;
 						//let stageHeight = stageInstance.getHeight() || stageContainerElement.clientHeight;
 						let stageWidth = stageContainerElement.clientWidth;
-						let stageHeight = bodyElement.clientHeight;
+						let stageHeight = stageContainerElement.clientHeight;
 
 						if (stageWidth < 1024) {
 							offsetX = 0;
 						}
 
 						newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
-						newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;	
+						newPos.y = (-(yMin)*scale) + 
+							(stageHeight + (props.isEditingInModal ? 0 : 64))/2 - 
+							((flowHeight*scale))/2 ;	
 						 
 						stageInstance.position(newPos);
 						if (!!doBatchdraw) {
