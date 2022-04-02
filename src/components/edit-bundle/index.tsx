@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Modal } from 'react-bootstrap';
 import { Subject } from 'rxjs';
@@ -42,7 +42,8 @@ export const EditBundle = (props: EditBundleProps) => {
 	
 	const flow = useBundleFlowStore();
 	const orgFlow = useFlowStore();
-	const selectedNode = useSelectedNodeStore();
+	const selectedNode = useSelectedNodeStore();	
+
 	const flowrunnerConnector = useRef((() => {
 		const flowConnector = new FlowConnector();
 		if (props.flowrunnerConnector.storageProvider && 
@@ -53,6 +54,18 @@ export const EditBundle = (props: EditBundleProps) => {
 		}
 		return flowConnector;
 	})());
+
+	useEffect(() => {
+		console.log("flow changed in bundle", flow.flow);
+
+		props.flowrunnerConnector?.modifyFlowNode(
+			orgNodeName, 
+			"flow", 
+			JSON.stringify(flow.flow),
+			orgNodeName				
+		);
+	}, [flow.flow]);
+
 	useEffect(() => {		
 		//canvasToolbarsubject.current = new Subject<string>();
 		//formNodesubject.current = new Subject<any>();

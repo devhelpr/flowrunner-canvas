@@ -35,7 +35,7 @@ export class BundleFlowTask extends FlowTask {
   public execute(node: any, services: any) {
     try {
       console.log('bundle flow', services, node.flow);
-      if (!this.worker && !this.flowrunnerConnector) {
+      //if (!this.worker && !this.flowrunnerConnector) {
         this.worker = getFlowAgent(); //services.getWorker();
         this.flowrunnerConnector = new FlowConnector();
         this.flowrunnerConnector.registerWorker(this.worker as IFlowAgent);
@@ -61,7 +61,7 @@ export class BundleFlowTask extends FlowTask {
           //let payload = Object.assign({}, node.payload, this.flowrunner.convert(JSON.stringify({})));
           //return payload;
         }
-      }
+      //}
 
       //console.log("payload" , payload);
       //return false;
