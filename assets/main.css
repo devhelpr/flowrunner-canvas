@@ -2169,10 +2169,14 @@ textarea.form-control:disabled {
 		-webkit-transform: translate(-50%,-50%);
 		        transform: translate(-50%,-50%);
 	}
-.modal-body .taskbar {
+.edit-bundle .taskbar {
 		top: 16px;
 		height: calc(100% - 32px);
 	}
-.modal-body .konvajs-content {
+.edit-bundle .canvas-controller__scroll-container {
+		height: calc(100vh - 400px);
+    	min-height: 400px;
+	}
+.edit-bundle .konvajs-content {
 		margin-bottom: 0;
 	}

@@ -13,6 +13,7 @@ import { Canvas } from '../canvas';
 
 import * as uuid from 'uuid';
 import { FlowConnector } from '../../flow-connector';
+import { IModalSize } from '../../interfaces/IModalSize';
 const uuidV4 = uuid.v4;
 
 
@@ -20,6 +21,7 @@ export interface EditBundleProps {
 
 	hasTaskNameAsNodeTitle: boolean;
 	flowrunnerConnector : IFlowrunnerConnector;
+	modalSize?: IModalSize;
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
 
@@ -181,11 +183,11 @@ export const EditBundle = (props: EditBundleProps) => {
 		return <></>;
 	}
 
-	return <div ref={ref => ((containerRef as any).current = ref)}>
+	return <div className="edit-bundle" ref={ref => ((containerRef as any).current = ref)}>
 			<Modal 
 				show={true} 
 				centered 
-				size="xl" 
+				size={props.modalSize || "xl"} 
 				className="tw-w-full tw-max-w-full"
 				container={containerRef.current}>
 				<Modal.Header>

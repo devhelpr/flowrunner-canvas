@@ -28,6 +28,7 @@ import * as uuid from 'uuid';
 import { FlowState } from '../../use-flows';
 import { ThumbPositionRelativeToNode } from '../canvas/shapes/shape-types';
 import { EditBundle } from '../edit-bundle';
+import { IModalSize } from '../../interfaces/IModalSize';
 
 const uuidV4 = uuid.v4;
 
@@ -63,6 +64,7 @@ export interface ToolbarProps {
 	canvasToolbarsubject : Subject<string>;
 	hasRunningFlowRunner: boolean;
 
+	modalSize? : IModalSize;
 	onEditorMode?: (editorMode) => void;
 
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -941,7 +943,9 @@ console.log("newNode", newNodeId, newNode);
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 					renderHtmlNode={props.renderHtmlNode}
 					getNodeInstance={props.getNodeInstance}
-					flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} />
+					flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}
+					modalSize={props.modalSize}
+				/>
 			</PositionProvider>
 		}
 		{showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditPopup>}

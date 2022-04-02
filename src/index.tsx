@@ -246,6 +246,7 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 						flows={flows.flows}
 						flowType={flows.flowType}
 						flowState={flows.flowState}
+						modalSize={props.modalSize}
 						getFlows={flows.getFlows}
 						loadFlow={flows.loadFlow}
 						saveFlow={flows.saveFlow}
