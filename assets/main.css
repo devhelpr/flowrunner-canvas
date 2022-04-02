@@ -2132,6 +2132,12 @@ textarea.form-control:disabled {
 		right: 10px;
 		top: 10px;
 	}
+[data-html-plugin="shapeNode"]:hover .canvas__html-shape-bar-icon:nth-child(2) {
+			right: 30px;
+		}
+[data-html-plugin="shapeNode"]:hover .canvas__html-shape-bar-icon:last-child {
+			right: 10px;			
+		}
 [data-html-plugin="shapeNode"] .canvas__html-shape-thumb-start {
 		top: calc(50% - 6px);
 	}

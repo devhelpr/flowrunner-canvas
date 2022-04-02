@@ -65,7 +65,6 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 	const Shape = Shapes[shapeType];
 	
 	if (shapeType === "Html" && Shape) {
-		
 		const nodeClone = {...props.node};
 		const position = positionContext.getPosition(props.node.name) || props.node;
 		let nodeState = (props.nodesStateLocal || "") === "error" ? " has-error" : "";
@@ -94,9 +93,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		if (!htmlPlugin || htmlPlugin == "") {
 			htmlPlugin = (settings as any).htmlPlugin;
 		}
-// onClick={(event) => props.onClickShape(props.node, event)}
 
-// height: (height || props.node.height || 250) + "px",
 		let additionalStyles : any = {};
 
 		if (htmlPlugin === "shapeNode") {
@@ -163,10 +160,12 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 						onFocus={props.onFocus} 
 						onClick={(event) => props.onShowNodeSettings(props.node, settings, event)} 
 						className="canvas__html-shape-bar-icon fas fa-cog"></a>}
-					{htmlPlugin == "formNode" && <a href="#"
-						onFocus={props.onFocus} 
-						onClick={(event) => props.onShowNodeEditor(props.node, settings, event)} 
-						className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
+					{(htmlPlugin === "formNode" || 
+						(htmlPlugin === "shapeNode" && (settings as any).metaInfo && (settings as any).metaInfo.length > 0)) && 
+						<a href="#"
+							onFocus={props.onFocus} 
+							onClick={(event) => props.onShowNodeEditor(props.node, settings, event)} 
+							className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
 				</div>
 				<div className="canvas__html-shape-body" style={{...(settings && (settings as any).styleShapeBody)}}>
 				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId, props.useFlowStore)}</div>

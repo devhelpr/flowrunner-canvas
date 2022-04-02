@@ -17,6 +17,8 @@ const uuidV4 = uuid.v4;
 
 
 export interface EditBundleProps {
+
+	hasTaskNameAsNodeTitle: boolean;
 	flowrunnerConnector : IFlowrunnerConnector;
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
 	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
@@ -194,7 +196,8 @@ export const EditBundle = (props: EditBundleProps) => {
 					<Canvas
 						externalId="EditBundleCanvas" 
 						canvasToolbarsubject={canvasToolbarsubject.current}
-						hasCustomNodesAndRepository={true} 
+						hasCustomNodesAndRepository={false} 
+						hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 						formNodesubject={formNodesubject.current} 
 						renderHtmlNode={props.renderHtmlNode}
 						flowrunnerConnector={flowrunnerConnector.current}
@@ -205,7 +208,6 @@ export const EditBundle = (props: EditBundleProps) => {
 						flowType={flows.flowType}
 						flowState={flows.flowState}
 						saveFlow={flows.saveFlow}
-						hasTaskNameAsNodeTitle={true}
 						useFlowStore={useBundleFlowStore}
 						useCanvasModeStateStore={useBundleCanvasModeStateStore}
 						useSelectedNodeStore={useBundleSelectedNodeStore}

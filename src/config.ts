@@ -46,7 +46,7 @@ const taskTypeConfig: any = {
     presetValues: {
       assignToProperty: '',
       value: '',
-    },
+    }
   },
 
   IfConditionTask: {

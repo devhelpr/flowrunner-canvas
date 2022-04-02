@@ -47,6 +47,7 @@ export interface IFlowFile {
 
 export interface ToolbarProps {
 	
+	hasTaskNameAsNodeTitle: boolean;
 	hasCustomNodesAndRepository: boolean;
 	hasShowDependenciesInMenu?: boolean;
 	hasJSONEditInMenu?: boolean;
@@ -936,7 +937,8 @@ console.log("newNode", newNodeId, newNode);
 			</div>
 		</div>
 		{showEditBundle && <PositionProvider>
-				<EditBundle 
+				<EditBundle
+					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 					renderHtmlNode={props.renderHtmlNode}
 					getNodeInstance={props.getNodeInstance}
 					flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} />
