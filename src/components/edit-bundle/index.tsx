@@ -57,55 +57,43 @@ export const EditBundle = (props: EditBundleProps) => {
 
 	useEffect(() => {
 		console.log("flow changed in bundle", flow.flow);
+		if (requiredNodeValues && orgNodeName && value && flow.flow) {
+			const editedNode = JSON.parse(value);
+			const node = {
+				...requiredNodeValues,
+				...editedNode,
+				name: orgNodeName,
+				id: orgNodeName,
+				flow: JSON.stringify(flow.flow)
+			};
+			orgFlow.storeFlowNode(node, orgNodeName);
 
-		props.flowrunnerConnector?.modifyFlowNode(
-			orgNodeName, 
-			"flow", 
-			JSON.stringify(flow.flow),
-			orgNodeName				
-		);
-	}, [flow.flow]);
+			props.flowrunnerConnector?.modifyFlowNode(
+				orgNodeName, 
+				"flow", 
+				JSON.stringify(flow.flow),
+				orgNodeName				
+			);
+		}
+	}, [flow.flow, requiredNodeValues, orgNodeName, value]);
 
 	useEffect(() => {		
 		//canvasToolbarsubject.current = new Subject<string>();
 		//formNodesubject.current = new Subject<any>();
 
 		const node = {...selectedNode.node.node};
-		let newRequiredNodeValues;
-		if (node.shapeType !== "Line") {
-			newRequiredNodeValues = {
-				_id : node._id,
-				id: node.id,
-				x: node.x,
-				y: node.y,
-				shapeType: node.shapeType
-			};
+		const newRequiredNodeValues = {
+			_id : node._id,
+			id: node.id,
+			x: node.x,
+			y: node.y,
+			shapeType: node.shapeType,
+			taskType: node.taskType
+		};
+	
+		delete node.x;
+		delete node.y;
 		
-			delete node.x;
-			delete node.y;
-		} else {
-			newRequiredNodeValues = {
-				_id : node._id,
-				id: node.id,
-				name: node.id,
-				startshapeid: node.startshapeid,
-				endshapeid: node.endshapeid,
-				xstart: node.xstart,
-				ystart: node.ystart,
-				xend: node.xend,
-				yend: node.yend,
-				shapeType: node.shapeType,
-				taskType: node.taskType
-			};
-
-			delete node.startshapeid;
-			delete node.endshapeid;
-			delete node.xstart;
-			delete node.ystart;
-			delete node.xend;
-			delete node.yend;
-			delete node.taskType;
-		}
 		
 		delete node._id;
 		delete node.id;
