@@ -112,7 +112,7 @@ export interface IFlowrunnerCanvasProps {
 	onFlowHasChanged? : (flow : any) => void;
 }
 
-export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
+const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 	const [renderFlowCanvas , setRenderFlowCanvas] = useState(false);
 	
@@ -230,58 +230,62 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		<Suspense fallback={<div>Loading...</div>}>
 			<ErrorBoundary>
 				<DebugInfo flowrunnerConnector={flowrunnerConnector.current}></DebugInfo>
-				<PositionProvider>
-					<Toolbar 
-						hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
-						hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle || false}
-						hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
-						hasJSONEditInMenu={props.hasJSONEditInMenu || false}
-						renderMenuOptions={props.renderMenuOptions}
-						canvasToolbarsubject={canvasToolbarsubject.current} 
-						hasRunningFlowRunner={true}
-						isFlowEditorOnly={true}
-						flowrunnerConnector={flowrunnerConnector.current}
-						flow={flows.flow}
-						flowId={flows.flowId}
-						flows={flows.flows}
-						flowType={flows.flowType}
-						flowState={flows.flowState}
-						modalSize={props.modalSize}
-						getFlows={flows.getFlows}
-						loadFlow={flows.loadFlow}
-						saveFlow={flows.saveFlow}
-						onGetFlows={flows.onGetFlows}
-						getNodeInstance={getNodeInstance.current}
-						renderHtmlNode={renderHtmlNode.current}
-					></Toolbar>
-												
-					<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
-						hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
-						renderHtmlNode={renderHtmlNode.current}
-						isEditingInModal={false}
-						flowrunnerConnector={flowrunnerConnector.current}
-						getNodeInstance={getNodeInstance.current}
-						formNodesubject={formNodesubject.current}
-						flowHasNodes={flows.flow && flows.flow.length > 0}
-						flowId={flows.flowId}
-						flowType={flows.flowType}
-						flowState={flows.flowState}
-						saveFlow={flows.saveFlow}
-						modalSize={props.modalSize}
-						initialOpacity={0}
-						hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
-						getNodeDependencies={props.getNodeDependencies}
-						useFlowStore={useFlowStore}
-						useCanvasModeStateStore={useCanvasModeStateStore}
-						useSelectedNodeStore={useSelectedNodeStore}
-						externalId="AppCanvas" 
-					></CanvasComponent>
-				</PositionProvider>
+				
+				<Toolbar 
+					hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
+					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle || false}
+					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
+					hasJSONEditInMenu={props.hasJSONEditInMenu || false}
+					renderMenuOptions={props.renderMenuOptions}
+					canvasToolbarsubject={canvasToolbarsubject.current} 
+					hasRunningFlowRunner={true}
+					isFlowEditorOnly={true}
+					flowrunnerConnector={flowrunnerConnector.current}
+					flow={flows.flow}
+					flowId={flows.flowId}
+					flows={flows.flows}
+					flowType={flows.flowType}
+					flowState={flows.flowState}
+					modalSize={props.modalSize}
+					getFlows={flows.getFlows}
+					loadFlow={flows.loadFlow}
+					saveFlow={flows.saveFlow}
+					onGetFlows={flows.onGetFlows}
+					getNodeInstance={getNodeInstance.current}
+					renderHtmlNode={renderHtmlNode.current}
+				></Toolbar>
+											
+				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
+					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
+					renderHtmlNode={renderHtmlNode.current}
+					isEditingInModal={false}
+					flowrunnerConnector={flowrunnerConnector.current}
+					getNodeInstance={getNodeInstance.current}
+					formNodesubject={formNodesubject.current}
+					flowHasNodes={flows.flow && flows.flow.length > 0}
+					flowId={flows.flowId}
+					flowType={flows.flowType}
+					flowState={flows.flowState}
+					saveFlow={flows.saveFlow}
+					modalSize={props.modalSize}
+					initialOpacity={0}
+					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
+					getNodeDependencies={props.getNodeDependencies}
+					useFlowStore={useFlowStore}
+					useCanvasModeStateStore={useCanvasModeStateStore}
+					useSelectedNodeStore={useSelectedNodeStore}
+					externalId="AppCanvas" 
+				></CanvasComponent>				
 			</ErrorBoundary>	
 		</Suspense>		
 	</>;
 }
 
+export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
+	return <PositionProvider>
+		<InternalFlowrunnerCanvas {...props} />
+	</PositionProvider>
+}
 
 const TestApp = () => {
 	const [debugList , setDebugList] = useState([] as string[]);
