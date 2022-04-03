@@ -77,6 +77,12 @@ export const EditBundle = (props: EditBundleProps) => {
 		}
 	}, [flow.flow, requiredNodeValues, orgNodeName, value]);
 
+	const onMessageFromFlow = useCallback((event: any, flowAgent : any) => {
+		if (event.data.command === 'modifyFlowNode') {
+			console.log("onMessageFromFlow modifyFlowNode", event.data, flow.flow);
+		}
+	}, [flow.flow]);
+
 	useEffect(() => {		
 		//canvasToolbarsubject.current = new Subject<string>();
 		//formNodesubject.current = new Subject<any>();
@@ -108,8 +114,19 @@ export const EditBundle = (props: EditBundleProps) => {
 			let parsedFlow = JSON.parse(node.flow);
 			flows.loadFlowFromMemory(parsedFlow, uuidV4());
 		}
+		flowrunnerConnector.current.modifyFlowNode = onModifyFlowNode;
+		//flowAgent.current.addEventListener("external", props.onMessageFromFlow);
 		
 	}, []);
+
+	const onModifyFlowNode = useCallback(( nodeName: string,
+		propertyName: string,
+		value: any,
+		executeNode?: string,
+		eventName?: string,
+		additionalValues?: any) => {
+		console.log("onModifyFlowNode in bundle", nodeName, propertyName, value, additionalValues);
+	}, [flow.flow]);
 
 	const saveNode = (e) => {
 		try {

@@ -262,18 +262,26 @@ export const Canvas = (props: CanvasProps) => {
 	let wheelTimeout = useRef(null);
 
 	const onDocumentMouseMove = (event) => {
-		lastMousePositionRef.current = {
-			clientX: event.clientX - canvasTopLeftPositionRef.current.x,
-			clientY: event.clientY - canvasTopLeftPositionRef.current.y
-		} 
-		//canvasTopLeftPositionRef
+		if (event.touches && event.touches.length > 0) {
+			lastMousePositionRef.current = {
+				clientX: event.touches[0].screenX - canvasTopLeftPositionRef.current.x,
+				clientY: event.touches[0].screenY - canvasTopLeftPositionRef.current.y
+			};
+		} else {
+			lastMousePositionRef.current = {
+				clientX: event.clientX - canvasTopLeftPositionRef.current.x,
+				clientY: event.clientY - canvasTopLeftPositionRef.current.y
+			};
+		}
 	};
 
 	useEffect(() => {
 		document.addEventListener("mousemove", onDocumentMouseMove);
+		document.addEventListener("touchmove", onDocumentMouseMove);
 		gridSize.current = canvasMode.snapToGrid ? 50 : 1;
 		return () => {
 			document.removeEventListener("mousemove", onDocumentMouseMove);
+			document.removeEventListener("touchmove", onDocumentMouseMove);
 		}
 	}, []);
 
@@ -2995,8 +3003,13 @@ console.log("clearstate");
 				y = stageInstance.getPointerPosition().y;
 			}
 		} else {
-			x = event.clientX - canvasTopLeftPositionRef.current.x;
-			y = event.clientY - canvasTopLeftPositionRef.current.y;
+			if (event.touches && event.touches.length > 0) {
+				x = event.touches[0].screenX - canvasTopLeftPositionRef.current.x;
+				y = event.touches[0].screenY - canvasTopLeftPositionRef.current.y;
+			} else {
+				x = event.clientX - canvasTopLeftPositionRef.current.x;
+				y = event.clientY - canvasTopLeftPositionRef.current.y;
+			}
 		}
 		return {
 			x: x,
