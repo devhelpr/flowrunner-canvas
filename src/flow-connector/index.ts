@@ -49,6 +49,8 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
     executeNode?: string,
     eventName?: string,
     additionalValues?: any,
+    isBundledNode? : boolean,
+    bundleNodeId? : string
   ) => {};
 
   isActiveFlowRunner = () => {
@@ -416,6 +418,8 @@ export class FlowConnector implements IFlowrunnerConnector {
     executeNode?: string,
     eventName?: string,
     additionalValues?: any,
+    isBundledNode? : boolean,
+    bundleNodeId? : string
   ) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
@@ -427,6 +431,8 @@ export class FlowConnector implements IFlowrunnerConnector {
           executeNode: executeNode || '',
           triggerEvent: eventName || '',
           additionalValues: additionalValues,
+          isBundledNode: isBundledNode,
+          bundleNodeId: bundleNodeId
         });
       }
     }

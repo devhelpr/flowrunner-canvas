@@ -126,7 +126,19 @@ export const EditBundle = (props: EditBundleProps) => {
 		eventName?: string,
 		additionalValues?: any) => {
 		console.log("onModifyFlowNode in bundle", nodeName, propertyName, value, additionalValues);
-	}, [flow.flow]);
+		
+		props.flowrunnerConnector.modifyFlowNode(
+			nodeName,
+			propertyName,
+			value,
+			executeNode,
+			eventName,
+			additionalValues,
+			true,
+			orgNodeName
+		);
+		
+	}, [flow.flow, orgNodeName]);
 
 	const saveNode = (e) => {
 		try {

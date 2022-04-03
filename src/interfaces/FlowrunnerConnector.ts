@@ -33,6 +33,8 @@ export interface IFlowrunnerConnector {
     executeNode?: string,
     eventName?: string,
     additionalValues?: any,
+    isBundledNode? : boolean,
+    bundleNodeId? : string
   ) => void;
 
   getNodeExecutions: () => any[];
