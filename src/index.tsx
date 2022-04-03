@@ -481,56 +481,56 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 								<>
 									<Suspense fallback={<div>Loading...</div>}>
 										<ErrorBoundary>									
-											<PositionProvider>
-												{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
-													flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+											
+											{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+												flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
 
-												<Toolbar canvasToolbarsubject={canvasToolbarsubject}
-													hasTaskNameAsNodeTitle={true}											
-													hasRunningFlowRunner={!!hasRunningFlowRunner}
-													flowrunnerConnector={flowrunnerConnector}
-													hasCustomNodesAndRepository={true}
-													hasJSONEditInMenu={true}
-													onEditorMode={onEditorMode}
-													flow={flows.flow}
-													flowId={flows.flowId}
-													flows={flows.flows}
-													flowType={flows.flowType}
-													flowState={flows.flowState}
-													getFlows={flows.getFlows}
-													loadFlow={flows.loadFlow}
-													saveFlow={flows.saveFlow}
-													onGetFlows={flows.onGetFlows}
-													getNodeInstance={getNodeInstance}
-													renderHtmlNode={renderHtmlNode}
-													></Toolbar>
-												{editorMode == "canvas" &&
-												<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
-													hasCustomNodesAndRepository={true}
-													isEditingInModal={false} 
-													formNodesubject={formNodesubject} 
-													renderHtmlNode={renderHtmlNode}
-													flowrunnerConnector={flowrunnerConnector}
-													getNodeInstance={getNodeInstance}
-													flowHasNodes={flows.flow && flows.flow.length > 0}
-													flowId={flows.flowId}
-													flowType={flows.flowType}
-													flowState={flows.flowState}
-													saveFlow={flows.saveFlow}
-													hasTaskNameAsNodeTitle={true}
-													initialOpacity={0}
-													useFlowStore={useFlowStore}
-													useCanvasModeStateStore={useCanvasModeStateStore}
-													useSelectedNodeStore={useSelectedNodeStore}
-													externalId="AppCanvas"
-												></CanvasComponent>}
-												{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
-													<UserInterfaceViewEditor 
-													renderHtmlNode={renderHtmlNode}
-													flowrunnerConnector={flowrunnerConnector}
-													getNodeInstance={getNodeInstance} /></Suspense>}
-												<FooterToolbar></FooterToolbar>
-											</PositionProvider>
+											<Toolbar canvasToolbarsubject={canvasToolbarsubject}
+												hasTaskNameAsNodeTitle={true}											
+												hasRunningFlowRunner={!!hasRunningFlowRunner}
+												flowrunnerConnector={flowrunnerConnector}
+												hasCustomNodesAndRepository={true}
+												hasJSONEditInMenu={true}
+												onEditorMode={onEditorMode}
+												flow={flows.flow}
+												flowId={flows.flowId}
+												flows={flows.flows}
+												flowType={flows.flowType}
+												flowState={flows.flowState}
+												getFlows={flows.getFlows}
+												loadFlow={flows.loadFlow}
+												saveFlow={flows.saveFlow}
+												onGetFlows={flows.onGetFlows}
+												getNodeInstance={getNodeInstance}
+												renderHtmlNode={renderHtmlNode}
+												></Toolbar>
+											{editorMode == "canvas" &&
+											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
+												hasCustomNodesAndRepository={true}
+												isEditingInModal={false} 
+												formNodesubject={formNodesubject} 
+												renderHtmlNode={renderHtmlNode}
+												flowrunnerConnector={flowrunnerConnector}
+												getNodeInstance={getNodeInstance}
+												flowHasNodes={flows.flow && flows.flow.length > 0}
+												flowId={flows.flowId}
+												flowType={flows.flowType}
+												flowState={flows.flowState}
+												saveFlow={flows.saveFlow}
+												hasTaskNameAsNodeTitle={true}
+												initialOpacity={0}
+												useFlowStore={useFlowStore}
+												useCanvasModeStateStore={useCanvasModeStateStore}
+												useSelectedNodeStore={useSelectedNodeStore}
+												externalId="AppCanvas"
+											></CanvasComponent>}
+											{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
+												<UserInterfaceViewEditor 
+												renderHtmlNode={renderHtmlNode}
+												flowrunnerConnector={flowrunnerConnector}
+												getNodeInstance={getNodeInstance} /></Suspense>}
+											<FooterToolbar></FooterToolbar>
+											
 										</ErrorBoundary>		
 									</Suspense>
 								</>
@@ -551,7 +551,9 @@ export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStor
 					const start = (isLoggednIn) => {
 						console.log("pluginRegistry", pluginRegistry);
 						// (ReactDOM as any).createRoot(
-						(ReactDOM as any).render(<App isLoggedIn={isLoggednIn}></App>, root);
+						(ReactDOM as any).render(<PositionProvider>
+							<App isLoggedIn={isLoggednIn}></App>
+						</PositionProvider>, root);
 					}
 
 					if (hasStorageProvider) {
