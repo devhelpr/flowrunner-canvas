@@ -395,8 +395,8 @@ export class TimerTask extends FlowTask {
         this.clearTimeout = undefined;
       }
 
-      if ( this.flow.isPaused() ) {
-        console.log("PAUSED");
+      if (this.flow.isPaused()) {
+        console.log('PAUSED');
         this.clearTimeout = setTimeout(this.timer, this.node.interval);
         return;
       }

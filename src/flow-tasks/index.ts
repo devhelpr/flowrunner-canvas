@@ -1,4 +1,4 @@
-import { FlowTask } from "@devhelpr/flowrunner";
+import { FlowTask } from '@devhelpr/flowrunner';
 import { ConditionalTriggerTask } from '../flowrunner-plugins/conditional-trigger-task';
 import { MatrixTask } from '../flowrunner-plugins/matrix-task';
 import { SliderTask } from '../flowrunner-plugins/slider-task';

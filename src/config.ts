@@ -449,18 +449,18 @@ const taskTypeConfig: any = {
       fields: [
         {
           fieldName: 'label',
-          label: 'Label'
+          label: 'Label',
         },
         {
           fieldName: 'hint',
           label: 'Hint',
-          fieldType: 'textarea'
+          fieldType: 'textarea',
         },
         {
           fieldName: 'iconBg',
-          label: 'Icon'
-        }
-      ]
+          label: 'Icon',
+        },
+      ],
     },
     layout: {
       strokeColor: '#d61bd8',
