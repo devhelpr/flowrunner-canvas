@@ -444,6 +444,24 @@ const taskTypeConfig: any = {
     hasClone: false,
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
+    hasConfigMenu: true,
+    configMenu: {
+      fields: [
+        {
+          fieldName: 'label',
+          label: 'Label'
+        },
+        {
+          fieldName: 'hint',
+          label: 'Hint',
+          fieldType: 'textarea'
+        },
+        {
+          fieldName: 'iconBg',
+          label: 'Icon'
+        }
+      ]
+    },
     layout: {
       strokeColor: '#d61bd8',
       fillColor: '#d550d7',
@@ -460,7 +478,8 @@ const taskTypeConfig: any = {
     },
     width: 200,
     height: 200,
-    iconBgCssClasses: 'tw-text-7xl tw-opacity-20 fas fa-project-diagram',
+    iconBgCssClasses: 'tw-text-7xl tw-opacity-20',
+    iconBg: 'fas fa-project-diagram',
     metaInfo: [],
     presetValues: {},
   },
@@ -568,6 +587,8 @@ const taskTypeConfig: any = {
   },
   TimerTask: {
     icon: 'fa-clock',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
     events: [
       {
         eventName: 'onTimer',

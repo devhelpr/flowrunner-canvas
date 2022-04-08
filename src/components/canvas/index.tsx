@@ -46,6 +46,9 @@ import { INodeDependency } from '../../interfaces/INodeDependency';
 
 import { usePositionContext } from '../contexts/position-context';
 
+import { setMultiSelectInfo } from '../../services/multi-select-service';
+import { AnnotationSection } from './annotations/annotation-section';
+
 const uuidV4 = uuid.v4;
 
 export interface CanvasProps {
@@ -1722,7 +1725,7 @@ export const Canvas = (props: CanvasProps) => {
 						 (event && !!event.shiftKey)
 						)
 					 ) {			
-						
+						console.log("START DRAGGING MULTIPLE NODES");
 						const width = getWidthForHtmlNode(node);
 						if (node.name,mouseStartX.current > (width/2)) {
 							interactionState.current = InteractionState.draggingNodesUpstream;
@@ -1923,6 +1926,9 @@ console.log("clearstate");
 	}
 
 	const connectConnectionToNode = (node, thumbPositionRelativeToNode?) => {
+
+console.log("connectConnectionToNode" , node);
+
 		let eventHelper : any = undefined;
 		if (connectionNodeEventName !== undefined &&
 			connectionNodeEventName.current !== "" && 
@@ -1947,7 +1953,10 @@ console.log("clearstate");
 		const connection = getNewConnection(touchNode.current, node, props.getNodeInstance, eventHelper,
 			connectionNodeThumbPositionRelativeToNode.current);
 		
-		
+		if (connection.startshapeid === connection.endshapeid) {
+			console.log("WARNING : DONT CONNECT FROM NODE to ITSELF!!!");
+			return false;
+		}
 
 		(connection as any).thumbPosition = connectionNodeThumbPositionRelativeToNode.current;
 
@@ -2080,7 +2089,7 @@ console.log("clearstate");
 	}
 
 	const onStageMouseEnd = (event) => {
-		
+		console.log("onStageMouseEnd");
 		if (interactionState.current === InteractionState.selectingNodes) {
 			interactionState.current = InteractionState.multiSelect;
 			const nodes = selectNodesForSelectRectangle(event);
@@ -2412,6 +2421,7 @@ console.log("clearstate");
 	const onStageTouchStart = (event) => {
 		isPinching.current = false;
 		if (event && event.evt && !!event.evt.shiftKey) {
+			console.log("onStageTouchStart with SHIFT");
 			cancelDragStage();
 			selectedNodes.current = [];
 			interactionState.current = InteractionState.selectingNodes;
@@ -2491,11 +2501,17 @@ console.log("clearstate");
 				(selectingRectRef.current as any).draw();
 
 				selectingRectInfo.current = {
-					x:mouseStartPointerX.current,
-					y:mouseStartPointerY.current,
+					x: mouseStartPointerX.current,
+					y: mouseStartPointerY.current,
 					width: width,
 					height: height
 				}
+				setMultiSelectInfo(
+					(mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor , 
+					(mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor , 
+					(width) / scaleFactor, 
+					(height) / scaleFactor
+				);
 				stageInstance.batchDraw();
 			}
 		}
@@ -2709,10 +2725,11 @@ console.log("clearstate");
 				if (interactionState.current === InteractionState.idle) {
 					return;
 				}
+
 				if (interactionState.current === InteractionState.selectingNodes) {
 					showSelectRectangle(event);
 					return;
-				}			
+				}
 
 				if (interactionState.current === InteractionState.multiSelect) {
 					handleMultiSelectCursor(event);
@@ -2879,8 +2896,9 @@ console.log("clearstate");
 					}
 					
 					if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 0) {
-
-						const touchPos = stageInstance.getPointerPosition();
+console.log("onStageTouchMove draggingMultipleNodes");
+						//const touchPos = stageInstance.getPointerPosition();
+						const touchPos = getCurrentPosition(event);
 						let offsetX = touchPos.x - mouseStartPointerX.current;
 						let offsetY = touchPos.y - mouseStartPointerY.current;
 						const scaleFactor = (stageInstance as any).scaleX();
@@ -2899,11 +2917,11 @@ console.log("clearstate");
 								if (draggingNode) {
 									setNewPositionForNode(event, draggingNode, shapeRefs.current[nodeName], 
 										event.evt && event.evt.screenX ? {
-											x: event.evt.screenX ,
-											y: event.evt.screenY 
+											x: event.evt.screenX - canvasTopLeftPositionRef.current.x,
+											y: event.evt.screenY - canvasTopLeftPositionRef.current.y
 										} : (event.screenX ? {
-											x: event.screenX ,
-											y: event.screenY 
+											x: event.screenX - canvasTopLeftPositionRef.current.x,
+											y: event.screenY - canvasTopLeftPositionRef.current.y
 										} : undefined), false, false, true, false, false, offsetPosition);
 								}
 							}
@@ -3459,6 +3477,12 @@ console.log("clearstate");
 
 	const onClickShape = (node, event) => {
 		console.log("onclickshape", node.name);
+		
+		if (interactionState.current == InteractionState.draggingNodesUpstream ||
+			interactionState.current == InteractionState.draggingNodesDownstream) {
+			console.log("onclickshape dragging nodes");
+			return;
+		}
 
 		event.cancelBubble = true;
 		if (event.evt) {
@@ -3476,7 +3500,7 @@ console.log("clearstate");
 		if ((!!canvasMode.isConnectingNodes || !!shiftDown.current) && 			
 			selectedNodeRef.current !== undefined &&
 			(selectedNodeRef.current as any).shapeType !== "Line") {
-
+console.log("getNewConnection in clickShape")
 			const connection = getNewConnection(selectedNodeRef.current, node, props.getNodeInstance,
 				connectionNodeThumbPositionRelativeToNode.current);			
 
@@ -3486,8 +3510,12 @@ console.log("clearstate");
 			if (connectionNodeFollowFlow.current == ThumbFollowFlow.unhappyFlow) {
 				(connection as any).followflow = "onfailure";
 			}
-			flowStore.addConnection(connection);
-			canvasMode.setConnectiongNodeCanvasMode(false);
+			if (connection.startshapeid !== connection.endshapeid) {					
+				flowStore.addConnection(connection);
+				canvasMode.setConnectiongNodeCanvasMode(false);
+			} else {
+				console.log("DONT CONNECT TO NODE ITSELF");
+			}
 		}
 
 		selectedNodeRef.current = node;
@@ -4028,6 +4056,11 @@ console.log("clearstate");
 					
 					clearConnectionState();
 			
+					if (connection.startshapeid === connection.endshapeid) {
+						console.log("connection to node itself 2");										
+						return;
+					}
+
 					positionContext.setPosition(connection.name, {
 						xstart: connection.xstart,
 						ystart: connection.ystart,
@@ -4664,6 +4697,11 @@ console.log("clearstate");
 										}
 										(connection as any).thumbPosition = nodeOrientationClosestNodeWhenAddingNewNode.current;	
 									}
+								}
+
+								if (connection.startshapeid === connection.endshapeid) {
+									console.log("connection to node itself 3");										
+									return;
 								}
 
 								positionContext.setPosition(connection.name, {
@@ -5444,6 +5482,22 @@ console.log("clearstate");
 									opacity={0}
 									ref={ref => ((selectingRectRef as any).current = ref)}
 								></Rect>
+
+								{flowMemo.map((node, index) => {
+									if (node.shapeType === "Section") {
+										return <AnnotationSection 
+											key={`section-${index}`}
+											ref={ref => (shapeRefs.current[node.name] = ref)}
+											x={node.x} 
+											y={node.y} 											
+											width={node.width} 
+											height={node.height}
+											name={node.name}
+											onClick={(event) => onClickShape(node, event)}								
+										></AnnotationSection>
+									}
+									return null;
+								})}
 								{connections.length > 0 && connections.map((node, index) => {
 
 									if (canvasHasSelectedNode &&  selectedNodeRef.current) {

@@ -30,6 +30,9 @@ import { ThumbPositionRelativeToNode } from '../canvas/shapes/shape-types';
 import { EditBundle } from '../edit-bundle';
 import { IModalSize } from '../../interfaces/IModalSize';
 
+import { getMultiSelectInfo } from '../../services/multi-select-service';
+
+
 const uuidV4 = uuid.v4;
 
 
@@ -516,6 +519,7 @@ export const Toolbar = (props: ToolbarProps) => {
 				let newNode = getNewNode({
 					name: newNodeId,
 					id: newNodeId,
+					label: "Bundled Flow",
 					taskType: "BundleFlowTask",
 					shapeType: "Circle",
 					x: bundledNodesInfo.center.x || bundledNodesInfo.flow[0].x || bundledNodesInfo.flow[0].xstart,
@@ -584,6 +588,37 @@ console.log("newNode", newNodeId, newNode);
 					props.canvasToolbarsubject.next("resetMultiSelect");
 				}
 			}
+		}
+		return false;
+	}
+
+	const createSection = (event) => {
+		event.preventDefault();
+		const info = getMultiSelectInfo();
+
+		const newNodeId = "section_"+uuidV4();
+		let newNode = getNewNode({
+			name: newNodeId,
+			id: newNodeId,
+			label: "Section",
+			taskType: "Annotation",		
+			shapeType: "Section",
+			isAnnotation: true,
+			x: info.x,
+			y: info.y,
+			width: info.width,
+			height: info.height,
+			nodes : [...canvasMode.selectedNodes]
+		}, flow.flow, true);
+		flow.addFlowNode(newNode);
+		
+		positionContext.setPosition(newNode.name, {
+			x: newNode.x,
+			y: newNode.y
+		});
+
+		if (props.canvasToolbarsubject) {
+			props.canvasToolbarsubject.next("resetMultiSelect");
 		}
 		return false;
 	}
@@ -855,6 +890,10 @@ console.log("newNode", newNodeId, newNode);
 								}
 								{canvasMode.isInMultiSelect && 
 									<a href="#" onClick={bundleNode} className="mx-2 btn btn-outline-light">Bundle nodes</a>
+								}
+
+								{canvasMode.isInMultiSelect && 
+									<a href="#" onClick={createSection} className="mx-2 btn btn-outline-light">Create section</a>
 								}
 
 								{!canvasMode.isInMultiSelect && 

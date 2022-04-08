@@ -38,6 +38,8 @@ export const  ShapeNodeHtmlPlugin = (props :  ShapeNodeHtmlPluginProps) => {
 		console.log("ShapeNodeHtmlPlugin", props);
 	}, []);
 
+	const { node } = props;
+
 	let style : any = {};
 	if (props.taskSettings && props.taskSettings.style) {
 		style = props.taskSettings.style;
@@ -51,9 +53,17 @@ export const  ShapeNodeHtmlPlugin = (props :  ShapeNodeHtmlPluginProps) => {
 		iconBgCssClasses = props.taskSettings.iconBgCssClasses;
 	}
 
+	if (props.node && props.node.iconBg) {
+		iconBgCssClasses += " " + props.node.iconBg;
+	} else 
+	if (props.taskSettings && props.taskSettings.iconBg) {
+		iconBgCssClasses += " " + props.taskSettings.iconBg;
+	}
+
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "transparent",
 			...style
-		}}>{iconBgCssClasses && <span className={`html-plugin-node__icon ${iconBgCssClasses}`}></span>}		
+		}}>{iconBgCssClasses && <span className={`html-plugin-node__icon ${iconBgCssClasses}`}></span>}
+		{node && node.hint && <span className="html-plugin-node__hint">{node.hint}</span>}		
 	</div>;	
 }

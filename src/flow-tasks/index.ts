@@ -1,3 +1,4 @@
+import { FlowTask } from "@devhelpr/flowrunner";
 import { ConditionalTriggerTask } from '../flowrunner-plugins/conditional-trigger-task';
 import { MatrixTask } from '../flowrunner-plugins/matrix-task';
 import { SliderTask } from '../flowrunner-plugins/slider-task';
@@ -36,6 +37,7 @@ import { ShapeNodeTask } from '../flowrunner-plugins/shape-node-task';
 import { BundleFlowTask } from '../flowrunner-plugins/bundle-flow-task';
 
 export const registerTasks = flow => {
+  flow.registerTask('Annotation', FlowTask);
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);
   flow.registerTask('WhileTask', WhileTask);

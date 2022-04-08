@@ -15,6 +15,11 @@ export const Flow = (props : IFlowProps) => {
 	useEffect(() => {
 		console.log("FLOW in flow component useEffect", performance.now());
 		if (internalFlow.length != props.flow.length) {
+			console.log("internalFlow.length != props.flow.length : setInternalFlow",
+				internalFlow.length , props.flow.length,
+				JSON.stringify(internalFlow),
+				JSON.stringify(props.flow)
+			);
 			setInternalFlow(props.flow);
 		} else {
 			let changed = false;

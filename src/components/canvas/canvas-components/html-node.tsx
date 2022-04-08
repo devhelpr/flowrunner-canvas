@@ -152,7 +152,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onClick={(event) => props.onClickShape(props.node, event)}			
 				>
 					<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}
-					<span>{!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.label ? props.node.label : props.node.name}</span></span>
+					<span>{!!props.hasTaskNameAsNodeTitle ? props.node.label || props.node.taskType : props.node.label ? props.node.label : props.node.name}</span></span>
 					{hasClone && <a href="#" onClick={(event) => props.onCloneNode(props.node, event)}
 						onFocus={props.onFocus}
 						className="canvas__html-shape-bar-icon far fa-clone"></a>}							

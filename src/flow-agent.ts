@@ -395,6 +395,12 @@ export class TimerTask extends FlowTask {
         this.clearTimeout = undefined;
       }
 
+      if ( this.flow.isPaused() ) {
+        console.log("PAUSED");
+        this.clearTimeout = setTimeout(this.timer, this.node.interval);
+        return;
+      }
+
       if (this.node.executeNode) {
         this.flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
           this.isExecuting = false;
@@ -431,7 +437,7 @@ export class TimerTask extends FlowTask {
     this.isExecuting = false;
     this.flow = services.workerContext.flow;
 
-    //console.log('timer execute', node);
+    console.log('timer execute', node);
     if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
@@ -828,13 +834,13 @@ const startFlow = (
     /*
     flow.registerTask('PreviewTask', PreviewTask);
     flow.registerTask('InputTask', InputTask);
-    flow.registerTask('TimerTask', TimerTask);
-    flow.registerTask('RandomTask', RandomTask);
     flow.registerTask('OutputValueTask', OutputValueTask);
     
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
     */
+    worker.flow.registerTask('RandomTask', RandomTask);
+    worker.flow.registerTask('TimerTask', TimerTask);
     worker.flow.registerTask('InputTask', InputTask);
     worker.flow.registerTask('ListTask', ListTask);
     worker.flow.registerTask('ApiProxyTask', ApiProxyTask);

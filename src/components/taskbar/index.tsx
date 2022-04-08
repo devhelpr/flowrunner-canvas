@@ -153,6 +153,7 @@ export const Taskbar = (props: TaskbarProps) => {
 	}, []);
 
 	useEffect(() => {
+		console.log("USEEFFECT taskbar : trigger loadTasks etc is done now");
 		loadTasks();
 		if (props.hasCustomNodesAndRepository) {
 			loadRepositoryItems();	
