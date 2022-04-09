@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas",
-  "version": "0.35.4",
+  "version": "0.36.1",
   "description": "Flow based programming ('nodes + wires') and UI designer which can run standalone or export flows in json format for external use",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
