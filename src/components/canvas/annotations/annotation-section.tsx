@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect, RefObject, useImperativeHandle , useRef, useMemo} from 'react';
+import { useImperativeHandle , useRef } from 'react';
 
-import useImage from 'use-image';
 import { Group, Text, Rect as KonvaRect, Image as KonvaImage, Line as KonvaLine } from 'react-konva';
-import { ShapeMeasures } from '../../../helpers/shape-measures';
-import { ShapeSettings } from '../../../helpers/shape-settings';
 import { ModifyShapeEnum, ShapeStateEnum } from '../shapes/shape-types';
 
 const getStrokeColor = (backgroundColorString, settings) => {
@@ -60,6 +57,18 @@ export interface IAnnotationSectionProps {
 	height: number;
 	name: string;
 	onClick : any;
+	onTouchStart: any;
+	onMouseStart: any;
+	onMouseMove: any;
+	onMouseEnd: any;
+	onMouseLeave: any;
+
+	onMouseOver: any;
+	onMouseOut: any;
+
+	onDragStart: any;
+	onDragMove: any;
+	onDragEnd: any;
 }
 
 export const AnnotationSection = React.forwardRef((props: IAnnotationSectionProps, ref : any) => {
@@ -144,6 +153,7 @@ export const AnnotationSection = React.forwardRef((props: IAnnotationSectionProp
 		x={props.x}
 		y={props.y}
 		stroke={strokeColor}
+		
 		hitStrokeWidth={0}			
 		strokeWidth={4}
 		listening={true}
@@ -151,7 +161,20 @@ export const AnnotationSection = React.forwardRef((props: IAnnotationSectionProp
 		width={props.width}
 		height={props.height}
 		onClick={props.onClick}
-		perfectDrawEnabled={false}>				
+		perfectDrawEnabled={false}
+		onMouseOver={props.onMouseOver}
+		onMouseOut={props.onMouseOut}
+		onTouchStart={props.onTouchStart}
+		onTouchEnd={props.onMouseEnd}
+		onTouchMove={props.onMouseMove}
+		onMouseDown={props.onMouseStart}
+		onMouseMove={props.onMouseMove}
+		onMouseEnd={props.onMouseEnd}
+		onMouseLeave={props.onMouseLeave}
+		onDragStart={props.onDragStart}
+		onDragMove={props.onDragMove}
+		onDragEnd={props.onDragEnd}
+		>				
 	</KonvaRect>;		
 });
 

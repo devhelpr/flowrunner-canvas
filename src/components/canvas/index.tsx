@@ -48,6 +48,7 @@ import { usePositionContext } from '../contexts/position-context';
 
 import { setMultiSelectInfo } from '../../services/multi-select-service';
 import { AnnotationSection } from './annotations/annotation-section';
+import { setPosition } from '../../services/position-service';
 
 const uuidV4 = uuid.v4;
 
@@ -143,6 +144,7 @@ export const Canvas = (props: CanvasProps) => {
 	let draggingMultipleNodes = useRef([] as any[]);
 	let selectedNodes = useRef([] as any[]);
 	let selectingRectInfo = useRef(undefined as any);
+	let selectingViaAnnotationRef = useRef(undefined as any);
 
 	let shapeRefs = useRef([] as any);
 	let elementRefs = useRef([] as any);
@@ -1638,7 +1640,10 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onMouseStart = (node, event) => {
-		if (interactionState.current === InteractionState.multiSelect) {
+
+		console.log("ONMOUSESTART", node.name);
+
+		if (interactionState.current === InteractionState.multiSelect) {			
 			cancelDragStage();
 			return false;
 		}
@@ -1656,9 +1661,7 @@ export const Canvas = (props: CanvasProps) => {
 		if (isPinching.current) {
 			cancelDragStage();
 			return;			
-		}
-
-		
+		}		
 
 		if (!event.evt) {
 			event.persist();
@@ -1678,11 +1681,19 @@ export const Canvas = (props: CanvasProps) => {
 		mouseDragging.current = false;
 		draggingMultipleNodes.current = [];
 
+		if (node.taskType === "Annotation" && node.shapeType === "Section") {
+			console.log("SELECT ANNOTATION");
+			shapeRefs.current[node.name].modifyShape(ModifyShapeEnum.SetState,{
+				state: ShapeStateEnum.Selected
+			})
+			selectedNodeRef.current = node;
+			selectNode(node.name, node);
+		}
+
 		if (event.currentTarget) {
 			
 			document.body.classList.add("mouse--moving");
-			if (node && node.shapeType === "Line") {	
-				
+			if (node && node.shapeType === "Line") {					
 				return;
 			} else {
 				let stageInstance = (stage.current as any).getStage();
@@ -1884,10 +1895,35 @@ export const Canvas = (props: CanvasProps) => {
 			return false;
 		}
 
-		if (touching.current) {
+		if (touching.current && interactionState.current === InteractionState.idle) {
 			mouseDragging.current = true;
 			document.body.classList.add("mouse--moving");
 			interactionState.current = InteractionState.draggingNode;
+
+			if (node.shapeType === "Section" &&
+				node.taskType === "Annotation") {
+
+				//selectingRectRef.current = shapeRefs.current[node.name];
+				const position = positionContext.getPosition(node.name);
+
+				console.log("Set draggingSection nodes",
+					position, node, node.nodes
+				);
+
+				selectingViaAnnotationRef.current = {
+					ref: shapeRefs.current[node.name],
+					nodeName : node.name,
+					x: position?.x ?? node.x,
+					y: position?.y ?? node.y
+				};
+
+				interactionState.current = InteractionState.draggingSection;
+				selectedNodes.current = [...node.nodes];
+				touching.current = true;
+				mouseDragging.current = false;
+				draggingMultipleNodes.current = [...node.nodes];
+				//canvasMode.setIsInMultiSelect(true, [...node.nodes]);
+			}
 			return;
 		}
 		return;
@@ -1923,6 +1959,8 @@ console.log("clearstate");
 
 		document.body.classList.remove("connecting-nodes");
 		mouseDragging.current = false;
+
+		selectingViaAnnotationRef.current = undefined;
 	}
 
 	const connectConnectionToNode = (node, thumbPositionRelativeToNode?) => {
@@ -2088,6 +2126,144 @@ console.log("connectConnectionToNode" , node);
 		}
 	}
 
+	const removeOrAddNodeToSections = useCallback((node : any) => {
+		if (stage && stage.current) {
+			let stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				let nodeWidth : number = 0;
+				let nodeHeight : number = 0;
+				const taskSettings = FlowToCanvas.getTaskSettings(node.taskType);
+
+				let shapeType = FlowToCanvas.getShapeTypeUsingSettings(node.shapeType, node.taskType, node.isStartEnd, taskSettings);
+
+				let positionNode = positionContext.getPosition(node.name) || {x:node.x,y:node.y};
+				if (!positionNode) {
+					positionNode = {
+						x: node.x,
+						y: node.y
+					}
+				}
+
+				positionNode.x = positionNode?.x ?? node.x;
+				positionNode.y = positionNode?.y ?? node.y; 
+
+				if (shapeType === "Html") {
+												
+					if (props.getNodeInstance) {
+						const instance = props.getNodeInstance(node, props.flowrunnerConnector, flowStore.flow, taskSettings);
+						if (instance) {
+							if (instance.getWidth && instance.getHeight) {
+								nodeWidth = instance.getWidth(node);
+								nodeHeight = instance.getHeight(node);
+							}
+						}
+					}
+
+					let element = document.querySelector("#" + node.name + " .html-plugin-node");
+					if (element) {
+
+						const elementHeight = element.clientHeight;
+						nodeHeight = elementHeight;
+
+						const elementWidth = element.clientWidth;
+						nodeWidth = elementWidth;
+					}
+
+					nodeWidth = (nodeWidth || node.width || 250);
+					nodeHeight = (nodeHeight || node.height || 250);
+				} else {
+					nodeWidth = 100;
+					nodeHeight = 50;
+
+					if (shapeType === 'Circle') {
+						nodeWidth = ShapeMeasures.circleSize;
+						nodeHeight = ShapeMeasures.circleSize;
+					} else 
+					if (shapeType === 'Diamond') {
+						nodeWidth = ShapeMeasures.diamondSize;
+						nodeHeight = ShapeMeasures.diamondSize;
+					} else {
+						nodeWidth = ShapeMeasures.rectWidht 
+						nodeHeight = ShapeMeasures.rectHeight;
+					}
+				}
+			
+				flowStore.flow.map(flowNode => {
+					if (flowNode.taskType === "Annotation" && flowNode.shapeType === "Section") {
+						let position = {
+							x: 0,
+							y: 0
+						}
+						let positionHelper = positionContext.getPosition(flowNode.name);												
+
+						position.x = positionHelper?.x ?? (flowNode?.x ?? 0);
+						position.y = positionHelper?.y ?? (flowNode?.y ?? 0);
+
+						const isNodeInNodeList = (flowNode.nodes.indexOf(node.name) >= 0);
+					
+						const isNodeInSectionRect = (
+							position.x <= positionNode.x && 
+							position.y <= positionNode.y && 
+							(positionNode.x + nodeWidth < position.x + flowNode.width) && 
+							(positionNode.y + nodeHeight < position.y + flowNode.height)
+						);
+
+						console.log("removeOrAddNodeToSections" , isNodeInNodeList , isNodeInSectionRect);
+
+						if (isNodeInNodeList && !isNodeInSectionRect) {
+							const nodes = flowNode.nodes.filter(nodeName => nodeName !== node.name);
+							flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
+						} else 
+						if (!isNodeInNodeList && isNodeInSectionRect) {
+							const nodes = flowNode.nodes.concat(node.name);
+							flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
+						}
+					}
+				});
+			
+									
+				const touchPos = getCurrentPosition(event);
+				let width = touchPos.x - mouseStartPointerX.current;
+				let height = touchPos.y - mouseStartPointerY.current;
+				const scaleFactor = (stageInstance as any).scaleX();
+
+				
+				let x = (mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor;
+				let y = (mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor;
+				let scaledWidth = width / scaleFactor;
+				let scaledHeight = height / scaleFactor;
+				let nodesInBoundary : any = [];
+				flowStore.flow.map((node, index) => {
+					if (node.shapeType !== "Line") {
+						
+
+						/*if  {
+							nodesInBoundary.push(node.name);
+
+							if (shapeType === "Html") {
+															
+								let element = document.querySelector("#" + node.name);
+								if (element) {
+									element.classList.add("selected");
+								}
+							}
+						} else {
+							if (shapeType === "Html") {
+															
+								let element = document.querySelector("#" + node.name);
+								if (element) {
+									element.classList.remove("selected");
+								}
+							}
+						}
+						*/
+					}
+				});
+	
+			}
+		}
+	} , [flowStore.flow]);
+
 	const onStageMouseEnd = (event) => {
 		console.log("onStageMouseEnd");
 		if (interactionState.current === InteractionState.selectingNodes) {
@@ -2096,8 +2272,8 @@ console.log("connectConnectionToNode" , node);
 			canvasMode.setIsInMultiSelect(true, nodes);
 			return;
 		}
-		
 		if (interactionState.current === InteractionState.idle) {
+			touching.current = false;
 			return;
 		}
 
@@ -2106,7 +2282,6 @@ console.log("connectConnectionToNode" , node);
 			return;			
 		}
 		let haveMouseEventFallThrough = false;
-
 		if ((interactionState.current == InteractionState.multiSelect && touching.current) ||
 			touching.current || isConnectingNodesByDraggingLocal.current) {
 			
@@ -2196,6 +2371,14 @@ console.log("connectConnectionToNode" , node);
 							
 							setNewPositionForNode(event, touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
 							
+							if ((touchNode.current as any).shapeType !== "Line" && 
+								(touchNode.current as any).shapeType !== "Annotation" &&
+								interactionState.current === InteractionState.draggingNode) {
+
+								removeOrAddNodeToSections(touchNode.current);
+								console.log("onstagemouseend singlenode" , interactionState.current);
+							}
+
 							if (closestNodeAreLineNodes.current) {
 								connectNodeToExistingLines(touchNode.current);
 							}							
@@ -2276,6 +2459,10 @@ console.log("connectConnectionToNode" , node);
 						haveMouseEventFallThrough = true;
 					}
 				}
+
+				if (interactionState.current === InteractionState.draggingSection) {
+					updateSelectRectangle(event);
+				}
 				
 				if (!haveMouseEventFallThrough) {
 					cancelDragStage();
@@ -2309,13 +2496,18 @@ console.log("connectConnectionToNode" , node);
 				document.body.classList.remove("connecting-nodes");
 				document.body.classList.remove("mouse--moving");
 				(document.body.style.cursor as any) = null;
-
+console.log("onstagemouseend in reset", interactionState.current, selectingViaAnnotationRef.current);
 				if (interactionState.current !== InteractionState.multiSelect) {
+					
 					interactionState.current = InteractionState.idle;
+
+					
 				} else {
 					handleMultiSelectCursor(event);
 					updateSelectRectangle(event);					
 				}				
+
+				selectingViaAnnotationRef.current = undefined;
 
 				const lineRef = shapeRefs.current[connectionForDraggingName];
 				if (lineRef) {
@@ -2493,26 +2685,31 @@ console.log("connectConnectionToNode" , node);
 				let height = touchPos.y - mouseStartPointerY.current;
 				const scaleFactor = (stageInstance as any).scaleX();
 
-				(selectingRectRef.current as any).opacity(1);
-				(selectingRectRef.current as any).x((mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor);
-				(selectingRectRef.current as any).y((mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor);
-				(selectingRectRef.current as any).width((width) / scaleFactor);
-				(selectingRectRef.current as any).height((height) / scaleFactor);
-				(selectingRectRef.current as any).draw();
+				if (selectingViaAnnotationRef.current) {
+					
+				} else {
+					(selectingRectRef.current as any).opacity(1);
+					(selectingRectRef.current as any).x((mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor);
+					(selectingRectRef.current as any).y((mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor);
+					(selectingRectRef.current as any).width((width) / scaleFactor);
+					(selectingRectRef.current as any).height((height) / scaleFactor);
+					(selectingRectRef.current as any).draw();
 
-				selectingRectInfo.current = {
-					x: mouseStartPointerX.current,
-					y: mouseStartPointerY.current,
-					width: width,
-					height: height
+					selectingRectInfo.current = {
+						x: mouseStartPointerX.current,
+						y: mouseStartPointerY.current,
+						width: width,
+						height: height
+					}
+					setMultiSelectInfo(
+						(mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor , 
+						(mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor , 
+						(width) / scaleFactor, 
+						(height) / scaleFactor
+					);
+					stageInstance.batchDraw();
+
 				}
-				setMultiSelectInfo(
-					(mouseStartPointerX.current  - (stageInstance).x()) / scaleFactor , 
-					(mouseStartPointerY.current  - (stageInstance).y()) / scaleFactor , 
-					(width) / scaleFactor, 
-					(height) / scaleFactor
-				);
-				stageInstance.batchDraw();
 			}
 		}
 	}
@@ -2638,33 +2835,55 @@ console.log("connectConnectionToNode" , node);
 	
 	const moveSelectRectangle = (event) => {
 		// selectingRectInfo
-		if (stage && stage.current && selectingRectInfo.current) {
+		if (stage && stage.current && (
+			selectingRectInfo.current || selectingViaAnnotationRef.current)) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				const touchPos = stageInstance.getPointerPosition();
+				const touchPos = getCurrentPosition(event);
 				let offsetX = touchPos.x - mouseStartPointerX.current;
 				let offsetY = touchPos.y - mouseStartPointerY.current;
 				const scaleFactor = (stageInstance as any).scaleX();
 
-				let offsetPosition = {
-					x: 0,
-					y: 0
-				};
-				offsetPosition.x = ((offsetX ) / scaleFactor);
-				offsetPosition.y = ((offsetY ) / scaleFactor);
+				if (selectingViaAnnotationRef.current) {
+					console.log("moveSelectRectangle : selectingViaAnnotationRef.current", selectingViaAnnotationRef.current , 
+						((offsetX - (stageInstance).x()) / scaleFactor)	,
+						((offsetY - (stageInstance).y()) / scaleFactor));
+					
+					const offsetPosition = {
+						x: 0,
+						y: 0
+					};
+					offsetPosition.x = ((offsetX ) / scaleFactor);
+					offsetPosition.y = ((offsetY ) / scaleFactor);
 
-				(selectingRectRef.current as any).x((selectingRectInfo.current.x + offsetX  - (stageInstance).x()) / scaleFactor);
-				(selectingRectRef.current as any).y((selectingRectInfo.current.y + offsetY - (stageInstance).y()) / scaleFactor);
+					selectingViaAnnotationRef.current.ref.modifyShape(
+						ModifyShapeEnum.SetXY,
+						{
+							x: selectingViaAnnotationRef.current.x + offsetPosition.x ,
+							y: selectingViaAnnotationRef.current.y + offsetPosition.y
+						}
+					);
+					positionContext.setPosition(selectingViaAnnotationRef.current.nodeName, {
+						x: selectingViaAnnotationRef.current.x + offsetPosition.x,
+						y: selectingViaAnnotationRef.current.y + offsetPosition.y
+					});
 
+					stageInstance.batchDraw();
+				} else {
+					(selectingRectRef.current as any).x((selectingRectInfo.current.x + offsetX - (stageInstance).x()) / scaleFactor);
+					(selectingRectRef.current as any).y((selectingRectInfo.current.y + offsetY - (stageInstance).y()) / scaleFactor);
+				}
 			}
 		}
 	}
 
 	const updateSelectRectangle = (event) => {
-		if (stage && stage.current && selectingRectInfo.current) {
+		if (stage && stage.current && 
+			(selectingRectInfo.current || selectingViaAnnotationRef.current)) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
-				const touchPos = stageInstance.getPointerPosition();
+
+				const touchPos = getCurrentPosition(event);
 				let offsetX = touchPos.x - mouseStartPointerX.current;
 				let offsetY = touchPos.y - mouseStartPointerY.current;
 				const scaleFactor = (stageInstance as any).scaleX();
@@ -2675,6 +2894,28 @@ console.log("connectConnectionToNode" , node);
 				};
 				offsetPosition.x = ((offsetX ) / scaleFactor);
 				offsetPosition.y = ((offsetY ) / scaleFactor);
+
+
+				if (selectingViaAnnotationRef.current) {
+					console.log("updateSelectRectangle : selectingViaAnnotationRef.current", 
+						selectingViaAnnotationRef.current, offsetPosition, "->",
+						selectingViaAnnotationRef.current.x + offsetPosition.x,
+						selectingViaAnnotationRef.current.y + offsetPosition.y);
+
+					selectingViaAnnotationRef.current.ref.modifyShape(
+						ModifyShapeEnum.SetXY,
+						{
+							x: selectingViaAnnotationRef.current.x + offsetPosition.x,
+							y: selectingViaAnnotationRef.current.y + offsetPosition.y 
+						}
+					);
+
+					positionContext.setPosition(selectingViaAnnotationRef.current.nodeName, {
+						x: selectingViaAnnotationRef.current.x + offsetPosition.x,
+						y: selectingViaAnnotationRef.current.y + offsetPosition.y
+					});
+					return;
+				}
 
 				(selectingRectRef.current as any).x((selectingRectInfo.current.x + offsetX  - (stageInstance).x()) / scaleFactor);
 				(selectingRectRef.current as any).y((selectingRectInfo.current.y + offsetY - (stageInstance).y()) / scaleFactor);
@@ -2840,12 +3081,20 @@ console.log("connectConnectionToNode" , node);
 					return false;
 				}
 				
-				if ((interactionState.current === InteractionState.multiSelect && touching.current) || (
-					touchNode.current && touchNodeGroup.current && !isPinching.current
+				if ((interactionState.current === InteractionState.multiSelect && touching.current) ||
+					(interactionState.current === InteractionState.draggingSection && touching.current)  ||
+				    (
+						touchNode.current && touchNodeGroup.current && !isPinching.current
 					))  {			
 					
-					if (interactionState.current === InteractionState.multiSelect) {
+						
+
+					if (interactionState.current === InteractionState.multiSelect ||
+						interactionState.current === InteractionState.draggingSection) {
+
+						console.log("stagemousemove", interactionState.current);
 						moveSelectRectangle(event);
+						stageInstance.batchDraw();
 					}	
 
 					document.body.classList.add("mouse--moving");
@@ -3476,7 +3725,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 	}
 
 	const onClickShape = (node, event) => {
-		console.log("onclickshape", node.name);
+		console.log("onclickshape", node);
 		
 		if (interactionState.current == InteractionState.draggingNodesUpstream ||
 			interactionState.current == InteractionState.draggingNodesDownstream) {
@@ -3520,10 +3769,11 @@ console.log("getNewConnection in clickShape")
 
 		selectedNodeRef.current = node;
 		selectNode(node.name, node);
-
+	
 		if (canvasMode.isConnectingNodes) {
 			canvasMode.setConnectiongNodeCanvasMode(false);
-		}
+		}		
+
 		return false;		
 	}
 
@@ -5493,7 +5743,18 @@ console.log("getNewConnection in clickShape")
 											width={node.width} 
 											height={node.height}
 											name={node.name}
-											onClick={(event) => onClickShape(node, event)}								
+											onClick={(event) => onClickShape(node, event)}
+											onMouseStart={(event) => onMouseStart(node, event)}
+											onMouseOver={(event) => onMouseOver(node, event)}
+											onMouseOut={(event) => onMouseOut()}
+											onTouchStart={(event) => onTouchStart(node, event)}
+											onMouseEnd={(event) => onMouseEnd(node, event)}
+											onMouseMove={(event) => onMouseMove(node, event)}
+											onMouseLeave={(event) => onMouseLeave(node, event)}	
+											
+											onDragStart={(event) => onDragStart(node, event)}
+											onDragEnd={(event) => onDragEnd(node, event)}
+											onDragMove={(event) => onDragMove(node, event)}
 										></AnnotationSection>
 									}
 									return null;
