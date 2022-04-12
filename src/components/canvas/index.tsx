@@ -2372,7 +2372,8 @@ console.log("connectConnectionToNode" , node);
 							setNewPositionForNode(event, touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
 							
 							if ((touchNode.current as any).shapeType !== "Line" && 
-								(touchNode.current as any).shapeType !== "Annotation" &&
+								(touchNode.current as any).taskType !== "Annotation" &&
+								(touchNode.current as any).shapeType !== "Secion" &&
 								interactionState.current === InteractionState.draggingNode) {
 
 								removeOrAddNodeToSections(touchNode.current);
@@ -5091,7 +5092,7 @@ console.log("getNewConnection in clickShape")
 
 							if (isConnectingToExistingNode && existingNode && node.endshapeid === existingNode.name) {
 								return;
-							}
+							}							
 							let nodePosition = positionContext.getPosition(node.name);
 							if (!nodePosition) {
 								nodePosition = {
@@ -5170,6 +5171,14 @@ console.log("getNewConnection in clickShape")
 							if (node.name === existingNode.name) {
 								return;
 							}
+						}
+
+						if (node.taskType === "Annotation") {
+							return;
+						}
+
+						if (node.shapeType === "Section") {
+							return;
 						}
 
 						const nodePosition = positionContext.getPosition(node.name);
