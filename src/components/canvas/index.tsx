@@ -2399,10 +2399,11 @@ console.log("connectConnectionToNode" , node);
 							}
 							
 							setNewPositionForNode(event, touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
-							if (touchNode.current) {
-								flowStore.storeFlowNode(touchNode.current, touchNode.current.name, positionContext.context);
-							}
 							
+							if (touchNode.current && (touchNode.current as any).name) {
+								flowStore.storeFlowNode(touchNode.current, (touchNode.current as any).name, positionContext.context);
+							}
+
 							if ((touchNode.current as any).shapeType !== "Line" && 
 								(touchNode.current as any).taskType !== "Annotation" &&
 								(touchNode.current as any).shapeType !== "Secion" &&
