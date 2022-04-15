@@ -2126,6 +2126,19 @@ console.log("connectConnectionToNode" , node);
 		}
 	}
 
+	const storeNodeAndUpdate = useCallback((node, nodeName) => {
+		console.log("storeNodeAndUpdate call", nodeName, node);
+		const unsubscribe = (props.useFlowStore as any).subscribe(state => {
+			console.log("storeNodeAndUpdate listener", nodeName, state)
+			if (props.flowrunnerConnector.hasStorageProvider) {
+				props.saveFlow();
+			}
+		});
+		flowStore.storeFlowNode(node, nodeName);
+		unsubscribe();
+		
+	}, [flowStore.flow]);
+
 	const removeOrAddNodeToSections = useCallback((node : any) => {
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -2212,17 +2225,20 @@ console.log("connectConnectionToNode" , node);
 
 						if (isNodeInNodeList && !isNodeInSectionRect) {
 							const nodes = flowNode.nodes.filter(nodeName => nodeName !== node.name);
-							flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
+							/*flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
 							if (props.flowrunnerConnector.hasStorageProvider) {
 								props.saveFlow();
-							}
+							}*/
+							storeNodeAndUpdate({...flowNode, nodes}, flowNode.name);
 						} else 
 						if (!isNodeInNodeList && isNodeInSectionRect) {
 							const nodes = flowNode.nodes.concat(node.name);
-							flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
+							/*flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
 							if (props.flowrunnerConnector.hasStorageProvider) {
 								props.saveFlow();
-							}
+							}*/
+
+							storeNodeAndUpdate({...flowNode, nodes}, flowNode.name);
 						}
 					}
 				});
