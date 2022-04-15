@@ -2478,7 +2478,12 @@ console.log("connectConnectionToNode" , node);
 					if (interactionState.current !== InteractionState.multiSelect) {
 						clearConnectionState();
 					}
-				}					
+				}		
+				
+				
+				if (props.flowrunnerConnector.hasStorageProvider) {
+					props.saveFlow();
+				}
 
 				dragTime.current = undefined;
 				touching.current = false;
