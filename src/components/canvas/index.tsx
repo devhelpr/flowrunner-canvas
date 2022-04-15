@@ -2131,7 +2131,7 @@ console.log("connectConnectionToNode" , node);
 		const unsubscribe = (props.useFlowStore as any).subscribe(state => {
 			console.log("storeNodeAndUpdate listener", nodeName, state)
 			if (props.flowrunnerConnector.hasStorageProvider) {
-				props.saveFlow();
+				props.saveFlow(false, state.flow);
 			}
 		});
 		flowStore.storeFlowNode(node, nodeName);
