@@ -2117,12 +2117,14 @@ console.log("connectConnectionToNode" , node);
 		if (closestEndNodeWhenAddingNewNode.current) {
 			const closestEndConnectionNode = closestEndNodeWhenAddingNewNode.current as any;
 			closestEndConnectionNode.startshapeid = node.name;
-			flowStore.storeFlowNode(closestEndConnectionNode,closestEndConnectionNode.name);
+			flowStore.storeFlowNode(closestEndConnectionNode,closestEndConnectionNode.name, 
+				positionContext.context);
 		}
 		if (closestStartNodeWhenAddingNewNode.current) {
 			const closestStartConnectionNode = closestStartNodeWhenAddingNewNode.current as any;
 			closestStartConnectionNode.endshapeid = node.name;
-			flowStore.storeFlowNode(closestStartConnectionNode,closestStartConnectionNode.name);
+			flowStore.storeFlowNode(closestStartConnectionNode,closestStartConnectionNode.name,
+				positionContext.context);
 		}
 	}
 
@@ -2134,10 +2136,10 @@ console.log("connectConnectionToNode" , node);
 				props.saveFlow(false, state.flow);
 			}
 		});
-		flowStore.storeFlowNode(node, nodeName);
+		flowStore.storeFlowNode(node, nodeName, positionContext.context);
 		unsubscribe();
 		
-	}, [flowStore.flow]);
+	}, [flowStore.flow, positionContext]);
 
 	const removeOrAddNodeToSections = useCallback((node : any) => {
 		if (stage && stage.current) {
@@ -2397,6 +2399,9 @@ console.log("connectConnectionToNode" , node);
 							}
 							
 							setNewPositionForNode(event, touchNode.current as any, shapeRefs.current[(touchNode.current as any).name], undefined, true, false, true);
+							if (touchNode.current) {
+								flowStore.storeFlowNode(touchNode.current, touchNode.current.name, positionContext.context);
+							}
 							
 							if ((touchNode.current as any).shapeType !== "Line" && 
 								(touchNode.current as any).taskType !== "Annotation" &&
@@ -2445,7 +2450,7 @@ console.log("connectConnectionToNode" , node);
 						connectionNodeThumbsLineNode.current = endpoints;
 
 						props.flowrunnerConnector.forcePushToFlowRunner = true;
-						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);	
+						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name, positionContext.context);
 
 					} else 
 					if (connectionNodeThumbs.current === "thumbend") {
@@ -2481,7 +2486,7 @@ console.log("connectConnectionToNode" , node);
 						connectionNodeThumbsLineNode.current = endpoints;
 
 						props.flowrunnerConnector.forcePushToFlowRunner = true;
-						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name);
+						flowStore.storeFlowNode(connectionNodeThumbsLineNode.current, connectionNodeThumbsLineNode.current.name, positionContext.context);
 						const nodeName = connectionNodeThumbsLineNode.current.startshapeid;						
 					} else {
 						haveMouseEventFallThrough = true;
@@ -4952,12 +4957,12 @@ console.log("getNewConnection in clickShape")
 							if (closestEndNodeWhenAddingNewNode.current) {
 								const closestEndConnectionNode = closestEndNodeWhenAddingNewNode.current as any;
 								closestEndConnectionNode.startshapeid = newNode.name;
-								flowStore.storeFlowNode(closestEndConnectionNode,closestEndConnectionNode.name);
+								flowStore.storeFlowNode(closestEndConnectionNode,closestEndConnectionNode.name, positionContext.context);
 							}
 							if (closestStartNodeWhenAddingNewNode.current) {
 								const closestStartConnectionNode = closestStartNodeWhenAddingNewNode.current as any;
 								closestStartConnectionNode.endshapeid = newNode.name;
-								flowStore.storeFlowNode(closestStartConnectionNode,closestStartConnectionNode.name);
+								flowStore.storeFlowNode(closestStartConnectionNode,closestStartConnectionNode.name, positionContext.context);
 							}
 						} else {
 							let closestNode = closestNodeWhenAddingNewNode.current as any;
@@ -5638,7 +5643,7 @@ console.log("getNewConnection in clickShape")
 	}
 
 	const onStoreFlowNode = (node : any , orgNodeName : string) => {
-		flowStore.storeFlowNode(node, orgNodeName);
+		flowStore.storeFlowNode(node, orgNodeName, positionContext.context);
 	}
 
 	const handleDragStart = (event) => {

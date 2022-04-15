@@ -28,7 +28,7 @@ export const PositionContext = createContext<IPositionContext>({
 
 export const usePositionContext = () => {
 	const positionContext = useContext(PositionContext);
-	
+
 	const clearPositions = () => {
 		positionContext.positions = new Map();
 	};
@@ -62,7 +62,8 @@ export const usePositionContext = () => {
 		setPosition,
 		getPosition,
 		setCommittedPosition,
-		getCommittedPosition 
+		getCommittedPosition,
+		context : positionContext
 	};
 }
 

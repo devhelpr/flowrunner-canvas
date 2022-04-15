@@ -280,7 +280,7 @@ export const Toolbar = (props: ToolbarProps) => {
 				...selectedNode.node.node,
 				"followflow": "onfailure"
 			},
-			selectedNode.node.name);
+			selectedNode.node.name, positionContext.context);
 		return false;
 	}
 
@@ -291,7 +291,8 @@ export const Toolbar = (props: ToolbarProps) => {
 				...selectedNode.node.node,
 				"followflow": "onsuccess"
 			},
-			selectedNode.node.name);		
+			selectedNode.node.name,
+			positionContext.context);		
 		return false;
 	}
 
@@ -582,7 +583,7 @@ console.log("newNode", newNodeId, newNode);
 						storeNodes.push(outputConnection);
 					});
 				}
-				flow.storeFlowNodes(storeNodes);
+				flow.storeFlowNodes(storeNodes, positionContext.context);
 
 				if (props.canvasToolbarsubject) {
 					props.canvasToolbarsubject.next("resetMultiSelect");

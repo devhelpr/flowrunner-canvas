@@ -66,7 +66,7 @@ export const EditBundle = (props: EditBundleProps) => {
 				id: orgNodeName,
 				flow: JSON.stringify(flow.flow)
 			};
-			orgFlow.storeFlowNode(node, orgNodeName);
+			orgFlow.storeFlowNode(node, orgNodeName, positionContext.context);
 
 			props.flowrunnerConnector?.modifyFlowNode(
 				orgNodeName, 
@@ -180,7 +180,7 @@ export const EditBundle = (props: EditBundleProps) => {
 				flow: JSON.stringify(flowAndUpdatedPositions)
 			};
 			//props.flowrunnerConnector.forcePushToFlowRunner = true;
-			orgFlow.storeFlowNode(node, orgNodeName);
+			orgFlow.storeFlowNode(node, orgNodeName, positionContext.context);
 			props.flowrunnerConnector?.modifyFlowNode(
 				orgNodeName, 
 				"flow", 

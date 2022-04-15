@@ -1,8 +1,9 @@
 import { ShapeMeasures } from './shape-measures';
 import { getTaskConfigForTask } from '../config';
 import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-types';
+import { IPositionContext } from '../components/contexts/position-context';
 export class FlowToCanvas {
-  static convertFlowPackageToCanvasFlow(flow) {
+  static convertFlowPackageToCanvasFlow(flow, positionContext?: IPositionContext) {
     if (flow === undefined) {
       return [];
     }

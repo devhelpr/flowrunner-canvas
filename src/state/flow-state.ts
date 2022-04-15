@@ -4,17 +4,18 @@ import { FlowToCanvas } from '../helpers/flow-to-canvas';
 import produce from 'immer';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 import { FlowStorageProviderService } from '../services/FlowStorageProviderService';
+import { IPosition, IPositionContext } from '../components/contexts/position-context';
 
 export interface IFlowState extends State {
   flow: any[];
   flowId: string;
   flowHashmap: any;
-  storeFlow: (flow: any[], flowId: string) => void;
-  storeFlowNode: (node: any, orgNodeName: string) => void;
-  storeFlowNodes: (node: any) => void;
-  addFlowNode: (node: any) => void;
-  addFlowNodes: (nodes: any[]) => void;
-  addConnection: (connection: any) => void;
+  storeFlow: (flow: any[], flowId: string, positionContext?: IPositionContext) => void;
+  storeFlowNode: (node: any, orgNodeName: string, positionContext?: IPositionContext) => void;
+  storeFlowNodes: (node: any, positionContext?: IPositionContext) => void;
+  addFlowNode: (node: any, positionContext?: IPositionContext) => void;
+  addFlowNodes: (nodes: any[], positionContext?: IPositionContext) => void;
+  addConnection: (connection: any, positionContext?: IPositionContext) => void;
   deleteConnection: (node: any) => void;
   deleteNode: (node: any, deleteLines: boolean) => void;
   deleteNodes: (nodes: any[]) => void;
@@ -39,7 +40,7 @@ const handleStorageProvider = config => (set, get, api) =>
 
       if (storageProvider) {
         let flowState = get();
-        console.log('PRE SAVEFLOW in handleStorageProvider');
+        console.log('PRE SAVEFLOW in handleStorageProvider', flowState.flow);
         storageProvider.saveFlow(flowState.flowId, flowState.flow);
       }
     },
@@ -62,32 +63,39 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
     flow: [],
     flowId: '',
     flowHashmap: new Map(),
-    storeFlow: (flow: any[], flowId: string) =>
+    storeFlow: (flow: any[], flowId: string, positionContext?: IPositionContext) =>
       set(state => {
         return {
           flowId: flowId,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
-          flow: FlowToCanvas.convertFlowPackageToCanvasFlow(flow),
+          flow: FlowToCanvas.convertFlowPackageToCanvasFlow(flow, positionContext),
         };
       }),
-    storeFlowNode: (node: any, orgNodeName: string) =>
+    storeFlowNode: (node: any, orgNodeName: string, positionContext?: IPositionContext) =>
       set(state => {
+        let position : IPosition | undefined = undefined;
+        if (positionContext) {
+          position = positionContext.positions.get(orgNodeName);
+        }
+        console.log('storeFlowNode', orgNodeName, position);
         let flow = state.flow.map((currentNode, index) => {
           if (currentNode.name === orgNodeName) {
             const newNode = Object.assign({}, node, {
               name: node.name,
               id: node.name,
-            });
+            }, position);
             return newNode;
-          } else if (currentNode.startshapeid === orgNodeName && node.shapeType !== 'Line') {
+          } else 
+          if (currentNode.startshapeid === orgNodeName && node.shapeType !== 'Line') {
             const newNode = Object.assign({}, currentNode, {
               startshapeid: node.name,
-            });
+            }, position);
             return newNode;
-          } else if (currentNode.endshapeid === orgNodeName && node.shapeType !== 'Line') {
+          } else 
+          if (currentNode.endshapeid === orgNodeName && node.shapeType !== 'Line') {
             const newNode = Object.assign({}, currentNode, {
               endshapeid: node.name,
-            });
+            }, position);
             return newNode;
           }
           return currentNode;
@@ -98,26 +106,32 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
         };
       }),
-    storeFlowNodes: (nodes: any[]) =>
+    storeFlowNodes: (nodes: any[], positionContext?: IPositionContext) =>
       set(state => {
         let flow = state.flow.map((currentNode, index) => {
           let _storeNode = currentNode;
           nodes.forEach(node => {
+
+            let position : IPosition | undefined = undefined;
+            if (positionContext) {
+              position = positionContext.positions.get(node.name);
+            }
+
             if (currentNode.name === node.name) {
               const newNode = Object.assign({}, node, {
                 name: node.name,
                 id: node.name,
-              });
+              }, position);
               _storeNode = newNode;
             } else if (currentNode.startshapeid === node.name && node.shapeType !== 'Line') {
               const newNode = Object.assign({}, currentNode, {
                 startshapeid: node.name,
-              });
+              }, position);
               _storeNode = newNode;
             } else if (currentNode.endshapeid === node.name && node.shapeType !== 'Line') {
               const newNode = Object.assign({}, currentNode, {
                 endshapeid: node.name,
-              });
+              }, position);
               _storeNode = newNode;
             }
           });
@@ -129,7 +143,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
         };
       }),
-    addFlowNode: (node: any) =>
+    addFlowNode: (node: any, positionContext?: IPositionContext) =>
       set(state => {
         /*const flowHashmap = state.flowHashmap;
         flowHashmap.set(node.name, {
@@ -143,7 +157,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flow: flow,
         };
       }),
-    addFlowNodes: (nodes: any[]) =>
+    addFlowNodes: (nodes: any[], positionContext?: IPositionContext) =>
       set(state => {
         let flow = [...state.flow, ...nodes];
         return {
@@ -151,7 +165,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           flow: flow,
         };
       }),
-    addConnection: (connection: any) =>
+    addConnection: (connection: any, positionContext?: IPositionContext) =>
       set(state => {
         /*const flowHashmap = state.flowHashmap;
         if (flowHashmap.has(connection.startshapeid)) {
