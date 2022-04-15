@@ -2315,6 +2315,8 @@ console.log("connectConnectionToNode" , node);
 					mouseDragging.current && touchNode.current)) {
 					
 						if (draggingMultipleNodes.current && draggingMultipleNodes.current.length > 0) {
+							
+							// MULTIPLE NODES
 
 							if (stage && stage.current) {
 								let stageInstance = (stage.current as any).getStage();
@@ -2360,6 +2362,9 @@ console.log("connectConnectionToNode" , node);
 								props.saveFlow();
 							}							
 						} else {
+							
+							// SINGLE NODE
+
 							if ((touchNode.current as any).shapeType === "Line") {
 								let lineNode = (touchNode.current as any);
 								if (lineNode.startshapeid) {
@@ -2504,7 +2509,10 @@ console.log("connectConnectionToNode" , node);
 				
 				
 				if (props.flowrunnerConnector.hasStorageProvider) {
-					props.saveFlow();
+					// TODO : is this neccesary?
+					// TODO : replace calls to storeFlowNode etc .. with calls that
+					//   wrap a subscribe and call saveFlow from there...
+					//props.saveFlow();
 				}
 
 				dragTime.current = undefined;
