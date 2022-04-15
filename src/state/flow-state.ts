@@ -39,7 +39,7 @@ const handleStorageProvider = config => (set, get, api) =>
 
       if (storageProvider) {
         let flowState = get();
-        console.log("PRE SAVEFLOW in handleStorageProvider");
+        console.log('PRE SAVEFLOW in handleStorageProvider');
         storageProvider.saveFlow(flowState.flowId, flowState.flow);
       }
     },
