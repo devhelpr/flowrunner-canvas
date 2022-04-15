@@ -2208,15 +2208,21 @@ console.log("connectConnectionToNode" , node);
 							(positionNode.y + nodeHeight < position.y + flowNode.height)
 						);
 
-						console.log("removeOrAddNodeToSections" , isNodeInNodeList , isNodeInSectionRect);
+						console.log("removeOrAddNodeToSections" , node.name, isNodeInNodeList , isNodeInSectionRect);
 
 						if (isNodeInNodeList && !isNodeInSectionRect) {
 							const nodes = flowNode.nodes.filter(nodeName => nodeName !== node.name);
 							flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
+							if (props.flowrunnerConnector.hasStorageProvider) {
+								props.saveFlow();
+							}
 						} else 
 						if (!isNodeInNodeList && isNodeInSectionRect) {
 							const nodes = flowNode.nodes.concat(node.name);
 							flowStore.storeFlowNode({...flowNode, nodes}, flowNode.name);
+							if (props.flowrunnerConnector.hasStorageProvider) {
+								props.saveFlow();
+							}
 						}
 					}
 				});
