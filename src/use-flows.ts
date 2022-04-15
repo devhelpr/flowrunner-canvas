@@ -143,7 +143,7 @@ export const useFlows = (
   }, [flowStore.flow]);
 
   const saveFlow = useCallback(
-    (selectedFlow?, stateFlow? : any[]) => {
+    (selectedFlow?, stateFlow?: any[]) => {
       const flowAndUpdatedPositions = (stateFlow || flowStore.flow || []).map(node => {
         let updatedNode = { ...node };
         if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
@@ -163,7 +163,7 @@ export const useFlows = (
         }
         return updatedNode;
       });
-      
+
       if (flowrunnerConnector.hasStorageProvider) {
         console.log('flowAndUpdatedPositions', flowAndUpdatedPositions);
         flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
@@ -174,7 +174,6 @@ export const useFlows = (
           loadFlow(selectedFlow); //,true
         }
       } else {
-        
         if (!selectedFlow) {
           return;
         }
