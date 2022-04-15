@@ -64,7 +64,7 @@ export interface CanvasProps {
 	flowId? : number | string;
 	flowState : FlowState;
 	flowType : string;
-	saveFlow : (flowId?) => void;
+	saveFlow : (flowId?, flow? : any[]) => void;
 
 	isEditingInModal : boolean;
 	modalSize? : IModalSize;
