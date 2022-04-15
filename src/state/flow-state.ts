@@ -73,29 +73,42 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
       }),
     storeFlowNode: (node: any, orgNodeName: string, positionContext?: IPositionContext) =>
       set(state => {
-        let position : IPosition | undefined = undefined;
+        let position: IPosition | undefined = undefined;
         if (positionContext) {
           position = positionContext.positions.get(orgNodeName);
         }
         console.log('storeFlowNode', orgNodeName, position);
         let flow = state.flow.map((currentNode, index) => {
           if (currentNode.name === orgNodeName) {
-            const newNode = Object.assign({}, node, {
-              name: node.name,
-              id: node.name,
-            }, position);
+            const newNode = Object.assign(
+              {},
+              node,
+              {
+                name: node.name,
+                id: node.name,
+              },
+              position,
+            );
             return newNode;
-          } else 
-          if (currentNode.startshapeid === orgNodeName && node.shapeType !== 'Line') {
-            const newNode = Object.assign({}, currentNode, {
-              startshapeid: node.name,
-            }, position);
+          } else if (currentNode.startshapeid === orgNodeName && node.shapeType !== 'Line') {
+            const newNode = Object.assign(
+              {},
+              currentNode,
+              {
+                startshapeid: node.name,
+              },
+              position,
+            );
             return newNode;
-          } else 
-          if (currentNode.endshapeid === orgNodeName && node.shapeType !== 'Line') {
-            const newNode = Object.assign({}, currentNode, {
-              endshapeid: node.name,
-            }, position);
+          } else if (currentNode.endshapeid === orgNodeName && node.shapeType !== 'Line') {
+            const newNode = Object.assign(
+              {},
+              currentNode,
+              {
+                endshapeid: node.name,
+              },
+              position,
+            );
             return newNode;
           }
           return currentNode;
@@ -111,27 +124,41 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         let flow = state.flow.map((currentNode, index) => {
           let _storeNode = currentNode;
           nodes.forEach(node => {
-
-            let position : IPosition | undefined = undefined;
+            let position: IPosition | undefined = undefined;
             if (positionContext) {
               position = positionContext.positions.get(node.name);
             }
 
             if (currentNode.name === node.name) {
-              const newNode = Object.assign({}, node, {
-                name: node.name,
-                id: node.name,
-              }, position);
+              const newNode = Object.assign(
+                {},
+                node,
+                {
+                  name: node.name,
+                  id: node.name,
+                },
+                position,
+              );
               _storeNode = newNode;
             } else if (currentNode.startshapeid === node.name && node.shapeType !== 'Line') {
-              const newNode = Object.assign({}, currentNode, {
-                startshapeid: node.name,
-              }, position);
+              const newNode = Object.assign(
+                {},
+                currentNode,
+                {
+                  startshapeid: node.name,
+                },
+                position,
+              );
               _storeNode = newNode;
             } else if (currentNode.endshapeid === node.name && node.shapeType !== 'Line') {
-              const newNode = Object.assign({}, currentNode, {
-                endshapeid: node.name,
-              }, position);
+              const newNode = Object.assign(
+                {},
+                currentNode,
+                {
+                  endshapeid: node.name,
+                },
+                position,
+              );
               _storeNode = newNode;
             }
           });
