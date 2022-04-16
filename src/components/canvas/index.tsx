@@ -650,6 +650,9 @@ export const Canvas = (props: CanvasProps) => {
 			});
 
 			Object.keys(shapeRefs.current).map((nodeName: string) => {
+				if (nodeName === connectionForDraggingName) {
+					return;
+				}
 				const shapeRef = shapeRefs.current[nodeName];
 				if (shapeRef) {
 					shapeRef.modifyShape(ModifyShapeEnum.SetState , {
@@ -805,6 +808,9 @@ export const Canvas = (props: CanvasProps) => {
 				let stageInstance = (stage.current as any).getStage();
 				if (stageInstance) {
 					Object.keys(shapeRefs.current).forEach((touchNodeId) => {
+						if (touchNodeId === connectionForDraggingName) {
+							return;
+						}
 						const lineRef = shapeRefs.current[touchNodeId];
 						if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
 							if (touchedNodesLocal.current[touchNodeId] ) {								

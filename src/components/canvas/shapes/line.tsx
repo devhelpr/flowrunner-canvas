@@ -129,10 +129,6 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 							x: (lineRef.current as any).x(),
 							y: (lineRef.current as any).y(),
 						}
-						/*
-						const x = group ? group.attrs["x"] : 0;
-						const y = group ? group.attrs["y"] : 0;
-						*/
 					}
 					break;
 				}
@@ -147,7 +143,6 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 				case ModifyShapeEnum.SetOpacity : {
 					if (lineRef && lineRef.current && parameters) {
 						lineRef.current.opacity(parameters.opacity);
-						
 						if (props.isNodeConnectorHelper !== undefined && !!props.isNodeConnectorHelper) {
 
 							if (bgLineRef && bgLineRef.current) {
@@ -190,10 +185,6 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 					if (lineRef && lineRef.current && parameters) {
 						if (parameters.state == ShapeStateEnum.Touched) {
 							lineRef.current.dash([5,10]);
-							/*
-							lineRef.current.strokeWidth(8);
-							lineRef.current.opacity(1);
-							*/
 							lineRef.current.to({								
 								duration: 0.15,
 								strokeWidth:8,
@@ -209,10 +200,6 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 						} else
 						if (parameters.state == ShapeStateEnum.Default) {
 							lineRef.current.dash([]);
-							/*
-							lineRef.current.strokeWidth(4);
-							lineRef.current.opacity(0.5);
-							*/
 							lineRef.current.to({								
 								duration: 0.15,
 								strokeWidth:4,
@@ -240,42 +227,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend,
 		props.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
 		props.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
-/*
-	let fillColor = props.isSelected ? "#606060" : "#000000";	
-	let strokeWidth = 4;
 
-	if (props.isErrorColor) {
-		fillColor = props.isSelected ? "#800000" : "#e00000";  
-	}
-
-	if (props.isSuccessColor) {
-		fillColor = props.isSelected ? "#008000" : "#00d300";  
-	}
-
-	if (props.isAltColor) {
-		fillColor = "#a0a0a0";  
-		strokeWidth = 2;
-	}
-
-	if (props.isConnectionWithVariable) {
-		fillColor = "#0080e0";  
-		strokeWidth = 2;
-	}
-
-	if (props.isEventNode) {
-		fillColor = "#a000a0";  
-		strokeWidth = 4;
-	}
-
-	let opacity = 1;
-	if (!props.isSelected && props.canvasHasSelectedNode) {
-		if (props.selectedNodeName != props.startNodeName && 
-			props.selectedNodeName != props.endNodeName) {
-			opacity = 0.15;
-		}
-	}
-*/
-// props.opacity !== undefined ? props.opacity : opacity
 	return <><Group listening={!props.noMouseEvents}
 		transformsEnabled={"position"}		
 	>
