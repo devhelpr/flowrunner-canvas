@@ -153,7 +153,16 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 							if (bgLineRef && bgLineRef.current) {
 								bgLineRef.current.opacity(parameters.opacity);
 							}
-
+							if (props.shapeRefs) {
+								const thumb1 = props.shapeRefs["thumbstart_line_" + props.lineNode.name];
+								const thumb2 = props.shapeRefs["thumb_line_" + props.lineNode.name];
+								if (thumb1) {
+									thumb1.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: parameters.opacity});
+								}	
+								if (thumb2) {
+									thumb2.modifyShape(ModifyShapeEnum.SetOpacity, {opacity: parameters.opacity});
+								}
+							}
 							if (lineRef.current) {
 								if (parameters.opacity > 0) {
 									lineRef.current.pointerWidth(10);
