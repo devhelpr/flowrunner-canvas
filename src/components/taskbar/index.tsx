@@ -57,7 +57,7 @@ export const Taskbar = (props: TaskbarProps) => {
 			return 0;
 		});
 		const tasks = taskPluginsSortedList.filter((task) => { 
-			return task.flowType == canvasMode.flowType; 
+			return (task.flowType == canvasMode.flowType) || (task.flowType == "*");
 		}).map((task) => {
 			const taskSettings = FlowToCanvas.getTaskSettings(task.className);
 			return {...task, 
@@ -83,7 +83,20 @@ export const Taskbar = (props: TaskbarProps) => {
 			return res.json();
 		})
 		.then(metaDataInfo => {
-			setupTasks([...metaDataInfo,...props.flowrunnerConnector.getTasksFromPluginRegistry()]);			
+			setupTasks([
+				...metaDataInfo,
+				...props.flowrunnerConnector.getTasksFromPluginRegistry(),
+				{
+					fullName: "Text annotation",
+					className: "AnnotationText",
+					taskType: "Annotation",
+					shapeType: "Text",
+					flowType: "*",
+					title: "Text annotation",
+					isAnnotation: true,
+				}
+				
+			]);			
 		})
 		.catch(err => {
 			console.error(err);
@@ -208,7 +221,7 @@ export const Taskbar = (props: TaskbarProps) => {
 
 		if (shapeType == "Circle") {			
 			return <div className="taskbar__task" title={className} data-task={className}  draggable={html5DragAndDrop} onDragStart={onDragStart}>				
-				<div className="taskbar__taskname">{className}</div>
+				<div className="taskbar__taskname">{taskMetaData.title || className}</div>
 			</div>;
 		}
 

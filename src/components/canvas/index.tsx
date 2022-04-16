@@ -48,7 +48,7 @@ import { usePositionContext } from '../contexts/position-context';
 
 import { setMultiSelectInfo } from '../../services/multi-select-service';
 import { AnnotationSection } from './annotations/annotation-section';
-import { setPosition } from '../../services/position-service';
+import { AnnotationText } from './annotations/annotation-text';
 
 const uuidV4 = uuid.v4;
 
@@ -1681,7 +1681,7 @@ export const Canvas = (props: CanvasProps) => {
 		mouseDragging.current = false;
 		draggingMultipleNodes.current = [];
 
-		if (node.taskType === "Annotation" && node.shapeType === "Section") {
+		if (node.taskType === "Annotation") {
 			console.log("SELECT ANNOTATION");
 			shapeRefs.current[node.name].modifyShape(ModifyShapeEnum.SetState,{
 				state: ShapeStateEnum.Selected
@@ -2289,7 +2289,7 @@ console.log("connectConnectionToNode" , node);
 	} , [flowStore.flow]);
 
 	const onStageMouseEnd = (event) => {
-		console.log("onStageMouseEnd");
+		console.log("onStageMouseEnd", interactionState.current);
 		if (interactionState.current === InteractionState.selectingNodes) {
 			interactionState.current = InteractionState.multiSelect;
 			const nodes = selectNodesForSelectRectangle(event);
@@ -4884,8 +4884,17 @@ console.log("getNewConnection in clickShape")
 					if (stage && stage.current) {
 						interactionState.current = InteractionState.addingNewNode;
 
+						let customProperties : any = {};
 						const scaleFactor = stageInstance.scaleX();
-						const taskType = taskClassName;
+						let taskType = taskClassName;
+						
+						if (taskClassName === "AnnotationText") {
+							taskType = "Annotation";
+							customProperties.shapeType = "Text";
+							customProperties.label = "Select and click EDIT to change label";
+							customProperties.fontSize = 18;
+						}
+
 						let presetValues = {};
 						const shapeSetting = getTaskConfigForTask(taskType);
 						if (shapeSetting && shapeSetting.presetValues) {
@@ -4900,7 +4909,8 @@ console.log("getNewConnection in clickShape")
 							x: ((position.x || 0) - (stageInstance).x() || 0) / scaleFactor, 
 							y: ((position.y || 0) - (stageInstance).y() || 0) / scaleFactor,
 							...presetValues,
-							...extraNodeProperties
+							...extraNodeProperties,
+							...customProperties
 						},flowStore.flow);
 						
 						const settings = ShapeSettings.getShapeSettings(newNode.taskType, newNode);
@@ -5668,6 +5678,10 @@ console.log("getNewConnection in clickShape")
 			return "";
 		}
 
+		if (activeId && activeId?.indexOf("Annotation") >= 0) {
+			return "";
+		}
+
 		let element	 = document.querySelector(".taskbar__task-dragging");
 		if (element) {
 			let rect = element.getBoundingClientRect();
@@ -5784,6 +5798,30 @@ console.log("getNewConnection in clickShape")
 								></Rect>
 
 								{flowMemo.map((node, index) => {
+									if (node.shapeType === "Text") {
+										return <AnnotationText
+											key={`text-${index}`}
+											ref={ref => (shapeRefs.current[node.name] = ref)}
+											x={node.x} 
+											y={node.y}
+											width={node.width} 
+											height={node.height}
+											name={node.name}
+											node={node}
+											onClick={(event) => onClickShape(node, event)}
+											onMouseStart={(event) => onMouseStart(node, event)}
+											onMouseOver={(event) => onMouseOver(node, event)}
+											onMouseOut={(event) => onMouseOut()}
+											onTouchStart={(event) => onTouchStart(node, event)}
+											onMouseEnd={(event) => onMouseEnd(node, event)}
+											onMouseMove={(event) => onMouseMove(node, event)}
+											onMouseLeave={(event) => onMouseLeave(node, event)}	
+											
+											onDragStart={(event) => onDragStart(node, event)}
+											onDragEnd={(event) => onDragEnd(node, event)}
+											onDragMove={(event) => onDragMove(node, event)}
+										></AnnotationText>
+									} else
 									if (node.shapeType === "Section") {
 										return <AnnotationSection 
 											key={`section-${index}`}

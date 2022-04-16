@@ -77,7 +77,6 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         if (positionContext) {
           position = positionContext.positions.get(orgNodeName);
         }
-        console.log('storeFlowNode', orgNodeName, position);
         let flow = state.flow.map((currentNode, index) => {
           if (currentNode.name === orgNodeName) {
             const newNode = Object.assign(
@@ -113,7 +112,6 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
           return currentNode;
         });
-        console.log('storeFlowNode', node, flow);
         return {
           flow: flow,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
@@ -164,7 +162,6 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           });
           return _storeNode;
         });
-        console.log('storeFlowNodes', nodes, flow);
         return {
           flow: flow,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
