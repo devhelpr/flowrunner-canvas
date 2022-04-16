@@ -915,10 +915,10 @@ console.log("newNode", newNodeId, newNode);
 									<label className="text-white" htmlFor="showDependenciesInput">&nbsp;Show dependencies</label>								
 								</>}
 
-								{(!!selectedNode.node.name && selectedNode.node.node 
+								{((!!selectedNode.node.name && selectedNode.node.node 
 									&& selectedNode.node.node.taskType === "Annotation"
 									&& selectedNode.node.node.shapeType === "Text") ||
-								(!!props.hasJSONEditInMenu && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line") && 
+									(!!props.hasJSONEditInMenu && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType !== "Line")) && 
 									<a href="#" onClick={editNode} className="mx-2 btn btn-outline-light">Edit</a>
 								}
 								{!!props.hasJSONEditInMenu && !!selectedNode.node.name && selectedNode.node.node && selectedNode.node.node.shapeType === "Line" && 
