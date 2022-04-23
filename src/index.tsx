@@ -28,7 +28,7 @@ import {
 	readOnlyFlowrunnerStorageProvider
 } from './flow-localstorage-provider';
 
-import { createIndexedDBStorageProvider } from './flow-indexeddb-provider'; 
+import { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, setTasks } from './flow-indexeddb-provider'; 
 
 import { useFlowStore } from './state/flow-state';
 import { useCanvasModeStateStore } from './state/canvas-mode-state';
@@ -63,6 +63,7 @@ let pluginRegistry : any = {};
 export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
 export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
 export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
+export { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, setTasks };
 
 export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
