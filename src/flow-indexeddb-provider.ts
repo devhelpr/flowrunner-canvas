@@ -5,7 +5,7 @@ let defaultflowId = '00000000-0000-0000-0000-000000000000';
 
 let defaultFlow = '';
 let defaultFlowTitle = 'Example flow';
-let additionalTasks: any[];
+let additionalTasks: any[] = [];
 
 interface ITransaction {
   flowId: string;
