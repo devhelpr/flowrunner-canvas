@@ -36,18 +36,20 @@ export const useFlows = (
   const getFlows = (getFlowId?) => {
     if (flowrunnerConnector.hasStorageProvider) {
       if (flowrunnerConnector.storageProvider?.isAsync) {
-        (flowrunnerConnector.storageProvider?.getFlows() as Promise<any[]>).then((flows: any[]) => {
-          setFlows(flows);
+        (flowrunnerConnector.storageProvider?.getFlows() as Promise<any[]>)
+          .then((flows: any[]) => {
+            setFlows(flows);
 
-          let loadFlowId = flowId === undefined && flows ? flows[0].id : flowId;
-          if (getFlowId) {
-            loadFlowId = getFlowId;
-          }
-  
-          loadFlow(loadFlowId);
-        }).catch((error) => {
-          console.log("ERROR in getflows", error);
-        });
+            let loadFlowId = flowId === undefined && flows ? flows[0].id : flowId;
+            if (getFlowId) {
+              loadFlowId = getFlowId;
+            }
+
+            loadFlow(loadFlowId);
+          })
+          .catch(error => {
+            console.log('ERROR in getflows', error);
+          });
       } else {
         const flows = flowrunnerConnector.storageProvider?.getFlows() as any[];
         setFlows(flows);
@@ -114,10 +116,8 @@ export const useFlows = (
     if (flowState == FlowState.loading) {
       if (flowrunnerConnector.hasStorageProvider) {
         if (flowrunnerConnector.storageProvider?.isAsync) {
-          
           (flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as Promise<any>).then(flowPackage => {
-
-            console.log("LOAD FLOW", currentFlowId, flowPackage);
+            console.log('LOAD FLOW', currentFlowId, flowPackage);
 
             flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
             setFlowType(flowPackage.flowType || 'playground');
@@ -127,7 +127,6 @@ export const useFlows = (
             layout.storeLayout(JSON.stringify(flowPackage.layout));
             setFlowState(FlowState.loaded);
           });
-
         } else {
           const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
           flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
@@ -176,7 +175,7 @@ export const useFlows = (
 
   const saveFlow = useCallback(
     (selectedFlow?, stateFlow?: any[]) => {
-      console.log("SAVE FLOW", stateFlow, flowStore.flow);
+      console.log('SAVE FLOW', stateFlow, flowStore.flow);
       const flowAndUpdatedPositions = (stateFlow || flowStore.flow || []).map(node => {
         let updatedNode = { ...node };
         if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {

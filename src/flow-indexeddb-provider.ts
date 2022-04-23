@@ -1,28 +1,29 @@
 import { IStorageProvider } from './interfaces/IStorageProvider';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
-let defaultflowId = "00000000-0000-0000-0000-000000000000";
+let defaultflowId = '00000000-0000-0000-0000-000000000000';
 
 let defaultFlow = '';
-let defaultFlowTitle = "Example flow";
+let defaultFlowTitle = 'Example flow';
 let additionalTasks: any[];
 
 interface ITransaction {
   flowId: string;
   flow: any[];
   name: string;
-};
+}
 
 let isProcessing = false;
-let transactions : ITransaction[] = [];
+let transactions: ITransaction[] = [];
 
-function storeTransaction(store: IDBObjectStore, transaction : ITransaction) {
-  const objectRequest = store.put({
+function storeTransaction(store: IDBObjectStore, transaction: ITransaction) {
+  const objectRequest = store.put(
+    {
       flow: transaction?.flow,
       flowId: transaction?.flowId,
       name: transaction?.name,
-    }, 
-    transaction?.flowId
+    },
+    transaction?.flowId,
   );
 
   objectRequest.onerror = function(event) {
@@ -32,22 +33,21 @@ function storeTransaction(store: IDBObjectStore, transaction : ITransaction) {
   objectRequest.onsuccess = function(event) {
     if (objectRequest.result) {
       isProcessing = false;
-      handleTransactions();        
+      handleTransactions();
     } else {
       console.log('handleTransactions error in  onsuccess', event);
     }
   };
 }
 
-
 function handleTransactions() {
-  console.log("handleTransactions", isProcessing, transactions.length, database);
+  console.log('handleTransactions', isProcessing, transactions.length, database);
 
   if (!isProcessing && transactions.length > 0 && database) {
     isProcessing = true;
     const transaction = transactions.shift();
     if (!transaction) {
-      console.log("No transaction in handleTransactions");
+      console.log('No transaction in handleTransactions');
       return;
     }
     let tx = database.transaction([flowStoreName], 'readwrite');
@@ -61,7 +61,7 @@ function handleTransactions() {
 
     getRequest.onsuccess = function(event) {
       if (getRequest.result) {
-        transaction.name = getRequest.result.name;        
+        transaction.name = getRequest.result.name;
       }
       storeTransaction(store, transaction);
     };
@@ -227,7 +227,7 @@ function exampleFlow() {
     "id": "flow",
     "flowType": "playground"
   }`;
-};
+}
 
 let tasks = [
   {
@@ -254,7 +254,7 @@ let tasks = [
     className: 'FormTask',
     fullName: 'FormTask',
     flowType: 'playground',
-  }
+  },
 ];
 
 function getTasks() {
@@ -262,7 +262,7 @@ function getTasks() {
 }
 
 function saveFlow(flowId: string, flow: any) {
-  console.log("Saving flow", flowId, flow);
+  console.log('Saving flow', flowId, flow);
   const flowPackage = {
     flow: flow,
     name: flowId,
@@ -270,13 +270,13 @@ function saveFlow(flowId: string, flow: any) {
     flowType: 'playground',
   };
   //localStorage.setItem('flow-' + flowId, JSON.stringify(flowPackage));
-  
+
   transactions.push({
     flowId,
     flow,
-    name: `Flow ${flowId}`
+    name: `Flow ${flowId}`,
   });
-  console.log("Saving flow" ,transactions);
+  console.log('Saving flow', transactions);
   handleTransactions();
 }
 
@@ -285,7 +285,7 @@ function setSelectedFlow(flowName: string) {
 }
 
 function getSelectedFlow() {
-  return 'flow';//localStorage.getItem('selected-flow') || 'flow';
+  return 'flow'; //localStorage.getItem('selected-flow') || 'flow';
 }
 
 function storeFlowPackage(flowPackage: any) {
@@ -322,15 +322,15 @@ function getDefaultFlows() {
   ];
 }
 function getFlows() {
-console.log("getFlows");
+  console.log('getFlows');
   return new Promise<any>((resolve, reject) => {
     if (!database) {
       reject('No database');
       return;
     }
 
-    var transaction   = database.transaction([flowStoreName]);
-    var objectStore   = transaction.objectStore(flowStoreName);
+    var transaction = database.transaction([flowStoreName]);
+    var objectStore = transaction.objectStore(flowStoreName);
     var objectRequest = objectStore.getAll();
 
     objectRequest.onerror = function(event) {
@@ -339,21 +339,22 @@ console.log("getFlows");
 
     objectRequest.onsuccess = function(event) {
       if (objectRequest.result) {
-          console.log("getall", objectRequest.result);
-          if (objectRequest.result.length > 0) {
-          resolve(objectRequest.result.map((item) => {
-            return {
-              name: item.name,
-              id: item.flowId
-            }
-          }));
-
+        console.log('getall', objectRequest.result);
+        if (objectRequest.result.length > 0) {
+          resolve(
+            objectRequest.result.map(item => {
+              return {
+                name: item.name,
+                id: item.flowId,
+              };
+            }),
+          );
         } else {
           resolve([
             {
               id: defaultflowId,
-              name: defaultFlowTitle
-            }
+              name: defaultFlowTitle,
+            },
           ]);
         }
       } else reject(Error('object not found'));
@@ -366,7 +367,7 @@ console.log("getFlows");
     resolve(JSON.parse(getDefaultFlow()));
     */
   });
-}/*
+} /*
   var flowsAsString = localStorage.getItem('flows');
   if (flowsAsString) {
     return JSON.parse(flowsAsString);
@@ -386,8 +387,8 @@ function getFlow(flowId: string) {
       return;
     }
 
-    var transaction   = database.transaction([flowStoreName]);
-    var objectStore   = transaction.objectStore(flowStoreName);
+    var transaction = database.transaction([flowStoreName]);
+    var objectStore = transaction.objectStore(flowStoreName);
     var objectRequest = objectStore.get(flowId);
 
     objectRequest.onerror = function(event) {
@@ -397,24 +398,23 @@ function getFlow(flowId: string) {
     objectRequest.onsuccess = function(event) {
       if (objectRequest.result) {
         resolve({
-          flow:objectRequest.result.flow,
-          flowType: "playground",
-          id: "flow",
-          name: "flow"
+          flow: objectRequest.result.flow,
+          flowType: 'playground',
+          id: 'flow',
+          name: 'flow',
         });
-      } else {    
-       
+      } else {
         transactions.push({
           flowId: defaultflowId,
-          flow:JSON.parse(getDefaultFlow()).flow,
-          name: defaultFlowTitle,          
+          flow: JSON.parse(getDefaultFlow()).flow,
+          name: defaultFlowTitle,
         });
 
         resolve({
           flow: JSON.parse(getDefaultFlow()).flow,
-          flowType: "playground",
+          flowType: 'playground',
           id: defaultflowId,
-          name: defaultFlowTitle
+          name: defaultFlowTitle,
         });
       }
     };
@@ -428,7 +428,7 @@ function getFlow(flowId: string) {
   });
 }
 
-function addFlow (name, flow) {
+function addFlow(name, flow) {
   return new Promise((resolve, reject) => {
     if (!database) {
       reject();
@@ -437,14 +437,15 @@ function addFlow (name, flow) {
     let tx = database.transaction([flowStoreName], 'readwrite');
     let store = tx.objectStore(flowStoreName);
 
-    let flowId = uuidV4();    
+    let flowId = uuidV4();
 
-    const objectRequest = store.put({
+    const objectRequest = store.put(
+      {
         flow: flow,
         flowId: flowId,
         name: name,
-      }, 
-      flowId
+      },
+      flowId,
     );
 
     objectRequest.onerror = function(event) {
@@ -454,7 +455,7 @@ function addFlow (name, flow) {
     objectRequest.onsuccess = function(event) {
       if (objectRequest.result) {
         isProcessing = false;
-        resolve({id:flowId});
+        resolve({ id: flowId });
       } else {
         reject();
       }
@@ -462,26 +463,26 @@ function addFlow (name, flow) {
   });
 }
 
-export const setDefaultFlowTitle = (title : string) => {
+export const setDefaultFlowTitle = (title: string) => {
   defaultFlowTitle = title;
-}
+};
 
 export const setDefaultFlow = (id, flow: any[]) => {
   defaultFlow = JSON.stringify({
     flow: flow,
     name: id,
-    flowType: "playground",
-    id: id
+    flowType: 'playground',
+    id: id,
   });
-}
+};
 
 export const setAdditionalTasks = (tasks: any[]) => {
   additionalTasks = tasks;
-}
+};
 
 export const setTasks = (setupTasks: any[]) => {
   tasks = setupTasks;
-}
+};
 
 export const flowrunnerIndexedDbStorageProvider: IStorageProvider = {
   storeFlowPackage: storeFlowPackage,
@@ -499,51 +500,46 @@ export const flowrunnerIndexedDbStorageProvider: IStorageProvider = {
   isUI: false,
   isReadOnly: false,
   canStoreMultipleFlows: true,
-  isAsync: true
+  isAsync: true,
 };
 
-let database : IDBDatabase | null = null;
+let database: IDBDatabase | null = null;
 
 const flowStoreDBName = 'flowrunner-flow-store';
-const flowStoreName = "flowStore";
+const flowStoreName = 'flowStore';
 
 export const createIndexedDBStorageProvider = () => {
   return new Promise<IStorageProvider>((resolve, reject) => {
     let idb = window.indexedDB;
 
-    let dbRequest = idb.open(
-      flowStoreDBName,
-      1 
-    );
+    let dbRequest = idb.open(flowStoreDBName, 1);
 
     if (!dbRequest) {
-      reject(new Error("createIndexedDBStorageProvider failed"));
+      reject(new Error('createIndexedDBStorageProvider failed'));
     }
 
-
     dbRequest.onupgradeneeded = function(event) {
-
       if (!event || !event.target || !(event.target as any).result) {
-        reject(new Error ('No event target'));
+        reject(new Error('No event target'));
       }
 
       database = (event.target as any).result as IDBDatabase;
       var objectStore = database.createObjectStore(flowStoreName, {
-        autoIncrement: true
+        autoIncrement: true,
       });
     };
 
-    dbRequest.onsuccess = (event) => {
+    dbRequest.onsuccess = event => {
       if (!event || !event.target || !(event.target as any).result) {
-        reject(new Error ('No event target'));
+        reject(new Error('No event target'));
       }
-      database = (event.target as any).result as IDBDatabase;      
+      database = (event.target as any).result as IDBDatabase;
 
       resolve(flowrunnerIndexedDbStorageProvider);
     };
 
-    dbRequest.onerror = (event) => {
+    dbRequest.onerror = event => {
       reject();
-    }
+    };
   });
 };
