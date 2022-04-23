@@ -11,7 +11,7 @@ import { SliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './components/htm
 import { InputNodeHtmlPlugin , InputNodeHtmlPluginInfo } from './components/html-plugins/input-node';
 import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './components/html-plugins/form-node';
 
-import { IFlowrunnerConnector, ApplicationMode } from './interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './components/html-plugins/data-grid-node';
 import { IFlowState, useFlowStore } from './state/flow-state';
 

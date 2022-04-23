@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useFlowStore} from '../../state/flow-state';
 import { useSelectedNodeStore} from '../../state/selected-node-state';
 

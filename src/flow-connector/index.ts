@@ -1,4 +1,4 @@
-import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/IFlowrunnerConnector';
 import { IFlowAgent } from '../interfaces/IFlowAgent';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 

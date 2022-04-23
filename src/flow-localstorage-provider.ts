@@ -289,9 +289,11 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => {},
+  addFlow: (name, flow) => new Promise(resolve => resolve("UUID")),
   isUI: false,
   isReadOnly: false,
+  canStoreMultipleFlows: false,
+  isAsync: false
 };
 
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
@@ -306,11 +308,13 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => {},
+  addFlow: (name, flow) => new Promise(resolve => resolve("UUID")),
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
   isReadOnly: false,
+  canStoreMultipleFlows: false,
+  isAsync: false
 };
 
 const isReadOnly = true;
@@ -357,9 +361,11 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => {},
+  addFlow: (name, flow) => new Promise(resolve => resolve("UUID")),
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
   isReadOnly: isReadOnly,
+  canStoreMultipleFlows: false,
+  isAsync: false
 };

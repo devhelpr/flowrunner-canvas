@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Draggable } from './draggable';
 import fetch from 'cross-fetch';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { useModulesStateStore } from '../../state/modules-menu-state';
 import { DragginTask} from '../../dragging-task';

@@ -5,7 +5,7 @@ import { Shapes } from './shapes';
 import { LinesForShape } from './shapes/lines-for-shape';
 import { FlowToCanvas } from '../../helpers/flow-to-canvas';
 import { getTaskConfigForTask } from '../../config';
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../helpers/shape-settings';
 import { Subject } from 'rxjs';
 import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
@@ -5028,10 +5028,12 @@ console.log("getNewConnection in clickShape")
 							}
 						}
 
+						/*
 						if (props.flowrunnerConnector.hasStorageProvider) {
 							props.saveFlow();
 						}
-
+						*/
+						
 						interactionState.current = InteractionState.idle;
 						clearConnectionState();
 					}				

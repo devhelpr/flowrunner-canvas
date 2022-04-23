@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Stage, Layer , Circle, Line } from 'react-konva';
 
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { PresetManager } from './components/preset-manager';
 
 import * as uuid from 'uuid';

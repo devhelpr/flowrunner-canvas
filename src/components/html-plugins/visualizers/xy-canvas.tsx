@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Stage, Layer , Circle, Line, Text, Label, Tag, Rect} from 'react-konva';
 
-import { IFlowrunnerConnector } from '../../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
 
 const heightCorrection = 42;
 

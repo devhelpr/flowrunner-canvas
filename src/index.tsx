@@ -13,9 +13,9 @@ import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { DebugInfo } from './components/debug-info';
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/FlowrunnerConnector';
-export type { IFlowrunnerConnector, IExecutionEvent } from './interfaces/FlowrunnerConnector';
-export { ApplicationMode } from './interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
+export type { IFlowrunnerConnector, IExecutionEvent } from './interfaces/IFlowrunnerConnector';
+export { ApplicationMode } from './interfaces/IFlowrunnerConnector';
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';
@@ -27,6 +27,8 @@ import {
 	configurableFlowrunnerStorageProvider, 
 	readOnlyFlowrunnerStorageProvider
 } from './flow-localstorage-provider';
+
+import { createIndexedDBStorageProvider } from './flow-indexeddb-provider'; 
 
 import { useFlowStore } from './state/flow-state';
 import { useCanvasModeStateStore } from './state/canvas-mode-state';
@@ -287,7 +289,11 @@ export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	</PositionProvider>
 }
 
-const TestApp = () => {
+interface ITestAppProps {
+	flowrunnerStorageProvider: IStorageProvider;
+}
+
+const TestApp = (props: ITestAppProps) => {
 	const [debugList , setDebugList] = useState([] as string[]);
 	const onMessageFromFlow = useCallback((event: any, flowAgent : any) => {
 	  if (event && event.data) {
@@ -306,10 +312,10 @@ const TestApp = () => {
   
 	const flowMemoized = useMemo(() => <FlowrunnerCanvas
 		developmentMode={true}
-		flowStorageProvider={flowrunnerLocalStorageProvider}
+		flowStorageProvider={props.flowrunnerStorageProvider}
 		onMessageFromFlow={onMessageFromFlow}
 		flowrunnerConnector={new FlowConnector()}
-	></FlowrunnerCanvas>, [flowrunnerLocalStorageProvider]);
+	></FlowrunnerCanvas>, [props.flowrunnerStorageProvider]);
 	
 	return (
 	  <div className="row no-gutters h-100">
@@ -341,18 +347,26 @@ const TestApp = () => {
   }
   */
 
-export const startEditor = (flowStorageProvider? : IStorageProvider, doLocalStorageFlowEditorOnly? : boolean) => {
+export const startEditor = async (flowStorageProvider? : IStorageProvider, doLocalStorageFlowEditorOnly? : boolean) => {
 	
 	if (!!doLocalStorageFlowEditorOnly) {
 		const root = document.getElementById('flowstudio-root');
 
-		
-		(ReactDOM as any).render(<TestApp></TestApp>, root);
-		/*
-		(ReactDOM as any).render(<FlowrunnerCanvas 
-			developmentMode={true}
-			flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
-		*/
+		createIndexedDBStorageProvider().then((result) => {
+			if (!result) {
+				throw new Error("No Storage Provider is available");
+			}
+			const flowrunnerStorageProvider = result as IStorageProvider;
+			console.log("flowrunnerStorageProvider",flowrunnerStorageProvider);
+			(ReactDOM as any).render(<TestApp flowrunnerStorageProvider={flowrunnerStorageProvider}></TestApp>, root);
+			/*
+			(ReactDOM as any).render(<FlowrunnerCanvas 
+				developmentMode={true}
+				flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
+			*/
+		}).catch(() => {
+			throw new Error("Error when creating Storage Provider");
+		});
 		return;
 	}
 

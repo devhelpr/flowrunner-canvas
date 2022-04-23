@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 

@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { Children, isValidElement, cloneElement } from 'react';
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { Number } from './visualizers/number';
 import { Color } from './visualizers/color';
 import { Text } from './visualizers/text';

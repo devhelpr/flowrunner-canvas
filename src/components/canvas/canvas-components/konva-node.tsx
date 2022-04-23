@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Shapes } from '../shapes';
 
 import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
 import { ShapeSettings } from '../../../helpers/shape-settings';
 import { IFlowState } from '../../../state/flow-state';
 import { Thumbs }  from '../shapes/thumbs';

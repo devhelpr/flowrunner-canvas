@@ -1,9 +1,9 @@
 export interface IStorageProvider {
   storeFlowPackage: (flowPackage: any) => void;
   getFlowPackage: () => any;
-  addFlow: (name, flow) => void;
-  getFlows: () => any[];
-  getFlow: (flowId: string) => any[];
+  addFlow: (name, flow) => Promise<any>;
+  getFlows: () => any[] | Promise<any[]>;
+  getFlow: (flowId: string) => any[] | Promise<any>;
   saveFlow: (flowId: string, flow: any[]) => void;
   getTasks: () => any[];
   getApiProxyUrl: () => string;
@@ -13,4 +13,6 @@ export interface IStorageProvider {
   setDefaultFlow?: (flowPackage: string) => void;
   setAdditionalTasks?: (tasks: any[]) => void;
   isReadOnly: boolean;
+  canStoreMultipleFlows: boolean;
+  isAsync: boolean;
 }

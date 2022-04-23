@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useState, useRef , useCallback } from 'react';
 import { Suspense } from 'react';
 
-import { ApplicationMode, IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { ApplicationMode, IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { getFormControl } from './form-controls';
 import { Subject } from 'rxjs';

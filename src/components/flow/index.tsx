@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect , useLayoutEffect ,  useState } from 'react';
 
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface IFlowProps {
 	flow : any[];

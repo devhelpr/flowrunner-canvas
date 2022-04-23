@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Modal } from 'react-bootstrap';
 import { Subject } from 'rxjs';
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { useBundleFlowStore, useFlowStore} from '../../state/flow-state';
 import { useBundleSelectedNodeStore, useSelectedNodeStore} from '../../state/selected-node-state';
 import { useBundleCanvasModeStateStore } from '../../state/canvas-mode-state';

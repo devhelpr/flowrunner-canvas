@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 
 import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector, ApplicationMode } from './interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
 import { IStorageProvider } from './interfaces/IStorageProvider';
 
 import { setCustomConfig } from './config';

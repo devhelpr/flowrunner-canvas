@@ -7,10 +7,12 @@ import fetch from 'cross-fetch';
 
 import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 export interface NewFlowProps {
 	onClose : () => void;
 	onSave: (id : number | string, flowType : string) => void;
+	flowrunnerConnector : IFlowrunnerConnector
 }
 
 export const NewFlow = (props: NewFlowProps) => {
@@ -48,29 +50,36 @@ export const NewFlow = (props: NewFlowProps) => {
 				return;
 			}
 		}
-		try {
-			fetch('/flow?flow=' + value + 
-				"&flowType=" + flowType +
-				"&addJSONFlow=" + addJSONFlow, {
-				method : "post",
-				body: JSON.stringify({
-					nodes : JSON.parse(json || "[]")
-				}),
-				headers: {
-					"Content-Type": "application/json"
-				}
-			}).then((response) => {
-				if (response.status >= 400) {
-					throw new Error("Bad response from server");
-				}
-				return response.json();
-			}).then((result) => {
+		if (props.flowrunnerConnector.hasStorageProvider) {
+			// save to storage
+			props.flowrunnerConnector.storageProvider?.addFlow(value, JSON.parse(json || "[]")).then((result : any) => {
 				props.onSave(result.id, flowType);
 			});
-			
-		} catch (err) {
-			console.log("new-flow err", err);
-			alert("Error while adding flow");
+		} else {
+			try {
+				fetch('/flow?flow=' + value + 
+					"&flowType=" + flowType +
+					"&addJSONFlow=" + addJSONFlow, {
+					method : "post",
+					body: JSON.stringify({
+						nodes : JSON.parse(json || "[]")
+					}),
+					headers: {
+						"Content-Type": "application/json"
+					}
+				}).then((response) => {
+					if (response.status >= 400) {
+						throw new Error("Bad response from server");
+					}
+					return response.json();
+				}).then((result) => {
+					props.onSave(result.id, flowType);
+				});
+				
+			} catch (err) {
+				console.log("new-flow err", err);
+				alert("Error while adding flow");
+			}
 		}
 
 		e.preventDefault();

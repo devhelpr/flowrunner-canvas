@@ -7,7 +7,7 @@ import { EditPopup } from '../edit-popup';
 //import { ShowSchemaPopup } from '../show-schema-popup';
 
 import fetch from 'cross-fetch';
-import { IFlowrunnerConnector } from '../../interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 import { Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
@@ -864,7 +864,9 @@ console.log("newNode", newNodeId, newNode);
 									</div>	
 								}
 								<>
-									{!isFlowEditorOnly && <select className="form-control mr-2" 
+									{(!isFlowEditorOnly || 
+									(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
+										<select className="form-control mr-2" 
 										disabled={canvasMode.editorMode !== "canvas"}
 										value={selectedFlow}
 										onChange={setSelectedFlowChange}>
@@ -873,9 +875,11 @@ console.log("newNode", newNodeId, newNode);
 											return <option key={index} value={flow.id}>{flow.name}</option>;
 										})}								
 									</select>}
-									{!props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={addNewFlow} 
-										className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
-										title="Add new flow"><span>New</span></a>}									
+									{(!props.flowrunnerConnector.hasStorageProvider ||
+									 	(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
+										<a href="#" onClick={addNewFlow} 
+											className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
+											title="Add new flow"><span>New</span></a>}									
 								</>
 								{!isFlowEditorOnly && canvasMode.flowType === "playground" && canvasMode.editorMode === "canvas" && 
 									<img title="playground" width="32px" style={{marginLeft:-10,marginRight:10}} src="/svg/game-board-light.svg" />
@@ -992,7 +996,7 @@ console.log("newNode", newNodeId, newNode);
 			</PositionProvider>
 		}
 		{showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditPopup>}
-		{showNewFlow && <NewFlow onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
+		{showNewFlow && <NewFlow flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
 		{showTaskHelp && <HelpPopup taskName={selectedNode && selectedNode.node ? (selectedNode.node as any).taskType : ""}></HelpPopup>}
 		{showModulesPopup && <ModulesPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseModulesPopup}></ModulesPopup>}
 		{canvasMode.currentPopup == PopupEnum.editNamePopup && <NamePopup 

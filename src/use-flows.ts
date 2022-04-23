@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import fetch from 'cross-fetch';
 
-import { IFlowrunnerConnector } from './interfaces/FlowrunnerConnector';
+import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 import { IFlowState } from './state/flow-state';
 import { useLayoutStore } from './state/layout-state';
 import { useCanvasModeStateStore } from './state/canvas-mode-state';
@@ -35,15 +35,30 @@ export const useFlows = (
 
   const getFlows = (getFlowId?) => {
     if (flowrunnerConnector.hasStorageProvider) {
-      const flows = flowrunnerConnector.storageProvider?.getFlows();
-      setFlows(flows);
+      if (flowrunnerConnector.storageProvider?.isAsync) {
+        (flowrunnerConnector.storageProvider?.getFlows() as Promise<any[]>).then((flows: any[]) => {
+          setFlows(flows);
 
-      let loadFlowId = flowId === undefined && flows ? flows[0].id : flowId;
-      if (getFlowId) {
-        loadFlowId = getFlowId;
+          let loadFlowId = flowId === undefined && flows ? flows[0].id : flowId;
+          if (getFlowId) {
+            loadFlowId = getFlowId;
+          }
+  
+          loadFlow(loadFlowId);
+        }).catch((error) => {
+          console.log("ERROR in getflows", error);
+        });
+      } else {
+        const flows = flowrunnerConnector.storageProvider?.getFlows() as any[];
+        setFlows(flows);
+
+        let loadFlowId = flowId === undefined && flows ? flows[0].id : flowId;
+        if (getFlowId) {
+          loadFlowId = getFlowId;
+        }
+
+        loadFlow(loadFlowId);
       }
-
-      loadFlow(loadFlowId);
       return;
     }
 
@@ -98,14 +113,31 @@ export const useFlows = (
     }
     if (flowState == FlowState.loading) {
       if (flowrunnerConnector.hasStorageProvider) {
-        const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
-        flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
-        setFlowType(flowPackage.flowType || 'playground');
-        setCanvasFlowType(flowPackage.flowType || 'playground');
-        flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
-        setFlow(flowPackage.flow);
-        layout.storeLayout(JSON.stringify(flowPackage.layout));
-        setFlowState(FlowState.loaded);
+        if (flowrunnerConnector.storageProvider?.isAsync) {
+          
+          (flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as Promise<any>).then(flowPackage => {
+
+            console.log("LOAD FLOW", currentFlowId, flowPackage);
+
+            flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
+            setFlowType(flowPackage.flowType || 'playground');
+            setCanvasFlowType(flowPackage.flowType || 'playground');
+            flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
+            setFlow(flowPackage.flow);
+            layout.storeLayout(JSON.stringify(flowPackage.layout));
+            setFlowState(FlowState.loaded);
+          });
+
+        } else {
+          const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
+          flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
+          setFlowType(flowPackage.flowType || 'playground');
+          setCanvasFlowType(flowPackage.flowType || 'playground');
+          flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
+          setFlow(flowPackage.flow);
+          layout.storeLayout(JSON.stringify(flowPackage.layout));
+          setFlowState(FlowState.loaded);
+        }
         return;
       }
 
@@ -144,6 +176,7 @@ export const useFlows = (
 
   const saveFlow = useCallback(
     (selectedFlow?, stateFlow?: any[]) => {
+      console.log("SAVE FLOW", stateFlow, flowStore.flow);
       const flowAndUpdatedPositions = (stateFlow || flowStore.flow || []).map(node => {
         let updatedNode = { ...node };
         if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
