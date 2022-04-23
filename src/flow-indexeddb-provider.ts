@@ -258,7 +258,7 @@ let tasks = [
 ];
 
 function getTasks() {
-  return [tasks, ...additionalTasks];
+  return [...tasks, ...additionalTasks];
 }
 
 function saveFlow(flowId: string, flow: any) {
