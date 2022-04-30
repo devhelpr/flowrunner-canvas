@@ -1,7 +1,7 @@
 import { ShapeMeasures } from './shape-measures';
 import { getTaskConfigForTask } from '../config';
 import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-types';
-import { IPositionContext } from '../components/contexts/position-context';
+import { IPosition, IPositionContext } from '../components/contexts/position-context';
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow, positionContext?: IPositionContext) {
     if (flow === undefined) {
@@ -31,8 +31,16 @@ export class FlowToCanvas {
           });
         }
         return node;
+      } else {
+        let position: IPosition | undefined = undefined;
+        if (positionContext) {
+          position = positionContext.positions.get(node.name);
+        }
+        return {
+          ...node,
+          ...position
+        };
       }
-      return node;
     });
     console.log('convertFlowPackageToCanvasFlow performance', performance.now() - startPerf);
     return resultFlow;

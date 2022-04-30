@@ -5,9 +5,9 @@ import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 import { ErrorBoundary } from '../../../helpers/error';
 import { ThumbPositionRelativeToNode } from './shape-types';
 import { usePositionContext } from '../../contexts/position-context';
+import { IFlowState } from '../../../state/flow-state';
 
 export interface ILineHelperProps {
-	flow: any[],
 	endshapeid : string,
 	node,
 	lineNode,
@@ -21,11 +21,11 @@ export interface ILineHelperProps {
 	onClickLine,
 	touchedNodes,
 	newStartPosition,
-	positions: any;
-	flowHash?: any;
 	onMouseStart: any;
 	onMouseMove: any;
 	onMouseEnd: any;
+
+	useFlowStore : () => IFlowState;
 
 	onMouseConnectionStartOver?: any;
 	onMouseConnectionStartOut?: any;
@@ -42,15 +42,16 @@ export interface ILineHelperProps {
 }
 
 export const LineHelper = (props : ILineHelperProps) => {
+	const flow = props.useFlowStore();
 	const positionContext = usePositionContext();
 	
 	const endNode = useMemo(() => {
-		const endIndex = props.flowHash.get(props.endshapeid).index;
+		const endIndex = flow.flowHashmap.get(props.endshapeid).index;
 		if (endIndex < 0) {
 			return false;
 		}
-		return props.flow[endIndex];	
-	}, [props.node.name, props.flow, props.flowHash, props.endshapeid]);
+		return flow.flow[endIndex];	
+	}, [props.node.name, flow, flow.flowHashmap, props.endshapeid]);
 	
 	/*
 	const endNodes = useMemo(() => { 
@@ -70,7 +71,7 @@ export const LineHelper = (props : ILineHelperProps) => {
 
 	if (endNode) {
 		
-		let positionNode = props.positions(endNode.name) || endNode;
+		let positionNode = positionContext.getPosition(endNode.name) || endNode;
 		newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 			x: positionNode.x,
 			y: positionNode.y
@@ -140,7 +141,6 @@ export const LineHelper = (props : ILineHelperProps) => {
 }
 
 export interface ILinesProp {
-	flow : any[], 
 	node : any, 
 	getNodeInstance : any, 
 	canvasHasSelectedNode : boolean, 
@@ -151,11 +151,11 @@ export interface ILinesProp {
 	onLineMouseOut,
 	onClickLine,
 	touchedNodes,
-	positions?: any;
-	flowHash? : any;
 	onMouseStart: any;
 	onMouseMove: any;
 	onMouseEnd: any;
+
+	useFlowStore : () => IFlowState;
 
 	onMouseConnectionStartOver?: any;
 	onMouseConnectionStartOut?: any;
@@ -174,13 +174,14 @@ export interface ILinesProp {
 export const Lines = (
 		props : ILinesProp
 	) => {
+	const flow = props.useFlowStore();
+	const positionContext = usePositionContext();
 
-		
 	const lines = useMemo(() => {
-		return props.flowHash.get(props.node.name).start.map((lineIndex, index) => {
-			return props.flow[lineIndex];
+		return flow.flowHashmap.get(props.node.name).start.map((lineIndex, index) => {
+			return flow.flow[lineIndex];
 		});	
-	}, [props.node.name, props.flow, props.flowHash]);
+	}, [props.node.name, flow, flow.flowHashmap]);
 	/*
 	const lines = useMemo(() => {
 		return props.flow.filter((lineNode, index) => {		
@@ -195,16 +196,15 @@ export const Lines = (
 			/*
 				- lijnen vanuit de huidige node naar een andere node
 			*/
-			let newPosition ={x:props.node.x, y:props.node.y};
-			newPosition = props.positions(props.node.name) || newPosition;
+
+			let newPosition = {x: props.node.x, y: props.node.y};
+			newPosition = (positionContext.getPosition(props.node.name) as any) || newPosition;
 
 			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, lineNode, props.getNodeInstance,
 				lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 			
 			return <React.Fragment key={index}><LineHelper
-					flow={props.flow}
-					flowHash={props.flowHash}
-					positions={props.positions}
+					useFlowStore={props.useFlowStore}
 					endshapeid={lineNode.endshapeid}
 					node={props.node}
 					lineNode={lineNode}

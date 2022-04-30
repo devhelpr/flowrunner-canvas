@@ -62,7 +62,10 @@ export interface IKonvaNodeProps {
 }
 
 export const KonvaNode = (props: IKonvaNodeProps) => {
-	const positionContext = usePositionContext();
+	const {getPosition, setPosition} = usePositionContext();
+	const ref = React.useRef<any>({}).current;
+    ref.getPosition = getPosition;
+	ref.setPosition = setPosition;
 
 	let shapeType = useMemo(() => FlowToCanvas.getShapeType(props.node.shapeType, props.node.taskType, props.node.isStartEnd), 
 		[props.node]);
@@ -77,24 +80,26 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 		return null;
 	}
 	const Shape = Shapes[shapeType];
-	let position = positionContext.getPosition(props.node.name);
+
+	let position = ref.getPosition(props.node.name);
+	
 	if (!position) {
 		if (props.node.shapeType !== "Line") {
 			
-			positionContext.setPosition(props.node.name, {
+			ref.setPosition(props.node.name, {
 				x: props.node.x,
 				y: props.node.y
 			});
 		} else {
 			
-			positionContext.setPosition(props.node.name, {
+			ref.setPosition(props.node.name, {
 				xstart: props.node.xstart,
 				ystart: props.node.ystart,
 				xend: props.node.xend,
 				yend: props.node.yend
 			});
 		}  
-		position = positionContext.getPosition(props.node.name);
+		position = ref.getPosition(props.node.name);
 	}
 
 	if (props.node.shapeType !== "Line" && Shape && position) {
@@ -129,7 +134,7 @@ export const KonvaNode = (props: IKonvaNodeProps) => {
 			ref={ref => (props.shapeRefs.current[props.node.name] = ref)}
 
 			shapeRefs={props.shapeRefs}
-			positions={positionContext.getPosition}
+			positions={ref.getPosition}
 			canvasHasSelectedNode={props.canvasHasSelectedNode}
 			
 			nodeState={nodeState}

@@ -27,34 +27,32 @@ export const PositionContext = createContext<IPositionContext>({
 });
 
 export const usePositionContext = () => {
-	const positionContext = useContext(PositionContext);
+	const internalPositionContext = useContext(PositionContext);
 
 	const clearPositions = () => {
-		positionContext.positions = new Map();
+		console.log("clearPositions");
+		internalPositionContext.positions.clear();
+		internalPositionContext.orgPositions.clear();
 	};
 	  
 	const getPositions = () => {
-		return positionContext.positions;
+		return internalPositionContext.positions;
 	};
 	  
 	const setPosition = (nodeName: string, position: any) => {
-		//positions[nodeName] = position;
-		positionContext.positions.set(nodeName, position);
+		internalPositionContext.positions.set(nodeName, position);
 	  };
 	  
 	const getPosition = (nodeName: string) => {
-		//return positions[nodeName];
-		return positionContext.positions.get(nodeName);
+		return internalPositionContext.positions.get(nodeName);
 	  };
 	  
 	const setCommittedPosition = (nodeName: string, position: any) => {
-		//positions[nodeName] = position;
-		positionContext.orgPositions.set(nodeName, position);
+		internalPositionContext.orgPositions.set(nodeName, position);
 	};
 	
 	const getCommittedPosition = (nodeName: string) => {
-		//return positions[nodeName];
-		return positionContext.orgPositions.get(nodeName);
+		return internalPositionContext.orgPositions.get(nodeName);
 	};
 	
 	return {
@@ -63,18 +61,21 @@ export const usePositionContext = () => {
 		getPosition,
 		setCommittedPosition,
 		getCommittedPosition,
-		context : positionContext
+		context : internalPositionContext
 	};
 }
 
 export interface IPositionPropsProvider {
+	isBridged? : boolean;
+	positionContext? : IPositionContext;
 	children : ReactNode;
 }
 
 export const PositionProvider = (props : IPositionPropsProvider) => {
-	const positionRef = useRef({
+	const positionRef = useRef<IPositionContext>(!!props.isBridged && props.positionContext ? props.positionContext : {
 		positions : new Map<string, IPosition>(),
 		orgPositions : new Map<string, IPosition>()
 	});
-	return <PositionContext.Provider value={positionRef.current}>{props.children}</PositionContext.Provider>;
+	console.log("PositionProvider");
+	return <PositionContext.Provider value={{...positionRef.current}}>{props.children}</PositionContext.Provider>;
 }

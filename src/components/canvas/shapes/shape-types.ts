@@ -1,4 +1,5 @@
 import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
+import { IFlowState } from '../../../state/flow-state';
 
 export interface ShapeTypeProps {
   x: number;
@@ -6,7 +7,6 @@ export interface ShapeTypeProps {
   name: string;
   taskType: string;
   node: any;
-  flow: any;
 
   hasTaskNameAsNodeTitle?: boolean;
   onDragStart: any;
@@ -31,7 +31,6 @@ export interface ShapeTypeProps {
   onClickSetup: any;
 
   shapeRefs: any[];
-  positions?: any;
 
   canvasHasSelectedNode: boolean;
   isConnectedToSelectedNode: boolean;
@@ -45,7 +44,7 @@ export interface ShapeTypeProps {
 
   touchedNodes: any;
 
-  flowHash?: any;
+  useFlowStore : () => IFlowState;
 
   onMouseConnectionStartOver?: any;
   onMouseConnectionStartOut?: any;

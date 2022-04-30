@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} from 'react';
+import { useRef , useState, useEffect , useMemo, useLayoutEffect} from 'react';
 import { Stage, Layer , Rect, Group } from 'react-konva';
 import { Shapes } from './shapes';
 import { LinesForShape } from './shapes/lines-for-shape';
@@ -44,7 +44,7 @@ import { InteractionState } from "./canvas-types/interaction-state";
 import { IModalSize } from '../../interfaces/IModalSize';
 import { INodeDependency } from '../../interfaces/INodeDependency';
 
-import { usePositionContext } from '../contexts/position-context';
+import { PositionContext, PositionProvider, usePositionContext } from '../contexts/position-context';
 
 import { setMultiSelectInfo } from '../../services/multi-select-service';
 import { AnnotationSection } from './annotations/annotation-section';
@@ -290,14 +290,14 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, []);
 
-	const wheelEnableLayoutOnTimeout = useCallback(() => {
+	const wheelEnableLayoutOnTimeout = () => {
 		if (layer && layer.current) {
 			(layer.current as any).listening(true);
 			(layer.current as any).batchDraw();
 		}
-	}, [flowStore.flow]);
+	};
 
-	const wheelEvent = useCallback((e , touchPosition? : any) => {
+	const wheelEvent = (e , touchPosition? : any) => {
 		
 		if (wheelTimeout.current) {
 			clearTimeout(wheelTimeout.current as any);
@@ -386,7 +386,7 @@ export const Canvas = (props: CanvasProps) => {
 			oldwheeltime.current = performance.now();
 		}
 		return false;
-	}, [flowStore.flow]);
+	};
 
 	const updateDimensions = () => {
 		//const stageContainerElement = (stage as any).current.attrs["container"];//document.querySelector(".stage-container");
@@ -570,7 +570,7 @@ export const Canvas = (props: CanvasProps) => {
 	const nodeStateCount = useRef(0);
 	const nodeStateTimeout = useRef(undefined);
 
-	const nodeStateTimeoutCallback = useCallback(() => {
+	const nodeStateTimeoutCallback = () => {
 		nodeStateList.current.map((nodeState) => {
 			let nodeStateClass = nodeState.nodeState == "error" ? "has-error" : "";
 			//const element = document.getElementById(nodeState.nodeName);
@@ -627,7 +627,7 @@ export const Canvas = (props: CanvasProps) => {
 
 		nodeStateList.current = [];
 		nodeStateCount.current = 0;
-	}, [flowStore.flow]);
+	};
 
 	const nodeStateObserver = (nodeName: string, nodeState : string, _touchedNodes : any) => {
 		if (!updateNodeTouchedState) {
@@ -746,10 +746,10 @@ export const Canvas = (props: CanvasProps) => {
 		console.log("CANVAS BOUNDING RECT USEEFFECT" , rect, (canvasWrapper as any).current);
 	}, []);
 
-	const onResize = useCallback((event) => {
+	const onResize = (event) => {
 		updateDimensions();
 		fitStage(undefined,true,true);
-	}, [flowStore.flow]);
+	};
 
 	useEffect(() => {
 		//(flowIsLoading as any).current = true;		
@@ -830,7 +830,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}
 	
-	const recalculateStartEndpoints = useCallback((doBatchdraw : boolean) => {
+	const recalculateStartEndpoints = (doBatchdraw : boolean) => {
 
 		const startPerf = performance.now();
 		flowStore.flow.forEach((node, index) => {
@@ -839,8 +839,10 @@ export const Canvas = (props: CanvasProps) => {
 				if (shapeRef) {						
 					//let element = document.getElementById(node.name);
 					let element = elementRefs.current[node.name];
-					if (element) {
-						const position = positionContext.getPosition(node.name) || {x:node.x,y:node.y};
+					if (element) {		
+						const getPos = positionContext.getPosition(node.name);
+						const position = getPos || {x:node.x,y:node.y};
+
 						//setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current,
 						//	position.x,position.y,node);
 
@@ -888,7 +890,7 @@ export const Canvas = (props: CanvasProps) => {
 				stageInstance.batchDraw();
 			}
 		}		
-	}, [flowStore.flow]);	
+	};	
 
 	useLayoutEffect(() => {
 
@@ -904,6 +906,9 @@ export const Canvas = (props: CanvasProps) => {
 		if (props.flowHasNodes) {
 						
 			if (props.flowState == FlowState.loading || props.flowState == FlowState.idle) {
+				
+				console.log("USELAYOUTEFFECT loading or idle");
+
 				setCanvasOpacity(props.initialOpacity);
 				(flowIsLoading as any).current = true;
 
@@ -926,6 +931,8 @@ export const Canvas = (props: CanvasProps) => {
 
 				perfstart = performance.now();
 				
+				console.log("USELAYOUTEFFECT loaded flowIsLoading");
+
 				flowStore.flow.map((node, index) => {					
 
 					if (node.x !== undefined && node.y !== undefined) {						
@@ -977,6 +984,8 @@ export const Canvas = (props: CanvasProps) => {
 				recalculateStartEndpoints(false);
 				
 			} else if (props.flowState == FlowState.loaded && !(flowIsLoading as any).current) {
+
+				console.log("USELAYOUTEFFECT loaded not flowIsLoading");
 
 				if (flowStore.flow.length == 1) {
 					if (!flowIsFittedStageForSingleNode.current) {
@@ -1052,8 +1061,9 @@ export const Canvas = (props: CanvasProps) => {
 		positionContext
 	]);	
 	
-	const setNewPositionForNode = useCallback((event, node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
+	const setNewPositionForNode = (event, node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
 		const unselectedNodeOpacity = 0.15;
+
 		if (!linesOnly) {
 			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
 				flowStore.flow.map((flowNode) => {
@@ -1271,7 +1281,7 @@ export const Canvas = (props: CanvasProps) => {
 					y : positionLine.yend
 				};
 				let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
-				if (endNode) {
+				if (endNode) {					
 					const positionNode = positionContext.getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 							x: positionNode.x,
@@ -1469,7 +1479,7 @@ export const Canvas = (props: CanvasProps) => {
 				}
 			}
 		}
-	}, [flowStore.flow, flowStore.flowHashmap]);
+	};
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
@@ -1756,7 +1766,7 @@ export const Canvas = (props: CanvasProps) => {
 				}			
 			}
 		}
-		
+		console.log("ONMOUSESTAR2T", node.name);
 		if (interactionState.current === InteractionState.idle) { 
 			return false;
 		}
@@ -2054,6 +2064,22 @@ console.log("connectConnectionToNode" , node);
 				selectNode(node.name, node);
 			}
 			return;
+		} else 
+		if (node.shapeType === "Rect" ||node.shapeType === "Diamond" ) {
+			if (interactionState.current === InteractionState.idle) {
+				touching.current = false;
+				(touchNode.current as any) = undefined;
+				touchNodeGroup.current = undefined;
+				mouseDragging.current = false;
+				draggingMultipleNodes.current = [];
+				interactionState.current = InteractionState.idle;
+
+				selectNode(node.name, node);
+				selectedNodeRef.current = node;
+				(document.body.style.cursor as any) = null;
+				document.body.classList.remove("mouse--moving");
+				return;
+			}
 		}
 
 		selectedNodeRef.current = node;
@@ -2092,7 +2118,7 @@ console.log("connectConnectionToNode" , node);
 		if (event.currentTarget && mouseDragging.current) {
 			return;
 		}
-
+console.log("onmouseend", node.name);
 		if (event.evt) {
 			event.evt.preventDefault();
 			event.evt.cancelBubble = true;
@@ -2134,7 +2160,7 @@ console.log("connectConnectionToNode" , node);
 		}
 	}
 
-	const storeNodeAndUpdate = useCallback((node, nodeName) => {
+	const storeNodeAndUpdate = (node, nodeName) => {
 		console.log("storeNodeAndUpdate call", nodeName, node);
 		const unsubscribe = (props.useFlowStore as any).subscribe(state => {
 			console.log("storeNodeAndUpdate listener", nodeName, state)
@@ -2145,9 +2171,9 @@ console.log("connectConnectionToNode" , node);
 		flowStore.storeFlowNode(node, nodeName, positionContext.context);
 		unsubscribe();
 		
-	}, [flowStore.flow, positionContext]);
+	};
 
-	const removeOrAddNodeToSections = useCallback((node : any) => {
+	const removeOrAddNodeToSections = (node : any) => {
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
@@ -2292,7 +2318,7 @@ console.log("connectConnectionToNode" , node);
 	
 			}
 		}
-	} , [flowStore.flow]);
+	};
 
 	const onStageMouseEnd = (event) => {
 		console.log("onStageMouseEnd", interactionState.current);
@@ -2762,7 +2788,7 @@ console.log("onstagemouseend in reset", interactionState.current, selectingViaAn
 		}
 	}
 
-	const deselectAllNodes = useCallback(() => {
+	const deselectAllNodes = () => {
 		selectedNodes.current = [];
 		flowStore.flow.map((node, index) => {
 			if (node.shapeType !== "Line") {
@@ -2777,9 +2803,9 @@ console.log("onstagemouseend in reset", interactionState.current, selectingViaAn
 				}
 			}
 		});
-	},[flowStore.flow]);
+	};
 
-	const selectNodesForSelectRectangle = useCallback((event) => {
+	const selectNodesForSelectRectangle = (event) => {
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
 			if (stageInstance) {
@@ -2879,7 +2905,7 @@ console.log("onstagemouseend in reset", interactionState.current, selectingViaAn
 			}
 		}
 		return [];
-	}, [flowStore.flow]);
+	};
 	
 	const moveSelectRectangle = (event) => {
 		// selectingRectInfo
@@ -3780,7 +3806,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 			console.log("onclickshape dragging nodes");
 			return;
 		}
-
+		
 		event.cancelBubble = true;
 		if (event.evt) {
 			event.evt.preventDefault();
@@ -3820,7 +3846,18 @@ console.log("getNewConnection in clickShape")
 	
 		if (canvasMode.isConnectingNodes) {
 			canvasMode.setConnectiongNodeCanvasMode(false);
-		}		
+		}
+		
+		/*
+			trigger animating to node:
+			- click and hold ctrl
+			- call fitStage(undefined, false, false, true , node.name); 
+		*/
+
+		if (event.altKey) {
+			console.log("TRIGGER ANIMATE TO", node.name);
+			fitStage(undefined, false, false, true , node.name)
+		}
 
 		return false;		
 	}
@@ -3842,7 +3879,7 @@ console.log("getNewConnection in clickShape")
 		return false;
 	}
 
-	const onDragStageMove = useCallback((event) => {
+	const onDragStageMove = (event) => {
 
 		if (isPinching.current) {
 			return;			
@@ -3881,9 +3918,9 @@ console.log("getNewConnection in clickShape")
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);						
 			}
 		}
-	}, [flowStore.flow]);
+	};
 
-	const onDragStageEnd = useCallback((event) => {
+	const onDragStageEnd = (event) => {
 
 		if (isPinching.current) {
 			return;			
@@ -3918,10 +3955,9 @@ console.log("getNewConnection in clickShape")
 				setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
 			}
 		}
-	}, [flowStore.flow]);
+	};
 
-	const setHtmlElementsPositionAndScale = useCallback(
-		(stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
+	const setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
 
 		flowStore.flow.map((flowNode) => {	
 			if (flowNode.shapeType !== "Line") {
@@ -3953,17 +3989,17 @@ console.log("getNewConnection in clickShape")
 
 		// see also recalculateStartEndpoints
 		setHtmlGlobalScale(stageX, stageY, stageScale);
-	}, [flowStore.flow]);
+	};
 
 	//htmlWrapper
-	const setHtmlGlobalScale = useCallback((stageX, stageY, stageScale) => {
+	const setHtmlGlobalScale = (stageX, stageY, stageScale) => {
 		if (htmlWrapper && htmlWrapper.current) {
 			(htmlWrapper.current as any).style.transform = 						
 			"translate(" + (stageX ) + "px," + (stageY) + "px) "+
 			"scale(" + (stageScale) + "," + (stageScale) + ") "
 			;
 		}
-	}, [flowStore.flow])
+	};
 
 	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
 		(element as any).style.transform = 						
@@ -3974,7 +4010,7 @@ console.log("getNewConnection in clickShape")
 			;
 	}
 
-	const fitStage = useCallback((node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean, doAnimate? : boolean) => {
+	const fitStage = (node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean, doAnimate? : boolean, animateToNode? : string) => {
 		console.log("FITSTAGE");
 		let xMin;
 		let yMin;
@@ -4087,6 +4123,11 @@ console.log("getNewConnection in clickShape")
 					}
 				});
 			
+				let doFitStage = true;
+				if (!!doAnimate && animateToNode) {
+					doFitStage = false;
+				}
+
 				if (flowStore.flow.length > 0 &&
 					xMin !== undefined && yMin !== undefined && xMax !== undefined && yMax !== undefined) {
 					let scale = 1;
@@ -4133,8 +4174,9 @@ console.log("getNewConnection in clickShape")
 							}
 						} 
 
-						stageInstance.scale({ x: scale, y: scale });
-
+						if (doFitStage) {
+							stageInstance.scale({ x: scale, y: scale });
+						}
 						const newPos = {
 							x: 0 ,
 							y: 0 
@@ -4153,19 +4195,22 @@ console.log("getNewConnection in clickShape")
 						newPos.y = (-(yMin)*scale) + 
 							(stageHeight + (props.isEditingInModal ? 0 : 64))/2 - 
 							((flowHeight*scale))/2 ;	
-						 
-						stageInstance.position(newPos);
-						if (!!doBatchdraw) {
-							stageInstance.batchDraw();
-						}
-						stageX.current = newPos.x;
-						stageY.current = newPos.y;
-						stageScale.current = scale;
 						
-						if (doSetHtmlElementsPositionAndScale === undefined || !!doSetHtmlElementsPositionAndScale) {
-							setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
+						if (doFitStage) {
+							stageInstance.position(newPos);
+							if (!!doBatchdraw) {
+								stageInstance.batchDraw();
+							}
+							stageX.current = newPos.x;
+							stageY.current = newPos.y;
+							stageScale.current = scale;
+							
+							if (doSetHtmlElementsPositionAndScale === undefined || !!doSetHtmlElementsPositionAndScale) {
+								setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
+							}
+							setCanvasOpacity(1);
+							console.log("FITSTAGE AFTER");
 						}
-						setCanvasOpacity(1);
 
 						let stopAnimation = false;
 
@@ -4181,8 +4226,22 @@ console.log("getNewConnection in clickShape")
 						*/
 
 						if (window.localStorage && !!doAnimate) {
-							let as = localStorage.getItem('animation') || "";
+							let as = "";
 							animationScript.current = undefined;
+
+							if (animateToNode) {
+								animationScript.current = {
+									nodes : [
+										animateToNode
+									],
+									zoom: 1,
+									duration: 1,
+									loop: 0
+								}	
+							} else {
+								as = localStorage.getItem('animation') || "";
+							}
+							
 							if (as) {
 								animationScript.current = JSON.parse(as);				
 							}
@@ -4321,7 +4380,7 @@ console.log("getNewConnection in clickShape")
 				}
 			}
 		}
-	}, [flowStore.flow]);
+	};
 
 	useEffect(() => {
 		console.log("useEffect AFTER fitstage", flowStore.flowId, performance.now());
@@ -5705,9 +5764,9 @@ console.log("getNewConnection in clickShape")
 
 	const connections = canvasMode.showDependencies ? getDependentConnections() : [];
 	let nodesConnectedToSelectedNode : any = {};
-	const flowMemo = useMemo(() => {
-		return flowStore.flow
-	}, [flowStore.flow]);
+	//const flowMemo = flowStore.flow;/*useMemo(() => {
+	//	return flowStore.flow
+	//}, [flowStore, positionContext]);*/
 /*
 <DndContext 
 			    id={"canvas-dndcontext"}
@@ -5767,8 +5826,10 @@ console.log("getNewConnection in clickShape")
 					//onWheel={wheelEvent}			
 					onMouseLeave={onStageMouseLeave}
 					>
-					<ErrorBoundary>
+					
 					<div ref={setNodeRef} style={droppableStyle}>
+					<PositionContext.Consumer>
+      					{value => (
 						<Stage					
 							onClick={clickStage}					
 							draggable={true}
@@ -5788,169 +5849,301 @@ console.log("getNewConnection in clickShape")
 
 							onTap={clickStage}
 							className="stage-container">
-							<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
-								<Group ref={ref => ((stageGroup as any).current = ref)}>
-								<Rect x={0} y={0} width={1024} height={750}></Rect>
-								<Rect 
-									x={0} 
-									y={0} 
-									width={0} 
-									height={0}
-									listening={false}
-									stroke={"#202020"}
-									hitStrokeWidth={0}			
-									strokeWidth={4}
-									dash={[5,10]}
-									opacity={0}
-									ref={ref => ((selectingRectRef as any).current = ref)}
-								></Rect>
+							<PositionProvider 
+								positionContext={value}
+								isBridged={true}
+							>
+								<Layer key={"stage-layer-" + canvasKey} ref={ref => ((layer as any).current = ref)}>
+									<Group ref={ref => ((stageGroup as any).current = ref)}>
+									<Rect x={0} y={0} width={1024} height={750}></Rect>
+									<Rect 
+										x={0} 
+										y={0} 
+										width={0} 
+										height={0}
+										listening={false}
+										stroke={"#202020"}
+										hitStrokeWidth={0}			
+										strokeWidth={4}
+										dash={[5,10]}
+										opacity={0}
+										ref={ref => ((selectingRectRef as any).current = ref)}
+									></Rect>
 
-								{flowMemo.map((node, index) => {
-									if (node.shapeType === "Text") {
-										return <AnnotationText
-											key={`text-${index}`}
-											ref={ref => (shapeRefs.current[node.name] = ref)}
-											x={node.x} 
-											y={node.y}
-											width={node.width} 
-											height={node.height}
-											name={node.name}
+									{flowStore.flow.map((node, index) => {
+										if (node.shapeType === "Text") {
+											return <AnnotationText
+												key={`text-${index}`}
+												ref={ref => (shapeRefs.current[node.name] = ref)}
+												x={node.x} 
+												y={node.y}
+												width={node.width} 
+												height={node.height}
+												name={node.name}
+												node={node}
+												onClick={(event) => onClickShape(node, event)}
+												onMouseStart={(event) => onMouseStart(node, event)}
+												onMouseOver={(event) => onMouseOver(node, event)}
+												onMouseOut={(event) => onMouseOut()}
+												onTouchStart={(event) => onTouchStart(node, event)}
+												onMouseEnd={(event) => onMouseEnd(node, event)}
+												onMouseMove={(event) => onMouseMove(node, event)}
+												onMouseLeave={(event) => onMouseLeave(node, event)}	
+												
+												onDragStart={(event) => onDragStart(node, event)}
+												onDragEnd={(event) => onDragEnd(node, event)}
+												onDragMove={(event) => onDragMove(node, event)}
+											></AnnotationText>
+										} else
+										if (node.shapeType === "Section") {
+											return <AnnotationSection 
+												key={`section-${index}`}
+												ref={ref => (shapeRefs.current[node.name] = ref)}
+												x={node.x} 
+												y={node.y} 											
+												width={node.width} 
+												height={node.height}
+												name={node.name}
+												onClick={(event) => onClickShape(node, event)}
+												onMouseStart={(event) => onMouseStart(node, event)}
+												onMouseOver={(event) => onMouseOver(node, event)}
+												onMouseOut={(event) => onMouseOut()}
+												onTouchStart={(event) => onTouchStart(node, event)}
+												onMouseEnd={(event) => onMouseEnd(node, event)}
+												onMouseMove={(event) => onMouseMove(node, event)}
+												onMouseLeave={(event) => onMouseLeave(node, event)}	
+												
+												onDragStart={(event) => onDragStart(node, event)}
+												onDragEnd={(event) => onDragEnd(node, event)}
+												onDragMove={(event) => onDragMove(node, event)}
+											></AnnotationSection>
+										}
+										return null;
+									})}
+									{connections.length > 0 && connections.map((node, index) => {
+
+										if (canvasHasSelectedNode &&  selectedNodeRef.current) {
+											if (node.startshapeid === selectedNodeRef.current.name) {
+												nodesConnectedToSelectedNode[node.endshapeid] = true;
+											}
+
+											if (node.endshapeid === selectedNodeRef.current.name) {
+												nodesConnectedToSelectedNode[node.startshapeid] = true;
+											}								
+										}
+										return <Shapes.Line key={"cn-node-" + index}
+												onMouseOver={(event) => onMouseOver(node, event)}
+												onMouseOut={(event) => onMouseOut()}
+												onMouseStart={undefined}
+												onMouseMove={undefined}
+												onMouseEnd={undefined}
+												onClickLine={(event) => onClickLine(node, event)}
+												isSelected={false}
+												isAltColor={true}									
+												canvasHasSelectedNode={canvasHasSelectedNode}
+												isConnectionWithVariable={node.isConnectionWithVariable}
+												isConnectionWithFunction={node.isConnectionWithFunction}
+												xstart={node.xstart} 
+												ystart={node.ystart}									
+												xend={node.xend} 
+												yend={node.yend}
+												selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ""}
+												startNodeName={node.startshapeid}
+												endNodeName={node.endshapeid}
+												noMouseEvents={true}	
+												></Shapes.Line>})
+									}
+									{flowStore.flow.map((node, index) => {
+										if (node.shapeType !== "Line") {
+
+											let position = positionContext.getPosition(node.name);
+											if (!position) {
+												if (node.shapeType !== "Line") {
+													positionContext.setPosition(node.name, {
+														x: node.x,
+														y: node.y
+													});
+												} else {
+													
+													positionContext.setPosition(node.name, {
+														xstart: node.xstart,
+														ystart: node.ystart,
+														xend: node.xend,
+														yend: node.yend
+													});
+												}  
+												position = positionContext.getPosition(node.name);
+											}
+											if (!position) {
+												return null;
+											}
+
+											return <LinesForShape key={"node-lineshape-"+index} 
+												x={position?.x ?? 0} 
+												y={position?.y ?? 0} 
+												name={node.name}
+												taskType={node.taskType}
+												node={node}			
+												shapeRefs={shapeRefs as any}
+												useFlowStore={props.useFlowStore}
+												canvasHasSelectedNode={canvasHasSelectedNode}
+												
+												nodeState={""}
+												selectedNode={selectedNodeRef.current}
+												onLineMouseOver={onMouseOver}
+												onLineMouseOut={onMouseOut}
+												onClickLine={onClickLine}
+											
+												onClickSetup={undefined}
+												onMouseOver={(event) => onMouseOver(node, event)}
+												onMouseOut={onMouseOut}
+												onDragStart={(event) => onDragStart(node, event)}
+												onDragEnd={(event) => onDragEnd(node, event)}
+												onDragMove={(event) => onDragMove( node, event)}
+												onTouchStart={(event) => onTouchStart(node, event)}
+												onTouchEnd={(event) => onTouchEnd( node, event)}
+												onTouchMove={(event) => onTouchMove(node, event)}
+												onClickShape={(event) => onClickShape(node, event)}
+												onMouseStart={onMouseStart}
+												onMouseMove={onMouseMove}
+												onMouseEnd={onMouseEnd}
+												onMouseLeave={(event) => onMouseLeave(node, event)}
+												isSelected={selectedNodeRef.current.name === node.name}
+												isConnectedToSelectedNode={false}
+												getNodeInstance={props.getNodeInstance}
+												touchedNodes={touchedNodesStore.nodesTouched}
+
+												onMouseConnectionStartOver={onMouseConnectionStartOver}
+												onMouseConnectionStartOut={onMouseConnectionStartOut}
+												onMouseConnectionStartStart={onMouseConnectionStartStart}
+												onMouseConnectionStartMove={onMouseConnectionStartMove}
+												onMouseConnectionStartEnd={onMouseConnectionStartEnd}
+
+												onMouseConnectionEndOver={onMouseConnectionEndOver}
+												onMouseConnectionEndOut={onMouseConnectionEndOut}
+												onMouseConnectionEndStart={onMouseConnectionEndStart}
+												onMouseConnectionEndMove={onMouseConnectionEndMove}
+												onMouseConnectionEndEnd={onMouseConnectionEndEnd}
+												onMouseConnectionEndLeave={onMouseConnectionEndLeave}
+												
+											></LinesForShape>
+										} else {
+											// TODO : check here if line and startshapeid or endshapeid == undefined
+											if (node.shapeType === "Line") {
+												if (node.startshapeid === undefined) {
+													let position = positionContext.getPosition(node.name);
+													if (!position) {														
+														positionContext.setPosition(node.name, {
+																xstart: node.xstart,
+																ystart: node.ystart,
+																xend: node.xend,
+																yend: node.yend
+															});
+															position = positionContext.getPosition(node.name);
+													}
+
+													if (!position) {
+														return null;
+													}
+
+													if (node.endshapeid !== undefined) {
+														const endIndex = flowStore.flowHashmap.get(node.endshapeid).index;
+														if (endIndex >= 0) {													
+															const endNode =  flowStore.flow[endIndex];
+															if (endNode) {
+																let positionNode = positionContext.getPosition(node.endshapeid) || endNode;
+																let newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
+																	x: positionNode.x,
+																	y: positionNode.y
+																}, endNode, props.getNodeInstance,
+																node.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
+																position.xend = newEndPosition.x;
+																position.yend = newEndPosition.y;
+															}
+														}
+													}
+
+													if (!position) {
+														return null;
+													}
+
+													return <Shapes.Line key={"ln-node-" + index}
+														ref={ref => (shapeRefs.current[node.name] = ref)}
+														onMouseOver={(event) => onMouseOver(node, event)}
+														onMouseOut={onMouseOut}
+														onClickLine={(event) => onClickLine(node, event)}
+														isSelected={false}
+														isAltColor={true}									
+														canvasHasSelectedNode={canvasHasSelectedNode}													
+														xstart={position?.xstart ?? 0} 
+														ystart={position?.ystart ?? 0}									
+														xend={position?.xend ?? 0} 
+														yend={position?.yend ?? 0}
+														selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ""}
+														startNodeName={node.startshapeid}
+														endNodeName={node.endshapeid}
+														noMouseEvents={false}
+														lineNode={node}
+														shapeRefs={shapeRefs.current}
+														getNodeInstance={props.getNodeInstance}
+														hasStartThumb={true}
+
+														onMouseStart={onMouseStart}
+														onMouseMove={onMouseMove}
+														onMouseEnd={onMouseEnd}
+
+														hasEndThumb={node.endshapeid === undefined}
+														onMouseConnectionStartOver={onMouseConnectionStartOver}
+														onMouseConnectionStartOut={onMouseConnectionStartOut}
+														onMouseConnectionStartStart={onMouseConnectionStartStart}
+														onMouseConnectionStartMove={onMouseConnectionStartMove}
+														onMouseConnectionStartEnd={onMouseConnectionStartEnd}
+
+														onMouseConnectionEndOver={onMouseConnectionEndOver}
+														onMouseConnectionEndOut={onMouseConnectionEndOut}
+														onMouseConnectionEndStart={onMouseConnectionEndStart}
+														onMouseConnectionEndMove={onMouseConnectionEndMove}
+														onMouseConnectionEndEnd={onMouseConnectionEndEnd}
+														onMouseConnectionEndLeave={onMouseConnectionEndLeave}
+													></Shapes.Line>;
+												}
+											}
+										}
+										return null;
+									})}
+
+									{flowStore.flow.map((node, index) => {
+										return <KonvaNode 
+											key={"konva_" + node.name + flowStore.flowId}
 											node={node}
-											onClick={(event) => onClickShape(node, event)}
-											onMouseStart={(event) => onMouseStart(node, event)}
-											onMouseOver={(event) => onMouseOver(node, event)}
-											onMouseOut={(event) => onMouseOut()}
-											onTouchStart={(event) => onTouchStart(node, event)}
-											onMouseEnd={(event) => onMouseEnd(node, event)}
-											onMouseMove={(event) => onMouseMove(node, event)}
-											onMouseLeave={(event) => onMouseLeave(node, event)}	
-											
-											onDragStart={(event) => onDragStart(node, event)}
-											onDragEnd={(event) => onDragEnd(node, event)}
-											onDragMove={(event) => onDragMove(node, event)}
-										></AnnotationText>
-									} else
-									if (node.shapeType === "Section") {
-										return <AnnotationSection 
-											key={`section-${index}`}
-											ref={ref => (shapeRefs.current[node.name] = ref)}
-											x={node.x} 
-											y={node.y} 											
-											width={node.width} 
-											height={node.height}
-											name={node.name}
-											onClick={(event) => onClickShape(node, event)}
-											onMouseStart={(event) => onMouseStart(node, event)}
-											onMouseOver={(event) => onMouseOver(node, event)}
-											onMouseOut={(event) => onMouseOut()}
-											onTouchStart={(event) => onTouchStart(node, event)}
-											onMouseEnd={(event) => onMouseEnd(node, event)}
-											onMouseMove={(event) => onMouseMove(node, event)}
-											onMouseLeave={(event) => onMouseLeave(node, event)}	
-											
-											onDragStart={(event) => onDragStart(node, event)}
-											onDragEnd={(event) => onDragEnd(node, event)}
-											onDragMove={(event) => onDragMove(node, event)}
-										></AnnotationSection>
-									}
-									return null;
-								})}
-								{connections.length > 0 && connections.map((node, index) => {
-
-									if (canvasHasSelectedNode &&  selectedNodeRef.current) {
-										if (node.startshapeid === selectedNodeRef.current.name) {
-											nodesConnectedToSelectedNode[node.endshapeid] = true;
-										}
-
-										if (node.endshapeid === selectedNodeRef.current.name) {
-											nodesConnectedToSelectedNode[node.startshapeid] = true;
-										}								
-									}
-									return <Shapes.Line key={"cn-node-" + index}
-											onMouseOver={(event) => onMouseOver(node, event)}
-											onMouseOut={(event) => onMouseOut()}
-											onMouseStart={undefined}
-											onMouseMove={undefined}
-											onMouseEnd={undefined}
-											onClickLine={(event) => onClickLine(node, event)}
-											isSelected={false}
-											isAltColor={true}									
-											canvasHasSelectedNode={canvasHasSelectedNode}
-											isConnectionWithVariable={node.isConnectionWithVariable}
-											isConnectionWithFunction={node.isConnectionWithFunction}
-											xstart={node.xstart} 
-											ystart={node.ystart}									
-											xend={node.xend} 
-											yend={node.yend}
-											selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ""}
-											startNodeName={node.startshapeid}
-											endNodeName={node.endshapeid}
-											noMouseEvents={true}	
-											></Shapes.Line>})
-								}
-								{flowMemo.map((node, index) => {
-									if (node.shapeType !== "Line") {
-
-										let position = positionContext.getPosition(node.name);
-										if (!position) {
-											if (node.shapeType !== "Line") {
-												
-												positionContext.setPosition(node.name, {
-													x: node.x,
-													y: node.y
-												});
-											} else {
-												
-												positionContext.setPosition(node.name, {
-													xstart: node.xstart,
-													ystart: node.ystart,
-													xend: node.xend,
-													yend: node.yend
-												});
-											}  
-											position = positionContext.getPosition(node.name);
-										}
-										if (!position) {
-											return null;
-										}
-
-										return <LinesForShape key={"node-linshahe-"+index} 
-											x={position?.x ?? 0} 
-											y={position?.y ?? 0} 
-											name={node.name}
-											flow={flowMemo}
-											taskType={node.taskType}
-											node={node}			
-											flowHash={flowStore.flowHashmap}
-											shapeRefs={shapeRefs as any}
-											
-											positions={positionContext.getPosition}
-											canvasHasSelectedNode={canvasHasSelectedNode}
-											
-											nodeState={""}
-											selectedNode={selectedNodeRef.current}
-											onLineMouseOver={onMouseOver}
-											onLineMouseOut={onMouseOut}
-											onClickLine={onClickLine}
-										
-											onClickSetup={undefined}
-											onMouseOver={(event) => onMouseOver(node, event)}
-											onMouseOut={onMouseOut}
-											onDragStart={(event) => onDragStart(node, event)}
-											onDragEnd={(event) => onDragEnd(node, event)}
-											onDragMove={(event) => onDragMove( node, event)}
-											onTouchStart={(event) => onTouchStart(node, event)}
-											onTouchEnd={(event) => onTouchEnd( node, event)}
-											onTouchMove={(event) => onTouchMove(node, event)}
-											onClickShape={(event) => onClickShape(node, event)}
-											onMouseStart={onMouseStart}
-											onMouseMove={onMouseMove}
-											onMouseEnd={onMouseEnd}
-											onMouseLeave={(event) => onMouseLeave(node, event)}
-											isSelected={selectedNodeRef.current.name === node.name}
-											isConnectedToSelectedNode={false}
+											hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
+											flowrunnerConnector={props.flowrunnerConnector}
+											nodesStateLocal={nodesStateLocal.current[node.name] || ""}
 											getNodeInstance={props.getNodeInstance}
-											touchedNodes={touchedNodesStore.nodesTouched}
+											onCloneNode={onCloneNode}
+											canvasHasSelectedNode={canvasHasSelectedNode}
+											onFocus={onFocus}
+											onShowNodeSettings={onShowNodeSettings}
+											renderHtmlNode={props.renderHtmlNode}
+											flowId={flowStore.flowId}
+											flowMemo={flowStore.flow}
+											nodesConnectedToSelectedNode={nodesConnectedToSelectedNode}
+											useFlowStore={props.useFlowStore}
+											shapeRefs={shapeRefs}
+
+											onMouseStart={onMouseStart}
+											onMouseOver={onMouseOver}
+											onMouseOut={onMouseOut}
+											onClickLine={onClickLine}
+											onClickSetup={onClickSetup}
+											onClickShape={onClickShape}
+											onDragStart={onDragStart}
+											onDragEnd={onDragEnd}
+											onDragMove={onDragMove}
+											onTouchStart={onTouchStart}
+											onMouseEnd={onMouseEnd}
+											onMouseMove={onMouseMove}
+											onMouseLeave={onMouseLeave}
 
 											onMouseConnectionStartOver={onMouseConnectionStartOver}
 											onMouseConnectionStartOut={onMouseConnectionStartOut}
@@ -5965,169 +6158,40 @@ console.log("getNewConnection in clickShape")
 											onMouseConnectionEndEnd={onMouseConnectionEndEnd}
 											onMouseConnectionEndLeave={onMouseConnectionEndLeave}
 											
-										></LinesForShape>
-									} else {
-										// TODO : check here if line and startshapeid or endshapeid == undefined
-										if (node.shapeType === "Line") {
-											if (node.startshapeid === undefined) {
-												let position = positionContext.getPosition(node.name);
-												if (!position) {														
-													positionContext.setPosition(node.name, {
-															xstart: node.xstart,
-															ystart: node.ystart,
-															xend: node.xend,
-															yend: node.yend
-														});
-														position = positionContext.getPosition(node.name);
-												}
-
-												if (!position) {
-													return null;
-												}
-
-												if (node.endshapeid !== undefined) {
-													const endIndex = flowStore.flowHashmap.get(node.endshapeid).index;
-													if (endIndex >= 0) {													
-														const endNode =  flowMemo[endIndex];
-														if (endNode) {
-															let positionNode = positionContext.getPosition(node.endshapeid) || endNode;
-															let newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-																x: positionNode.x,
-																y: positionNode.y
-															}, endNode, props.getNodeInstance,
-															node.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
-															position.xend = newEndPosition.x;
-															position.yend = newEndPosition.y;
-														}
-													}
-												}
-
-												if (!position) {
-													return null;
-												}
-
-												return <Shapes.Line key={"ln-node-" + index}
-													ref={ref => (shapeRefs.current[node.name] = ref)}
-													onMouseOver={(event) => onMouseOver(node, event)}
-													onMouseOut={onMouseOut}
-													onClickLine={(event) => onClickLine(node, event)}
-													isSelected={false}
-													isAltColor={true}									
-													canvasHasSelectedNode={canvasHasSelectedNode}													
-													xstart={position?.xstart ?? 0} 
-													ystart={position?.ystart ?? 0}									
-													xend={position?.xend ?? 0} 
-													yend={position?.yend ?? 0}
-													selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ""}
-													startNodeName={node.startshapeid}
-													endNodeName={node.endshapeid}
-													noMouseEvents={false}
-													lineNode={node}
-													shapeRefs={shapeRefs.current}
-													getNodeInstance={props.getNodeInstance}
-													hasStartThumb={true}
-
-													onMouseStart={onMouseStart}
-													onMouseMove={onMouseMove}
-													onMouseEnd={onMouseEnd}
-
-													hasEndThumb={node.endshapeid === undefined}
-													onMouseConnectionStartOver={onMouseConnectionStartOver}
-													onMouseConnectionStartOut={onMouseConnectionStartOut}
-													onMouseConnectionStartStart={onMouseConnectionStartStart}
-													onMouseConnectionStartMove={onMouseConnectionStartMove}
-													onMouseConnectionStartEnd={onMouseConnectionStartEnd}
-
-													onMouseConnectionEndOver={onMouseConnectionEndOver}
-													onMouseConnectionEndOut={onMouseConnectionEndOut}
-													onMouseConnectionEndStart={onMouseConnectionEndStart}
-													onMouseConnectionEndMove={onMouseConnectionEndMove}
-													onMouseConnectionEndEnd={onMouseConnectionEndEnd}
-													onMouseConnectionEndLeave={onMouseConnectionEndLeave}
-												></Shapes.Line>;
-											}
-										}
-									}
-									return null;
-								})}
-
-								{flowMemo.map((node, index) => {
-									return <KonvaNode 
-										key={"konva_" + node.name + props.flowId}
-										node={node}
-										hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
-										flowrunnerConnector={props.flowrunnerConnector}
-										nodesStateLocal={nodesStateLocal.current[node.name] || ""}
-										getNodeInstance={props.getNodeInstance}
-										onCloneNode={onCloneNode}
+										></KonvaNode>;								
+									})}
+									<Shapes.Line 
+										ref={ref => (shapeRefs.current[connectionForDraggingName] = ref)}
+										onMouseOver={undefined}
+										onMouseOut={undefined}
+										onClickLine={undefined}
+										isSelected={false}
+										isAltColor={true}									
 										canvasHasSelectedNode={canvasHasSelectedNode}
-										onFocus={onFocus}
-										onShowNodeSettings={onShowNodeSettings}
-										renderHtmlNode={props.renderHtmlNode}
-										flowId={props.flowId}
-										flowMemo={flowMemo}
-										nodesConnectedToSelectedNode={nodesConnectedToSelectedNode}
-										useFlowStore={props.useFlowStore}
-										shapeRefs={shapeRefs}
-
-										onMouseStart={onMouseStart}
-										onMouseOver={onMouseOver}
-										onMouseOut={onMouseOut}
-										onClickLine={onClickLine}
-										onClickSetup={onClickSetup}
-										onClickShape={onClickShape}
-										onDragStart={onDragStart}
-										onDragEnd={onDragEnd}
-										onDragMove={onDragMove}
-										onTouchStart={onTouchStart}
-										onMouseEnd={onMouseEnd}
-										onMouseMove={onMouseMove}
-										onMouseLeave={onMouseLeave}
-
-										onMouseConnectionStartOver={onMouseConnectionStartOver}
-										onMouseConnectionStartOut={onMouseConnectionStartOut}
-										onMouseConnectionStartStart={onMouseConnectionStartStart}
-										onMouseConnectionStartMove={onMouseConnectionStartMove}
-										onMouseConnectionStartEnd={onMouseConnectionStartEnd}
-
-										onMouseConnectionEndOver={onMouseConnectionEndOver}
-										onMouseConnectionEndOut={onMouseConnectionEndOut}
-										onMouseConnectionEndStart={onMouseConnectionEndStart}
-										onMouseConnectionEndMove={onMouseConnectionEndMove}
-										onMouseConnectionEndEnd={onMouseConnectionEndEnd}
-										onMouseConnectionEndLeave={onMouseConnectionEndLeave}
-										
-									></KonvaNode>;								
-								})}
-								<Shapes.Line 
-									ref={ref => (shapeRefs.current[connectionForDraggingName] = ref)}
-									onMouseOver={undefined}
-									onMouseOut={undefined}
-									onClickLine={undefined}
-									isSelected={false}
-									isAltColor={true}									
-									canvasHasSelectedNode={canvasHasSelectedNode}
-									isConnectionWithVariable={false}
-									xstart={connectionX} 
-									ystart={connectionY}									
-									xend={connectionX} 
-									yend={connectionY}
-									selectedNodeName={""}
-									startNodeName={""}
-									endNodeName={""}
-									opacity={0}	
-									noMouseEvents={true}
-									onMouseStart={undefined}
-									onMouseMove={undefined}
-									onMouseEnd={undefined}
-									isNodeConnectorHelper={true}
-								></Shapes.Line>
-							</Group></Layer>
+										isConnectionWithVariable={false}
+										xstart={connectionX} 
+										ystart={connectionY}									
+										xend={connectionX} 
+										yend={connectionY}
+										selectedNodeName={""}
+										startNodeName={""}
+										endNodeName={""}
+										opacity={0}	
+										noMouseEvents={true}
+										onMouseStart={undefined}
+										onMouseMove={undefined}
+										onMouseEnd={undefined}
+										isNodeConnectorHelper={true}
+									></Shapes.Line>
+								</Group></Layer>
+							</PositionProvider>
 						</Stage>
+
+						)}
+						</PositionContext.Consumer>
 					</div>				
-					</ErrorBoundary>
 					<div ref={ref => ((htmlWrapper as any).current = ref)} 
-						key={"html_wrapper_" +  props.flowId}
+						key={"html_wrapper_" +  flowStore.flowId}
 						style={{transform: 
 							"translate(" + (stageX ) + "px," + (stageY) + "px) "+
 							"scale(" + (stageScale) + "," + (stageScale) + ") "}}
@@ -6137,7 +6201,7 @@ console.log("getNewConnection in clickShape")
 						
 						>
 						
-						{flowMemo.map((node, index) => {
+						{flowStore.flow.map((node, index) => {
 							return <HtmlNode
 								key={"html_" + node.name + flowStore.flowId}
 								ref={ref => (elementRefs.current[node.name] = ref)}	
@@ -6153,7 +6217,7 @@ console.log("getNewConnection in clickShape")
 								onShowNodeEditor={onShowNodeEditor}
 								renderHtmlNode={props.renderHtmlNode}
 								flowId={flowStore.flowId}
-								flowMemo={flowMemo}
+								flowMemo={flowStore.flow}
 								formNodesubject={props.formNodesubject}
 
 								useFlowStore={props.useFlowStore}

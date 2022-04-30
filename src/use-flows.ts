@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import fetch from 'cross-fetch';
 
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
@@ -118,7 +118,7 @@ export const useFlows = (
         if (flowrunnerConnector.storageProvider?.isAsync) {
           (flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as Promise<any>).then(flowPackage => {
             console.log('LOAD FLOW', currentFlowId, flowPackage);
-
+            positionContext.clearPositions();
             flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
             setFlowType(flowPackage.flowType || 'playground');
             setCanvasFlowType(flowPackage.flowType || 'playground');
@@ -128,6 +128,7 @@ export const useFlows = (
             setFlowState(FlowState.loaded);
           });
         } else {
+          positionContext.clearPositions();
           const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
           flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
           setFlowType(flowPackage.flowType || 'playground');
@@ -149,6 +150,8 @@ export const useFlows = (
           return res.json();
         })
         .then(flowPackage => {
+          console.log('LOAD FLOW via fetch', currentFlowId, flowPackage);
+          positionContext.clearPositions();
           flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
           setFlowType(flowPackage.flowType || 'playground');
           setCanvasFlowType(flowPackage.flowType || 'playground');
@@ -173,8 +176,7 @@ export const useFlows = (
     console.log('useeffect use-flows', flowStore.flow);
   }, [flowStore.flow]);
 
-  const saveFlow = useCallback(
-    (selectedFlow?, stateFlow?: any[]) => {
+  const saveFlow = (selectedFlow?, stateFlow?: any[]) => {
       console.log('SAVE FLOW', stateFlow, flowStore.flow);
       const flowAndUpdatedPositions = (stateFlow || flowStore.flow || []).map(node => {
         let updatedNode = { ...node };
@@ -237,9 +239,7 @@ export const useFlows = (
             console.error(err);
           });
       }
-    },
-    [flowStore.flow, flowrunnerConnector],
-  );
+    };
 
   return {
     flowState,

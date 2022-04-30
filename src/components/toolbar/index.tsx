@@ -762,6 +762,9 @@ console.log("newNode", newNodeId, newNode);
 
 	const setSelectedFlowChange = (event) => {
 		console.log("FLOW selected",event.target.value,performance.now());
+		
+		positionContext.clearPositions();
+
 		props.flowrunnerConnector.killAndRecreateWorker();
 		setSelectedFlow(event.target.value);
 		if (props.flowrunnerConnector.hasStorageProvider && 

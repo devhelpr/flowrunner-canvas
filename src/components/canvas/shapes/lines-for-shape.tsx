@@ -4,7 +4,7 @@ import { Lines } from './line-helper';
 import { ShapeTypeProps } from './shape-types';
 
 export const LinesForShape = (props: ShapeTypeProps) => {
-	return <Lines flow={props.flow}
+	return <Lines
 		node={props.node}
 		getNodeInstance={props.getNodeInstance}
 		canvasHasSelectedNode={props.canvasHasSelectedNode}
@@ -15,8 +15,7 @@ export const LinesForShape = (props: ShapeTypeProps) => {
 		onLineMouseOut={props.onLineMouseOut}
 		onClickLine={props.onClickLine}
 		touchedNodes={props.touchedNodes}
-		positions={props.positions}
-		flowHash={props.flowHash}
+		useFlowStore={props.useFlowStore}
 		onMouseStart={props.onMouseStart}
 		onMouseMove={props.onMouseMove}
 		onMouseEnd={props.onMouseEnd}
