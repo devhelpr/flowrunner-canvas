@@ -74,7 +74,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
     storeFlowNode: (node: any, orgNodeName: string, positionContext?: IPositionContext) =>
       set(state => {
         let position: IPosition | undefined = undefined;
-        if (positionContext) {        
+        if (positionContext) {
           position = positionContext.positions.get(orgNodeName);
         }
         let flow = state.flow.map((currentNode, index) => {

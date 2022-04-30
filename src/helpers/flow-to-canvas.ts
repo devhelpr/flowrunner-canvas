@@ -38,7 +38,7 @@ export class FlowToCanvas {
         }
         return {
           ...node,
-          ...position
+          ...position,
         };
       }
     });

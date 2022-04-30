@@ -44,7 +44,7 @@ export interface ShapeTypeProps {
 
   touchedNodes: any;
 
-  useFlowStore : () => IFlowState;
+  useFlowStore: () => IFlowState;
 
   onMouseConnectionStartOver?: any;
   onMouseConnectionStartOut?: any;
