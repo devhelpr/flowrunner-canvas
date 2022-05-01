@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect,useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect,useRef, useCallback, memo } from 'react';
 import { Suspense } from 'react';
 
 import ReactDOM from 'react-dom';
@@ -284,11 +284,11 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	</>;
 }
 
-export const FlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
+export const FlowrunnerCanvas = memo((props: IFlowrunnerCanvasProps) => {
 	return <PositionProvider>
 		<InternalFlowrunnerCanvas {...props} />
 	</PositionProvider>
-}
+});
 
 interface ITestAppProps {
 	flowrunnerStorageProvider: IStorageProvider;
@@ -311,12 +311,12 @@ const TestApp = (props: ITestAppProps) => {
 	  }
 	}, []);
   
-	const flowMemoized = useMemo(() => <FlowrunnerCanvas
+	const flowMemoized = <FlowrunnerCanvas
 		developmentMode={true}
 		flowStorageProvider={props.flowrunnerStorageProvider}
 		onMessageFromFlow={onMessageFromFlow}
 		flowrunnerConnector={new FlowConnector()}
-	></FlowrunnerCanvas>, [props.flowrunnerStorageProvider]);
+	></FlowrunnerCanvas>;
 	
 	return (
 	  <div className="row no-gutters h-100">

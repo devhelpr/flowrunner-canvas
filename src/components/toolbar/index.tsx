@@ -862,14 +862,14 @@ console.log("newNode", newNodeId, newNode);
 						<Navbar.Collapse id="basic-navbar-nav">
 							<form className="form-inline toolbar__form flex-nowrap">
 								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 								
-									<div className="mr-2">
-										<a href="#" onClick={showModules} className="btn btn-outline-light ml-2"><span className="fas fa-bars"></span></a>
+									<div className="me-2">
+										<a href="#" onClick={showModules} className="btn btn-outline-light ms-2"><span className="fas fa-bars"></span></a>
 									</div>	
 								}
 								<>
 									{(!isFlowEditorOnly || 
 									(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
-										<select className="form-control mr-2" 
+										<select className="form-control me-2" 
 										disabled={canvasMode.editorMode !== "canvas"}
 										value={selectedFlow}
 										onChange={setSelectedFlowChange}>
@@ -881,7 +881,7 @@ console.log("newNode", newNodeId, newNode);
 									{(!props.flowrunnerConnector.hasStorageProvider ||
 									 	(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
 										<a href="#" onClick={addNewFlow} 
-											className={"btn-link mr-4 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
+											className={"btn btn-link me-4 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
 											title="Add new flow"><span>New</span></a>}									
 								</>
 								{!isFlowEditorOnly && canvasMode.flowType === "playground" && canvasMode.editorMode === "canvas" && 
@@ -910,8 +910,8 @@ console.log("newNode", newNodeId, newNode);
 								}
 
 								{!canvasMode.isInMultiSelect && canvasMode.editorMode === "canvas" && <>
-									<input id="snapToGrid" type="checkbox" className="ml-2" checked={snapToGrid} onChange={onSnapToGridChange} />
-									<label className="text-white mr-2" htmlFor="snapToGrid">&nbsp;Snap to grid</label>								
+									<input id="snapToGrid" type="checkbox" className="ms-2" checked={snapToGrid} onChange={onSnapToGridChange} />
+									<label className="text-white me-2" htmlFor="snapToGrid">&nbsp;Snap to grid</label>								
 								</>}
 
 								{!canvasMode.isInMultiSelect && 
@@ -960,27 +960,27 @@ console.log("newNode", newNodeId, newNode);
 								{!isFlowEditorOnly && !!props.hasRunningFlowRunner && 
 									canvasMode.editorMode === "canvas" &&
 									canvasMode.flowType == "playground" && 
-									<a href="#" onClick={onSetPausedClick} className="ml-2 text-white pause-button">{!!canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>
+									<a href="#" onClick={onSetPausedClick} className="ms-2 text-white pause-button">{!!canvasMode.isFlowrunnerPaused ? "paused":"pause"}</a>
 								}							
 								{canvasMode.editorMode === "canvas" && 
-									<a href="#" onClick={fitStage} className="ml-2 btn btn-outline-light">Fit stage</a>
+									<a href="#" onClick={fitStage} className="ms-2 btn btn-outline-light">Fit stage</a>
 								}
-								{!isFlowEditorOnly && !props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={saveFlow} className="ml-2 btn btn-primary">Save</a>}
-								{!isFlowEditorOnly && <span className="ml-auto"></span>}
+								{!isFlowEditorOnly && !props.flowrunnerConnector.hasStorageProvider && <a href="#" onClick={saveFlow} className="ms-2 btn btn-primary">Save</a>}
+								{!isFlowEditorOnly && <span className="ms-auto"></span>}
 								{!isFlowEditorOnly && canvasMode.flowType == "playground" && 
-									<a href={"/ui/" + selectedFlow} className="ml-2 text-white">UI View</a>
+									<a href={"/ui/" + selectedFlow} className="ms-2 text-white">UI View</a>
 								}
 								{!isFlowEditorOnly && !!!selectedNode.node.name &&
 									canvasMode.flowType == "playground" &&
 									canvasMode.editorMode == "canvas" &&
-									<a href="#" onClick={swithToUIViewEditor} className="ml-2 text-white">Edit UI View</a>
+									<a href="#" onClick={swithToUIViewEditor} className="ms-2 text-white">Edit UI View</a>
 								}
 								{!isFlowEditorOnly && canvasMode.flowType == "playground" &&
 									canvasMode.editorMode != "canvas" &&
-									<a href="#" onClick={swithToCanvasEditor} className="ml-2 text-white">Edit Flow</a>
+									<a href="#" onClick={swithToCanvasEditor} className="ms-2 text-white">Edit Flow</a>
 								}
 								<>{
-									props.renderMenuOptions && <span className="ml-auto">{props.renderMenuOptions()}</span>
+									props.renderMenuOptions && <span className="ms-auto">{props.renderMenuOptions()}</span>
 								}</>
 							</form>
 						</Navbar.Collapse>
