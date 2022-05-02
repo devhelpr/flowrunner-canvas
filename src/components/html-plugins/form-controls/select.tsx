@@ -70,7 +70,7 @@ export const Select = (props: IFormControlProps) => {
 	return <div className="form-group">						
 		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 		<div className="input-group mb-1">
-			<select className="form-control" required={props.metaInfo && !!props.metaInfo.required} 
+			<select className="form-control form-select" required={props.metaInfo && !!props.metaInfo.required} 
 				id={"select-" + props.node.name + "-" + metaInfo.fieldName}
 				value={formControl.value} 
 				disabled={!props.enabled}

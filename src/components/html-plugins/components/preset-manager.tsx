@@ -103,7 +103,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 	return <>
 		<form className="form w-100">
 			<div className="form-group">
-				<select className="form-control" 
+				<select className="form-control form-select" 
 					onChange={onSelectPreset}
 					value={selectedPreset}
 					>

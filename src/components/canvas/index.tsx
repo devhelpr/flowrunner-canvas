@@ -4011,7 +4011,7 @@ console.log("getNewConnection in clickShape")
 	}
 
 	const fitStage = (node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean, doAnimate? : boolean, animateToNode? : string) => {
-		console.log("FITSTAGE");
+		console.log("FITSTAGE",doAnimate, animateToNode);
 		let xMin;
 		let yMin;
 		let xMax;
@@ -4235,7 +4235,7 @@ console.log("getNewConnection in clickShape")
 										animateToNode
 									],
 									zoom: 1,
-									duration: 1,
+									duration: 2,
 									loop: 0
 								}	
 							} else {
@@ -4259,8 +4259,8 @@ console.log("getNewConnection in clickShape")
 									// 
 
 
-									stageInstance.autoDrawEnabled = false;
-									Konva.default.autoDrawEnabled = false;
+									//stageInstance.autoDrawEnabled = false;
+									//Konva.default.autoDrawEnabled = false;
 
 									/*newPos.x = offsetX + (-(xMin)*scale) + (stageWidth)/2 - ((flowWidth*scale))/2 ;
 									newPos.y = (-(yMin)*scale) + (stageHeight + 64)/2 - ((flowHeight*scale))/2 ;
@@ -4288,7 +4288,7 @@ console.log("getNewConnection in clickShape")
 									if (stageInstance && position) {
 
 										if (stageGroup && stageGroup.current) {
-											(stageGroup.current as any).cache();
+											//(stageGroup.current as any).cache();
 										}
 
 										let zoom = animationScript.current.zoom;
@@ -4331,10 +4331,10 @@ console.log("getNewConnection in clickShape")
 																triggerAnimation();
 															}
 														} else {
-															stageInstance.autoDrawEnabled = true;
-															Konva.default.autoDrawEnabled = true;
+															//stageInstance.autoDrawEnabled = true;
+															//Konva.default.autoDrawEnabled = true;
 															if (layer && layer.current) {
-																(stageGroup.current as any).clearCache();
+																//(stageGroup.current as any).clearCache();
 
 																(layer.current as any).listening(true);
 																(layer.current as any).batchDraw();																

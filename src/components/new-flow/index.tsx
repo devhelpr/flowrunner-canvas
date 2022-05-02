@@ -133,7 +133,7 @@ export const NewFlow = (props: NewFlowProps) => {
 				</div>
 				<div className="form-group">
 					<label>Flow type</label>
-					<select className="form-control" value={flowType}
+					<select className="form-control form-select" value={flowType}
 						onChange={onChangeFlowType}
 					>
 						<option value="playground">Playground</option>
@@ -145,7 +145,7 @@ export const NewFlow = (props: NewFlowProps) => {
 				<div className="form-group">
 					<input id="addJSONFlow" type="checkbox" checked={addJSONFlow} 
 						onChange={onAddJSONFlow} />
-					<label htmlFor="addJSONFlow" className="ml-2">Enter flow as json</label>
+					<label htmlFor="addJSONFlow" className="ms-2">Enter flow as json</label>
 				</div>
 				{addJSONFlow && <div className="form-group">
 					<textarea className="form-control" 

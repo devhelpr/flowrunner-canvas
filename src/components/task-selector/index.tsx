@@ -104,7 +104,7 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 	render() {
 
 		return <div className="task-selector">
-			<select className="form-control" value={this.props.canvasMode.selectedTask}
+			<select className="form-control form-select" value={this.props.canvasMode.selectedTask}
 				onChange={this.selectTask}
 			>
 				<option value="" disabled>Select task</option>

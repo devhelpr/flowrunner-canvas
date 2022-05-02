@@ -869,7 +869,7 @@ console.log("newNode", newNodeId, newNode);
 								<>
 									{(!isFlowEditorOnly || 
 									(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
-										<select className="form-control me-2" 
+										<select className="form-control form-select me-2" 
 										disabled={canvasMode.editorMode !== "canvas"}
 										value={selectedFlow}
 										onChange={setSelectedFlowChange}>
