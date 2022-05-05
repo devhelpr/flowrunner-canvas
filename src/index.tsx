@@ -108,6 +108,7 @@ export interface IFlowrunnerCanvasProps {
 
 	flowStorageProvider? : IStorageProvider;
 	flowrunnerConnector? : IFlowrunnerConnector;
+	pluginRegistry? : any;
 
 	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;	
 	getNodeDependencies?: (nodeName: string) => INodeDependency[];
@@ -179,9 +180,9 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					return true;
 				});
 			}
-			flowrunnerConnector.current.setPluginRegistry(pluginRegistry);
+			flowrunnerConnector.current.setPluginRegistry({...pluginRegistry,...props.pluginRegistry});
 			
-			setPluginRegistry(pluginRegistry);			
+			setPluginRegistry({...pluginRegistry,...props.pluginRegistry});			
 
 			const onDestroyAndRecreateWorker = () => {
 				console.log("onDestroyAndRecreateWorker handling");
