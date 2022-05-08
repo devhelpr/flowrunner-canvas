@@ -860,7 +860,7 @@ console.log("newNode", newNodeId, newNode);
 				<Navbar bg="dark" expand="lg">
 					<div className="bg-dark toolbar w-100">						
 						<Navbar.Collapse id="basic-navbar-nav">
-							<form className="form-inline toolbar__form flex-nowrap">
+							<form className="form-inline toolbar__form flex-nowrap ps-2 pe-2">
 								{!isFlowEditorOnly && canvasMode.editorMode === "canvas" && 								
 									<div className="me-2">
 										<a href="#" onClick={showModules} className="btn btn-outline-light ms-2"><span className="fas fa-bars"></span></a>
