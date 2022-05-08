@@ -207,6 +207,7 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 			if (isValidElement(child)) {
 				return cloneElement(child, { 
 				nodeName: props.node.name,
+				node: props.node,
 				payload: receivedPayload.length > 0 ? receivedPayload[receivedPayload.length - 1] : {}
 				} as any);
 			}
