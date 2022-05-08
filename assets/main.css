@@ -1077,9 +1077,7 @@ img {
 	-webkit-box-direction: normal;
 	    -ms-flex-direction: row;
 	        flex-direction: row;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	/*align-items: center;*/
 }
 ._connecting-nodes .canvas__html-shape-body {
 	pointer-events: none;
@@ -1142,7 +1140,7 @@ img {
 	content: "";
 	display: block;
 	position: absolute;
-	top: -13px;
+	top: -27px;
 	left: 0px;
 	width: 100%;
 	height: calc(100% + 29px);
