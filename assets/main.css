@@ -942,6 +942,10 @@ img {
 		transition: opacity 0.25s ease-in-out;
 		pointer-events: none;
 	}
+.html-plugin-node .form-group label {
+		margin-bottom: 5px;
+    	margin-top: 5px;
+	}
 .canvas__html-shape-bar:hover + .canvas__html-shape-body .html-plugin-node__hint {
 			opacity: 1;				
 		}

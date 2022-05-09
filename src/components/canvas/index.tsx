@@ -1016,11 +1016,14 @@ export const Canvas = (props: CanvasProps) => {
 			}			
 		} else if (flowStore && flowStore.flow.length == 0) {
 			flowIsFittedStageForSingleNode.current = false;
-
+			
 			if (props.flowState == FlowState.loaded) {
 				if (canvasOpacity == 0) {
 					setCanvasOpacity(1);
 				}
+
+				fitStage(undefined, false, false);
+				flowIsFittedStageForSingleNode.current = true;
 			}
 		}
 		
@@ -4358,15 +4361,17 @@ console.log("getNewConnection in clickShape")
 						y: 0 
 					};
 					let scale = 1;
-
+					console.log("FITSTAGE without any nodes in the flow");
 					const stageContainerElement = (canvasWrapper as any).current;//document.querySelector(".canvas-controller__scroll-container");
 					if (stageContainerElement !== null) {
 						if (stageContainerElement.clientWidth < 1024) {
 							scale = 0.5;
 						}
 					}
-
+					
+					stageInstance.scale({ x: scale, y: scale });
 					stageInstance.position(newPos);
+
 					if (!!doBatchdraw) {
 						stageInstance.batchDraw();
 					}
