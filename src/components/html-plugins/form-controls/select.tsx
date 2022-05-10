@@ -79,7 +79,7 @@ export const Select = (props: IFormControlProps) => {
 				{showDefaultOption === true && <option value="" disabled>Select value</option>}
 				{metaInfo && (props.datasource || metaInfo.options || []).map((option : ISelectOption, index) => {
 					return <React.Fragment key={"select"+index}>
-						<option value={option.value}>{option.label}</option>
+						<option value={option.value || (typeof option === "string" && option) || "" }>{option.label || (typeof option === "string" && option) || ""}</option>
 					</React.Fragment>
 				})}
 			</select>

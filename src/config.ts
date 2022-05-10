@@ -1072,6 +1072,14 @@ const taskTypeConfig: any = {
                 },
               ],
             },
+            {
+              visibilityCondition: "fieldType=='select'",
+              fieldName: 'datasource',
+              fieldType: 'text',
+              label: 'Datasource',
+              idProperty: 'datasourceId',
+              autoId: 'none'
+            },
             ,
             {
               fieldName: 'visibilityCondition',

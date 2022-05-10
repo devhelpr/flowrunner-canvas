@@ -44,6 +44,7 @@ import { IModalSize } from './interfaces/IModalSize';
 import { INodeDependency } from './interfaces/INodeDependency';
 
 import { PositionProvider } from './components/contexts/position-context';
+import { FormNodeDatasourceProvider, useFormNodeDatasourceContext } from './components/contexts/form-node-datasource-context';
 
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
@@ -286,8 +287,8 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 }
 
 export const FlowrunnerCanvas = memo((props: IFlowrunnerCanvasProps) => {
-	return <PositionProvider>
-		<InternalFlowrunnerCanvas {...props} />
+	return <PositionProvider>		
+			<InternalFlowrunnerCanvas {...props} />
 	</PositionProvider>
 });
 
@@ -296,6 +297,7 @@ interface ITestAppProps {
 }
 
 const TestApp = (props: ITestAppProps) => {
+	const { setDatasource } = useFormNodeDatasourceContext();
 	const [debugList , setDebugList] = useState([] as string[]);
 	const onMessageFromFlow = useCallback((event: any, flowAgent : any) => {
 	  if (event && event.data) {
@@ -311,18 +313,23 @@ const TestApp = (props: ITestAppProps) => {
 		}
 	  }
 	}, []);
+
+	useEffect(() => {
+		setDatasource("testlocal", ["testapp1", "testapp2"]);
+	}, []);
   
-	const flowMemoized = <FlowrunnerCanvas
-		developmentMode={true}
-		flowStorageProvider={props.flowrunnerStorageProvider}
-		onMessageFromFlow={onMessageFromFlow}
-		flowrunnerConnector={new FlowConnector()}
-	></FlowrunnerCanvas>;
+	const flowCanvas = 
+		<FlowrunnerCanvas
+			developmentMode={true}
+			flowStorageProvider={props.flowrunnerStorageProvider}
+			onMessageFromFlow={onMessageFromFlow}
+			flowrunnerConnector={new FlowConnector()}
+		></FlowrunnerCanvas>;
 	
 	return (
 	  <div className="row no-gutters h-100">
 		<div className="col-12 col-md-6 h-100">
-		  	{flowMemoized}
+		  	{flowCanvas}
 		</div>
 		<div className="col-12 col-md-6 h-100" 
 			style={{
@@ -360,7 +367,10 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 			}
 			const flowrunnerStorageProvider = result as IStorageProvider;
 			console.log("flowrunnerStorageProvider",flowrunnerStorageProvider);
-			(ReactDOM as any).render(<TestApp flowrunnerStorageProvider={flowrunnerStorageProvider}></TestApp>, root);
+			(ReactDOM as any).render(
+				<FormNodeDatasourceProvider>
+					<TestApp flowrunnerStorageProvider={flowrunnerStorageProvider}></TestApp>
+				</FormNodeDatasourceProvider>, root);
 			/*
 			(ReactDOM as any).render(<FlowrunnerCanvas 
 				developmentMode={true}
@@ -568,7 +578,9 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 						console.log("pluginRegistry", pluginRegistry);
 						// (ReactDOM as any).createRoot(
 						(ReactDOM as any).render(<PositionProvider>
-							<App isLoggedIn={isLoggednIn}></App>
+								<FormNodeDatasourceProvider>
+								<App isLoggedIn={isLoggednIn}></App>
+							</FormNodeDatasourceProvider>
 						</PositionProvider>, root);
 					}
 

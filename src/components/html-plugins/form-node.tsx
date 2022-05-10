@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useState, useRef , useCallback } from 'react';
 import { Suspense } from 'react';
 
-import { ApplicationMode, IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
 import { getFormControl } from './form-controls';
 import { Subject } from 'rxjs';
@@ -17,7 +17,8 @@ import { onFocus } from './form-controls/helpers/focus';
 import { PresetManager } from './components/preset-manager';
 
 import * as uuid from 'uuid';
-import create from 'zustand';
+
+import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-context';
 const uuidV4 = uuid.v4;
 
 /*
@@ -126,13 +127,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const [errors, setErrors] = useState({} as any);
 	const [datasource, setDatasource] = useState({} as any);
 	const [receivedPayload, setReceivedPayload] = useState({} as any);		
-	const [lastClickedInputNode , setLastClickedInputNode] = useState("");
-
-	//const flow = useFlowStore();
-	//const [storeFlowNode] = useFlowStore();
 	const storeFlowNode = (props.useFlowStore && props.useFlowStore(useCallback(state => state.storeFlowNode, [])) as any) || useFlowStore(useCallback(state => state.storeFlowNode, []));
-	//const storeFlowNode = useFlowStore(useCallback(state => state.storeFlowNode, []));
-	//const canvasMode = useCanvasModeStateStore();
 	const flowsPlayground = useCanvasModeStateStore(state => state.flowsPlayground);
 	const flowsWasm = useCanvasModeStateStore(state => state.flowsWasm);
 
@@ -144,6 +139,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	const throttleTimer : any = useRef(null);
 	const modifyFlowThrottleTimer : any = useRef(null);
 	const modifyFlowThrottleEnabled : any = useRef(false);
+
+	const datasourceContext = useFormNodeDatasourceContext();
+
 	useEffect(() => {
 
 		let subscription;
@@ -196,6 +194,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		if (props.flowrunnerConnector) {
 			props.flowrunnerConnector?.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
 		}
+
+		datasourceContext.setDatasource("test", ["test1", "test2", "test3"]);
+		
 		return () => {
 			unmounted.current = true;
 
@@ -211,8 +212,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				props.flowrunnerConnector?.unregisterFlowNodeObserver(props.node.name, observableId.current);
 			}
 		}
-
-		// RUN THIS ONLY ON MOUNT OF COMPONENT
 	}, []);
 
 	useEffect(() => {
@@ -851,6 +850,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					} else
 					if (metaInfo.datasource == "[WASMFLOW]") {
 						datasourceToUse = flowsWasm;
+					} else
+					if (datasourceContext.getDatasource(metaInfo.datasource)) {
+						datasourceToUse = datasourceContext.getDatasource(metaInfo.datasource);
 					} else
 					if (metaInfo.datasource && datasource[metaInfo.datasource]) {
 						datasourceToUse = datasource[metaInfo.datasource];
