@@ -1078,7 +1078,7 @@ const taskTypeConfig: any = {
               fieldType: 'text',
               label: 'Datasource',
               idProperty: 'datasourceId',
-              autoId: 'none'
+              autoId: 'none',
             },
             ,
             {
