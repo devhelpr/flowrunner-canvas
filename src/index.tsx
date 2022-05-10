@@ -66,6 +66,8 @@ export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunner
 export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
 export { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, setTasks };
 
+export { FormNodeDatasourceProvider , useFormNodeDatasourceContext };
+
 export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
 		pluginRegistry[FlowTaskPluginClassName] = {
