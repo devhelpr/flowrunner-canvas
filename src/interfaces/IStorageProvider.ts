@@ -15,4 +15,5 @@ export interface IStorageProvider {
   isReadOnly: boolean;
   canStoreMultipleFlows: boolean;
   isAsync: boolean;
+  setFlowName: (flowId: string, flowName : string) => Promise<string>;
 }

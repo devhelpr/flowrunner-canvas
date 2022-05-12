@@ -400,8 +400,8 @@ function getFlow(flowId: string) {
         resolve({
           flow: objectRequest.result.flow,
           flowType: 'playground',
-          id: 'flow',
-          name: 'flow',
+          id: objectRequest.result.flowId,
+          name: objectRequest.result.name,
         });
       } else {
         transactions.push({
@@ -463,6 +463,50 @@ function addFlow(name, flow) {
   });
 }
 
+function setFlowName(flowId : string, flowName : string) : Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!database) {
+      reject('No database');
+      return;
+    }
+
+    let transaction = database.transaction([flowStoreName], 'readwrite');
+    let objectStore = transaction.objectStore(flowStoreName);
+    let objectRequest = objectStore.get(flowId);    
+
+    objectRequest.onerror = function(event) {
+      reject(Error('Error text'));
+    };
+
+    objectRequest.onsuccess = function(event) {
+      if (objectRequest.result) {
+        const  putObjectRequest = objectStore.put(
+          {
+            flow: objectRequest.result.flow,
+            flowId: flowId,
+            name: flowName,
+          },
+          flowId,
+        );
+    
+        putObjectRequest.onerror = function(event) {
+          console.log('handleTransactions error', event);
+        };
+    
+        putObjectRequest.onsuccess = function(event) {
+          if (putObjectRequest.result) {
+            resolve(flowId);
+          } else {
+            reject();
+          }
+        };
+      } else {
+        reject(Error('Flow not found'));
+      }
+    };
+  });
+}
+
 export const setDefaultFlowTitle = (title: string) => {
   defaultFlowTitle = title;
 };
@@ -501,6 +545,7 @@ export const flowrunnerIndexedDbStorageProvider: IStorageProvider = {
   isReadOnly: false,
   canStoreMultipleFlows: true,
   isAsync: true,
+  setFlowName: setFlowName
 };
 
 let database: IDBDatabase | null = null;

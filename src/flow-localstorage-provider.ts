@@ -277,6 +277,12 @@ function setAdditionalTasks(tasks: any[]) {
   additionalTasks = tasks;
 }
 
+function setFlowName(flowId : string, flowName : string) : Promise<string> {
+  return new Promise((resolve) => {
+    resolve(flowId);
+  });
+}
+
 export const flowrunnerStorageProvider: IStorageProvider = {
   storeFlowPackage: storeFlowPackage,
   getFlowPackage: getFlowPackage,
@@ -294,6 +300,7 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   isReadOnly: false,
   canStoreMultipleFlows: false,
   isAsync: false,
+  setFlowName: setFlowName
 };
 
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
@@ -315,6 +322,7 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   isReadOnly: false,
   canStoreMultipleFlows: false,
   isAsync: false,
+  setFlowName: setFlowName
 };
 
 const isReadOnly = true;
@@ -368,4 +376,5 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
   isReadOnly: isReadOnly,
   canStoreMultipleFlows: false,
   isAsync: false,
+  setFlowName: setFlowName
 };

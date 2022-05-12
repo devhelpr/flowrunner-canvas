@@ -28,7 +28,7 @@ export interface EditNodesState {
 }
 
 export const EditNodePopup = (props: EditNodeProps) => {
-	
+	const [show, setShow] = useState(false);
 	const [value, setValue] = useState({});
 	const [orgNodeName, setOrgNodeName] = useState("");
 	const [orgNodeValues, setOrgNodeValues] = useState({});
@@ -38,6 +38,12 @@ export const EditNodePopup = (props: EditNodeProps) => {
 
 	const flow = props.useFlowStore();
 	const selectNode = props.useSelectedNodeStore(state => state.selectNode) as any;
+
+	useEffect(() => {		
+		// this is needed to prevent unnessary rerender because of the container ref reference
+		// when this is not here, the component rerenders after first input in input controls
+		setShow(true);
+	}, []);
 
 	useEffect(() => {
 		if (!props.node) {
@@ -137,8 +143,11 @@ export const EditNodePopup = (props: EditNodeProps) => {
 		setValue({...value, [fieldName]: newValue});
 	}
 	
-	return <div className="edit-node-settings edit-node-popup" ref={ref => ((containerRef as any).current = ref)}>
-		<Modal show={true} centered size={props.modalSize || "xl"} container={containerRef.current}>
+	return <div className="edit-node-settings edit-node-popup" 
+			ref={containerRef}>
+		<Modal show={show} 
+			centered size={props.modalSize || "xl"} 
+			container={containerRef.current}>
 			<Modal.Header>
 				<Modal.Title>Edit {!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.name}</Modal.Title>
 			</Modal.Header>

@@ -31,6 +31,7 @@ import { EditBundle } from '../edit-bundle';
 import { IModalSize } from '../../interfaces/IModalSize';
 
 import { getMultiSelectInfo } from '../../services/multi-select-service';
+import { EditFlowName } from '../edit-flow-name';
 
 
 const uuidV4 = uuid.v4;
@@ -100,6 +101,7 @@ export const Toolbar = (props: ToolbarProps) => {
 	const [showEditBundle, setShowEditBundle]	= useState(false);
 	const [showSchemaPopup, setShowSchemaPopup]	= useState(false);
 	const [showNewFlow, setShowNewFlow]	= useState(false);
+	const [editFlowName, setEditFlowName] = useState(false);
 	const [selectedTask, setSelectedTask]	= useState("");
 	const [showDependencies, setShowDependencies]	= useState(false);
 	const [flowFiles, setFlowFiles]	= useState([] as any[]);
@@ -200,6 +202,12 @@ export const Toolbar = (props: ToolbarProps) => {
 	const addNewFlow = (event) => {
 		event.preventDefault();
 		setShowNewFlow(true);
+		return false;
+	}
+
+	const openEditFlowNamePopup = (event) => {
+		event.preventDefault();
+		setEditFlowName(true);
 		return false;
 	}
 
@@ -636,11 +644,33 @@ console.log("newNode", newNodeId, newNode);
 		setShowSchemaPopup(false);
 		setShowNewFlow(false);
 		setShowModulesPopup(false);
+		setEditFlowName(false);
 
 		if (!!pushFlow) {
 			canvasMode.setFlowrunnerPaused(false);
 			props.flowrunnerConnector.pushFlowToFlowrunner(flow.flow, true, flow.flowId);
 		}
+	}
+
+	const onCloseFlowName = () => {
+		setEditFlowName(false);
+	}
+
+	const onSaveFlowName = (flowId : string, flowName : string) => {
+		let flows = (props.flows || []).map((flow) => {
+			if (flow.id === flowId) {
+				return {
+					"name" : flowName,
+					"id" : flowId
+				}
+			}
+			return {
+				"name" : flow.name,
+				"id" : flow.id
+			}
+		});
+		setFlowFiles(flows);
+		setEditFlowName(false);
 	}
 
 	const onCloseModulesPopup = () => {
@@ -878,6 +908,11 @@ console.log("newNode", newNodeId, newNode);
 											return <option key={index} value={flow.id}>{flow.name}</option>;
 										})}								
 									</select>}
+									{(
+									 	(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
+										<a href="#" onClick={openEditFlowNamePopup} 
+											className={"ms-1 text-light text-decoration-none " + (!!selectedNode.node.name || canvasMode.editorMode !== "canvas" ? "disabled" : "") } 
+											title="Edit flow name"><span className="fas fa-edit"></span></a>}
 									{(!props.flowrunnerConnector.hasStorageProvider ||
 									 	(props.flowrunnerConnector.hasStorageProvider && props.flowrunnerConnector.storageProvider?.canStoreMultipleFlows)) && 
 										<a href="#" onClick={addNewFlow} 
@@ -998,10 +1033,28 @@ console.log("newNode", newNodeId, newNode);
 				/>
 			</PositionProvider>
 		}
-		{showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose}></EditPopup>}
-		{showNewFlow && <NewFlow flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} onSave={onCloseNewFlowPopup}></NewFlow>}
-		{showTaskHelp && <HelpPopup taskName={selectedNode && selectedNode.node ? (selectedNode.node as any).taskType : ""}></HelpPopup>}
-		{showModulesPopup && <ModulesPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseModulesPopup}></ModulesPopup>}
+		{showEditPopup && 
+			<EditPopup
+				flowrunnerConnector={props.flowrunnerConnector}
+				onClose={onClose} />}
+		{showNewFlow && 
+			<NewFlow
+				flowrunnerConnector={props.flowrunnerConnector}
+				onClose={onClose}
+				onSave={onCloseNewFlowPopup}/>}
+		{editFlowName && 
+			<EditFlowName
+				flowrunnerConnector={props.flowrunnerConnector}
+				onClose={onCloseFlowName}
+				onSaveFlowName={onSaveFlowName} />}
+		{showTaskHelp && 
+			<HelpPopup
+				taskName={selectedNode && selectedNode.node ? 
+					(selectedNode.node as any).taskType 
+					: 
+					""} />}
+		{showModulesPopup && 
+			<ModulesPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onCloseModulesPopup}></ModulesPopup>}
 		{canvasMode.currentPopup == PopupEnum.editNamePopup && <NamePopup 
 			nameCaption="Preset name"
 			onSave={onSavePresetName}

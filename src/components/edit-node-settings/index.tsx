@@ -24,7 +24,7 @@ export interface EditNodeSettingsState {
 }
 
 export const EditNodeSettings = (props: EditNodeSettingsProps) => {
-	
+	const [show, setShow] = useState(false);
 	const [value, setValue] = useState({});
 	const [orgNodeName, setOrgNodeName] = useState("");
 	const [orgNodeValues, setOrgNodeValues] = useState({});
@@ -35,6 +35,12 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 	const flow = useFlowStore();
 	const selectedNode = useSelectedNodeStore();
 
+	useEffect(() => {		
+		// this is needed to prevent unnessary rerender because of the container ref reference
+		// when this is not here, the component rerenders after first input in input controls
+		setShow(true);
+	}, []);
+	
 	useEffect(() => {
 		if (!props.node) {
 			return;
@@ -130,8 +136,9 @@ export const EditNodeSettings = (props: EditNodeSettingsProps) => {
 		setValue({...value, [fieldName]: newValue});
 	}
 	
-	return <div className="edit-node-settings" ref={ref => ((containerRef as any).current = ref)}>
-		<Modal show={true} centered size={props.modalSize || "lg"} container={containerRef.current}>
+	return <div className="edit-node-settings" 
+		ref={containerRef}>
+		<Modal show={show} centered size={props.modalSize || "lg"} container={containerRef.current}>
 			<Modal.Header>
 				<Modal.Title>Edit {!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node.name}</Modal.Title>
 			</Modal.Header>
