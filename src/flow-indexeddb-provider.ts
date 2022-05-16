@@ -6,7 +6,7 @@ let defaultflowId = '00000000-0000-0000-0000-000000000000';
 let defaultFlow = '';
 let defaultFlowTitle = 'Example flow';
 let additionalTasks: any[] = [];
-let _flowName : string = 'flow';
+let _flowName: string = 'flow';
 
 interface ITransaction {
   flowId: string;
@@ -411,7 +411,7 @@ function getFlow(flowId: string) {
           flow: JSON.parse(getDefaultFlow()).flow,
           name: defaultFlowTitle,
         });
-        
+
         _flowName = defaultFlowTitle;
 
         resolve({
@@ -467,7 +467,7 @@ function addFlow(name, flow) {
   });
 }
 
-function setFlowName(flowId : string, flowName : string) : Promise<string> {
+function setFlowName(flowId: string, flowName: string): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!database) {
       reject('No database');
@@ -476,7 +476,7 @@ function setFlowName(flowId : string, flowName : string) : Promise<string> {
 
     let transaction = database.transaction([flowStoreName], 'readwrite');
     let objectStore = transaction.objectStore(flowStoreName);
-    let objectRequest = objectStore.get(flowId);    
+    let objectRequest = objectStore.get(flowId);
 
     objectRequest.onerror = function(event) {
       reject(Error('Error text'));
@@ -484,7 +484,7 @@ function setFlowName(flowId : string, flowName : string) : Promise<string> {
 
     objectRequest.onsuccess = function(event) {
       if (objectRequest.result) {
-        const  putObjectRequest = objectStore.put(
+        const putObjectRequest = objectStore.put(
           {
             flow: objectRequest.result.flow,
             flowId: flowId,
@@ -492,11 +492,11 @@ function setFlowName(flowId : string, flowName : string) : Promise<string> {
           },
           flowId,
         );
-    
+
         putObjectRequest.onerror = function(event) {
           console.log('handleTransactions error', event);
         };
-    
+
         putObjectRequest.onsuccess = function(event) {
           _flowName = flowName;
           if (putObjectRequest.result) {
@@ -555,7 +555,7 @@ export const flowrunnerIndexedDbStorageProvider: IStorageProvider = {
   canStoreMultipleFlows: true,
   isAsync: true,
   setFlowName: setFlowName,
-  getFlowName: getFlowName
+  getFlowName: getFlowName,
 };
 
 let database: IDBDatabase | null = null;
