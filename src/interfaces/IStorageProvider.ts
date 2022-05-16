@@ -16,4 +16,5 @@ export interface IStorageProvider {
   canStoreMultipleFlows: boolean;
   isAsync: boolean;
   setFlowName: (flowId: string, flowName : string) => Promise<string>;
+  getFlowName: () => string;
 }

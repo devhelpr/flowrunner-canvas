@@ -6,6 +6,7 @@ let defaultflowId = '00000000-0000-0000-0000-000000000000';
 let defaultFlow = '';
 let defaultFlowTitle = 'Example flow';
 let additionalTasks: any[] = [];
+let _flowName : string = 'flow';
 
 interface ITransaction {
   flowId: string;
@@ -397,6 +398,7 @@ function getFlow(flowId: string) {
 
     objectRequest.onsuccess = function(event) {
       if (objectRequest.result) {
+        _flowName = objectRequest.result.name;
         resolve({
           flow: objectRequest.result.flow,
           flowType: 'playground',
@@ -409,6 +411,8 @@ function getFlow(flowId: string) {
           flow: JSON.parse(getDefaultFlow()).flow,
           name: defaultFlowTitle,
         });
+        
+        _flowName = defaultFlowTitle;
 
         resolve({
           flow: JSON.parse(getDefaultFlow()).flow,
@@ -494,6 +498,7 @@ function setFlowName(flowId : string, flowName : string) : Promise<string> {
         };
     
         putObjectRequest.onsuccess = function(event) {
+          _flowName = flowName;
           if (putObjectRequest.result) {
             resolve(flowId);
           } else {
@@ -505,6 +510,10 @@ function setFlowName(flowId : string, flowName : string) : Promise<string> {
       }
     };
   });
+}
+
+function getFlowName() {
+  return _flowName;
 }
 
 export const setDefaultFlowTitle = (title: string) => {
@@ -545,7 +554,8 @@ export const flowrunnerIndexedDbStorageProvider: IStorageProvider = {
   isReadOnly: false,
   canStoreMultipleFlows: true,
   isAsync: true,
-  setFlowName: setFlowName
+  setFlowName: setFlowName,
+  getFlowName: getFlowName
 };
 
 let database: IDBDatabase | null = null;

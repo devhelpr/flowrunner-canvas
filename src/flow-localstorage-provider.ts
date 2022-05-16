@@ -283,6 +283,10 @@ function setFlowName(flowId : string, flowName : string) : Promise<string> {
   });
 }
 
+function getFlowName() {
+  return "flow";
+}
+
 export const flowrunnerStorageProvider: IStorageProvider = {
   storeFlowPackage: storeFlowPackage,
   getFlowPackage: getFlowPackage,
@@ -300,7 +304,8 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   isReadOnly: false,
   canStoreMultipleFlows: false,
   isAsync: false,
-  setFlowName: setFlowName
+  setFlowName: setFlowName,
+  getFlowName: getFlowName
 };
 
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
@@ -322,7 +327,8 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   isReadOnly: false,
   canStoreMultipleFlows: false,
   isAsync: false,
-  setFlowName: setFlowName
+  setFlowName: setFlowName,
+  getFlowName: getFlowName
 };
 
 const isReadOnly = true;
@@ -376,5 +382,6 @@ export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
   isReadOnly: isReadOnly,
   canStoreMultipleFlows: false,
   isAsync: false,
-  setFlowName: setFlowName
+  setFlowName: setFlowName,
+  getFlowName: getFlowName
 };

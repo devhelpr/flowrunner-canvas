@@ -99,6 +99,7 @@ export type { IStorageProvider };
 export { FlowConnector };
 
 export { setCustomConfig };
+export { useFlowStore };
 
 export interface IFlowrunnerCanvasProps {
 	hasShowDependenciesInMenu?: boolean;

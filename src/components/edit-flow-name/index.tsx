@@ -7,15 +7,15 @@ import { useFlowStore} from '../../state/flow-state';
 import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 
-export interface NewFlowProps {
+export interface EditFlowProps {
 	onClose : () => void;
 	onSaveFlowName : (flowId : string, flowName : string) => void;
 	flowrunnerConnector : IFlowrunnerConnector
 }
 
-export const EditFlowName = (props: NewFlowProps) => {
+export const EditFlowName = (props: EditFlowProps) => {
 	const [show, setShow] = useState(false);
-	const [value, setValue] = useState("");
+	const [value, setValue] = useState(props.flowrunnerConnector.storageProvider?.getFlowName() ?? "");
 
 	const containerRef = useRef(null);
 
