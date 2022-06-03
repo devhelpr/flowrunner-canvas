@@ -53,19 +53,16 @@ const taskTypeConfig: any = {
     htmlPlugin: 'formNode',
     constraints: {
       output: {
-        notAllowed: ["DebugTask"],
+        notAllowed: ['DebugTask'],
         allowed: [],
       },
       input: {
-        notAllowed: ["AssignTask","DebugTask"],
+        notAllowed: ['AssignTask', 'DebugTask'],
         allowed: [],
-      }
+      },
     },
-    metaInfo: [     
-    ],
-    presetValues: {
-      
-    },
+    metaInfo: [],
+    presetValues: {},
   },
 
   IfConditionTask: {
@@ -1209,7 +1206,7 @@ const taskTypeConfig: any = {
     presetValues: {
       prototype: 'default',
     },
-  }, 
+  },
   DebugTask: {
     shapeType: 'Html',
     hasUI: true,

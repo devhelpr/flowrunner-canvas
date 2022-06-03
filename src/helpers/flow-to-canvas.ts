@@ -594,14 +594,13 @@ export class FlowToCanvas {
       return true;
     }
 
-console.log("canNodesConnect", inputNode.taskType, outputNode.taskType);
+    console.log('canNodesConnect', inputNode.taskType, outputNode.taskType);
     const settings = ShapeSettings.getShapeSettings(inputNode.taskType, inputNode);
     //const allowedInputTaskTypes = (settings as any)?.constraints?.input?.allowed ?? [];
     //const notAllowedInputTaskTypes = (settings as any)?.constraints?.input?.notAllowed ?? [];
 
     const allowedOutputTaskTypes = (settings as any)?.constraints?.output?.allowed ?? [];
     const notAllowedOutputTaskTypes = (settings as any)?.constraints?.output?.notAllowed ?? [];
-
 
     const settingsForNode = ShapeSettings.getShapeSettings(outputNode.taskType, outputNode);
     const allowedInputTaskTypesForOutputNode = (settingsForNode as any)?.constraints?.input?.allowed ?? [];
@@ -617,11 +616,13 @@ console.log("canNodesConnect", inputNode.taskType, outputNode.taskType);
       return false;
     }
 
-
     if (notAllowedInputTaskTypesForOutputNode.indexOf(inputNode.taskType) >= 0) {
       return false;
     }
-    if (allowedInputTaskTypesForOutputNode.length > 0 && allowedInputTaskTypesForOutputNode.indexOf(inputNode.taskType) < 0) {
+    if (
+      allowedInputTaskTypesForOutputNode.length > 0 &&
+      allowedInputTaskTypesForOutputNode.indexOf(inputNode.taskType) < 0
+    ) {
       return false;
     }
 
