@@ -1550,6 +1550,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onClickSetup = (node,settings,event)=>  {
+		console.log("onClickSetup", node, settings);
 		if (node.notSelectable) {
 			return false;
 		}
@@ -1561,6 +1562,7 @@ export const Canvas = (props: CanvasProps) => {
 	}
 
 	const onMouseOver = (node, event) => {
+		console.log("onMouseOver", node);
 		if (node.notSelectable) {
 			return false;
 		}
@@ -1575,6 +1577,12 @@ export const Canvas = (props: CanvasProps) => {
 			const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
 			if (allowedInputs == 0 || 
 				!FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
+				document.body.style.cursor = 'not-allowed';
+				return false;
+			}
+
+			if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
+				console.log("onMouseOver not allowed")
 				document.body.style.cursor = 'not-allowed';
 				return false;
 			}
@@ -1769,7 +1777,7 @@ export const Canvas = (props: CanvasProps) => {
 				}			
 			}
 		}
-		console.log("ONMOUSESTAR2T", node.name);
+		console.log("ONMOUSESTAR2T", node.name, interactionState.current);
 		if (interactionState.current === InteractionState.idle) { 
 			return false;
 		}
@@ -2007,6 +2015,8 @@ console.log("connectConnectionToNode" , node);
 			return false;
 		}
 
+		// nodeFrom touchNode.current
+		// nodeTo node
 		const connection = getNewConnection(touchNode.current, node, props.getNodeInstance, eventHelper,
 			connectionNodeThumbPositionRelativeToNode.current);
 		
@@ -2070,6 +2080,9 @@ console.log("connectConnectionToNode" , node);
 		} else 
 		if (node.shapeType === "Rect" ||node.shapeType === "Diamond" ) {
 			if (interactionState.current === InteractionState.idle) {
+
+				console.log("onmouseend rect/diamond idle", node.name, event);
+
 				touching.current = false;
 				(touchNode.current as any) = undefined;
 				touchNodeGroup.current = undefined;
@@ -2106,6 +2119,12 @@ console.log("connectConnectionToNode" , node);
 					connectionNodeThumbsLineNode.current = clonedNode;
 					return;
 				}
+				
+				if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
+					console.log("onMouseEnd not allowed")
+					return false;
+				}
+
 				connectConnectionToNode(node);
 			}
 			return false;
@@ -2615,7 +2634,7 @@ console.log("onstagemouseend in reset", interactionState.current, selectingViaAn
 	const onStageMouseLeave = (event) => {
 	
 		onStageMouseEnd(event);
-
+console.log("onStageMouseLeave", event);
 		if (interactionState.current === InteractionState.selectingNodes) {
 			interactionState.current = InteractionState.idle;
 			(selectingRectRef.current as any).opacity(0);
@@ -3278,7 +3297,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 										x = x - (x % gridSize.current);
 										y = y - (y % gridSize.current);
 
-										movingExistingOrNewNodeOnCanvas(x, y, true, touchNode.current, true);
+										movingExistingOrNewNodeOnCanvas(x, y, undefined, true, touchNode.current, true);
 									}
 								}
 							}
@@ -3434,7 +3453,6 @@ console.log("onStageTouchMove draggingMultipleNodes");
 	}
 
 	const onTouchEnd = (node, event) => {
-
 		if (isPinching.current) {
 			return;			
 		}
@@ -3492,6 +3510,14 @@ console.log("onStageTouchMove draggingMultipleNodes");
 		if (allowedOutputs == 0 || 
 			!FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
 			return false;
+		}
+
+		if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
+			console.log("not allowed");
+			document.body.style.cursor = 'not-allowed';
+			return false;
+		} else {
+			console.log("allowed");
 		}
 
 		document.body.style.cursor = 'pointer';		
@@ -3599,7 +3625,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 	}
 
 	const onMouseConnectionEndOver = (node, nodeEvent, event, thumbPositionRelativeToNode? : ThumbPositionRelativeToNode) => {
-
+		console.log("onMouseConnectionEndOver");
 		if (interactionState.current == InteractionState.draggingConnectionEnd) {
 			return;			
 		}
@@ -3617,6 +3643,14 @@ console.log("onStageTouchMove draggingMultipleNodes");
 				document.body.style.cursor = 'not-allowed';
 				return false;
 			}
+			
+			
+		}
+
+		if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
+			console.log("onMouseConnectionEndOver not allowed")
+			document.body.style.cursor = 'not-allowed';
+			return false;
 		}
 
 		document.body.style.cursor = 'pointer';
@@ -3732,6 +3766,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 	}
 
 	const onMouseConnectionEndEnd = (node, nodeEvent,event, thumbPositionRelativeToNode?) => {
+		console.log("onMouseConnectionEndEnd");
 		if (!!canvasMode.isConnectingNodes) {
 			if (!event.evt) {
 				event.preventDefault();
@@ -3747,7 +3782,13 @@ console.log("onStageTouchMove draggingMultipleNodes");
 				clonedNode.endshapeid = node.name;
 				connectionNodeThumbsLineNode.current = clonedNode;
 				return;
+			}			
+
+			if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
+				console.log("onMouseConnectionEndEnd not allowed")
+				return false;
 			}
+
 			connectConnectionToNode(node, thumbPositionRelativeToNode);
 		}
 	}
@@ -5144,12 +5185,8 @@ console.log("getNewConnection in clickShape")
 		const y = node.y-position.y;
 		return Math.sqrt( x*x + y*y );
 	}
-	const onAllowDrop = (event) => {
-		event.preventDefault();
-		movingExistingOrNewNodeOnCanvas(event.clientX, event.clientY, false);
-	}
 
-	const movingExistingOrNewNodeOnCanvas = (dropX: number, dropY: number, isConnectingToExistingNode : boolean, existingNode?: any, noScale? : boolean) => {
+	const movingExistingOrNewNodeOnCanvas = (dropX: number, dropY: number, taskTypeBeingDraggedOnStage? : string, isConnectingToExistingNode? : boolean, existingNode?: any, noScale? : boolean) => {
 
 		if (!!isConnectingToExistingNode && existingNode) {
 			const mappedNode = flowStore.flowHashmap.get(existingNode.name);
@@ -5160,6 +5197,35 @@ console.log("getNewConnection in clickShape")
 				return;
 			}
 		}
+
+		let allowedInputTaskTypes : string[] = [];
+		let allowedOutputTaskTypes : string[] = [];
+		let notAllowedInputTaskTypes : string[] = [];
+		let notAllowedOutputTaskTypes : string[] = [];
+		let incomingTaskType = "";
+
+		if (taskTypeBeingDraggedOnStage) {
+			const settings = ShapeSettings.getShapeSettings(taskTypeBeingDraggedOnStage, undefined);
+			allowedInputTaskTypes = (settings as any)?.constraints?.input?.allowed ?? [];
+			notAllowedInputTaskTypes = (settings as any)?.constraints?.input?.notAllowed ?? [];
+
+			allowedOutputTaskTypes = (settings as any)?.constraints?.output?.allowed ?? [];
+			notAllowedOutputTaskTypes = (settings as any)?.constraints?.output?.notAllowed ?? [];
+			
+			incomingTaskType = taskTypeBeingDraggedOnStage;
+		} else 
+		if (!!isConnectingToExistingNode && existingNode) {
+			const settings = ShapeSettings.getShapeSettings(existingNode.taskType, undefined);
+			allowedInputTaskTypes = (settings as any)?.constraints?.input?.allowed ?? [];
+			notAllowedInputTaskTypes = (settings as any)?.constraints?.input?.notAllowed ?? [];
+
+			allowedOutputTaskTypes = (settings as any)?.constraints?.output?.allowed ?? [];
+			notAllowedOutputTaskTypes = (settings as any)?.constraints?.output?.notAllowed ?? [];
+
+			incomingTaskType = existingNode.taskType;
+		}
+
+		console.log(allowedInputTaskTypes,notAllowedInputTaskTypes,allowedOutputTaskTypes,notAllowedOutputTaskTypes);
 
 		if (stage && stage.current) {
 			let stageInstance = (stage.current as any).getStage();
@@ -5225,6 +5291,9 @@ console.log("getNewConnection in clickShape")
 									yend: node.yend
 								}
 							}
+
+							// get allowed input and output taskTypes for node.taskType
+							// isConnectingToExistingNode: get allowed input and output taskTypes for existingNode.taskType
 
 							let leftPosition = {
 								x: nodePosition.xstart,
@@ -5296,6 +5365,15 @@ console.log("getNewConnection in clickShape")
 							}
 						}
 
+						const nodeSetings = ShapeSettings.getShapeSettings(node.taskType, node);
+						const allowedInputTaskTypesForNode = (nodeSetings as any)?.constraints?.input?.allowed ?? [];
+						const notAllowedInputTaskTypesForNode = (nodeSetings as any)?.constraints?.input?.notAllowed ?? [];
+			
+						const allowedOutputTaskTypesForNode = (nodeSetings as any)?.constraints?.output?.allowed ?? [];
+						const notAllowedOutputTaskTypesForNode = (nodeSetings as any)?.constraints?.output?.notAllowed ?? [];
+			
+						console.log(node.taskType);
+
 						if (node.taskType === "Annotation") {
 							return;
 						}
@@ -5303,6 +5381,7 @@ console.log("getNewConnection in clickShape")
 						if (node.shapeType === "Section") {
 							return;
 						}
+						
 
 						const nodePosition = positionContext.getPosition(node.name);
 						if (!nodePosition) {
@@ -5357,8 +5436,48 @@ console.log("getNewConnection in clickShape")
 						const distanceLeft = getDistance(position,leftPosition);
 						const distanceRight = getDistance(position,rightPosition);
 
+
+						const isAllowedOutput = (taskType) => {
+							if (notAllowedOutputTaskTypes.indexOf(taskType) >= 0) {
+								return false;
+							}
+							if (allowedOutputTaskTypes.length > 0 && allowedOutputTaskTypes.indexOf(taskType) < 0) {
+								return false;
+							}
+
+							if (notAllowedInputTaskTypesForNode.indexOf(incomingTaskType) >= 0) {
+								return false;
+							}
+							if (allowedInputTaskTypesForNode.length > 0 && allowedOutputTaskTypes.indexOf(incomingTaskType) < 0) {
+								return false;
+							}
+							return true;
+						}
+
+
+						const isAllowedInput = (taskType) => {
+							if (notAllowedInputTaskTypes.indexOf(taskType) >= 0) {
+								return false;
+							}
+							if (allowedInputTaskTypes.length > 0 && allowedInputTaskTypes.indexOf(taskType) < 0) {
+								return false;
+							}
+							if (notAllowedOutputTaskTypesForNode.indexOf(incomingTaskType) >= 0) {
+								return false;
+							}
+							if (allowedOutputTaskTypesForNode.length > 0 && allowedOutputTaskTypes.indexOf(incomingTaskType) < 0) {
+								return false;
+							}
+							return true;
+						}
+
 						if (minDistance == -1 || distanceLeft < minDistance) {
-							if (distanceLeft < minDistanceForAutoConnect) {								
+							if (distanceLeft < minDistanceForAutoConnect) {
+								
+								if (!isAllowedOutput(node.taskType)) {
+									return;
+								}
+								
 								minDistance = distanceLeft;
 								closestNode = node;
 								orientationIsLeft = false;
@@ -5366,7 +5485,7 @@ console.log("getNewConnection in clickShape")
 								isNodeConnection = false;
 								closestStartNode = undefined;
 								closestEndNode = undefined;
-
+								
 								if (node.shapeType === "Diamond") {
 									isInputToNode = true;
 									isOutputToNode = false;
@@ -5378,9 +5497,16 @@ console.log("getNewConnection in clickShape")
 								}
 							}							
 						}
+						
+						
 
 						if (distanceTop >= 0 && (minDistance == -1 || distanceTop < minDistance)) {
 							if (distanceTop < minDistanceForAutoConnect) {
+
+								if (!isAllowedInput(node.taskType)) {
+									return;
+								}								
+
 								// currently this is always diamond
 								minDistance = distanceTop;
 								closestNode = node;
@@ -5397,6 +5523,11 @@ console.log("getNewConnection in clickShape")
 
 						if (distanceBottom >= 0 && (minDistance == -1 || distanceBottom < minDistance)) {
 							if (distanceBottom < minDistanceForAutoConnect) {
+
+								if (!isAllowedInput(node.taskType)) {
+									return;
+								}
+
 								// currently this is always diamond
 								minDistance = distanceBottom;
 								closestNode = node;
@@ -5415,6 +5546,11 @@ console.log("getNewConnection in clickShape")
 						if (node.shapeType !== "Diamond") {
 							if (minDistance == -1 || distanceRight < minDistance) {
 								if (distanceRight < minDistanceForAutoConnect) {
+
+									if (!isAllowedInput(node.taskType)) {
+										return;
+									}
+
 									minDistance = distanceRight;
 									closestNode = node;
 									orientationIsLeft = true;
@@ -5760,7 +5896,7 @@ console.log("getNewConnection in clickShape")
 			movingExistingOrNewNodeOnCanvas(
 				Math.round(((rect.left + rect.right)/2) - canvasTopLeftPositionRef.current.x), 
 				Math.round(((rect.top+rect.bottom)/2) - canvasTopLeftPositionRef.current.y),
-				false
+				activeId, false
 			);
 		}		
 	}

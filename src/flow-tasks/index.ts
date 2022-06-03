@@ -35,9 +35,11 @@ import { SvgTestTask } from '../flowrunner-plugins/svg-test-task';
 import { CustomNodeTask } from '../flowrunner-plugins/custom-node-task';
 import { ShapeNodeTask } from '../flowrunner-plugins/shape-node-task';
 import { BundleFlowTask } from '../flowrunner-plugins/bundle-flow-task';
+import { TestTask } from '../flowrunner-plugins/test-task';
 
 export const registerTasks = flow => {
   flow.registerTask('Annotation', FlowTask);
+  flow.registerTask('TestTask', TestTask);
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);
   flow.registerTask('WhileTask', WhileTask);

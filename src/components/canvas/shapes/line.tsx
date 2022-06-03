@@ -9,9 +9,20 @@ import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
 
 const KonvaLine = Konva.Arrow;
 
-import { Group, Text } from 'react-konva';
+import { Group, Text, Rect, Shape } from 'react-konva';
 
 import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbFollowFlow, ThumbPositionRelativeToNode } from './shape-types';
+
+function getBezierXY(t, sx, sy, cp1x, cp1y, cp2x, cp2y, ex, ey) {
+	// http://www.independent-software.com/determining-coordinates-on-a-html-canvas-bezier-curve.html
+	return {
+	  x: Math.pow(1-t,3) * sx + 3 * t * Math.pow(1 - t, 2) * cp1x 
+		+ 3 * t * t * (1 - t) * cp2x + t * t * t * ex,
+	  y: Math.pow(1-t,3) * sy + 3 * t * Math.pow(1 - t, 2) * cp1y 
+		+ 3 * t * t * (1 - t) * cp2y + t * t * t * ey
+	};
+  }
+
 export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 
 	
@@ -23,6 +34,9 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	const [dash, setDash] = useState(props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5,10] : [1,1]);
 	const lineRef = useRef(null as any);
 	const bgLineRef = useRef(null as any);
+	const textRef = useRef(null as any);
+	const textRef2 = useRef(null as any);
+	const rectRef = useRef(null as any);
 
 	useEffect(() => {
 		let _fillColor = props.isSelected ? "#606060" : "#000000";	
@@ -169,6 +183,10 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 							}
 						}
 					}
+
+					if (textRef2.current && parameters) {
+						textRef2.current.opacity(parameters.opacity);
+					}
 					
 					break;
 				}
@@ -177,8 +195,24 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 						lineRef.current.points(parameters.points);						
 					}
 					if (bgLineRef && bgLineRef.current && parameters) {
-						bgLineRef.current.points(parameters.points);
-					}					
+						bgLineRef.current.points(parameters.points);									
+					}
+					if (textRef2.current) {
+						const center = getBezierXY(0.5,
+							parameters.points[0], parameters.points[1],
+							parameters.points[2], parameters.points[3],
+							parameters.points[4], parameters.points[5],
+							parameters.points[6], parameters.points[7],														
+						);
+						//textRef.current.width("auto");
+						//textRef.current.height("auto");
+						//textRef.current.x(center.x);
+						//textRef.current.y(center.y);
+						//rectRef.current.x(center.x-6);
+						//rectRef.current.y(center.y-6);
+						textRef2.current.x(center.x);
+						textRef2.current.y(center.y);
+					}
 					break;
 				}
 				case ModifyShapeEnum.SetState : {
@@ -222,12 +256,16 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 	}));
 	
-	
-
 	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend,
 		props.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
 		props.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 
+	const center = getBezierXY(0.5,
+		props.xstart, props.ystart,
+				controlPoints.controlPointx1, controlPoints.controlPointy1,
+				controlPoints.controlPointx2, controlPoints.controlPointy2,
+				props.xend, props.yend
+		);
 	return <><Group listening={!props.noMouseEvents}
 		transformsEnabled={"position"}		
 	>
@@ -285,6 +323,46 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			shadowForStrokeEnabled={false}
 		>
 		</KonvaLine>
+		{/*<Text
+			ref={textRef} 
+			x={center.x}
+			y={center.y}
+			align="center"			
+			verticalAlign="middle"
+			text={"Dit is een test"}
+		></Text>
+		<Rect
+			ref={rectRef} 
+			x={center.x-6}
+			y={center.y-6}
+			width={12}
+			height={12}
+			fill={"#000000"}
+		></Rect>*/}
+		{props.lineNode && props.lineNode.label && <Shape
+			ref={textRef2}
+			x={center.x}
+			y={center.y}
+            sceneFunc={(context, shape) => {
+				context._context.textAlign = "center";
+				context._context.textBaseline = "middle";
+				
+				const size = context.measureText(props.lineNode.label);
+				context._context.fillStyle = "rgba(255, 255, 255, 0.75)";
+				context.fillRect(
+					-(size.width + 10)/2,
+					-(10 + size.actualBoundingBoxAscent + size.actualBoundingBoxDescent)/2, 
+					size.width + 10,  
+					10 + size.actualBoundingBoxAscent + size.actualBoundingBoxDescent);
+			  
+			  	context._context.fillStyle = "#000000";
+				context.fillText(props.lineNode.label, 0,0);
+				context._context.textAlign = "left";
+				context._context.textBaseline = "alphabetic";
+            }}
+            fill="#FF0000"
+          />}
+		
 	</Group>
 	{props.hasStartThumb !== undefined && !!props.hasStartThumb && props.shapeRefs && <ThumbsStart				
 		position={FlowToCanvas.getThumbStartPosition("", {x:props.xstart,y:props.ystart}, 0)}

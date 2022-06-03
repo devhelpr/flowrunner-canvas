@@ -2,6 +2,7 @@ import { ShapeMeasures } from './shape-measures';
 import { getTaskConfigForTask } from '../config';
 import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-types';
 import { IPosition, IPositionContext } from '../components/contexts/position-context';
+import { ShapeSettings } from './shape-settings';
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow, positionContext?: IPositionContext) {
     if (flow === undefined) {
@@ -585,6 +586,45 @@ export class FlowToCanvas {
         return currentOutputs < allowedOutputs;
       }
     }
+    return true;
+  }
+
+  static canNodesConnect(inputNode, outputNode) {
+    if (!inputNode || !outputNode) {
+      return true;
+    }
+
+console.log("canNodesConnect", inputNode.taskType, outputNode.taskType);
+    const settings = ShapeSettings.getShapeSettings(inputNode.taskType, inputNode);
+    //const allowedInputTaskTypes = (settings as any)?.constraints?.input?.allowed ?? [];
+    //const notAllowedInputTaskTypes = (settings as any)?.constraints?.input?.notAllowed ?? [];
+
+    const allowedOutputTaskTypes = (settings as any)?.constraints?.output?.allowed ?? [];
+    const notAllowedOutputTaskTypes = (settings as any)?.constraints?.output?.notAllowed ?? [];
+
+
+    const settingsForNode = ShapeSettings.getShapeSettings(outputNode.taskType, outputNode);
+    const allowedInputTaskTypesForOutputNode = (settingsForNode as any)?.constraints?.input?.allowed ?? [];
+    const notAllowedInputTaskTypesForOutputNode = (settingsForNode as any)?.constraints?.input?.notAllowed ?? [];
+
+    //const allowedOutputTaskTypesForOutputNode = (settingsForNode as any)?.constraints?.output?.allowed ?? [];
+    //const notAllowedOutputTaskTypesForOutputNode = (settingsForNode as any)?.constraints?.output?.notAllowed ?? [];
+
+    if (notAllowedOutputTaskTypes.indexOf(outputNode.taskType) >= 0) {
+      return false;
+    }
+    if (allowedOutputTaskTypes.length > 0 && allowedOutputTaskTypes.indexOf(outputNode.taskType) < 0) {
+      return false;
+    }
+
+
+    if (notAllowedInputTaskTypesForOutputNode.indexOf(inputNode.taskType) >= 0) {
+      return false;
+    }
+    if (allowedInputTaskTypesForOutputNode.length > 0 && allowedInputTaskTypesForOutputNode.indexOf(inputNode.taskType) < 0) {
+      return false;
+    }
+
     return true;
   }
 }

@@ -48,6 +48,25 @@ const taskTypeConfig: any = {
       value: '',
     },
   },
+  TestTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    constraints: {
+      output: {
+        notAllowed: ["DebugTask"],
+        allowed: [],
+      },
+      input: {
+        notAllowed: ["AssignTask","DebugTask"],
+        allowed: [],
+      }
+    },
+    metaInfo: [     
+    ],
+    presetValues: {
+      
+    },
+  },
 
   IfConditionTask: {
     shapeType: 'Diamond',
@@ -1190,7 +1209,7 @@ const taskTypeConfig: any = {
     presetValues: {
       prototype: 'default',
     },
-  },
+  }, 
   DebugTask: {
     shapeType: 'Html',
     hasUI: true,
@@ -1204,6 +1223,12 @@ const taskTypeConfig: any = {
       fixed: 2,
       decimalSeparator: ',',
       afterLabel: '',
+    },
+    constraints: {
+      input: {
+        notAllowed: [],
+        allowed: [],
+      },
     },
     configMenu: {
       fields: [

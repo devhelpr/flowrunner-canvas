@@ -124,6 +124,8 @@ function start(flowFileName, taskPlugins, options) {
 			// if something is added here .. also check out index.ejs for the storageprovider
 			if (isStandalone) {
 
+				tasks.push({className:"TestTask", fullName: "TestTask", flowType: "playground"});
+
 				tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "playground"});
 				tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "playground"});
 				tasks.push({className:"ForwardTask", fullName: "ForwardTask", flowType: "playground"});

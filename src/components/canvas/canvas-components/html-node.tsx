@@ -167,7 +167,10 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 							onClick={(event) => props.onShowNodeEditor(props.node, settings, event)} 
 							className="canvas__html-shape-bar-icon fas fa-window-maximize"></a>}	
 				</div>
-				<div className="canvas__html-shape-body" style={{...(settings && (settings as any).styleShapeBody)}}>
+				<div className="canvas__html-shape-body"
+					onMouseOver={(event) => props.onMouseOver(props.node, event)}
+					onMouseOut={props.onMouseOut}
+					style={{...(settings && (settings as any).styleShapeBody)}}>
 				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId, props.useFlowStore)}</div>
 				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}
 					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}
