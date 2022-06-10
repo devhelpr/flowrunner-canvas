@@ -497,6 +497,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 	--tw-text-opacity: 1;
 	color: rgb(255 255 255 / var(--tw-text-opacity));
 }
+.tw-text-blue-500{
+	--tw-text-opacity: 1;
+	color: rgb(59 130 246 / var(--tw-text-opacity));
+}
 .tw-text-black{
 	--tw-text-opacity: 1;
 	color: rgb(0 0 0 / var(--tw-text-opacity));
@@ -2207,6 +2211,25 @@ textarea.form-control:disabled {
 		-webkit-transform: translate(-50%,-50%);
 		        transform: translate(-50%,-50%);
 	}
+[data-task="StartState"] .canvas__html-shape-bar {
+		background: black;
+		border-radius: 50%;
+		width: 64px;
+		height: 64px;
+	}
+[data-task="StartState"] .canvas__html-shape-bar-title {
+		display: none;
+	}
+[data-task="State"] .canvas__html-shape-bar {
+		background: #e2e2e2;
+		border-radius: 10px;
+		border: 2px solid black;
+	}
+[data-task="Event"] .canvas__html-shape-bar {
+		border: 0 none transparent;
+		border-radius: 10px;
+		background: #c2c2c2;
+	}
 .edit-bundle .taskbar {
 		top: 16px;
 		height: calc(100% - 32px);
@@ -2223,4 +2246,30 @@ textarea.form-control:disabled {
 	top: 0;
 	background: white;
 	z-index: 2;
+}
+.floating-toolbar {
+	position: fixed;
+	z-index: 3;
+	bottom: 10px;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	        transform: translateX(-50%);
+	height: 32px;
+	background: white;
+	border: 1px #c2c2c2 solid;
+	border-radius: 3px;
+	padding: 10px 20px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+	-ms-flex-pack: distribute;
+	    justify-content: space-around;
+	gap: 10px;
 }

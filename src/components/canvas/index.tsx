@@ -49,6 +49,7 @@ import { PositionContext, PositionProvider, usePositionContext } from '../contex
 import { setMultiSelectInfo } from '../../services/multi-select-service';
 import { AnnotationSection } from './annotations/annotation-section';
 import { AnnotationText } from './annotations/annotation-text';
+import { FloatingToolbar } from '../toolbar';
 
 const uuidV4 = uuid.v4;
 
@@ -1289,7 +1290,9 @@ export const Canvas = (props: CanvasProps) => {
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 							x: positionNode.x,
 							y: positionNode.y
-						}, node, props.getNodeInstance,
+						}, 
+						node, newPosition,
+						props.getNodeInstance,
 						lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
 					);
 
@@ -1300,7 +1303,8 @@ export const Canvas = (props: CanvasProps) => {
 							newStartPosition.x, newStartPosition.y, 
 							newEndPosition.x, newEndPosition.y,
 							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
+							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+							lineNode
 						);				
 
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
@@ -1327,7 +1331,8 @@ export const Canvas = (props: CanvasProps) => {
 							newStartPosition.x, newStartPosition.y, 
 							endPos.x, endPos.y,
 							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
+							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+							lineNode
 						);				
 
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
@@ -1350,7 +1355,15 @@ export const Canvas = (props: CanvasProps) => {
 		if (endLines) {
 			
 			endLines.map((lineNode) => {
-				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, lineNode, 
+
+				let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];	
+				let positionNode : any = undefined;
+				if (startNode) {
+					positionNode = positionContext.getPosition(startNode.name) || startNode;
+				}
+
+				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, 
+					startNode, positionNode,
 					props.getNodeInstance,
 					lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
 				);
@@ -1360,10 +1373,9 @@ export const Canvas = (props: CanvasProps) => {
 					x : positionLine.xstart,
 					y : positionLine.ystart
 				};
-
-				let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];	
+				
 				if (startNode) {
-					const positionNode = positionContext.getPosition(startNode.name) || startNode;
+					//const positionNode = positionContext.getPosition(startNode.name) || startNode;
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
 							x: positionNode.x,
 							y: positionNode.y
@@ -1381,7 +1393,8 @@ export const Canvas = (props: CanvasProps) => {
 							newStartPosition.x, newStartPosition.y, 
 							newEndPosition.x, newEndPosition.y,
 							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
+							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+							lineNode);
 
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
@@ -1407,7 +1420,8 @@ export const Canvas = (props: CanvasProps) => {
 							startPos.x, startPos.y, 
 							newEndPosition.x, newEndPosition.y,
 							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
+							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+							lineNode);
 
 						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[startPos.x, startPos.y,
 							controlPoints.controlPointx1, controlPoints.controlPointy1,
@@ -1425,12 +1439,16 @@ export const Canvas = (props: CanvasProps) => {
 			if (node.endshapeid) {
 				let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
 				if (endNode) {
-					
+					let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];
+					const positionStartNode = positionContext.getPosition(startNode.name) || startNode;
+
 					const positionNode = positionContext.getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 							x: positionNode.x,
 							y: positionNode.y
-						}, node, props.getNodeInstance,
+						},
+						startNode, positionStartNode,
+						props.getNodeInstance,
 						node.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
 					);
 					newPosition.xend = newEndPosition.x;
@@ -1676,8 +1694,42 @@ export const Canvas = (props: CanvasProps) => {
 		}
 
 		if (!!canvasMode.isConnectingNodes) {
+			interactionState.current = InteractionState.addingNewConnection;
+
+			(isConnectingNodesByDraggingLocal.current as any) = true;
+			connectionNodeEvent.current = false;
+			connectionNodeEventName.current = "";
+			connectionNodeThumbs.current = "";
+			connectionNodeThumbsLineNode.current = undefined;
+
+			connectionNodeFollowFlow.current = ThumbFollowFlow.default;
+			connectionNodeThumbPositionRelativeToNode.current = ThumbPositionRelativeToNode.default;
+			connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.default;
+			
+			document.body.classList.add("connecting-nodes");
+
+			touchNode.current = node;
+			touchNodeGroup.current = event.currentTarget;		
+
+			let newPosition = {
+				x: 0,
+				y: 0
+			};
+
+			if (stage && stage.current) {
+				let stageInstance = (stage.current as any).getStage();
+				if (stage) {
+					var touchPos = getCurrentPosition(event);
+					const scaleFactor = (stageInstance as any).scaleX();
+
+					newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor);
+					newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor);
+					connectionXStart.current = newPosition.x;
+					connectionYStart.current = newPosition.y;				
+				}
+			}
 			cancelDragStage();
-			return false;
+			return;
 		}
 
 		if (isConnectingNodesByDraggingLocal.current) {
@@ -2020,6 +2072,14 @@ console.log("connectConnectionToNode" , node);
 		const connection = getNewConnection(touchNode.current, node, props.getNodeInstance, eventHelper,
 			connectionNodeThumbPositionRelativeToNode.current);
 		
+		if (node && node.curveMode === "arc") {
+			(connection as any).curveMode = "arc";
+		}
+
+		if (node && node.curveMode === "straight") {
+			(connection as any).curveMode = "straight";
+		}
+
 		if (connection.startshapeid === connection.endshapeid) {
 			console.log("WARNING : DONT CONNECT FROM NODE to ITSELF!!!");
 			return false;
@@ -3097,7 +3157,9 @@ console.log("onStageMouseLeave", event);
 								connectionXStart.current, connectionYStart.current, 
 								newPosition.x, newPosition.y,
 								connectionNodeThumbPositionRelativeToNode.current as ThumbPositionRelativeToNode,
-								connectionNodeThumbPositionRelativeToEndNode.current as ThumbPositionRelativeToNode);
+								connectionNodeThumbPositionRelativeToEndNode.current as ThumbPositionRelativeToNode, {
+									curveMode: (touchNode.current as any)?.curveMode ?? ""
+								});
 								
 							lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points: [connectionXStart.current, connectionYStart.current,
 								controlPoints.controlPointx1, controlPoints.controlPointy1,
@@ -4651,7 +4713,9 @@ console.log("getNewConnection in clickShape")
 						const endPositionNode = positionContext.getPosition(endNode.name) || endNode;
 
 						const startPosition = FlowToCanvas.getStartPointForLine(startNode, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
-						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
+						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endPositionNode.x, y: endPositionNode.y}, 
+							startNode, startPositionNode,
+							props.getNodeInstance);
 
 						let connection = {
 							shapeType : "Line",
@@ -4813,11 +4877,16 @@ console.log("getNewConnection in clickShape")
 									const endPositionNode = positionContext.getPosition(nodeEnd.name) || nodeEnd;
 			
 									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
-									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
+									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, 
+										{x: endPositionNode.x, y: endPositionNode.y}, 
+										node, startPositionNode,
+										props.getNodeInstance);
 
 									if (!startToEnd) {
 										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
-										endPosition = FlowToCanvas.getEndPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
+										endPosition = FlowToCanvas.getEndPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, 
+											nodeEnd, endPositionNode, 
+											props.getNodeInstance);
 									}
 
 									let connection = {
@@ -5404,13 +5473,17 @@ console.log("getNewConnection in clickShape")
 							x: nodePosition.x,
 							y: nodePosition.y
 
-						}, undefined, props.getNodeInstance);
+						}, 
+						undefined, undefined,
+						props.getNodeInstance);
 
 						const topPosition = FlowToCanvas.getEndPointForLine(node,{
 							x: nodePosition.x,
 							y: nodePosition.y
 
-						}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.top);
+						}, 
+						undefined, undefined, 
+						props.getNodeInstance, ThumbPositionRelativeToNode.top);
 
 						let distanceTop = -1;
 						let distanceBottom = -1;
@@ -5642,7 +5715,9 @@ console.log("getNewConnection in clickShape")
 								let newEndPosition =  FlowToCanvas.getEndPointForLine(existingNode, {
 										x: positionNode.x,
 										y: positionNode.y
-									}, closestStartNode, props.getNodeInstance,
+									}, 
+									closestStartNode, nodePosition,
+									props.getNodeInstance,
 									ThumbPositionRelativeToNode.default);
 								position.x = newEndPosition.x;
 								position.y = newEndPosition.y;
@@ -5771,7 +5846,9 @@ console.log("getNewConnection in clickShape")
 								x: nodePosition.x,
 								y: nodePosition.y
 
-							}, undefined, props.getNodeInstance);
+							}, 
+							undefined, undefined,
+							props.getNodeInstance);
 
 							let controlPoints = calculateLineControlPoints(
 								position.x, position.y,
@@ -6196,7 +6273,9 @@ console.log("getNewConnection in clickShape")
 																let newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 																	x: positionNode.x,
 																	y: positionNode.y
-																}, endNode, props.getNodeInstance,
+																},
+																undefined, undefined,
+																props.getNodeInstance,
 																node.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 																position.xend = newEndPosition.x;
 																position.yend = newEndPosition.y;
@@ -6390,7 +6469,7 @@ console.log("getNewConnection in clickShape")
 					</div>
 				</div>
 		</DndContext>		
-		
+		<FloatingToolbar useCanvasModeStateStore={props.useCanvasModeStateStore} />
 		{showNodeSettings && <EditNodeSettings 
 			modalSize={props.modalSize}
 			hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
@@ -6406,6 +6485,6 @@ console.log("getNewConnection in clickShape")
 			flow={flowStore.flow}
 			flowId={flowStore.flowId}
 			flowrunnerConnector={props.flowrunnerConnector} />
-									
+		
 	</>;
 }

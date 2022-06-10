@@ -1755,6 +1755,35 @@ textarea.form-control:disabled {
 	}
 }
 
+[data-task="StartState"] {
+	.canvas__html-shape-bar {
+		background: black;
+		border-radius: 50%;
+		width: 64px;
+		height: 64px;
+	}
+
+	.canvas__html-shape-bar-title {
+		display: none;
+	}
+}
+
+[data-task="State"] {
+	.canvas__html-shape-bar {
+		background: #e2e2e2;
+		border-radius: 10px;
+		border: 2px solid black;
+	}
+}
+
+[data-task="Event"] {
+	.canvas__html-shape-bar {
+		border: 0 none transparent;
+		border-radius: 10px;
+		background: #c2c2c2;
+	}
+}
+
 .edit-bundle {
 	.taskbar {
 		top: 16px;
@@ -1777,4 +1806,22 @@ textarea.form-control:disabled {
 	top: 0;
 	background: white;
 	z-index: 2;
+}
+
+.floating-toolbar {
+	position: fixed;
+	z-index: 3;
+	bottom: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	height: 32px;
+	background: white;
+	border: 1px #c2c2c2 solid;
+	border-radius: 3px;
+	padding: 10px 20px;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	justify-content: space-around;
+	gap: 10px;
 }

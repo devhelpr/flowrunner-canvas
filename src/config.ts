@@ -65,6 +65,125 @@ const taskTypeConfig: any = {
     presetValues: {},
   },
 
+  StateMachine: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    constraints: {
+      output: {
+        allowedOutputs: 0
+      },
+      input: {
+        allowedInputs: 0        
+      },
+    },    
+    metaInfo: [
+      {
+        fieldName: "StateMachine"
+      }
+    ],
+    presetValues: {},
+  },
+
+  StartState: {
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
+    constraints: {
+      output: {
+        notAllowed: [],
+        allowed: ['State'],
+        allowedOutputs: 1
+      },
+      input: {
+        allowedInputs: 0        
+      },
+    },
+    styleShapeBody: {
+      width: '64px',
+      height: '64px',
+    },
+    width: 64,
+    height: 64,
+    metaInfo: [],
+    hasClone : false,
+    hasThumbs: false,
+    presetValues: {
+      lineConnectionEndPoints : "center-of-node",
+	    curveMode : "straight"
+    }
+  },
+  State: {
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
+    constraints: {
+      output: {
+        notAllowed: [],
+        allowed: ['Event']
+      },
+      input: {
+        allowed: ['Event','StartState']       
+      },
+    }, 
+    styleShapeBody: {
+      width: '200px',
+      height: '64px',
+    },
+    label: "{StateName}",
+    width: 200,
+    height: 64,
+    metaInfo: [],  
+    hasConfigMenu: true,
+    hasClone : false,
+    hasThumbs: false,
+    configMenu: {
+      fields: [
+        {
+          fieldName: "StateName"
+        }
+      ]
+    },
+    presetValues: {
+      lineConnectionEndPoints : "center-of-node",
+	    curveMode : "arc"
+    }
+  },
+  Event: {
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
+    constraints: {
+      output: {
+        notAllowed: [],
+        allowed: ['State'],
+        allowedOutputs: 1
+      },
+      input: {
+        allowed: ['State'],
+        allowedInputs: 1       
+      },
+    },
+    styleShapeBody: {
+      width: '200px',
+      height: '64px',
+    },
+    width: 200,
+    height: 64,
+    label: "{EventName}",
+    metaInfo: [],    
+    hasConfigMenu: true,
+    hasClone : false,
+    hasThumbs: false,
+    configMenu: {
+      fields: [
+        {
+          fieldName: "EventName"
+        }
+      ]
+    },
+    presetValues: {
+      lineConnectionEndPoints : "center-of-node",
+	    curveMode : "arc"
+    }
+  },
+
   IfConditionTask: {
     shapeType: 'Diamond',
     presetValues: {

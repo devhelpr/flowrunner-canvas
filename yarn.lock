@@ -2505,6 +2505,11 @@ beeper@^1.0.0:
   resolved "https://registry.yarnpkg.com/beeper/-/beeper-1.1.1.tgz#e6d5ea8c5dad001304a70b22638447f69cb2f809"
   integrity sha1-5tXqjF2tABMEpwsiY4RH9pyy+Ak=
 
+bezier-intersect@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/bezier-intersect/-/bezier-intersect-0.0.3.tgz#b52fabc3146232a5fe505c8c3bc40c1a64efa4da"
+  integrity sha512-ZUv3/gz09WtqOUG2T5SABMSlERUwcxUeUdrAIZdRl6NwIgI2CoPNCEVEsKvokeQhjkXLYIGe09Una0zrXIICqQ==
+
 big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"

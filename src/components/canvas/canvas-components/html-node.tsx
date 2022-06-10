@@ -9,6 +9,7 @@ import { IFlowState} from '../../../state/flow-state';
 import { Subject } from 'rxjs';
 import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
 import { usePositionContext } from '../../contexts/position-context';
+import { replaceValuesExpressions, hasReplacebleValuesExistingInPayload } from '../../../helpers/replace-values';
 
 export interface IHtmlNodeProps {
 	hasTaskNameAsNodeTitle?: boolean;
@@ -76,6 +77,11 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		if ((settings as any).hasClone !== undefined) {
 			hasClone = (settings as any).hasClone; 
 		}
+
+		let hasThumbs = true;
+		if ((settings as any).hasThumbs !== undefined) {
+			hasThumbs = (settings as any).hasThumbs; 
+		}
 		
 		let width = undefined;
 		let height = undefined;
@@ -109,6 +115,15 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 			// TODO : handle this in canvas in  useEffect(() => useSelectedNodeStore.subscribe( 
 
 		}
+
+		let labelText = props.node && props.node.label ? props.node.label : props.node.name;
+		if ((settings as any).label && hasReplacebleValuesExistingInPayload((settings as any).label, props.node)) {
+			labelText= replaceValuesExpressions((settings as any).label, props.node, "-");
+		} else if (!!props.hasTaskNameAsNodeTitle) {
+			labelText = props.node.label || props.node.taskType;
+		}
+		// {!!props.hasTaskNameAsNodeTitle ? props.node.label || props.node.taskType : 
+		//  props.node.label ? props.node.label : props.node.name
 		return <div
 			style={{transform: "translate(" + (position.x) + "px," + 
 					( (position.y) ) + "px) " +
@@ -152,7 +167,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onClick={(event) => props.onClickShape(props.node, event)}			
 				>
 					<span className="canvas__html-shape-bar-title">{settings.icon && <span className={"canvas__html-shape-title-icon fas " +  settings.icon}></span>}
-					<span>{!!props.hasTaskNameAsNodeTitle ? props.node.label || props.node.taskType : props.node.label ? props.node.label : props.node.name}</span></span>
+					<span>{labelText}</span></span>
 					{hasClone && <a href="#" onClick={(event) => props.onCloneNode(props.node, event)}
 						onFocus={props.onFocus}
 						className="canvas__html-shape-bar-icon far fa-clone"></a>}							
@@ -172,21 +187,21 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onMouseOut={props.onMouseOut}
 					style={{...(settings && (settings as any).styleShapeBody)}}>
 				{props.renderHtmlNode && props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flowMemo, settings, props.formNodesubject, props.flowId, props.useFlowStore)}</div>
-				<div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}
+				{hasThumbs && <div className={"canvas__html-shape-thumb-start canvas__html-shape-0"}
 					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}
 					onMouseOut={(event) => props.onMouseConnectionStartOut(props.node,false,event)}
 					onMouseDown={(event) => props.onMouseConnectionStartStart(props.node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.default,event)}
 					onMouseMove={(event) => props.onMouseConnectionStartMove(props.node,false,event)}
 					onMouseUp={(event) => props.onMouseConnectionStartEnd(props.node,false,ThumbPositionRelativeToNode.default,event)}				
-				></div>
-				<div className={"canvas__html-shape-thumb-startbottom"}
+				></div>}
+				{hasThumbs && <div className={"canvas__html-shape-thumb-startbottom"}
 					onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,false,event)}
 					onMouseOut={(event) => props.onMouseConnectionStartOut(props.node,false,event)}
 					onMouseDown={(event) => props.onMouseConnectionStartStart(props.node,false,"",ThumbFollowFlow.default, ThumbPositionRelativeToNode.bottom,event)}
 					onMouseMove={(event) => props.onMouseConnectionStartMove(props.node,false,event)}
 					onMouseUp={(event) => props.onMouseConnectionStartEnd(props.node,false,ThumbPositionRelativeToNode.default,event)}		
-				></div>
-				<div className={"canvas__html-shape-thumb-endtop"}
+				></div>}
+				{hasThumbs && <div className={"canvas__html-shape-thumb-endtop"}
 					onMouseOver={(event) => props.onMouseConnectionEndOver(props.node,false,event,ThumbPositionRelativeToNode.top)}
 					onMouseOut={(event) => props.onMouseConnectionEndOut(props.node,false,event)}
 					onMouseDown={(event) => props.onMouseConnectionEndStart(props.node,false,event)}
@@ -194,16 +209,16 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event,ThumbPositionRelativeToNode.top)}
 					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}
 				
-				></div>
-				<div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}
+				></div>}
+				{hasThumbs && <div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}
 					onMouseOver={(event) => props.onMouseConnectionEndOver(props.node,false,event)}
 					onMouseOut={(event) => props.onMouseConnectionEndOut(props.node,false,event)}
 					onMouseDown={(event) => props.onMouseConnectionEndStart(props.node,false,event)}
 					onMouseMove={(event) => props.onMouseConnectionEndMove(props.node,false,event)}
 					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event)}
 					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}				
-				></div>
-				{settings.events && settings.events.map((event ,eventIndex) => {
+				></div>}
+				{hasThumbs && settings.events && settings.events.map((event ,eventIndex) => {
 					return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + props.node.name + (props.flowId || "") + "-" + eventIndex}></div>
 				})}
 		</div>;						

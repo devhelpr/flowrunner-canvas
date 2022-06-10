@@ -37,9 +37,20 @@ import { ShapeNodeTask } from '../flowrunner-plugins/shape-node-task';
 import { BundleFlowTask } from '../flowrunner-plugins/bundle-flow-task';
 import { TestTask } from '../flowrunner-plugins/test-task';
 
+import { StateTask } from '../flowrunner-plugins/state-task';
+import { StartStateTask } from '../flowrunner-plugins/start-state-task';
+import { EventTask } from '../flowrunner-plugins/event-task';
+import { StateMachineTask } from '../flowrunner-plugins/state-machine-task';
+
 export const registerTasks = flow => {
   flow.registerTask('Annotation', FlowTask);
   flow.registerTask('TestTask', TestTask);
+
+  flow.registerTask('StateMachine', StateMachineTask);
+  flow.registerTask('StartState', StartStateTask);
+  flow.registerTask('State', StateTask);
+  flow.registerTask('Event', EventTask);
+
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);
   flow.registerTask('WhileTask', WhileTask);

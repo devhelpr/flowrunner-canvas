@@ -258,7 +258,8 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 	
 	let controlPoints = calculateLineControlPoints(props.xstart, props.ystart, props.xend, props.yend,
 		props.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-		props.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
+		props.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
+		props.lineNode);
 
 	const center = getBezierXY(0.5,
 		props.xstart, props.ystart,

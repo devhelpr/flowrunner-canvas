@@ -9,6 +9,7 @@ import { IFlowState } from '../../../state/flow-state';
 
 export interface ILineHelperProps {
 	endshapeid : string,
+	startshapeid : string,
 	node,
 	lineNode,
 	getNodeInstance : any, 
@@ -52,6 +53,14 @@ export const LineHelper = (props : ILineHelperProps) => {
 		}
 		return flow.flow[endIndex];	
 	}, [props.node.name, flow, flow.flowHashmap, props.endshapeid]);
+
+	const startNode = useMemo(() => {
+		const startIndex = flow.flowHashmap.get(props.startshapeid).index;
+		if (startIndex < 0) {
+			return false;
+		}
+		return flow.flow[startIndex];	
+	}, [props.node.name, flow, flow.flowHashmap, props.startshapeid]);
 	
 	/*
 	const endNodes = useMemo(() => { 
@@ -72,10 +81,13 @@ export const LineHelper = (props : ILineHelperProps) => {
 	if (endNode) {
 		
 		let positionNode = positionContext.getPosition(endNode.name) || endNode;
+		let startPositionNode = positionContext.getPosition(startNode.name) || endNode;
 		newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 			x: positionNode.x,
 			y: positionNode.y
-		}, endNode, props.getNodeInstance,
+		}, 
+		startNode, startPositionNode,
+		props.getNodeInstance,
 			props.lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 	} else {
 		let position = positionContext.getPosition(props.lineNode.name);
@@ -206,6 +218,7 @@ export const Lines = (
 			return <React.Fragment key={index}><LineHelper
 					useFlowStore={props.useFlowStore}
 					endshapeid={lineNode.endshapeid}
+					startshapeid={lineNode.startshapeid}
 					node={props.node}
 					lineNode={lineNode}
 					getNodeInstance={props.getNodeInstance}
