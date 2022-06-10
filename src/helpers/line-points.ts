@@ -8,15 +8,15 @@ export const calculateLineControlPoints = (
   yend,
   startPositionRelativeToNode?: ThumbPositionRelativeToNode,
   endPositionRelativeToNode?: ThumbPositionRelativeToNode,
-  lineNode? : any
+  lineNode?: any,
 ) => {
   let controlPointx1;
   let controlPointy1;
   let controlPointx2;
   let controlPointy2;
 
-  let useNodeArc = lineNode && lineNode.curveMode === "arc";
-  let useStraightLine = lineNode && lineNode.curveMode === "straight";
+  let useNodeArc = lineNode && lineNode.curveMode === 'arc';
+  let useStraightLine = lineNode && lineNode.curveMode === 'straight';
 
   // TODO : make a way to tweak these on a line-basis together with bezier/tension
   let factor = 0.35; //0.25;//0.75; // 0.75 is for the bezier-curves .. 0.5 is for straigt lines with tension 0.05
@@ -46,8 +46,7 @@ export const calculateLineControlPoints = (
     controlPointy1 = yadjust;
     controlPointx2 = xadjust;
     controlPointy2 = yadjust;
-  } else
-  if (useNodeArc) {
+  } else if (useNodeArc) {
     yadjust = ystart + (yend - ystart) * 0.33;
     xadjust = xstart + (xend - xstart) * 0.33;
 
@@ -55,17 +54,15 @@ export const calculateLineControlPoints = (
     let xadjust2 = xstart + (xend - xstart) * 0.66;
     distance = 0;
 
-    const lengthVector = Math.sqrt(((ystart - yend) * (ystart - yend)) + ((xstart - xend) * (xstart - xend)));
-    const normX = (xstart - xend)/lengthVector;
-    const normY = (ystart - yend)/lengthVector;
+    const lengthVector = Math.sqrt((ystart - yend) * (ystart - yend) + (xstart - xend) * (xstart - xend));
+    const normX = (xstart - xend) / lengthVector;
+    const normY = (ystart - yend) / lengthVector;
 
-    controlPointx1 = xadjust - normY*(lengthVector * 0.25);
-    controlPointy1 = yadjust + normX*(lengthVector * 0.25);
-    controlPointx2 = xadjust2 - normY*(lengthVector * 0.25);
-    controlPointy2 = yadjust2 + normX*(lengthVector * 0.25);
-
+    controlPointx1 = xadjust - normY * (lengthVector * 0.25);
+    controlPointy1 = yadjust + normX * (lengthVector * 0.25);
+    controlPointx2 = xadjust2 - normY * (lengthVector * 0.25);
+    controlPointy2 = yadjust2 + normX * (lengthVector * 0.25);
   } else {
-
     if (startPositionRelativeToNode == ThumbPositionRelativeToNode.left) {
       controlPointx1 = xstart - distance - xadjust;
       controlPointy1 = ystart + yadjust;
@@ -92,7 +89,7 @@ export const calculateLineControlPoints = (
       controlPointx2 = xend - distance - xadjust;
       controlPointy2 = yend + yadjust;
     }
-  } 
+  }
 
   return {
     controlPointx1: controlPointx1,

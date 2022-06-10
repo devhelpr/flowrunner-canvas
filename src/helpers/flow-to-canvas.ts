@@ -4,9 +4,7 @@ import { ThumbPositionRelativeToNode } from '../components/canvas/shapes/shape-t
 import { IPosition, IPositionContext } from '../components/contexts/position-context';
 import { ShapeSettings } from './shape-settings';
 import { pointOnRect } from './intersect';
-import {
-  cubicBezierAABB
-} from 'bezier-intersect';
+import { cubicBezierAABB } from 'bezier-intersect';
 import { calculateLineControlPoints } from './line-points';
 
 export class FlowToCanvas {
@@ -28,7 +26,12 @@ export class FlowToCanvas {
             undefined,
             node.thumbPosition as ThumbPositionRelativeToNode,
           );
-          const endPosition = FlowToCanvas.getEndPointForLine(endShapes[0], endShapes[0], shartShapes[0], shartShapes[0]);
+          const endPosition = FlowToCanvas.getEndPointForLine(
+            endShapes[0],
+            endShapes[0],
+            shartShapes[0],
+            shartShapes[0],
+          );
           return Object.assign({}, node, {
             shapeType: 'Line',
             xstart: startPosition.x,
@@ -148,7 +151,7 @@ export class FlowToCanvas {
       isEvent = true;
     }
 
-    const nodeAttachedToCenter = startShape.lineConnectionEndPoints === "center-of-node";
+    const nodeAttachedToCenter = startShape.lineConnectionEndPoints === 'center-of-node';
 
     if (shapeType == 'Html') {
       let width = undefined;
@@ -171,12 +174,10 @@ export class FlowToCanvas {
             : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
       };
       */
-      
+
       height = height || startShape.height || ShapeMeasures.htmlHeight;
-     
 
       if (thumbPositionRelativeToNode == ThumbPositionRelativeToNode.bottom) {
-        
         let bodyElement = document.querySelector('#' + startShape.name + ' .html-plugin-node');
         let element = document.querySelector(
           '#' + startShape.name + ' .canvas__html-shape-thumb-startbottom',
@@ -192,7 +193,7 @@ export class FlowToCanvas {
         if (!!nodeAttachedToCenter) {
           return {
             x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
-            y: newPosition.y + (height || 0)/2,
+            y: newPosition.y + (height || 0) / 2,
           };
         }
 
@@ -205,8 +206,7 @@ export class FlowToCanvas {
       if (taskSettings.htmlPlugin === 'shapeNode') {
         height = (height || 0) / 2;
 
-
-        if (!!nodeAttachedToCenter) {         
+        if (!!nodeAttachedToCenter) {
           return {
             x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
             y: newPosition.y + height,
@@ -217,14 +217,14 @@ export class FlowToCanvas {
           x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
           y: newPosition.y + height + 2,
         };
-      }    
+      }
 
       if (!!nodeAttachedToCenter) {
         return {
           x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
-          y: newPosition.y + (height || 0)/2,
+          y: newPosition.y + (height || 0) / 2,
         };
-      } 
+      }
 
       return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
@@ -281,7 +281,7 @@ export class FlowToCanvas {
     endNode,
     newPosition,
     startNode?: any,
-    startNodePosition? : any,
+    startNodePosition?: any,
     getNodeInstance?: any,
     thumbPositionRelativeToNode?: ThumbPositionRelativeToNode,
     altThumbPositions?: boolean,
@@ -322,7 +322,7 @@ export class FlowToCanvas {
         }
       }
 
-      const nodeAttachedToCenter = endNode.lineConnectionEndPoints === "center-of-node";
+      const nodeAttachedToCenter = endNode.lineConnectionEndPoints === 'center-of-node';
       if (!!nodeAttachedToCenter) {
         if (startNode && startNodePosition) {
           let widthStartNode = 0;
@@ -336,72 +336,72 @@ export class FlowToCanvas {
           }
 
           let result: any = undefined;
-          if (startNode.curveMode === "arc") {
-            let resultPoints : any[] = [];
+          if (startNode.curveMode === 'arc') {
+            let resultPoints: any[] = [];
             const controlPoints = calculateLineControlPoints(
               startNodePosition.x + (widthStartNode || startNode.width || ShapeMeasures.htmlWidth) / 2,
-              startNodePosition.y + (heightStartNode || startNode.height || 0)/2,
+              startNodePosition.y + (heightStartNode || startNode.height || 0) / 2,
               newPosition.x + (width || endNode.width || ShapeMeasures.htmlWidth) / 2,
-              newPosition.y + (height || 0)/2,
+              newPosition.y + (height || 0) / 2,
               ThumbPositionRelativeToNode.default,
               ThumbPositionRelativeToNode.default,
               {
-                curveMode: "arc"
-              }
+                curveMode: 'arc',
+              },
             );
             const resultCount = cubicBezierAABB(
               startNodePosition.x + (widthStartNode || startNode.width || ShapeMeasures.htmlWidth) / 2,
-              startNodePosition.y + (heightStartNode || startNode.height || 0)/2,
+              startNodePosition.y + (heightStartNode || startNode.height || 0) / 2,
               controlPoints.controlPointx1,
               controlPoints.controlPointy1,
               controlPoints.controlPointx2,
               controlPoints.controlPointy2,
               newPosition.x + (width || endNode.width || ShapeMeasures.htmlWidth) / 2,
-              newPosition.y + (height || 0)/2,
+              newPosition.y + (height || 0) / 2,
 
               newPosition.x - 5,
               newPosition.y - 5,
               newPosition.x + (width || endNode.width || ShapeMeasures.htmlWidth) + 5,
               newPosition.y + (height || 0) + 5,
 
-              resultPoints
+              resultPoints,
             );
-            
+
             if (resultPoints.length >= 1) {
               result = {
                 x: resultPoints[0],
-                y: resultPoints[1]
-              }
+                y: resultPoints[1],
+              };
             }
           } else {
             const resultPointOnRect = pointOnRect(
               startNodePosition.x + (widthStartNode || startNode.width || ShapeMeasures.htmlWidth) / 2,
-              startNodePosition.y + (heightStartNode || startNode.height || 0)/2,
+              startNodePosition.y + (heightStartNode || startNode.height || 0) / 2,
               newPosition.x - 5,
               newPosition.y - 5,
               newPosition.x + (width || endNode.width || ShapeMeasures.htmlWidth) + 5,
               newPosition.y + (height || 0) + 5,
-              true
+              true,
             );
 
             if (resultPointOnRect) {
               result = {
                 x: resultPointOnRect.x,
-                y: resultPointOnRect.y
-              }
+                y: resultPointOnRect.y,
+              };
             }
           }
 
           if (result) {
             return {
               x: result.x,
-              y: result.y
-            }
+              y: result.y,
+            };
           }
         }
         return {
           x: newPosition.x + (width || endNode.width || ShapeMeasures.htmlWidth) / 2,
-          y: newPosition.y + (height || 0)/2,
+          y: newPosition.y + (height || 0) / 2,
         };
       }
 

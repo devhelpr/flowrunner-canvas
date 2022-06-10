@@ -70,16 +70,16 @@ const taskTypeConfig: any = {
     htmlPlugin: 'formNode',
     constraints: {
       output: {
-        allowedOutputs: 0
+        allowedOutputs: 0,
       },
       input: {
-        allowedInputs: 0        
+        allowedInputs: 0,
       },
-    },    
+    },
     metaInfo: [
       {
-        fieldName: "StateMachine"
-      }
+        fieldName: 'StateMachine',
+      },
     ],
     presetValues: {},
   },
@@ -91,10 +91,10 @@ const taskTypeConfig: any = {
       output: {
         notAllowed: [],
         allowed: ['State'],
-        allowedOutputs: 1
+        allowedOutputs: 1,
       },
       input: {
-        allowedInputs: 0        
+        allowedInputs: 0,
       },
     },
     styleShapeBody: {
@@ -104,12 +104,12 @@ const taskTypeConfig: any = {
     width: 64,
     height: 64,
     metaInfo: [],
-    hasClone : false,
+    hasClone: false,
     hasThumbs: false,
     presetValues: {
-      lineConnectionEndPoints : "center-of-node",
-	    curveMode : "straight"
-    }
+      lineConnectionEndPoints: 'center-of-node',
+      curveMode: 'straight',
+    },
   },
   State: {
     shapeType: 'Html',
@@ -117,34 +117,34 @@ const taskTypeConfig: any = {
     constraints: {
       output: {
         notAllowed: [],
-        allowed: ['Event']
+        allowed: ['Event'],
       },
       input: {
-        allowed: ['Event','StartState']       
+        allowed: ['Event', 'StartState'],
       },
-    }, 
+    },
     styleShapeBody: {
       width: '200px',
       height: '64px',
     },
-    label: "{StateName}",
+    label: '{StateName}',
     width: 200,
     height: 64,
-    metaInfo: [],  
+    metaInfo: [],
     hasConfigMenu: true,
-    hasClone : false,
+    hasClone: false,
     hasThumbs: false,
     configMenu: {
       fields: [
         {
-          fieldName: "StateName"
-        }
-      ]
+          fieldName: 'StateName',
+        },
+      ],
     },
     presetValues: {
-      lineConnectionEndPoints : "center-of-node",
-	    curveMode : "arc"
-    }
+      lineConnectionEndPoints: 'center-of-node',
+      curveMode: 'arc',
+    },
   },
   Event: {
     shapeType: 'Html',
@@ -153,11 +153,11 @@ const taskTypeConfig: any = {
       output: {
         notAllowed: [],
         allowed: ['State'],
-        allowedOutputs: 1
+        allowedOutputs: 1,
       },
       input: {
         allowed: ['State'],
-        allowedInputs: 1       
+        allowedInputs: 1,
       },
     },
     styleShapeBody: {
@@ -166,22 +166,22 @@ const taskTypeConfig: any = {
     },
     width: 200,
     height: 64,
-    label: "{EventName}",
-    metaInfo: [],    
+    label: '{EventName}',
+    metaInfo: [],
     hasConfigMenu: true,
-    hasClone : false,
+    hasClone: false,
     hasThumbs: false,
     configMenu: {
       fields: [
         {
-          fieldName: "EventName"
-        }
-      ]
+          fieldName: 'EventName',
+        },
+      ],
     },
     presetValues: {
-      lineConnectionEndPoints : "center-of-node",
-	    curveMode : "arc"
-    }
+      lineConnectionEndPoints: 'center-of-node',
+      curveMode: 'arc',
+    },
   },
 
   IfConditionTask: {

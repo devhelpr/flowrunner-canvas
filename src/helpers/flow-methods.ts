@@ -105,7 +105,8 @@ export const getNewConnection = (
         x: nodeTo.x,
         y: nodeTo.y,
       },
-      nodeFrom, undefined,
+      nodeFrom,
+      undefined,
       getNodeInstance,
     );
     nodeToName = nodeTo.name;
