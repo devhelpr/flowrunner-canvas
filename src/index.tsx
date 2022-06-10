@@ -68,6 +68,8 @@ export { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, se
 
 export { FormNodeDatasourceProvider , useFormNodeDatasourceContext };
 
+export * from "./state-machine";
+
 export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
 		pluginRegistry[FlowTaskPluginClassName] = {

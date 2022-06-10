@@ -1,5 +1,3 @@
-import { string } from "prop-types";
-
 export interface IStateMachine {
 	currentState: () => string;
 	event: (eventName : string) => string;
