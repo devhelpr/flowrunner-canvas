@@ -84,14 +84,6 @@ const taskTypeConfig: any = {
   StateMachine: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    constraints: {
-      output: {
-        allowedOutputs: 0,
-      },
-      input: {
-        allowedInputs: 0,
-      },
-    },
     metaInfo: [
       {
         fieldName: 'StateMachine',
@@ -151,14 +143,14 @@ const taskTypeConfig: any = {
   State: {
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
-    constraints: {
+    constraints: {      
+      input: {
+        allowed: ['Event', 'StartState', 'Guard'],
+      },
       output: {
         notAllowed: [],
         allowed: ['Event'],
-      },
-      input: {
-        allowed: ['Event', 'StartState'],
-      },
+      }
     },
     styleShapeBody: {
       width: '200px',
@@ -193,15 +185,15 @@ const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
     constraints: {
-      output: {
-        notAllowed: [],
-        allowed: ['State'],
-        allowedOutputs: 1,
-      },
       input: {
         allowed: ['State'],
         allowedInputs: 1,
       },
+      output: {
+        notAllowed: [],
+        allowed: ['State', 'Guard'],
+        allowedOutputs: 1,
+      }      
     },
     styleShapeBody: {
       width: '200px',
@@ -224,6 +216,53 @@ const taskTypeConfig: any = {
       fields: [
         {
           fieldName: 'EventName',
+        },
+      ],
+    },
+    presetValues: {
+      lineConnectionEndPoints: 'center-of-node',
+      curveMode: 'arc',
+    },
+  },
+
+  Guard: {
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
+    constraints: {
+      input: {
+        allowed: ['Event'],
+        allowedInputs: 1,
+      },
+      output: {
+        notAllowed: [],
+        allowed: ['State'],
+        allowedOutputs: 1,
+      }      
+    },
+    styleShapeBody: {
+      width: '200px',
+      height: '64px',
+    },
+    width: 200,
+    height: 64,
+    label: '{GuardName}',
+    metaInfo: [],
+    hasConfigMenu: true,
+    hasClone: false,
+    hasThumbs: false,
+    htmlDataAttributes: [
+      {
+        attributeName: 'guard',
+        value: '{GuardName}',
+      },
+    ],
+    configMenu: {
+      fields: [
+        {
+          fieldName: 'GuardName',
+        },
+        {
+          fieldName: 'Expression',
         },
       ],
     },

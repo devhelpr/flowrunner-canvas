@@ -1,9 +1,12 @@
 /*
 
-	TODO: create statemachine zustand state which can hold
-		the current state for multiple machines and you can subsribe to
-			via canvas or html-plugin
-			(how to extend ShapeNode plugin using decorator pattern?)
+	TODO: support for simple guards which can run an expression 
+			depending on the result, the event is executed
+			otherwise.. for now .. stay in the current state
+				
+			- next step: trigger "else" event
+			- next step: use flows for gaurd logic (async)
+
 
 	TODO: create multiple statemachine by statemachine-name on StartState
 		(if it's not defined then use uniqueid)
@@ -17,14 +20,12 @@
 		State should be usable in ifconditions
 		new StateFlow node : triggered when statemachine is transitioned to given state
 
-	TODO : new node wich can send Event to statemachine
-
 */
 
 export interface IStateMachine {
   hasStateMachine: boolean;
   currentState: () => string;
-  event: (eventName: string) => string;
+  event: (eventName: string, payload? : any) => Promise<string>;
   states: IState[];
 }
 
@@ -37,6 +38,7 @@ export interface IState {
 export interface IEventState {
   name: string;
   newState: string;
+	guards? : IGuard[];
 }
 
 export interface IEvent {
@@ -44,6 +46,13 @@ export interface IEvent {
   nodeName: string;
   newState: string;
   connectedStateNodeName: string;
+	guards? : IGuard[];
+}
+
+export interface IGuard {
+	name: string;
+	nodeName: string;
+	node: any;
 }
 
 let stateMachinesState: any = {};
@@ -52,7 +61,7 @@ export const emptyStateMachine = {
   hasStateMachine: false,
   currentState: () => '',
   states: [],
-  event: (eventName: string) => '',
+  event: (eventName: string) => Promise.resolve(""),
 };
 
 let stateMachine: IStateMachine = emptyStateMachine;
@@ -118,6 +127,7 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
   let currentState = '';
   let states: IState[] = [];
   let events: IEvent[] = [];
+	let guards: IGuard[] = [];
   let startStateNode = '';
   let startState = '';
   let stateMachineName = '';
@@ -163,7 +173,21 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
         newState: '',
       });
     }
+
+		if (node.taskType === 'Guard') {
+      if (!node.GuardName) {
+        throw new Error('Guard should have a name');
+      }
+
+      guards.push({
+        name: node.GuardName,
+				nodeName: node.name,
+        node: node
+      });
+    }
   });
+
+	console.log("Guards", guards);
 
   flow.forEach(node => {
     if (node.taskType === 'connection' && startStateNode && node.startshapeid === startStateNode) {
@@ -209,10 +233,48 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
       });
 
       if (connectedStatesByStart.length === 1 && connectedEventsByEnd.length === 1) {
+				const eventNodeName = node.endshapeid;
+
+				const guardsForEvent : IGuard[] = [];
+				flow.forEach(nodeConnection => {
+					if (nodeConnection.taskType === 'connection') {
+						if (nodeConnection.startshapeid === eventNodeName) {
+							const connectedGuardsByEnd = guards.filter(guard => {
+								return guard.nodeName === nodeConnection.endshapeid;
+							});
+				
+							if (connectedGuardsByEnd.length === 1) {
+								guardsForEvent.push(connectedGuardsByEnd[0]);
+							}
+						}
+					}
+
+					//TODO : lookup connected state to guards if there were guards
+					// (and set newState on event)
+				});
+				
+				let newState = connectedEventsByEnd[0].newState;
+
+				if (guardsForEvent.length > 0) {
+					flow.forEach(nodeConnection => {
+						if (nodeConnection.taskType === 'connection') {
+							if (nodeConnection.startshapeid === guardsForEvent[0].nodeName) {
+								const connectedStates = states.filter(state => {
+									return state.nodeName === nodeConnection.endshapeid;
+								});
+								if (connectedStates.length > 0) {
+									newState = connectedStates[0].name
+								}
+							}
+						}
+					});
+				}
+
         // add found event to the allowed events list of a state
         connectedStatesByStart[0].events.push({
           name: connectedEventsByEnd[0].name,
-          newState: connectedEventsByEnd[0].newState,
+          newState,
+					guards: guardsForEvent
         });
       }
     }
@@ -227,14 +289,8 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
     throw new Error('StateMachine should have a start state');
   }
 
-  //if (hasStateMachineChanged(oldStates, states)) {
-  if (true) {
-    currentState = startState;
-    _stateMachineName = stateMachineName;
-  } else {
-    currentState = _currentState;
-    console.log('same statemachine', stateMachineName);
-  }
+	currentState = startState;
+	_stateMachineName = stateMachineName;
 
   stateMachinesState[stateMachineName] = currentState;
 
@@ -250,7 +306,10 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
     hasStateMachine: true,
     currentState: () => currentState,
     states,
-    event: (eventName: string) => {
+    event: async (eventName: string, payload? : any) => {
+
+			console.log("StateMachine event" , eventName, payload);
+
       const currentStates = states.filter(state => {
         return state.name === currentState;
       });
@@ -260,20 +319,34 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
         const allowedEvents = currentStates[0].events;
         const foundEvents = allowedEvents.filter(event => event.name === eventName);
         if (foundEvents.length === 1) {
+					if (_onGuardEventCallback && foundEvents[0].guards && foundEvents[0].guards.length > 0) {
+						const result = await _onGuardEventCallback(
+							stateMachineName,
+							currentState,
+							eventName,
+							foundEvents[0].guards[0].node || {},
+							payload || {});
+
+						if (!result) {
+							return currentState;
+						}
+					}
           triggerStateEvent = currentState !== foundEvents[0].newState;
           currentState = foundEvents[0].newState;
         }
+
         stateMachinesState[stateMachineName] = currentState;
-        if (_onSetCanvasStateCallback) {
+        
+				if (_onSetCanvasStateCallback) {
           _onSetCanvasStateCallback(stateMachineName, currentState);
         }
-        if (triggerStateEvent) {
+        if (triggerStateEvent) {					
           Object.keys(_stateChangeHandlers).forEach(handlerName => {
             _stateChangeHandlers[handlerName](stateMachineName, currentState);
           });
         }
-        _currentState = currentState;
-
+        
+				_currentState = currentState;
         return currentState;
       } else {
         throw new Error('Invalid current state');
@@ -319,4 +392,17 @@ export const sendCurrentState = () => {
   Object.keys(_stateChangeHandlers).forEach(handlerName => {
     _stateChangeHandlers[handlerName](_stateMachineName, stateMachine.currentState());
   });
+};
+
+
+let _onGuardEventCallback: undefined | ((stateMachineName: string, currentState: string, eventName: string, node: any, payload: any) => boolean);
+
+export const setOnGuardEventCallback = (
+  onGuardEventCallback: (stateMachineName: string, currentState: string, eventName: string, node: any, payload: any) => boolean
+) => {
+  _onGuardEventCallback = onGuardEventCallback;
+};
+
+export const resetOnGuardEventCallback = () => {
+  _onGuardEventCallback = undefined;
 };

@@ -2284,6 +2284,11 @@ textarea.form-control:disabled {
 		border-radius: 10px;
 		background: #c2c2c2;
 	}
+[data-task="Guard"] .canvas__html-shape-bar {
+		border: 2px solid #f8a523;
+		border-radius: 10px;
+		background: #f4c67d;
+	}
 .edit-bundle .taskbar {
 		top: 16px;
 		height: calc(100% - 32px);

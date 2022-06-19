@@ -22,7 +22,7 @@ test('State Machine turn on', async () => {
 	const machine = createStateMachine(flow);
 
 	// Act
-	machine.event("Toggle On");
+	await machine.event("Toggle On");
 
 	// Assert
 
@@ -35,8 +35,8 @@ test('State Machine turn on and off', async () => {
 	const machine = createStateMachine(flow);
 
 	// Act
-	machine.event("Toggle On");
-	machine.event("Toggle Off");
+	await machine.event("Toggle On");
+	await machine.event("Toggle Off");
 
 	// Assert
 

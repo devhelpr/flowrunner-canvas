@@ -42,6 +42,7 @@ import { StartStateTask } from '../flowrunner-plugins/start-state-task';
 import { EventTask } from '../flowrunner-plugins/event-task';
 import { StateMachineTask } from '../flowrunner-plugins/state-machine-task';
 import { StateChangeTriggerTask } from '../flowrunner-plugins/state-change-trigger-task';
+import { GuardTask } from '../flowrunner-plugins/guard-task';
 
 export const registerTasks = flow => {
   flow.registerTask('Annotation', FlowTask);
@@ -51,6 +52,7 @@ export const registerTasks = flow => {
   flow.registerTask('StartState', StartStateTask);
   flow.registerTask('State', StateTask);
   flow.registerTask('Event', EventTask);
+  flow.registerTask('Guard', GuardTask);
   flow.registerTask('StateChangeTriggerTask', StateChangeTriggerTask);
 
   flow.registerTask('SliderTask', SliderTask);

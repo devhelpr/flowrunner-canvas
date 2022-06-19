@@ -2,6 +2,8 @@ import { FlowEventRunner, FlowTask, ObservableTask } from '@devhelpr/flowrunner'
 
 import { IFlowAgent, GetFlowAgentFunction } from './interfaces/IFlowAgent';
 
+import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
+
 export class FlowAgent implements IFlowAgent {
   eventListeners: any = {};
   flow?: FlowEventRunner = undefined;
@@ -58,7 +60,8 @@ import {
   getRangeFromValues,
   getRangeValueParameters,
 } from '@devhelpr/expressionrunner';
-import { createStateMachine, IStateMachine, sendCurrentState } from './state-machine';
+import { createStateMachine, emptyStateMachine, IStateMachine, sendCurrentState, setOnGuardEventCallback } from './state-machine';
+import { emptyStatement } from '@babel/types';
 
 const uuidV4 = uuid.v4;
 
@@ -799,7 +802,7 @@ let machine: IStateMachine = {
   hasStateMachine: false,
   currentState: () => '',
   states: [],
-  event: (eventName: string) => '',
+  event: (eventName: string) => Promise.resolve(""),
 };
 
 const startFlow = (
@@ -891,7 +894,24 @@ const startFlow = (
   let perfstart = performance.now();
 
   if (!isSameFlow) {
-    machine = createStateMachine(flowPackage.flow);
+    try {
+      machine = createStateMachine(flowPackage.flow);
+      setOnGuardEventCallback((stateMachineName: string, currentState: string, eventName, node: any, payload: any) => {
+        
+        if (node && node.Expression) {
+          const expression = createExpressionTree(node.Expression);
+          const result = executeExpressionTree(expression, payload);
+          console.log("Guard result", result);
+          return result === 1;
+        }
+        return true;
+      });
+
+      console.log("Statemachine definition", machine);
+    } catch (err) {
+      console.log("Statemachine creation error", err);
+      machine = emptyStateMachine;
+    }
   }
 
   worker.flow

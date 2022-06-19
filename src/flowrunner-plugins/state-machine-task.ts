@@ -6,7 +6,7 @@ export class StateMachineTask extends FlowTask {
     const stateMachine = getCurrentStateMachine();
     console.log('statemachine node', node);
     if (stateMachine.hasStateMachine && node.State) {
-      stateMachine.event(node.State);
+      return stateMachine.event(node.State, node.payload);
     }
     return node.payload;
   }

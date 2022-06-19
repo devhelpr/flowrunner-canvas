@@ -130,6 +130,7 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"StartState", fullName: "StartState", flowType: "playground"});
 				tasks.push({className:"State", fullName: "State", flowType: "playground"});
 				tasks.push({className:"Event", fullName: "Event", flowType: "playground"});
+				tasks.push({className:"Guard", fullName: "Guard", flowType: "playground"});
 				tasks.push({className:"StateChangeTriggerTask", fullName: "StateChangeTriggerTask", flowType: "playground"});
 				
 
