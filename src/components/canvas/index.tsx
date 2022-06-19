@@ -50,6 +50,7 @@ import { setMultiSelectInfo } from '../../services/multi-select-service';
 import { AnnotationSection } from './annotations/annotation-section';
 import { AnnotationText } from './annotations/annotation-text';
 import { FloatingToolbar } from '../toolbar';
+import { resetOnSetCanvasStateCallback, setOnSetCanvasStateCallback } from '../../state-machine';
 
 const uuidV4 = uuid.v4;
 
@@ -57,6 +58,7 @@ export interface CanvasProps {
 
 	externalId: string;
 	hasTaskNameAsNodeTitle?: boolean;
+	showsStateMachineUpdates: boolean;
 	hasCustomNodesAndRepository: boolean;
 	canvasToolbarsubject : Subject<string>;
 	formNodesubject: Subject<any>;
@@ -802,6 +804,39 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [flowStore.flow])
 
+	useEffect(() => {
+		if (props.showsStateMachineUpdates && flowStore.flow.length > 0) {
+
+			const clearStateNodes = () => {
+				const htmlNodes = document.querySelectorAll("[data-task='State']");
+				if (htmlNodes) {
+					htmlNodes.forEach(htmlNode => {
+						htmlNode.classList.remove("state-active");
+					})
+				}
+			}
+
+			const setCurrentStateNode = (stateName) => {
+				clearStateNodes();
+				const htmlNode = document.querySelector(`[data-state="${stateName}"]`);
+				if (htmlNode) {
+					htmlNode.classList.add("state-active");
+				}
+			}
+
+			//clearStateNodes();
+			setOnSetCanvasStateCallback((stateMachine: string, currentState) => {
+				console.log("onStateChange", stateMachine, currentState);
+				setCurrentStateNode(currentState);
+			});
+		}
+		return () => {
+			if (props.showsStateMachineUpdates) {
+				resetOnSetCanvasStateCallback();
+			}
+		}
+	}, [flowStore.flow]);
+
 	const updateTouchedNodes = () => {
 		// DONT UPDATE STATE HERE!!!
 		if  (touchedNodesLocal.current) {
@@ -1267,7 +1302,16 @@ export const Canvas = (props: CanvasProps) => {
 		let lines = {};
 		if (startLines) {			
 			startLines.map((lineNode) => {				
-				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, lineNode, props.getNodeInstance,
+				let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+				const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
+				let endPos = {
+					x : positionLine.xend,
+					y : positionLine.yend
+				};
+
+				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, 
+					endNode, endPos,
+					lineNode, props.getNodeInstance,
 					lineNode.thumbPosition as ThumbPositionRelativeToNode);
 				/*
 					TODO : get node by lineNode.endshapeid
@@ -1279,12 +1323,7 @@ export const Canvas = (props: CanvasProps) => {
 				let endNode = endNodes[0];
 				*/
 
-				const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
-				let endPos = {
-					x : positionLine.xend,
-					y : positionLine.yend
-				};
-				let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+				
 				if (endNode) {					
 					const positionNode = positionContext.getPosition(endNode.name) || endNode;
 					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
@@ -1379,7 +1418,9 @@ export const Canvas = (props: CanvasProps) => {
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
 							x: positionNode.x,
 							y: positionNode.y
-						}, lineNode, props.getNodeInstance,
+						}, 
+						node, newPosition,
+						lineNode, props.getNodeInstance,
 						lineNode.thumbPosition as ThumbPositionRelativeToNode);
 
 					if (lines[lineNode.name]) {
@@ -1435,15 +1476,18 @@ export const Canvas = (props: CanvasProps) => {
 
 		if (node.shapeType === "Line") {
 			newPosition = positionContext.getPosition(node.name);
-
+			let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
+			let newEndPosition : any = {
+				x: 0,
+				y: 0
+			};
 			if (node.endshapeid) {
-				let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
 				if (endNode) {
 					let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];
 					const positionStartNode = positionContext.getPosition(startNode.name) || startNode;
 
 					const positionNode = positionContext.getPosition(endNode.name) || endNode;
-					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
+					newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
 							x: positionNode.x,
 							y: positionNode.y
 						},
@@ -1464,7 +1508,9 @@ export const Canvas = (props: CanvasProps) => {
 					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
 							x: positionNode.x,
 							y: positionNode.y
-						}, node, props.getNodeInstance,
+						}, 
+						endNode, newEndPosition,
+						node, props.getNodeInstance,
 						node.thumbPosition as ThumbPositionRelativeToNode);
 					newPosition.xstart = newStartPosition.x;
 					newPosition.ystart = newStartPosition.y;			
@@ -2072,11 +2118,11 @@ console.log("connectConnectionToNode" , node);
 		const connection = getNewConnection(touchNode.current, node, props.getNodeInstance, eventHelper,
 			connectionNodeThumbPositionRelativeToNode.current);
 		
-		if (node && node.curveMode === "arc") {
+		if (touchNode.current && (touchNode.current as any).curveMode === "arc") {
 			(connection as any).curveMode = "arc";
 		}
 
-		if (node && node.curveMode === "straight") {
+		if (touchNode.current && (touchNode.current as any).curveMode === "straight") {
 			(connection as any).curveMode = "straight";
 		}
 
@@ -4712,8 +4758,19 @@ console.log("getNewConnection in clickShape")
 						const startPositionNode = positionContext.getPosition(startNode.name) || startNode;
 						const endPositionNode = positionContext.getPosition(endNode.name) || endNode;
 
-						const startPosition = FlowToCanvas.getStartPointForLine(startNode, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
-						const endPosition = FlowToCanvas.getEndPointForLine(endNode, {x: endPositionNode.x, y: endPositionNode.y}, 
+						const startPosition = FlowToCanvas.getStartPointForLine(startNode, 
+							{
+								x: startPositionNode.x,
+								y: startPositionNode.y
+							}, 
+							endNode, endPositionNode,
+							undefined, props.getNodeInstance);
+
+						const endPosition = FlowToCanvas.getEndPointForLine(endNode, 
+							{
+								x: endPositionNode.x,
+								y: endPositionNode.y
+							}, 
 							startNode, startPositionNode,
 							props.getNodeInstance);
 
@@ -4876,14 +4933,18 @@ console.log("getNewConnection in clickShape")
 									const startPositionNode = positionContext.getPosition(node.name) || node;
 									const endPositionNode = positionContext.getPosition(nodeEnd.name) || nodeEnd;
 			
-									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, undefined, props.getNodeInstance);
+									let startPosition = FlowToCanvas.getStartPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, 
+										nodeEnd, endPositionNode,
+										undefined, props.getNodeInstance);
 									let endPosition = FlowToCanvas.getEndPointForLine(nodeEnd, 
-										{x: endPositionNode.x, y: endPositionNode.y}, 
+										{x: endPositionNode.x, y: endPositionNode.y},										
 										node, startPositionNode,
 										props.getNodeInstance);
 
 									if (!startToEnd) {
-										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, undefined, props.getNodeInstance);
+										startPosition = FlowToCanvas.getStartPointForLine(nodeEnd, {x: endPositionNode.x, y: endPositionNode.y}, 
+											node, {x: startPositionNode.x, y: startPositionNode.y},
+											undefined, props.getNodeInstance);
 										endPosition = FlowToCanvas.getEndPointForLine(node, {x: startPositionNode.x, y: startPositionNode.y}, 
 											nodeEnd, endPositionNode, 
 											props.getNodeInstance);
@@ -5461,13 +5522,17 @@ console.log("getNewConnection in clickShape")
 							x: nodePosition.x,
 							y: nodePosition.y
 
-						}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.default);
+						}, 
+						undefined, undefined,
+						undefined, props.getNodeInstance, ThumbPositionRelativeToNode.default);
 
 						const bottomPosition = FlowToCanvas.getStartPointForLine(node,{
 							x: nodePosition.x,
 							y: nodePosition.y
 
-						}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
+						}, 
+						undefined, undefined,
+						undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
 
 						const leftPosition = FlowToCanvas.getEndPointForLine(node,{
 							x: nodePosition.x,
@@ -5492,13 +5557,17 @@ console.log("getNewConnection in clickShape")
 								x: nodePosition.x,
 								y: nodePosition.y
 	
-							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.top);
+							}, 
+							undefined, undefined,
+							undefined, props.getNodeInstance, ThumbPositionRelativeToNode.top);
 
 							const bottomPositionDiamond = FlowToCanvas.getStartPointForLine(node,{
 								x: nodePosition.x,
 								y: nodePosition.y
 	
-							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
+							}, 
+							undefined, undefined,
+							undefined, props.getNodeInstance, ThumbPositionRelativeToNode.bottom);
 
 							distanceTop = getDistance(position,topPositionDiamond);
 							distanceBottom = getDistance(position,bottomPositionDiamond);
@@ -5659,7 +5728,9 @@ console.log("getNewConnection in clickShape")
 								let newStartPosition =  FlowToCanvas.getStartPointForLine(existingNode, {
 										x: positionNode.x,
 										y: positionNode.y
-									}, closestEndNode, props.getNodeInstance,
+									}, 
+									undefined, undefined,
+									closestEndNode, props.getNodeInstance,
 									ThumbPositionRelativeToNode.default);
 								position.x = newStartPosition.x;
 								position.y = newStartPosition.y;
@@ -5812,7 +5883,9 @@ console.log("getNewConnection in clickShape")
 								x: nodePosition.x,
 								y: nodePosition.y
 
-							}, undefined, props.getNodeInstance, nodeOrientation);
+							}, 
+							undefined, undefined,
+							undefined, props.getNodeInstance, nodeOrientation);
 
 							let controlPoints = calculateLineControlPoints(
 								lineStartPosition.x, lineStartPosition.y, 
@@ -5830,7 +5903,9 @@ console.log("getNewConnection in clickShape")
 								x: nodePosition.x,
 								y: nodePosition.y
 
-							}, undefined, props.getNodeInstance, ThumbPositionRelativeToNode.default);
+							}, 
+							undefined, undefined,
+							undefined, props.getNodeInstance, ThumbPositionRelativeToNode.default);
 
 							let controlPoints = calculateLineControlPoints(
 								lineStartPosition.x, lineStartPosition.y, 

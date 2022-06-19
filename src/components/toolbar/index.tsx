@@ -578,6 +578,7 @@ export const Toolbar = (props: ToolbarProps) => {
                 x: newNode.x,
                 y: newNode.y,
               },
+			  undefined, undefined,
               outputConnection,
               props.getNodeInstance,
               outputConnection.thumbPosition as ThumbPositionRelativeToNode,

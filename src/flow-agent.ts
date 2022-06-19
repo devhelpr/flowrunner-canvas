@@ -58,6 +58,7 @@ import {
   getRangeFromValues,
   getRangeValueParameters,
 } from '@devhelpr/expressionrunner';
+import { createStateMachine, IStateMachine, sendCurrentState } from './state-machine';
 
 const uuidV4 = uuid.v4;
 
@@ -794,6 +795,13 @@ const onExecuteNode = (
 };
 
 let currentFlowId: string = '';
+let machine : IStateMachine = {
+  hasStateMachine: false,
+  currentState: () => "",
+  states: [],
+  event: (eventName: string) => ""
+};
+
 const startFlow = (
   flowPackage: any,
   pluginRegistry: any[],
@@ -803,10 +811,12 @@ const startFlow = (
 ) => {
   let isSameFlow: boolean = false;
 
-  console.log('startFlow', flowId, currentFlowId, flowPackage);
+  
   if (flowId == currentFlowId) {
     isSameFlow = true;
   }
+
+  console.log('startFlow',`isSameFlow = ${isSameFlow}`, flowId, currentFlowId, flowPackage);
 
   currentFlowId = flowId;
 
@@ -820,10 +830,11 @@ const startFlow = (
       clearInterval(timers[timer]);
     }
     timers = {};
+
+    
     console.log('before destroyflow', flowId, currentFlowId, isSameFlow);
-
     worker.flow.destroyFlow();
-
+    
     if (!isSameFlow) {
       (worker.flow as any) = undefined;
     }
@@ -880,6 +891,11 @@ const startFlow = (
   };
   let value: boolean = false;
   let perfstart = performance.now();
+
+  if (!isSameFlow) {
+    machine = createStateMachine(flowPackage.flow);
+  }
+
   worker.flow
     .start(flowPackage, services, true, !!autoStartNodes, isSameFlow)
     .then((services: any) => {
@@ -919,7 +935,11 @@ const startFlow = (
         command: 'RegisterFlowNodeObservers',
         payload: {},
       });
+      
+      sendCurrentState();
+
       console.log('flow running');
+      
     })
     .catch(error => {
       console.log('error when starting flow', error);

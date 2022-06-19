@@ -116,6 +116,8 @@ export interface IFlowrunnerCanvasProps {
 	flowrunnerConnector? : IFlowrunnerConnector;
 	pluginRegistry? : any;
 
+	showsStateMachineUpdates? : boolean;
+
 	onMessageFromFlow? : (message, flowAgent : IFlowAgent) => void;	
 	getNodeDependencies?: (nodeName: string) => INodeDependency[];
 	renderMenuOptions? : () => JSX.Element;
@@ -244,7 +246,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 				<Toolbar 
 					hasShowDependenciesInMenu={props.hasShowDependenciesInMenu}
 					hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle || false}
-					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}
+					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository || false}					
 					hasJSONEditInMenu={props.hasJSONEditInMenu || false}
 					renderMenuOptions={props.renderMenuOptions}
 					canvasToolbarsubject={canvasToolbarsubject.current} 
@@ -267,6 +269,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 											
 				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
 					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
+					showsStateMachineUpdates={props.showsStateMachineUpdates || false}
 					renderHtmlNode={renderHtmlNode.current}
 					isEditingInModal={false}
 					flowrunnerConnector={flowrunnerConnector.current}
@@ -538,6 +541,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 											{editorMode == "canvas" &&
 											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
 												hasCustomNodesAndRepository={true}
+												showsStateMachineUpdates={true}
 												isEditingInModal={false} 
 												formNodesubject={formNodesubject} 
 												renderHtmlNode={renderHtmlNode}

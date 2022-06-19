@@ -89,6 +89,7 @@ export const getNewConnection = (
       x: nodeFrom.x,
       y: nodeFrom.y,
     },
+    undefined, undefined,
     isEvent || {},
     getNodeInstance,
     thumbPositionRelativeToNode,

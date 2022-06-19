@@ -65,5 +65,6 @@ export const  ShapeNodeHtmlPlugin = (props :  ShapeNodeHtmlPluginProps) => {
 			...style
 		}}>{iconBgCssClasses && <span className={`html-plugin-node__icon ${iconBgCssClasses}`}></span>}
 		{node && node.hint && <span className="html-plugin-node__hint">{node.hint}</span>}		
+		{node && node.label && <span className="html-plugin-node__label">{node.label}</span>}
 	</div>;	
 }

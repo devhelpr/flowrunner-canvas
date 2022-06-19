@@ -208,11 +208,21 @@ export const Lines = (
 			/*
 				- lijnen vanuit de huidige node naar een andere node
 			*/
+			const endIndex = flow.flowHashmap.get(lineNode.endshapeid).index;
+			if (endIndex < 0) {
+				return false;
+			}
+			const endNode = flow.flow[endIndex];
 
 			let newPosition = {x: props.node.x, y: props.node.y};
 			newPosition = (positionContext.getPosition(props.node.name) as any) || newPosition;
 
-			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, lineNode, props.getNodeInstance,
+			let endPosition  = {x: endNode.x, y: endNode.y};
+			endPosition = (positionContext.getPosition(lineNode.endshapeid) as any) || endPosition;
+
+			const newStartPosition =  FlowToCanvas.getStartPointForLine(props.node, newPosition, 
+				endNode, endPosition,
+				lineNode, props.getNodeInstance,
 				lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default);
 			
 			return <React.Fragment key={index}><LineHelper

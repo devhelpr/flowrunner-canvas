@@ -229,6 +229,7 @@ export const EditBundle = (props: EditBundleProps) => {
 						externalId="EditBundleCanvas" 
 						isEditingInModal={true}
 						canvasToolbarsubject={canvasToolbarsubject.current}
+						showsStateMachineUpdates={false}
 						hasCustomNodesAndRepository={false} 
 						hasTaskNameAsNodeTitle={props.hasTaskNameAsNodeTitle}
 						formNodesubject={formNodesubject.current} 

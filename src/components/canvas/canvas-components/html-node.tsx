@@ -124,6 +124,19 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		}
 		// {!!props.hasTaskNameAsNodeTitle ? props.node.label || props.node.taskType : 
 		//  props.node.label ? props.node.label : props.node.name
+
+		const divDataAttributes : any = {};
+
+		if ((settings as any).htmlDataAttributes) {
+			(settings as any).htmlDataAttributes.forEach((htmlDataAttribute) => {
+				const value = htmlDataAttribute.value;
+				if (value && htmlDataAttribute.attributeName) {
+					const attributeValue = replaceValuesExpressions(value, props.node, "-");
+					divDataAttributes[`data-${htmlDataAttribute.attributeName.toLowerCase()}`] = attributeValue;
+				}
+			})
+		}
+
 		return <div
 			style={{transform: "translate(" + (position.x) + "px," + 
 					( (position.y) ) + "px) " +
@@ -144,6 +157,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 			data-x={position.x} 
 			data-y={position.y}
 			data-height={(height || props.node.height || 250)}
+			{...divDataAttributes}
 			ref={ref as React.LegacyRef<HTMLDivElement>}
 												 
 			className={selected + "canvas__html-shape canvas__html-shape-" + props.node.name + 			
@@ -209,7 +223,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event,ThumbPositionRelativeToNode.top)}
 					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}
 				
-				></div>}
+				><span className="canvas__html-shape-thumb-female-indicaator"></span></div>}
 				{hasThumbs && <div className={"canvas__html-shape-thumb-end canvas__html-shape-0"}
 					onMouseOver={(event) => props.onMouseConnectionEndOver(props.node,false,event)}
 					onMouseOut={(event) => props.onMouseConnectionEndOut(props.node,false,event)}
@@ -217,7 +231,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onMouseMove={(event) => props.onMouseConnectionEndMove(props.node,false,event)}
 					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event)}
 					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}				
-				></div>}
+				><span className="canvas__html-shape-thumb-female-indicaator"></span></div>}
 				{hasThumbs && settings.events && settings.events.map((event ,eventIndex) => {
 					return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + props.node.name + (props.flowId || "") + "-" + eventIndex}></div>
 				})}

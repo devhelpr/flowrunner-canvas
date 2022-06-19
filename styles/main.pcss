@@ -1766,6 +1766,22 @@ textarea.form-control:disabled {
 	.canvas__html-shape-bar-title {
 		display: none;
 	}
+
+	.html-plugin-node__label {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		font-size: 32px;
+		font-weight: 700;
+		white-space: nowrap;
+		transform: translateX(-50%);
+		left: 50%;
+	}
+
+	&[data-html-plugin="shapeNode"]:hover .canvas__html-shape-bar-icon {
+		top: 0;
+		right: -20px;
+	}
 }
 
 [data-task="State"] {
@@ -1773,6 +1789,11 @@ textarea.form-control:disabled {
 		background: #e2e2e2;
 		border-radius: 10px;
 		border: 2px solid black;
+	}
+
+	&.state-active .canvas__html-shape-bar {
+		background: #86c6f8;
+		border: 2px solid #36a4f9;
 	}
 }
 
@@ -1824,4 +1845,23 @@ textarea.form-control:disabled {
 	flex-direction: row;
 	justify-content: space-around;
 	gap: 10px;
+}
+
+.canvas__html-shape-thumb-female-indicaator {
+	position: relative;
+	width: 2px;
+	height: 8px;
+	background: white;
+	border-radius: 6px;
+	left: 4px;
+    top: -6px;
+    display: inline-block
+}
+
+.canvas__html-shape-thumb-endtop {
+	.canvas__html-shape-thumb-female-indicaator {
+		width: 8px;
+		height: 2px;
+		top: -12px;
+	}
 }

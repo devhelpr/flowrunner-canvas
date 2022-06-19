@@ -65,6 +65,23 @@ const taskTypeConfig: any = {
     presetValues: {},
   },
 
+  StateChangeTriggerTask : {
+
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    constraints: {      
+      input: {
+        allowedInputs: 0,
+      },
+    },
+    metaInfo: [      
+      {
+        fieldName: 'State',
+      }
+    ],
+    presetValues: {},
+  },
+
   StateMachine: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
@@ -80,6 +97,9 @@ const taskTypeConfig: any = {
       {
         fieldName: 'StateMachine',
       },
+      {
+        fieldName: 'State',
+      }
     ],
     presetValues: {},
   },
@@ -106,11 +126,29 @@ const taskTypeConfig: any = {
     metaInfo: [],
     hasClone: false,
     hasThumbs: false,
+    hasConfigMenu: true,
+    htmlDataAttributes: [
+      {
+        attributeName: 'startState',
+        value: '{stateMachine}'
+      }
+    ],
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'straight',
     },
+    configMenu: {
+      fields: [
+        {
+          fieldName: 'stateMachine',
+        },
+        {
+          fieldName: 'label',
+        },
+      ],
+    },
   },
+  
   State: {
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
@@ -141,6 +179,12 @@ const taskTypeConfig: any = {
         },
       ],
     },
+    htmlDataAttributes: [
+      {
+        attributeName: 'state',
+        value: '{StateName}'
+      }
+    ],
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'arc',
@@ -171,6 +215,12 @@ const taskTypeConfig: any = {
     hasConfigMenu: true,
     hasClone: false,
     hasThumbs: false,
+    htmlDataAttributes: [
+      {
+        attributeName: 'event',
+        value: '{EventName}'
+      }
+    ],
     configMenu: {
       fields: [
         {
