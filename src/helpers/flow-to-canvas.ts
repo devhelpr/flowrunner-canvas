@@ -22,7 +22,8 @@ export class FlowToCanvas {
           const startPosition = FlowToCanvas.getStartPointForLine(
             shartShapes[0],
             shartShapes[0],
-            undefined, undefined,
+            undefined,
+            undefined,
             node,
             undefined,
             node.thumbPosition as ThumbPositionRelativeToNode,
@@ -208,7 +209,7 @@ export class FlowToCanvas {
       }
 
       if (taskSettings.htmlPlugin === 'shapeNode') {
-        height = (height || 0);
+        height = height || 0;
 
         if (!!nodeAttachedToCenter) {
           //console.log("startpoint w", startShape.name, width , taskSettings.width ,startShape.width ,ShapeMeasures.htmlWidth);
@@ -224,7 +225,7 @@ export class FlowToCanvas {
                 heightEndNode = nodeInstance.getHeight(endNode);
               }
             }
-  
+
             let result: any = undefined;
             if (startShape.curveMode === 'arc') {
               let resultPoints: any[] = [];
@@ -248,15 +249,15 @@ export class FlowToCanvas {
                 controlPoints.controlPointy2,
                 endNodePosition.x + (widthEndNode || endNode.width || ShapeMeasures.htmlWidth) / 2,
                 endNodePosition.y + (heightEndNode || endNode.height || 0) / 2,
-  
+
                 newPosition.x - 0,
                 newPosition.y - 0,
                 newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) + 0,
                 newPosition.y + (height || 0) + 0,
-  
+
                 resultPoints,
               );
-  
+
               if (resultPoints.length >= 1) {
                 result = {
                   x: resultPoints[0],
@@ -288,13 +289,11 @@ export class FlowToCanvas {
                 };
               }*/
             }
-  
-            
           }
 
           return {
             x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
-            y: newPosition.y + (height) / 2,
+            y: newPosition.y + height / 2,
           };
         }
 

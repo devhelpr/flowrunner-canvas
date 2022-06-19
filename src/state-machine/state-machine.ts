@@ -114,9 +114,7 @@ export const getCurrentState = (stateMachine: string) => {
   return stateMachinesState[stateMachine] || '';
 };
 
-export const createStateMachine = (
-  flow: any[]
-): IStateMachine => {
+export const createStateMachine = (flow: any[]): IStateMachine => {
   let currentState = '';
   let states: IState[] = [];
   let events: IEvent[] = [];
@@ -230,8 +228,8 @@ export const createStateMachine = (
   }
 
   //if (hasStateMachineChanged(oldStates, states)) {
-  if (true) { 
-		currentState = startState;
+  if (true) {
+    currentState = startState;
     _stateMachineName = stateMachineName;
   } else {
     currentState = _currentState;
@@ -239,14 +237,14 @@ export const createStateMachine = (
   }
 
   stateMachinesState[stateMachineName] = currentState;
-	
-	if (_onSetCanvasStateCallback) {
+
+  if (_onSetCanvasStateCallback) {
     _onSetCanvasStateCallback(stateMachineName, currentState);
   }
-	
-	Object.keys(_stateChangeHandlers).forEach((handlerName) => {
-		_stateChangeHandlers[handlerName](stateMachineName, currentState);
-	});
+
+  Object.keys(_stateChangeHandlers).forEach(handlerName => {
+    _stateChangeHandlers[handlerName](stateMachineName, currentState);
+  });
 
   stateMachine = {
     hasStateMachine: true,
@@ -270,9 +268,9 @@ export const createStateMachine = (
           _onSetCanvasStateCallback(stateMachineName, currentState);
         }
         if (triggerStateEvent) {
-					Object.keys(_stateChangeHandlers).forEach((handlerName) => {
-						_stateChangeHandlers[handlerName](stateMachineName, currentState);
-					});
+          Object.keys(_stateChangeHandlers).forEach(handlerName => {
+            _stateChangeHandlers[handlerName](stateMachineName, currentState);
+          });
         }
         _currentState = currentState;
 
@@ -290,30 +288,35 @@ export const createStateMachine = (
 
 export const getCurrentStateMachine = () => stateMachine;
 
-let _onSetCanvasStateCallback : undefined | ((stateMachineName : string, currentState : string) => void);
+let _onSetCanvasStateCallback: undefined | ((stateMachineName: string, currentState: string) => void);
 
-export const setOnSetCanvasStateCallback = (onSetCanvasStateCallback : (stateMachineName : string, currentState : string) => void) => {
-	_onSetCanvasStateCallback = onSetCanvasStateCallback;
+export const setOnSetCanvasStateCallback = (
+  onSetCanvasStateCallback: (stateMachineName: string, currentState: string) => void,
+) => {
+  _onSetCanvasStateCallback = onSetCanvasStateCallback;
 };
 
 export const resetOnSetCanvasStateCallback = () => {
-	_onSetCanvasStateCallback = undefined;
-}
+  _onSetCanvasStateCallback = undefined;
+};
 
-let _stateChangeHandlers : any = {};
-export const registerStateChangeHandler = (name : string, onStateChangeHandler : (stateMachineName : string, currentState : string) => void) => {
-	_stateChangeHandlers[name] = onStateChangeHandler;
-}
+let _stateChangeHandlers: any = {};
+export const registerStateChangeHandler = (
+  name: string,
+  onStateChangeHandler: (stateMachineName: string, currentState: string) => void,
+) => {
+  _stateChangeHandlers[name] = onStateChangeHandler;
+};
 
-export const unRegisterStateChangeHandler = (name : string) => {
-	delete _stateChangeHandlers.name;
-}
+export const unRegisterStateChangeHandler = (name: string) => {
+  delete _stateChangeHandlers.name;
+};
 
 export const sendCurrentState = () => {
-	if (_onSetCanvasStateCallback) {
-		_onSetCanvasStateCallback(_stateMachineName, stateMachine.currentState());
-	}
- Object.keys(_stateChangeHandlers).forEach((handlerName) => {
-		_stateChangeHandlers[handlerName](_stateMachineName, stateMachine.currentState());
-	});
-}
+  if (_onSetCanvasStateCallback) {
+    _onSetCanvasStateCallback(_stateMachineName, stateMachine.currentState());
+  }
+  Object.keys(_stateChangeHandlers).forEach(handlerName => {
+    _stateChangeHandlers[handlerName](_stateMachineName, stateMachine.currentState());
+  });
+};

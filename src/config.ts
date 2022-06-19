@@ -65,19 +65,18 @@ const taskTypeConfig: any = {
     presetValues: {},
   },
 
-  StateChangeTriggerTask : {
-
+  StateChangeTriggerTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    constraints: {      
+    constraints: {
       input: {
         allowedInputs: 0,
       },
     },
-    metaInfo: [      
+    metaInfo: [
       {
         fieldName: 'State',
-      }
+      },
     ],
     presetValues: {},
   },
@@ -99,7 +98,7 @@ const taskTypeConfig: any = {
       },
       {
         fieldName: 'State',
-      }
+      },
     ],
     presetValues: {},
   },
@@ -130,8 +129,8 @@ const taskTypeConfig: any = {
     htmlDataAttributes: [
       {
         attributeName: 'startState',
-        value: '{stateMachine}'
-      }
+        value: '{stateMachine}',
+      },
     ],
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
@@ -148,7 +147,7 @@ const taskTypeConfig: any = {
       ],
     },
   },
-  
+
   State: {
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
@@ -182,8 +181,8 @@ const taskTypeConfig: any = {
     htmlDataAttributes: [
       {
         attributeName: 'state',
-        value: '{StateName}'
-      }
+        value: '{StateName}',
+      },
     ],
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
@@ -218,8 +217,8 @@ const taskTypeConfig: any = {
     htmlDataAttributes: [
       {
         attributeName: 'event',
-        value: '{EventName}'
-      }
+        value: '{EventName}',
+      },
     ],
     configMenu: {
       fields: [

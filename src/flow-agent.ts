@@ -795,11 +795,11 @@ const onExecuteNode = (
 };
 
 let currentFlowId: string = '';
-let machine : IStateMachine = {
+let machine: IStateMachine = {
   hasStateMachine: false,
-  currentState: () => "",
+  currentState: () => '',
   states: [],
-  event: (eventName: string) => ""
+  event: (eventName: string) => '',
 };
 
 const startFlow = (
@@ -811,12 +811,11 @@ const startFlow = (
 ) => {
   let isSameFlow: boolean = false;
 
-  
   if (flowId == currentFlowId) {
     isSameFlow = true;
   }
 
-  console.log('startFlow',`isSameFlow = ${isSameFlow}`, flowId, currentFlowId, flowPackage);
+  console.log('startFlow', `isSameFlow = ${isSameFlow}`, flowId, currentFlowId, flowPackage);
 
   currentFlowId = flowId;
 
@@ -831,10 +830,9 @@ const startFlow = (
     }
     timers = {};
 
-    
     console.log('before destroyflow', flowId, currentFlowId, isSameFlow);
     worker.flow.destroyFlow();
-    
+
     if (!isSameFlow) {
       (worker.flow as any) = undefined;
     }
@@ -935,11 +933,10 @@ const startFlow = (
         command: 'RegisterFlowNodeObservers',
         payload: {},
       });
-      
+
       sendCurrentState();
 
       console.log('flow running');
-      
     })
     .catch(error => {
       console.log('error when starting flow', error);
