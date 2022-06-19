@@ -143,14 +143,14 @@ const taskTypeConfig: any = {
   State: {
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
-    constraints: {      
+    constraints: {
       input: {
         allowed: ['Event', 'StartState', 'Guard'],
       },
       output: {
         notAllowed: [],
         allowed: ['Event'],
-      }
+      },
     },
     styleShapeBody: {
       width: '200px',
@@ -193,7 +193,7 @@ const taskTypeConfig: any = {
         notAllowed: [],
         allowed: ['State', 'Guard'],
         allowedOutputs: 1,
-      }      
+      },
     },
     styleShapeBody: {
       width: '200px',
@@ -237,7 +237,7 @@ const taskTypeConfig: any = {
         notAllowed: [],
         allowed: ['State'],
         allowedOutputs: 1,
-      }      
+      },
     },
     styleShapeBody: {
       width: '200px',

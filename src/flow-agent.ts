@@ -60,7 +60,13 @@ import {
   getRangeFromValues,
   getRangeValueParameters,
 } from '@devhelpr/expressionrunner';
-import { createStateMachine, emptyStateMachine, IStateMachine, sendCurrentState, setOnGuardEventCallback } from './state-machine';
+import {
+  createStateMachine,
+  emptyStateMachine,
+  IStateMachine,
+  sendCurrentState,
+  setOnGuardEventCallback,
+} from './state-machine';
 import { emptyStatement } from '@babel/types';
 
 const uuidV4 = uuid.v4;
@@ -802,7 +808,7 @@ let machine: IStateMachine = {
   hasStateMachine: false,
   currentState: () => '',
   states: [],
-  event: (eventName: string) => Promise.resolve(""),
+  event: (eventName: string) => Promise.resolve(''),
 };
 
 const startFlow = (
@@ -897,19 +903,18 @@ const startFlow = (
     try {
       machine = createStateMachine(flowPackage.flow);
       setOnGuardEventCallback((stateMachineName: string, currentState: string, eventName, node: any, payload: any) => {
-        
         if (node && node.Expression) {
           const expression = createExpressionTree(node.Expression);
           const result = executeExpressionTree(expression, payload);
-          console.log("Guard result", result);
+          console.log('Guard result', result);
           return result === 1;
         }
         return true;
       });
 
-      console.log("Statemachine definition", machine);
+      console.log('Statemachine definition', machine);
     } catch (err) {
-      console.log("Statemachine creation error", err);
+      console.log('Statemachine creation error', err);
       machine = emptyStateMachine;
     }
   }
