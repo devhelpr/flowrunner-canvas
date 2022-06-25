@@ -5,10 +5,22 @@ const uuidV4 = uuid.v4;
 export class FormTask extends ObservableTask {
   public execute(node: any, services: any) {
     //console.log('FormTask', node);
+
+    if (!!node.formDefinitionAsPayload) {
+      const payload = {...node.payload};
+      payload["metaInfo"] = node.metaInfo || [];
+      return payload;
+    }
+
     try {
       let values: any = {};
       let isValid = true;
-      (node.metaInfo || []).map((metaInfo, index) => {
+      let metaInfoDefinition = node.metaInfo;
+      if (!!node.renderFormViaMetaInfoInPayload) {
+        metaInfoDefinition = node.payload["metaInfo"];
+      }
+      
+      (metaInfoDefinition || []).map((metaInfo, index) => {
         let currentValue;
         if (metaInfo.fieldName) {
           currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);

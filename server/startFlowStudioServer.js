@@ -125,7 +125,11 @@ function start(flowFileName, taskPlugins, options) {
 			if (isStandalone) {
 
 				tasks.push({className:"TestTask", fullName: "TestTask", flowType: "playground"});
-				
+
+				tasks.push({className:"OnStartFlow", fullName: "OnStartFlow", flowType: "playground"});
+
+
+
 				tasks.push({className:"StateMachine", fullName: "StateMachine", flowType: "playground"});
 				tasks.push({className:"StartState", fullName: "StartState", flowType: "playground"});
 				tasks.push({className:"State", fullName: "State", flowType: "playground"});
@@ -133,6 +137,9 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"Guard", fullName: "Guard", flowType: "playground"});
 				tasks.push({className:"StateChangeTriggerTask", fullName: "StateChangeTriggerTask", flowType: "playground"});
 				
+				tasks.push({className:"SetCookie", fullName: "SetCookie", flowType: "playground"});
+				tasks.push({className:"GetCookie", fullName: "GetCookie", flowType: "playground"});
+
 
 				tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "playground"});
 				tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "playground"});
@@ -174,6 +181,7 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
 				tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
 				tasks.push({className:"SelectValueFromListTask", fullName: "SelectValueFromListTask", flowType: "playground"});									
+				tasks.push({className:"ImageTask", fullName: "ImageTask", flowType: "playground"});									
 					
 				tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
 				tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});

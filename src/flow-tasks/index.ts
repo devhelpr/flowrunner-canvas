@@ -43,6 +43,9 @@ import { EventTask } from '../flowrunner-plugins/event-task';
 import { StateMachineTask } from '../flowrunner-plugins/state-machine-task';
 import { StateChangeTriggerTask } from '../flowrunner-plugins/state-change-trigger-task';
 import { GuardTask } from '../flowrunner-plugins/guard-task';
+import { GetCookie, SetCookie } from '../flowrunner-plugins/cookie-tasks';
+import { OnStartFlowTask } from '../flowrunner-plugins/on-start-flow-task';
+import { ImageTask } from '../flowrunner-plugins/image-task';
 
 export const registerTasks = flow => {
   flow.registerTask('Annotation', FlowTask);
@@ -54,6 +57,13 @@ export const registerTasks = flow => {
   flow.registerTask('Event', EventTask);
   flow.registerTask('Guard', GuardTask);
   flow.registerTask('StateChangeTriggerTask', StateChangeTriggerTask);
+
+  flow.registerTask('GetCookie', GetCookie);
+  flow.registerTask('SetCookie', SetCookie);
+
+  flow.registerTask('OnStartFlow', OnStartFlowTask);
+
+  flow.registerTask('ImageTask', ImageTask);
 
   flow.registerTask('SliderTask', SliderTask);
   flow.registerTask('ConditionalTriggerTask', ConditionalTriggerTask);

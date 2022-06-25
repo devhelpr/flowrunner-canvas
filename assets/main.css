@@ -486,14 +486,29 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-mr-\[8px\]{
 	margin-right: 8px;
 }
+.tw-mt-2{
+	margin-top: 0.5rem;
+}
+.tw-mb-2{
+	margin-bottom: 0.5rem;
+}
+.tw-aspect-square{
+	aspect-ratio: 1 / 1;
+}
 .tw-h-full{
 	height: 100%;
 }
 .tw-h-auto{
 	height: auto;
 }
+.tw-h-\[250px\]{
+	height: 250px;
+}
 .tw-w-full{
 	width: 100%;
+}
+.tw-w-\[250px\]{
+	width: 250px;
 }
 .tw-max-w-full{
 	max-width: 100%;
@@ -520,6 +535,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-bg-purple-400{
 	--tw-bg-opacity: 1;
 	background-color: rgb(192 132 252 / var(--tw-bg-opacity));
+}
+.tw-object-cover{
+	-o-object-fit: cover;
+	   object-fit: cover;
 }
 .tw-text-7xl{
 	font-size: 4.5rem;
@@ -2245,6 +2264,15 @@ textarea.form-control:disabled {
 		left: 50%;
 		-webkit-transform: translate(-50%,-50%);
 		        transform: translate(-50%,-50%);
+	}
+[data-task="OnStartFlow"] .canvas__html-shape-bar {
+		background: black;
+		border-radius: 50%;
+		width: 64px;
+		height: 64px;
+	}
+[data-task="OnStartFlow"] .canvas__html-shape-bar-title {
+		display: none;
 	}
 [data-task="StartState"] .canvas__html-shape-bar {
 		background: black;

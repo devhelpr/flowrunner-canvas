@@ -65,6 +65,32 @@ const taskTypeConfig: any = {
     presetValues: {},
   },
 
+  OnStartFlow: {
+    shapeType: 'Html',
+    htmlPlugin: 'shapeNode',
+    styleShapeBody: {
+      width: '64px',
+      height: '64px',
+    },
+    width: 64,
+    height: 64,
+    metaInfo: [],
+    hasClone: false,
+    hasThumbs: false,
+    hasConfigMenu: false,
+  
+    presetValues: {
+      lineConnectionEndPoints: 'center-of-node',
+      curveMode: 'straight',
+    },
+    configMenu: {
+      fields: [
+       
+      ],
+    },
+
+  },
+
   StateChangeTriggerTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
@@ -89,8 +115,23 @@ const taskTypeConfig: any = {
         fieldName: 'StateMachine',
       },
       {
-        fieldName: 'State',
+        fieldName: 'SetInitialState',
+        label: 'Set inital state',
+        fieldType: 'checkbox'
       },
+      {
+        fieldName: 'Event',
+        visibilityCondition: "SetInitialState == false"
+      },
+      {
+        fieldName: 'State',
+        visibilityCondition: "SetInitialState == 1"
+      },
+      {
+        fieldName: 'Expression',
+      },
+      
+     
     ],
     presetValues: {},
   },
@@ -272,6 +313,49 @@ const taskTypeConfig: any = {
     },
   },
 
+  GetCookie: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'cookieName',
+        required: true,
+      },
+      {
+        fieldName: 'defaultValue',
+      },
+      {
+        fieldName: 'defaultValueFromProperty',
+      },
+    ],
+    presetValues: {
+      cookieName: '',
+      defaultValue: '',
+      defaultValueFromProperty: ''
+    },
+  },
+  SetCookie: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'cookieName',
+        required: true,
+      },
+      {
+        fieldName: 'value',
+      },
+      {
+        fieldName: 'valueFromProperty',
+      },
+    ],
+    presetValues: {
+      cookieName: '',
+      value: '',
+      valueFromProperty: ''
+    },
+  },
+
   IfConditionTask: {
     shapeType: 'Diamond',
     presetValues: {
@@ -443,7 +527,7 @@ const taskTypeConfig: any = {
         {
           id: '202809c7-964a-43a1-a590-57a93346d875',
           imageUrl: '/media/earth.jpg',
-          css: 'tw-h-full tw-w-full tw-object-fit',
+          css: 'tw-h-full tw-w-full tw-object-cover',
         },
         {
           id: 'c103357a-b150-4f27-8ec5-da2d179bb331',
@@ -1214,6 +1298,16 @@ const taskTypeConfig: any = {
     configMenu: {
       fields: [
         {
+          fieldName: 'formDefinitionAsPayload',
+          fieldType: 'checkbox',
+          label: 'Send form definition via payload',
+        },
+        {
+          fieldName: 'renderFormViaMetaInfoInPayload',
+          fieldType: 'checkbox',
+          label: 'Render form based on payload',
+        },
+        {
           fieldName: 'metaInfo',
           fieldType: 'objectList',
           label: 'Form controls',
@@ -1261,6 +1355,14 @@ const taskTypeConfig: any = {
                 {
                   value: 'list',
                   label: 'List',
+                },
+                {
+                  value: 'image',
+                  label: 'Image',
+                },
+                {
+                  value: 'stateMachineEventButton',
+                  label: 'StateMachine Event Button',
                 },
               ],
             },
@@ -1613,6 +1715,19 @@ const taskTypeConfig: any = {
     shapeType: 'Html',
     htmlPlugin: 'shapeNode',
   },
+  ImageTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'customNode',
+    config: {
+      objects: [
+        {
+          id: '202809c7-964a-43a1-a590-57a93346d875',
+          css: 'tw-object-cover tw-h-[250px] tw-w-[250px]',
+          imageCss: 'tw-h-full tw-w-full'
+        }      
+      ],
+    },
+  }
 };
 
 let fullConfig = { ...taskTypeConfig };

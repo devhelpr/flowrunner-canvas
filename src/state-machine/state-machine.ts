@@ -27,6 +27,7 @@ export interface IStateMachine {
   currentState: () => string;
   event: (eventName: string, payload?: any) => Promise<string>;
   states: IState[];
+  setInitialState: (state : string) => void;
 }
 
 export interface IState {
@@ -62,6 +63,7 @@ export const emptyStateMachine = {
   currentState: () => '',
   states: [],
   event: (eventName: string) => Promise.resolve(''),
+  setInitialState: (_state : string) => undefined
 };
 
 let stateMachine: IStateMachine = emptyStateMachine;
@@ -299,13 +301,39 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
   }
 
   Object.keys(_stateChangeHandlers).forEach(handlerName => {
-    _stateChangeHandlers[handlerName](stateMachineName, currentState);
+    _stateChangeHandlers[handlerName](stateMachineName, currentState, true);
   });
 
   stateMachine = {
     hasStateMachine: true,
     currentState: () => currentState,
     states,
+    setInitialState: (newState : string) => {
+      if (!newState) {
+        throw new Error(`No new state given`);
+      }
+
+      const searchState = states.filter(state => {
+        return state.name === newState;
+      });
+
+      if( searchState.length == 0) {
+        throw new Error(`New state ${newState} doesn't exist`);
+      }
+      currentState = newState;
+
+      stateMachinesState[stateMachineName] = currentState;
+
+      if (_onSetCanvasStateCallback) {
+        _onSetCanvasStateCallback(stateMachineName, currentState);
+      }
+
+      Object.keys(_stateChangeHandlers).forEach(handlerName => {
+        _stateChangeHandlers[handlerName](stateMachineName, currentState);
+      });
+
+      _currentState = currentState;
+    },
     event: async (eventName: string, payload?: any) => {
       console.log('StateMachine event', eventName, payload);
 
@@ -376,7 +404,7 @@ export const resetOnSetCanvasStateCallback = () => {
 let _stateChangeHandlers: any = {};
 export const registerStateChangeHandler = (
   name: string,
-  onStateChangeHandler: (stateMachineName: string, currentState: string) => void,
+  onStateChangeHandler: (stateMachineName: string, currentState: string, isStateMachineStarting? : boolean) => void,
 ) => {
   _stateChangeHandlers[name] = onStateChangeHandler;
 };

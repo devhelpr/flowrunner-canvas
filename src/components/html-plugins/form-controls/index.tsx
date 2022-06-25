@@ -9,6 +9,8 @@ import { List } from './list';
 import { ObjectList } from './object-list';
 import { IFormControlProps } from './form-control-interface';
 import { HashMap } from './hashmap';
+import { Image } from './image';
+import { StateMachineEventButton } from './stateMachineEventButton';
 
 const RichTextEditor = React.lazy(() => import('./richtexteditor').then(({ RichTextEditor }) => ({ default: RichTextEditor })));
 
@@ -22,7 +24,9 @@ const formControls = {
 	list: List,
 	objectList: ObjectList,
 	hashmap: HashMap,
-	richtexteditor: RichTextEditor
+	richtexteditor: RichTextEditor,
+	image: Image,
+	stateMachineEventButton: StateMachineEventButton
 }
 
 export const getFormControl = (formControl, props : IFormControlProps) => {

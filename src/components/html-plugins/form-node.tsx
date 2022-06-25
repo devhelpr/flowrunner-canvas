@@ -305,6 +305,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			if (!!props.taskSettings.hasMetaInfoInNode) {
 				metaInfo = props.node.metaInfo || [];
 			}
+			if (!!props.node.renderFormViaMetaInfoInPayload) {
+				metaInfo = (payload && payload["metaInfo"]) || [];
+			}
 		}
 
 		if (!!payload.isDebugCommand) {
@@ -390,6 +393,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			}
 			if (!!props.taskSettings.hasMetaInfoInNode) {
 				metaInfo = props.node.metaInfo || [];
+			}
+			if (!!props.node.renderFormViaMetaInfoInPayload) {
+				metaInfo = (receivedPayload && receivedPayload["metaInfo"]) || [];
 			}
 		}		
 
@@ -731,6 +737,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				!!props.taskSettings.hasMetaInfoInNode) {
 				metaInfo = props.node.metaInfo || [];
 			}
+			if (!!props.node.renderFormViaMetaInfoInPayload) {
+				metaInfo = (receivedPayload && receivedPayload["metaInfo"]) || [];
+			}
 		}
 		//console.log("renderFields", receivedPayload, values);
 		return <>
@@ -897,7 +906,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						payload: receivedPayload,
 						isInFlowEditor:!!props.isInFlowEditor,
 						fieldDefinition: metaInfo,
-						enabled: true//(!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),						
+						fieldIndex: index,
+						enabled: !(!!props.node.formDefinitionAsPayload && !props.isNodeSettingsUI)//(!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),						
 					})}</React.Fragment>
 				}
 				return null;
@@ -910,6 +920,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		props.isInFlowEditor, props.isNodeSettingsUI, props.isObjectListNodeEditing,
 		props.flowrunnerConnector
 	]);
+
+	/*if (!!props.node.formDefinitionAsPayload && !props.isNodeSettingsUI) {
+		return <div className="html-plugin-node" style={{			
+			backgroundColor: "white"
+		}}>
+			<div className={"w-100 h-auto"}>FormDefinition is send via Payload</div>
+		</div>
+	}*/
 
 	return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"

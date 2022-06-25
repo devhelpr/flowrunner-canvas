@@ -11,4 +11,5 @@ export interface IFormControlProps {
   isInFlowEditor: boolean;
   fieldDefinition?: any;
   enabled?: boolean;
+  fieldIndex: number;
 }

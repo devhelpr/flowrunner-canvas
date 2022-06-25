@@ -804,12 +804,7 @@ const onExecuteNode = (
 };
 
 let currentFlowId: string = '';
-let machine: IStateMachine = {
-  hasStateMachine: false,
-  currentState: () => '',
-  states: [],
-  event: (eventName: string) => Promise.resolve(''),
-};
+let machine: IStateMachine = emptyStateMachine;
 
 const startFlow = (
   flowPackage: any,

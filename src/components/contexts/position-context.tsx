@@ -14,6 +14,8 @@ export interface IPosition {
 	ystart?: number;
 	xend?: number;
 	yend?: number;
+	width?: number;
+	height?: number;
 }
 
 export interface IPositionContext {
@@ -40,12 +42,29 @@ export const usePositionContext = () => {
 	};
 	  
 	const setPosition = (nodeName: string, position: any) => {
+		/*
+		if (!position.width || !position.height) {
+			const currentPosition = getPosition(nodeName);
+			if (currentPosition) {
+				position.width = currentPosition.width;
+				position.height = currentPosition.height;
+			}
+		}*/
 		internalPositionContext.positions.set(nodeName, position);
 	  };
 	  
 	const getPosition = (nodeName: string) => {
 		return internalPositionContext.positions.get(nodeName);
 	  };
+
+	const setWidthHeight = (nodeName: string, width: number, height: number) => {
+		const position = getPosition(nodeName);
+		if (position) {
+			position.width = width;
+			position.height = height;
+			internalPositionContext.positions.set(nodeName, position);
+		}		
+	};
 	  
 	const setCommittedPosition = (nodeName: string, position: any) => {
 		internalPositionContext.orgPositions.set(nodeName, position);
@@ -61,6 +80,7 @@ export const usePositionContext = () => {
 		getPosition,
 		setCommittedPosition,
 		getCommittedPosition,
+		setWidthHeight,
 		context : internalPositionContext
 	};
 }
