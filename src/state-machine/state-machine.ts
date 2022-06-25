@@ -27,7 +27,7 @@ export interface IStateMachine {
   currentState: () => string;
   event: (eventName: string, payload?: any) => Promise<string>;
   states: IState[];
-  setInitialState: (state : string) => void;
+  setInitialState: (state: string) => void;
 }
 
 export interface IState {
@@ -63,7 +63,7 @@ export const emptyStateMachine = {
   currentState: () => '',
   states: [],
   event: (eventName: string) => Promise.resolve(''),
-  setInitialState: (_state : string) => undefined
+  setInitialState: (_state: string) => undefined,
 };
 
 let stateMachine: IStateMachine = emptyStateMachine;
@@ -308,7 +308,7 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
     hasStateMachine: true,
     currentState: () => currentState,
     states,
-    setInitialState: (newState : string) => {
+    setInitialState: (newState: string) => {
       if (!newState) {
         throw new Error(`No new state given`);
       }
@@ -317,7 +317,7 @@ export const createStateMachine = (flow: any[]): IStateMachine => {
         return state.name === newState;
       });
 
-      if( searchState.length == 0) {
+      if (searchState.length == 0) {
         throw new Error(`New state ${newState} doesn't exist`);
       }
       currentState = newState;
@@ -404,7 +404,7 @@ export const resetOnSetCanvasStateCallback = () => {
 let _stateChangeHandlers: any = {};
 export const registerStateChangeHandler = (
   name: string,
-  onStateChangeHandler: (stateMachineName: string, currentState: string, isStateMachineStarting? : boolean) => void,
+  onStateChangeHandler: (stateMachineName: string, currentState: string, isStateMachineStarting?: boolean) => void,
 ) => {
   _stateChangeHandlers[name] = onStateChangeHandler;
 };

@@ -78,17 +78,14 @@ const taskTypeConfig: any = {
     hasClone: false,
     hasThumbs: false,
     hasConfigMenu: false,
-  
+
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'straight',
     },
     configMenu: {
-      fields: [
-       
-      ],
+      fields: [],
     },
-
   },
 
   StateChangeTriggerTask: {
@@ -117,21 +114,19 @@ const taskTypeConfig: any = {
       {
         fieldName: 'SetInitialState',
         label: 'Set inital state',
-        fieldType: 'checkbox'
+        fieldType: 'checkbox',
       },
       {
         fieldName: 'Event',
-        visibilityCondition: "SetInitialState == false"
+        visibilityCondition: 'SetInitialState == false',
       },
       {
         fieldName: 'State',
-        visibilityCondition: "SetInitialState == 1"
+        visibilityCondition: 'SetInitialState == 1',
       },
       {
         fieldName: 'Expression',
       },
-      
-     
     ],
     presetValues: {},
   },
@@ -331,7 +326,7 @@ const taskTypeConfig: any = {
     presetValues: {
       cookieName: '',
       defaultValue: '',
-      defaultValueFromProperty: ''
+      defaultValueFromProperty: '',
     },
   },
   SetCookie: {
@@ -352,7 +347,7 @@ const taskTypeConfig: any = {
     presetValues: {
       cookieName: '',
       value: '',
-      valueFromProperty: ''
+      valueFromProperty: '',
     },
   },
 
@@ -1723,11 +1718,11 @@ const taskTypeConfig: any = {
         {
           id: '202809c7-964a-43a1-a590-57a93346d875',
           css: 'tw-object-cover tw-h-[250px] tw-w-[250px]',
-          imageCss: 'tw-h-full tw-w-full'
-        }      
+          imageCss: 'tw-h-full tw-w-full',
+        },
       ],
     },
-  }
+  },
 };
 
 let fullConfig = { ...taskTypeConfig };

@@ -7,8 +7,8 @@ export class FormTask extends ObservableTask {
     //console.log('FormTask', node);
 
     if (!!node.formDefinitionAsPayload) {
-      const payload = {...node.payload};
-      payload["metaInfo"] = node.metaInfo || [];
+      const payload = { ...node.payload };
+      payload['metaInfo'] = node.metaInfo || [];
       return payload;
     }
 
@@ -17,9 +17,9 @@ export class FormTask extends ObservableTask {
       let isValid = true;
       let metaInfoDefinition = node.metaInfo;
       if (!!node.renderFormViaMetaInfoInPayload) {
-        metaInfoDefinition = node.payload["metaInfo"];
+        metaInfoDefinition = node.payload['metaInfo'];
       }
-      
+
       (metaInfoDefinition || []).map((metaInfo, index) => {
         let currentValue;
         if (metaInfo.fieldName) {
