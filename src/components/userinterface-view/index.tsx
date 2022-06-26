@@ -167,28 +167,24 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 
 	const setupFlow = (flowPackage: any, flowId) => {
 
-		// TODO : can this setTimeout be removed ???
+		if (flowPackage.flowType === "playground") {
+			props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+			canvasMode.setFlowrunnerPaused(false);
+			canvasMode.setFlowType(flowPackage.flowType || "playground");
+			flow.storeFlow(flowPackage.flow, flowId);
+			layout.storeLayout(JSON.stringify(flowPackage.layout));
+			
+			let flowHash = {};
+			flowPackage.flow.map((node) => {
+				flowHash[node.name] = node;
+				return true;
+			});
 
-		//setTimeout(() => {
-			if (flowPackage.flowType === "playground") {
-				props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
-				canvasMode.setFlowrunnerPaused(false);
-				canvasMode.setFlowType(flowPackage.flowType || "playground");
-				flow.storeFlow(flowPackage.flow, flowId);
-				layout.storeLayout(JSON.stringify(flowPackage.layout));
-				
-				let flowHash = {};
-				flowPackage.flow.map((node) => {
-					flowHash[node.name] = node;
-					return true;
-				});
+			setFlowName(flowPackage.name);
+			setFlowHash(flowHash);
+			setIsFlowLoaded(true);
+		}
 
-				setFlowName(flowPackage.name);
-				setFlowHash(flowHash);
-				setIsFlowLoaded(true);
-			}
-
-		//} , 500);
 	}
 
 	const loadFlow = (flowId) => {
@@ -299,7 +295,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 		<Flow 
 			flow={flow.flow} 
 			flowId={flow.flowId}
-			flowrunnerConnector={props.flowrunnerConnector}></Flow>
+			flowrunnerConnector={props.flowrunnerConnector}></Flow>		
 	</div>
 	
 }

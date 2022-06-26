@@ -98,7 +98,9 @@ export const Flow = (props : IFlowProps) => {
 
 	useEffect(() => {
 		let perfstart = performance.now();
-		if (!internalFlow) {
+		if (!internalFlow || internalFlow.length === 0) {
+			// condition "internalFlow.length === 0" is needed to prevent
+			// weird behavior of userinterface-view (empty flow is otherwise rendered after filled flow somehow)  
 			return;
 		}
 		props.flowrunnerConnector.pushFlowToFlowrunner(internalFlow, true, props.flowId);

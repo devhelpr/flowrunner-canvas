@@ -13,8 +13,8 @@ export const StateMachineEventButton = (props: IFormControlProps) => {
 		formControl.setValue(props.value);
 	}, [props.value]);
 
-	return <div className="form-group">						
-			<button className={`btn btn-primary tw-w-full ${props.fieldIndex > 0 ? "tw-mt-2 tw-mb-2" : "tw-mb-2"}`}
+	return <div className={`form-group ${props.fieldIndex > 0 ? "tw-mt-2 tw-mb-2" : "tw-mb-2"}`}>						
+			<button className={`btn btn-primary tw-w-full`}
 				disabled={!props.enabled}
 				onClick={(event) => {
 					event.preventDefault();

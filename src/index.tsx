@@ -647,7 +647,11 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 					flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 					console.log("pluginRegistry", pluginRegistry);
-					(ReactDOM as any).render(<App></App>, root);												
+					(ReactDOM as any).render(<PositionProvider>
+						<FormNodeDatasourceProvider
+							><App></App>
+						</FormNodeDatasourceProvider>
+					</PositionProvider>, root);												
 				});
 			}
 			/*
