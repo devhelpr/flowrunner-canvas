@@ -11,9 +11,10 @@ export interface IFlowProps {
 
 export const Flow = (props : IFlowProps) => {
 	const [internalFlow , setInternalFlow] = useState([] as any);
-
+	const [isInitializing, setIsInitializing] = useState(true);
 	useEffect(() => {
 		console.log("FLOW in flow component useEffect", performance.now());
+		setIsInitializing(false);
 		if (internalFlow.length != props.flow.length) {
 			console.log("internalFlow.length != props.flow.length : setInternalFlow",
 				internalFlow.length , props.flow.length,
@@ -98,7 +99,8 @@ export const Flow = (props : IFlowProps) => {
 
 	useEffect(() => {
 		let perfstart = performance.now();
-		if (!internalFlow || internalFlow.length === 0) {
+		if (!internalFlow || isInitializing) {
+			//internalFlow.length === 0
 			// condition "internalFlow.length === 0" is needed to prevent
 			// weird behavior of userinterface-view (empty flow is otherwise rendered after filled flow somehow)  
 			return;

@@ -11,10 +11,10 @@ export const Image = (props: IFormControlProps) => {
 	useEffect(() => {
 		formControl.setValue(props.value);
 	}, [props.value]);
-	
+
 	return <div className="form-group">						
 			<img src={props.payload?.imageUrl ?? metaInfo.defaultValue}
-				className="tw-aspect-square tw-object-cover"				 
+				className="tw-aspect-square tw-object-cover tw-w-full tw-h-auto"				 
 				id={"image-" + props.node.name + "-" + metaInfo.fieldName}
 			/>			
 	</div>;
