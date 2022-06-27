@@ -51,6 +51,7 @@ import { AnnotationSection } from './annotations/annotation-section';
 import { AnnotationText } from './annotations/annotation-text';
 import { FloatingToolbar } from '../toolbar';
 import { resetOnSetCanvasStateCallback, setOnSetCanvasStateCallback } from '../../state-machine';
+import { useSetPositionHook } from './hooks/use-set-position-hook';
 
 const uuidV4 = uuid.v4;
 
@@ -74,7 +75,7 @@ export interface CanvasProps {
 	initialOpacity : number;
 	flowrunnerConnector : IFlowrunnerConnector;
 	renderHtmlNode?: (node: any, flowrunnerConnector : IFlowrunnerConnector, flow: any, taskSettings? : any) => any;
-	getNodeInstance?: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
+	getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings? : any) => any;	
 	getNodeDependencies?: (nodeName: string) => INodeDependency[];
 
 	useFlowStore : () => IFlowState;
@@ -203,6 +204,137 @@ export const Canvas = (props: CanvasProps) => {
 	
 	const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
 	
+
+	const getCurrentPosition = (event: any) => {
+		let x = 0;
+		let y = 0;
+		if (!event || event.evt) {
+			const stageInstance = (stage.current as any).getStage();
+			if (stageInstance) {
+				x = stageInstance.getPointerPosition().x;
+				y = stageInstance.getPointerPosition().y;
+			}
+		} else {
+			if (event.touches && event.touches.length > 0) {
+				x = event.touches[0].screenX - canvasTopLeftPositionRef.current.x;
+				y = event.touches[0].screenY - canvasTopLeftPositionRef.current.y;
+			} else {
+				x = event.clientX - canvasTopLeftPositionRef.current.x;
+				y = event.clientY - canvasTopLeftPositionRef.current.y;
+			}
+		}
+		return {
+			x: x,
+			y: y
+		}
+	}
+
+	const updateTouchedNodes = () => {
+		// DONT UPDATE STATE HERE!!!
+		if  (touchedNodesLocal.current) {
+			if (stage && stage.current) {
+				let stageInstance = (stage.current as any).getStage();
+				if (stageInstance) {
+					Object.keys(shapeRefs.current).forEach((touchNodeId) => {
+						if (touchNodeId === connectionForDraggingName) {
+							return;
+						}
+						const lineRef = shapeRefs.current[touchNodeId];
+						if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
+							if (touchedNodesLocal.current[touchNodeId] ) {								
+								lineRef.modifyShape(ModifyShapeEnum.SetState, {
+									state: ShapeStateEnum.Touched
+								});
+							} else {								
+								lineRef.modifyShape(ModifyShapeEnum.SetState, {
+									state: ShapeStateEnum.Default
+								});
+							}
+						}
+					});
+					stageInstance.batchDraw();
+				}
+			}
+		}
+	}
+
+	const setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
+
+		flowStore.flow.map((flowNode) => {	
+			if (flowNode.shapeType !== "Line") {
+				const element = elementRefs.current[flowNode.name];
+				if (element) {
+					let x = parseFloat(element.getAttribute("data-x") || "");
+					let y = parseFloat(element.getAttribute("data-y") || "");
+
+					const clientElementHeight = element.clientHeight;
+
+					if (node && element.getAttribute("data-node") == node.name) {
+						if (newX && !isNaN(newX)) {
+							x = newX;
+						}
+						if (newY && !isNaN(newY)) {
+							y = newY;
+						}				
+
+						element.setAttribute("data-x", x.toString()); 
+						element.setAttribute("data-y", y.toString());
+					}
+
+					const nodeName = element.getAttribute("data-node") || "";
+					setHtmlElementStyle(element, 0, 0, 1, x, y);	
+					//setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);	
+				}	
+			}		
+		});
+
+		// see also recalculateStartEndpoints
+		setHtmlGlobalScale(stageX, stageY, stageScale);
+	};
+
+	//htmlWrapper
+	const setHtmlGlobalScale = (stageX, stageY, stageScale) => {
+		if (htmlWrapper && htmlWrapper.current) {
+			(htmlWrapper.current as any).style.transform = 						
+			"translate(" + (stageX ) + "px," + (stageY) + "px) "+
+			"scale(" + (stageScale) + "," + (stageScale) + ") "
+			;
+		}
+	};
+
+	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
+		(element as any).style.transform = 						
+			"translate(" + (stageX  + x*stageScale) + "px," + 
+				(stageY  + y*stageScale) + "px) "+
+			"scale(" + (stageScale) + "," + (stageScale) + ") "
+			
+			;
+	}
+
+	const { setNewPositionForNode } = useSetPositionHook(
+		props.useFlowStore,
+
+		draggingMultipleNodes,
+		elementRefs,
+		shapeRefs,
+		gridSize,
+		stage,
+		mouseStartX,
+		mouseStartY,
+		mouseEndX,
+		mouseEndY,
+		stageX,
+		stageY,
+		stageScale,
+
+		props.flowrunnerConnector,
+		getCurrentPosition,
+		setHtmlElementsPositionAndScale,
+		props.getNodeInstance,
+		updateTouchedNodes,
+		props.saveFlow
+	);
+
 	useEffect(() => useSelectedNodeStore.subscribe(
 		(node : any, previousNode : any) => {			
 			console.log("useSelectedNodeStore.subscribe", node.name);
@@ -838,34 +970,7 @@ export const Canvas = (props: CanvasProps) => {
 		}
 	}, [flowStore.flow]);
 
-	const updateTouchedNodes = () => {
-		// DONT UPDATE STATE HERE!!!
-		if  (touchedNodesLocal.current) {
-			if (stage && stage.current) {
-				let stageInstance = (stage.current as any).getStage();
-				if (stageInstance) {
-					Object.keys(shapeRefs.current).forEach((touchNodeId) => {
-						if (touchNodeId === connectionForDraggingName) {
-							return;
-						}
-						const lineRef = shapeRefs.current[touchNodeId];
-						if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == "line") {
-							if (touchedNodesLocal.current[touchNodeId] ) {								
-								lineRef.modifyShape(ModifyShapeEnum.SetState, {
-									state: ShapeStateEnum.Touched
-								});
-							} else {								
-								lineRef.modifyShape(ModifyShapeEnum.SetState, {
-									state: ShapeStateEnum.Default
-								});
-							}
-						}
-					});
-					stageInstance.batchDraw();
-				}
-			}
-		}
-	}
+	
 	
 	const recalculateStartEndpoints = (doBatchdraw : boolean) => {
 
@@ -1100,454 +1205,6 @@ export const Canvas = (props: CanvasProps) => {
 		connectionY,
 		positionContext
 	]);	
-	
-	const setNewPositionForNode = (event, node, group, position? : any, isCommitingToStore? : boolean, linesOnly? : boolean, doDraw?: boolean, skipSetHtml?: boolean, isEndNode? : boolean, offsetPosition?: any) => {
-		const unselectedNodeOpacity = 0.15;
-
-		if (!linesOnly) {
-			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
-				flowStore.flow.map((flowNode) => {
-					if (flowNode.name !== node.name) {
-						// node is not selected or handled by this setNewPositionForNode call
-						/*if (shapeRefs.current[flowNode.name]) {
-							const shape = (shapeRefs.current[flowNode.name] as any);
-							if (shape) {
-								//shape.modifyShape(ModifyShapeEnum.SetOpacity,{opacity:unselectedNodeOpacity});					
-							}				
-						}
-						*/
-						//const element = document.getElementById(flowNode.name);
-						const element = elementRefs.current[flowNode.name];
-						if (element) {
-							element.style.opacity = "1"//;"0.5";
-						} 
-					}
-				});
-			}
-		}
-		let resultXY = group && group.modifyShape(ModifyShapeEnum.GetXY,{});
-		const x = resultXY ? resultXY.x : 0;
-		const y = resultXY ? resultXY.y : 0;
-		let newPosition = position || {x:x, y:y};
-				
-		if (offsetPosition !== undefined) {
-
-			let mappedNode = flowStore.flowHashmap.get(node.name);
-			if (mappedNode) {
-				let flowNode = flowStore.flow[mappedNode.index];
-				if (flowNode) {
-
-					let committedPosition = positionContext.getCommittedPosition(flowNode.name);
-					if (committedPosition) {
-						newPosition = {
-							x: committedPosition.x + offsetPosition.x,
-							y: committedPosition.y + offsetPosition.y
-						}
-					} else {
-						newPosition = {
-							x: flowNode.x + offsetPosition.x,
-							y: flowNode.y + offsetPosition.y
-						}
-					}
-				}
-			}
-		}
-
-		newPosition.x = newPosition.x - (newPosition.x % gridSize.current);
-		newPosition.y = newPosition.y - (newPosition.y % gridSize.current);
-		if (newPosition && !linesOnly) {
-			if (stage && stage.current && offsetPosition === undefined) {
-				let stageInstance = (stage.current as any).getStage();
-				if (stageInstance) {
-					// TODO : .. provide event or currentPosition as parameter
-					let touchPos = getCurrentPosition(event);
-					if (touchPos) {
-						const scaleFactor = (stageInstance as any).scaleX();
-
-						if (!!isEndNode) {
-							newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseEndX.current;
-							newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseEndY.current;
-						} else {
-							newPosition.x = ((touchPos.x - (stageInstance).x()) / scaleFactor) - mouseStartX.current;
-							newPosition.y = ((touchPos.y - (stageInstance).y()) / scaleFactor) - mouseStartY.current;
-						}
-						newPosition.x = newPosition.x - (newPosition.x % gridSize.current);
-						newPosition.y = newPosition.y - (newPosition.y % gridSize.current);
-				
-					}
-				}
-			}			
-
-			if (shapeRefs.current[node.name]) {
-				
-				const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-				const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);	
-
-				let currentGroup = (shapeRefs.current[node.name] as any);
-				if (currentGroup && shapeType !== "Line") {
-					currentGroup.modifyShape(ModifyShapeEnum.SetXY, newPosition);					
-					currentGroup.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-				}
-
-				let diamondThumb = 0;
-				if (shapeType === "Diamond") {
-					if (!settings.altThumbPositions) {
-						diamondThumb = 1;
-					} else
-					if (settings.altThumbPositions === 1) {
-						diamondThumb = 2;
-					}
-				}
-
-				let currentGroupThumbs = shapeRefs.current["thumb_" + node.name] as any;
-				if (currentGroupThumbs) {
-					let thumbPosition;
-					if (diamondThumb === 2) {
-						thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition,0 , ThumbPositionRelativeToNode.top);
-					} else {
-						thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition);
-					}
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-				}
-
-				currentGroupThumbs = shapeRefs.current["thumbtop_" + node.name] as any;
-				if (currentGroupThumbs) {
-					const thumbPosition = FlowToCanvas.getThumbEndPosition(shapeType, newPosition, 0 , ThumbPositionRelativeToNode.top);
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});						
-				}
-
-				currentGroupThumbs = (shapeRefs.current["thumbstart_" + node.name] as any);
-				if (currentGroupThumbs) {
-					
-					const thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0);
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-
-				}
-				currentGroupThumbs = (shapeRefs.current["thumbstarttop_" + node.name] as any);
-				if (currentGroupThumbs) {
-					let thumbPosition;
-					if (diamondThumb === 2) {
-						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.left);
-					} else {
-						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.top);
-					}
-
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-
-				}
-				currentGroupThumbs = (shapeRefs.current["thumbstartbottom_" + node.name] as any);
-				if (currentGroupThumbs) {
-
-					let thumbPosition;
-					if (diamondThumb === 2) {
-						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.right);
-					} else {
-						thumbPosition = FlowToCanvas.getThumbStartPosition(shapeType, newPosition, 0, ThumbPositionRelativeToNode.bottom);
-					}
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetXY, thumbPosition);					
-					currentGroupThumbs.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});					
-
-				}
-
-				
-				// TODO : set some state here?? which state ?
-				/*currentGroup.children.map((childNode) => {
-					const childType = childNode.getClassName();
-					if (childType == "Rect" || childType == "Circle" || childType == "Ellipse" || childType=="RegularPolygon") {
-						childNode.fill(settings.fillSelectedColor);
-					}
-				});
-				*/
-				//const element = document.getElementById(node.name);
-				const element = elementRefs.current[node.name];
-				if (element) {
-					element.style.opacity = "1";
-				} 							
-			} 
-		}
-		
-		if (node.shapeType !== "Line") {
-			positionContext.setPosition(node.name, {...newPosition});
-		}
-
-		if (skipSetHtml === undefined || skipSetHtml === false) {
-			setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current, 
-				newPosition.x, newPosition.y, node);		
-		}				
-
-		/*
-			TODO : getLinesForStartNodeFromCanvasFlow does
-				a flow.filter to get the connections that have start = node
-
-				in useLayoutEffect just after initialising new flow
-
-				- loop through whole flow and create hashmap
-				- hashMap :
-					nodeName => nodeHelper
-						nodeHelper has:
-							index
-							start : array of indexes to connections
-							end : array of indexes connections
-				- if node == connection				
-					.. for start : add index to startNode in hashmap
-					   (if startNode doesn't exist, then create)
-					.. same for end
-
-			
-		*/
-		const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flowStore.flow, node, flowStore.flowHashmap);
-		let lines = {};
-		if (startLines) {			
-			startLines.map((lineNode) => {				
-				let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
-				const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
-				let endPos = {
-					x : positionLine.xend,
-					y : positionLine.yend
-				};
-
-				const newStartPosition =  FlowToCanvas.getStartPointForLine(node, newPosition, 
-					endNode, endPos,
-					lineNode, props.getNodeInstance,
-					lineNode.thumbPosition as ThumbPositionRelativeToNode);
-				/*
-					TODO : get node by lineNode.endshapeid
-					endNode = flowHashMap.current[lineNode.endshapeid]
-				*/
-				/*let endNodes = flow.flow.filter((node) => {
-					return node.name == lineNode.endshapeid;
-				})
-				let endNode = endNodes[0];
-				*/
-
-				
-				if (endNode) {					
-					const positionNode = positionContext.getPosition(endNode.name) || endNode;
-					const newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-							x: positionNode.x,
-							y: positionNode.y
-						}, 
-						node, newPosition,
-						props.getNodeInstance,
-						lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
-					);
-
-					const lineRef = shapeRefs.current[lineNode.name];
-					if (lineRef) {
-
-						let controlPoints = calculateLineControlPoints(
-							newStartPosition.x, newStartPosition.y, 
-							newEndPosition.x, newEndPosition.y,
-							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode
-						);				
-
-						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
-							controlPoints.controlPointx1, controlPoints.controlPointy1,
-							controlPoints.controlPointx2, controlPoints.controlPointy2,
-							newEndPosition.x, newEndPosition.y]});					
-						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
-					}
-					const endNodeRef = shapeRefs.current[lineNode.endshapeid] as any;
-					if (endNodeRef) {					
-						endNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
-					}
-
-					positionContext.setPosition(lineNode.name, {
-						xstart: newStartPosition.x, ystart: newStartPosition.y,
-						xend: newEndPosition.x, yend: newEndPosition.y
-					});
-
-				} else {
-					const lineRef = shapeRefs.current[lineNode.name];
-					if (lineRef) {
-
-						let controlPoints = calculateLineControlPoints(
-							newStartPosition.x, newStartPosition.y, 
-							endPos.x, endPos.y,
-							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode
-						);				
-
-						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
-							controlPoints.controlPointx1, controlPoints.controlPointy1,
-							controlPoints.controlPointx2, controlPoints.controlPointy2,
-							endPos.x, endPos.y]});					
-						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});	
-
-						positionContext.setPosition(lineNode.name, {
-							xstart: newStartPosition.x, ystart: newStartPosition.y,
-							xend: endPos.x, yend: endPos.y
-						});
-					}
-				}
-				lines[lineNode.name] = {x: newStartPosition.x, y: newStartPosition.y};
-			})
-		}
-
-		const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flowStore.flow, node, flowStore.flowHashmap);
-		if (endLines) {
-			
-			endLines.map((lineNode) => {
-
-				let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];	
-				let positionNode : any = undefined;
-				if (startNode) {
-					positionNode = positionContext.getPosition(startNode.name) || startNode;
-				}
-
-				const newEndPosition =  FlowToCanvas.getEndPointForLine(node, newPosition, 
-					startNode, positionNode,
-					props.getNodeInstance,
-					lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
-				);
-
-				const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
-				let startPos = {
-					x : positionLine.xstart,
-					y : positionLine.ystart
-				};
-				
-				if (startNode) {
-					//const positionNode = positionContext.getPosition(startNode.name) || startNode;
-					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
-							x: positionNode.x,
-							y: positionNode.y
-						}, 
-						node, newPosition,
-						lineNode, props.getNodeInstance,
-						lineNode.thumbPosition as ThumbPositionRelativeToNode);
-
-					if (lines[lineNode.name]) {
-						newStartPosition = lines[lineNode.name];					
-					}
-
-					const lineRef = shapeRefs.current[lineNode.name] as any;
-					if (lineRef) {
-
-						let controlPoints = calculateLineControlPoints(
-							newStartPosition.x, newStartPosition.y, 
-							newEndPosition.x, newEndPosition.y,
-							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode);
-
-						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[newStartPosition.x, newStartPosition.y,
-							controlPoints.controlPointx1, controlPoints.controlPointy1,
-							controlPoints.controlPointx2, controlPoints.controlPointy2,
-							newEndPosition.x, newEndPosition.y]});					
-						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
-					}
-					
-					positionContext.setPosition(lineNode.name, {
-						xstart: newStartPosition.x, ystart: newStartPosition.y,
-						xend: newEndPosition.x, yend: newEndPosition.y
-					});
-
-					const startNodeRef = shapeRefs.current[lineNode.startshapeid] as any;
-					if (startNodeRef) {
-						startNodeRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
-					}					
-				} else {
-					const lineRef = shapeRefs.current[lineNode.name] as any;
-					if (lineRef) {
-
-						let controlPoints = calculateLineControlPoints(
-							startPos.x, startPos.y, 
-							newEndPosition.x, newEndPosition.y,
-							lineNode.thumbPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default,
-							lineNode);
-
-						lineRef.modifyShape(ModifyShapeEnum.SetPoints, {points:[startPos.x, startPos.y,
-							controlPoints.controlPointx1, controlPoints.controlPointy1,
-							controlPoints.controlPointx2, controlPoints.controlPointy2,
-							newEndPosition.x, newEndPosition.y]});					
-						//lineRef.modifyShape(ModifyShapeEnum.SetOpacity, {opacity:1});
-					}
-				}
-			})
-		}
-
-		if (node.shapeType === "Line") {
-			newPosition = positionContext.getPosition(node.name);
-			let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
-			let newEndPosition : any = {
-				x: 0,
-				y: 0
-			};
-			if (node.endshapeid) {
-				if (endNode) {
-					let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];
-					const positionStartNode = positionContext.getPosition(startNode.name) || startNode;
-
-					const positionNode = positionContext.getPosition(endNode.name) || endNode;
-					newEndPosition =  FlowToCanvas.getEndPointForLine(endNode, {
-							x: positionNode.x,
-							y: positionNode.y
-						},
-						startNode, positionStartNode,
-						props.getNodeInstance,
-						node.thumbEndPosition as ThumbPositionRelativeToNode || ThumbPositionRelativeToNode.default
-					);
-					newPosition.xend = newEndPosition.x;
-					newPosition.yend = newEndPosition.y;	
-				}
-			}
-			
-			if (node.startshapeid) {
-				let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];	
-				if (startNode) {
-					
-					const positionNode = positionContext.getPosition(startNode.name) || startNode;
-					let newStartPosition =  FlowToCanvas.getStartPointForLine(startNode, {
-							x: positionNode.x,
-							y: positionNode.y
-						}, 
-						endNode, newEndPosition,
-						node, props.getNodeInstance,
-						node.thumbPosition as ThumbPositionRelativeToNode);
-					newPosition.xstart = newStartPosition.x;
-					newPosition.ystart = newStartPosition.y;			
-				}
-			}
-
-			positionContext.setPosition(node.name, newPosition);
-		}
-		
-		if (!!doDraw) {
-			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
-				if (stage && stage.current) {
-					let stageInstance = (stage.current as any).getStage();
-					stageInstance.batchDraw();
-				}
-				updateTouchedNodes();
-			}
-		}
-
-		if (!!isCommitingToStore) {
-			// possible "performance"-dropper
-			positionContext.setCommittedPosition(node.name, {...newPosition});			
-
-			if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
-				//selectNode(node.name, node);
-
-				// TODO : do this only after last node directly from stagemouseend
-				//  when draggingMultipleNodes.current.length >0
-				//canvasMode.setConnectiongNodeCanvasMode(false);
-
-				if (props.flowrunnerConnector.hasStorageProvider) {
-					props.saveFlow();
-				}
-			}
-		}
-	};
 
 	const onCloneNode = (node, event) => {
 		event.preventDefault();
@@ -3462,31 +3119,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 				stageInstance.stopDrag();
 			}
 		}
-	}
-
-	const getCurrentPosition = (event: any) => {
-		let x = 0;
-		let y = 0;
-		if (!event || event.evt) {
-			const stageInstance = (stage.current as any).getStage();
-			if (stageInstance) {
-				x = stageInstance.getPointerPosition().x;
-				y = stageInstance.getPointerPosition().y;
-			}
-		} else {
-			if (event.touches && event.touches.length > 0) {
-				x = event.touches[0].screenX - canvasTopLeftPositionRef.current.x;
-				y = event.touches[0].screenY - canvasTopLeftPositionRef.current.y;
-			} else {
-				x = event.clientX - canvasTopLeftPositionRef.current.x;
-				y = event.clientY - canvasTopLeftPositionRef.current.y;
-			}
-		}
-		return {
-			x: x,
-			y: y
-		}
-	}
+	}	
 
 	const onTouchStart = (node, event) => {
 
@@ -4109,58 +3742,6 @@ console.log("getNewConnection in clickShape")
 		}
 	};
 
-	const setHtmlElementsPositionAndScale = (stageX, stageY, stageScale, newX? : number, newY?: number, node? : any, repositionSingleNode? : boolean) => {				
-
-		flowStore.flow.map((flowNode) => {	
-			if (flowNode.shapeType !== "Line") {
-				const element = elementRefs.current[flowNode.name];
-				if (element) {
-					let x = parseFloat(element.getAttribute("data-x") || "");
-					let y = parseFloat(element.getAttribute("data-y") || "");
-
-					const clientElementHeight = element.clientHeight;
-
-					if (node && element.getAttribute("data-node") == node.name) {
-						if (newX && !isNaN(newX)) {
-							x = newX;
-						}
-						if (newY && !isNaN(newY)) {
-							y = newY;
-						}				
-
-						element.setAttribute("data-x", x.toString()); 
-						element.setAttribute("data-y", y.toString());
-					}
-
-					const nodeName = element.getAttribute("data-node") || "";
-					setHtmlElementStyle(element, 0, 0, 1, x, y);	
-					//setHtmlElementStyle(element, stageX, stageY, stageScale, x, y);	
-				}	
-			}		
-		});
-
-		// see also recalculateStartEndpoints
-		setHtmlGlobalScale(stageX, stageY, stageScale);
-	};
-
-	//htmlWrapper
-	const setHtmlGlobalScale = (stageX, stageY, stageScale) => {
-		if (htmlWrapper && htmlWrapper.current) {
-			(htmlWrapper.current as any).style.transform = 						
-			"translate(" + (stageX ) + "px," + (stageY) + "px) "+
-			"scale(" + (stageScale) + "," + (stageScale) + ") "
-			;
-		}
-	};
-
-	const setHtmlElementStyle = (element, stageX, stageY, stageScale, x, y) => {
-		(element as any).style.transform = 						
-			"translate(" + (stageX  + x*stageScale) + "px," + 
-				(stageY  + y*stageScale) + "px) "+
-			"scale(" + (stageScale) + "," + (stageScale) + ") "
-			
-			;
-	}
 
 	const fitStage = (node? : any, doBatchdraw? : boolean, doSetHtmlElementsPositionAndScale? : boolean, doAnimate? : boolean, animateToNode? : string) => {
 		console.log("FITSTAGE",doAnimate, animateToNode);
