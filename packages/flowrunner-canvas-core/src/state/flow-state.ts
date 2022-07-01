@@ -1,9 +1,9 @@
 import create from 'zustand';
 import { State, SetState } from 'zustand';
-import { FlowToCanvas } from "../helpers/flow-to-canvas";
+import { FlowToCanvas } from '../helpers/flow-to-canvas';
 import produce from 'immer';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
-import { FlowStorageProviderService } from "../services/FlowStorageProviderService";
+import { FlowStorageProviderService } from '../services/FlowStorageProviderService';
 import { IPosition, IPositionContext } from '../contexts/position-context';
 
 export interface IFlowState extends State {
