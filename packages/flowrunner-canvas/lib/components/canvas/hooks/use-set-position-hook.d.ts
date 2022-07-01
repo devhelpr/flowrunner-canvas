@@ -1,5 +1,0 @@
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
-import { IFlowState } from '../../../state/flow-state';
-export declare const useSetPositionHook: (useFlowStore: () => IFlowState, draggingMultipleNodes: any, elementRefs: any, shapeRefs: any, gridSize: any, stage: any, mouseStartX: any, mouseStartY: any, mouseEndX: any, mouseEndY: any, stageX: any, stageY: any, stageScale: any, flowrunnerConnector: IFlowrunnerConnector, getCurrentPosition: (event: any) => any, setHtmlElementsPositionAndScale: (p1: any, p2: any, p3: any, p4: any, p5: any, p6: any) => any, getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector | undefined, flow?: any, taskSettings?: any) => any, updateTouchedNodes: () => void, saveFlow: () => void) => {
-    setNewPositionForNode: (event: any, node: any, group: any, position?: any, isCommitingToStore?: boolean | undefined, linesOnly?: boolean | undefined, doDraw?: boolean | undefined, skipSetHtml?: boolean | undefined, isEndNode?: boolean | undefined, offsetPosition?: any) => void;
-};

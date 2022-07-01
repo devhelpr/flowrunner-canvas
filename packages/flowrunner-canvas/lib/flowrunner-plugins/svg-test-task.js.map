@@ -1,1 +1,0 @@
-{"version":3,"file":"svg-test-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/svg-test-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAEhD,MAAM,OAAO,WAAY,SAAQ,QAAQ;IAChC,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,OAAO,IAAI,CAAC,OAAO,CAAC;IACtB,CAAC;IAEM,OAAO;QACZ,OAAO,aAAa,CAAC;IACvB,CAAC;CACF"}

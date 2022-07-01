@@ -1,6 +1,0 @@
-import { jsx as _jsx } from "react/jsx-runtime";
-import { Lines } from './line-helper';
-export const LinesForShape = (props) => {
-    return _jsx(Lines, { node: props.node, getNodeInstance: props.getNodeInstance, canvasHasSelectedNode: props.canvasHasSelectedNode, selectedNode: props.selectedNode, isSelected: props.isSelected, shapeRefs: props.shapeRefs, onLineMouseOver: props.onLineMouseOver, onLineMouseOut: props.onLineMouseOut, onClickLine: props.onClickLine, touchedNodes: props.touchedNodes, useFlowStore: props.useFlowStore, onMouseStart: props.onMouseStart, onMouseMove: props.onMouseMove, onMouseEnd: props.onMouseEnd, onMouseConnectionStartOver: props.onMouseConnectionStartOver, onMouseConnectionStartOut: props.onMouseConnectionStartOut, onMouseConnectionStartStart: props.onMouseConnectionStartStart, onMouseConnectionStartMove: props.onMouseConnectionStartMove, onMouseConnectionStartEnd: props.onMouseConnectionStartEnd, onMouseConnectionEndOver: props.onMouseConnectionEndOver, onMouseConnectionEndOut: props.onMouseConnectionEndOut, onMouseConnectionEndStart: props.onMouseConnectionEndStart, onMouseConnectionEndMove: props.onMouseConnectionEndMove, onMouseConnectionEndEnd: props.onMouseConnectionEndEnd, onMouseConnectionEndLeave: props.onMouseConnectionEndLeave });
-};
-//# sourceMappingURL=lines-for-shape.js.map

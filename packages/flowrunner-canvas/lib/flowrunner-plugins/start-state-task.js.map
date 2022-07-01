@@ -1,1 +1,0 @@
-{"version":3,"file":"start-state-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/start-state-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAEhD,MAAM,OAAO,cAAe,SAAQ,QAAQ;IACnC,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,OAAO,KAAK,CAAC;IACf,CAAC;IAEM,OAAO;QACZ,OAAO,YAAY,CAAC;IACtB,CAAC;CACF"}

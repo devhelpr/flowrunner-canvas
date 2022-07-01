@@ -4,3 +4,5 @@ secrets.json
 /rust/pkg
 /rust/target
 /bundle
+/packages/**/bundle
+/packages/**/lib

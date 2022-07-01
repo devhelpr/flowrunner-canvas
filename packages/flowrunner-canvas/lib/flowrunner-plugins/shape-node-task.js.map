@@ -1,1 +1,0 @@
-{"version":3,"file":"shape-node-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/shape-node-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAEhD,MAAM,OAAO,aAAc,SAAQ,QAAQ;IAClC,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,OAAO,IAAI,CAAC,OAAO,CAAC;IACtB,CAAC;IAEM,OAAO;QACZ,OAAO,eAAe,CAAC;IACzB,CAAC;CACF"}
