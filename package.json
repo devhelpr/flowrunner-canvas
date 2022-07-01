@@ -9,8 +9,8 @@
   "scripts": {
     "build": "lerna run build --stream",
     "start": "lerna run start --stream",
-    "version": "lerna version --no-private",
-    "publish": "lerna publish --no-private"
+    "versionupdate": "lerna version --no-private",
+    "publishpackages": "lerna publish --no-private"
   },
   "name": "flowrunner-canvas-root",
   "version": "0.0.1"
