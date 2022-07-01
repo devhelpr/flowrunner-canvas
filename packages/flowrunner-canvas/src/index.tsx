@@ -150,7 +150,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		formNodesubject.current = new Subject<any>();
 					
 		renderHtmlNodeRef.current = renderHtmlNode;
-		renderHtmlNodeRef.current = getNodeInstance;
+		getNodeInstanceRef.current = getNodeInstance;
 	
 		const options : any = {
 		}
