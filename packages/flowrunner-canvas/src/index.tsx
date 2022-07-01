@@ -35,9 +35,6 @@ import {
 	FormNodeDatasourceProvider,
 	useFormNodeDatasourceContext,
 	createIndexedDBStorageProvider,
-	setDefaultFlow,
-	setDefaultFlowTitle,
-	setTasks,
 	PositionProvider,
 	setPluginRegistry,
 	renderHtmlNode,
@@ -124,8 +121,8 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 	const canvasToolbarsubject = useRef(undefined as any);
 	const formNodesubject = useRef(undefined as any);
 
-	const renderHtmlNode = useRef(undefined as any);
-	const getNodeInstance = useRef(undefined as any);
+	const renderHtmlNodeRef = useRef(undefined as any);
+	const getNodeInstanceRef = useRef(undefined as any);
 	const flowAgent = useRef(undefined as any);
 	const isUnmounting = useRef(false);
 
@@ -152,8 +149,8 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 		canvasToolbarsubject.current = new Subject<string>();
 		formNodesubject.current = new Subject<any>();
 					
-		renderHtmlNode.current = renderHtmlNode;
-		getNodeInstance.current = getNodeInstance;
+		renderHtmlNodeRef.current = renderHtmlNode;
+		renderHtmlNodeRef.current = getNodeInstance;
 	
 		const options : any = {
 		}
@@ -251,17 +248,17 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					loadFlow={flows.loadFlow}
 					saveFlow={flows.saveFlow}
 					onGetFlows={flows.onGetFlows}
-					getNodeInstance={getNodeInstance.current}
-					renderHtmlNode={renderHtmlNode.current}
+					getNodeInstance={getNodeInstanceRef.current}
+					renderHtmlNode={renderHtmlNodeRef.current}
 				></Toolbar>
 											
 				<CanvasComponent canvasToolbarsubject={canvasToolbarsubject.current}
 					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository !== undefined ? props.hasCustomNodesAndRepository : true}
 					showsStateMachineUpdates={props.showsStateMachineUpdates || false}
-					renderHtmlNode={renderHtmlNode.current}
+					renderHtmlNode={renderHtmlNodeRef.current}
 					isEditingInModal={false}
 					flowrunnerConnector={flowrunnerConnector.current}
-					getNodeInstance={getNodeInstance.current}
+					getNodeInstance={getNodeInstanceRef.current}
 					formNodesubject={formNodesubject.current}
 					flowHasNodes={flows.flow && flows.flow.length > 0}
 					flowId={flows.flowId}

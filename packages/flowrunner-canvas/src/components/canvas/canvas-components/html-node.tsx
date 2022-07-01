@@ -2,14 +2,18 @@ import * as React from 'react';
 import { useRef , useState, useEffect , useMemo, useCallback, useLayoutEffect} from 'react';
 import { Shapes } from '../shapes';
 
-import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
-import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
-import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
-import { IFlowState} from '@devhelpr/flowrunner-canvas-core';
+import {
+	FlowToCanvas,
+	IFlowrunnerConnector,
+	ShapeSettings,
+	IFlowState,
+	ThumbFollowFlow,
+	ThumbPositionRelativeToNode,
+	usePositionContext,
+	replaceValuesExpressions,
+	hasReplacebleValuesExistingInPayload
+} from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
-import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '@devhelpr/flowrunner-canvas-core';
-import { usePositionContext } from '@devhelpr/flowrunner-canvas-core';
-import { replaceValuesExpressions, hasReplacebleValuesExistingInPayload } from '@devhelpr/flowrunner-canvas-core';
 
 export interface IHtmlNodeProps {
 	hasTaskNameAsNodeTitle?: boolean;
