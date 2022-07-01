@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas",
-  "version": "0.42.7",
+  "version": "0.43.0",
   "description": "Flow based programming ('nodes + wires') and UI designer which can run standalone or export flows in json format for external use",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -31,9 +31,9 @@
   "dependencies": {
     "@devhelpr/expressionrunner": "^0.2.9",
     "@devhelpr/flowrunner": "^0.13.8",
+    "@devhelpr/flowrunner-canvas-core": "^0.43.0",
+    "@devhelpr/flowrunner-canvas-ui-view": "^0.43.0",
     "@devhelpr/layoutrunner": "^0.0.2",
-    "@devhelpr/flowrunner-canvas-core" : "^0.42.7",
-    "@devhelpr/flowrunner-canvas-ui-view" : "^0.42.7",
     "@dnd-kit/core": "^3.1.1",
     "@dnd-kit/modifiers": "^3.0.0",
     "@dnd-kit/sortable": "^4.0.0",
