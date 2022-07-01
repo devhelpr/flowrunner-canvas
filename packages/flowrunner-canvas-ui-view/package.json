@@ -13,8 +13,8 @@
 		"format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
 		"lint": "tslint -p tsconfig.json",
 		"prepare": "npm run build",
-		"version": "npm run format && git add -A src",
-		"postversion": "git push && git push --tags",
+		"_version": "npm run format && git add -A src",
+		"_postversion": "git push && git push --tags",
 		"buildplugins": "tsc src-plugins/index.tsx --jsx react"
 	},
 	"repository": "https://www.github.com/devhelpr/flowrunner-canvas",
