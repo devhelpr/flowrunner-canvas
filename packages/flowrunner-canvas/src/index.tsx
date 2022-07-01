@@ -69,7 +69,6 @@ let pluginRegistry : any = {};
 export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
 export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
 export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
-export { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, setTasks };
 
 export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
@@ -95,14 +94,6 @@ export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, Flo
 export const addRegisterFunction = (registerFunction : () => void) => {
 	flowRunnerCanvasPluginRegisterFunctions.push(registerFunction);
 }
-
-export type { INodeDependency };
-export type { IFlowAgent };
-export type { IStorageProvider };
-export { FlowConnector };
-
-export { setCustomConfig };
-export { useFlowStore };
 
 export interface IFlowrunnerCanvasProps {
 	hasShowDependenciesInMenu?: boolean;
