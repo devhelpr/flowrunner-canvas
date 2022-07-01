@@ -8133,7 +8133,7 @@ lead@^1.0.0:
   dependencies:
     flush-write-stream "^1.0.2"
 
-lerna@5.1.6:
+lerna@^5.1.6:
   version "5.1.6"
   resolved "https://registry.yarnpkg.com/lerna/-/lerna-5.1.6.tgz#07db65b5cc3683a237f655feb7671f2c2a27255b"
   integrity sha512-eiLj3IurbEas1rGtntW4Cf2/6y90Ot2oQaU2wv4uo2rHf6GRXUBEZ0nrE4yseDlNtsS/H7bqfrvlAYb3PWUG1A==
