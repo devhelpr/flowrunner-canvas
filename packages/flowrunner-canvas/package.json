@@ -1,6 +1,9 @@
 {
   "name": "@devhelpr/flowrunner-canvas",
   "version": "0.43.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Flow based programming ('nodes + wires') and UI designer which can run standalone or export flows in json format for external use",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -118,5 +121,6 @@
   "resolutions": {
     "@types/react": "^16.9.22",
     "@types/react-dom": "^16.9.5"
-  }
+  },
+  "gitHead": "ccb1095fb8894fea528261420f025ebb811ff762"
 }
