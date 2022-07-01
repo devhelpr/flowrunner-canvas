@@ -27,7 +27,7 @@ The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but y
 - clone this github repo
 - this is a monorepo, run from root of this repo:
 - yarn install
-- yarn start 
+- yarn start
 
 # Node versions
 
