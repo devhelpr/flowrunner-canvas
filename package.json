@@ -4,10 +4,13 @@
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "5.1.6"
+    "lerna": "^5.1.6"
   },
-  "scripts" : {
-	"build": "lerna build",
-	"start": "lerna start"
-  }
+  "scripts": {
+    "build": "lerna run build --stream",
+    "start": "lerna run start --stream",
+	"version" : "lerna version --no-private",
+	"publish" : "lerna publish --no-private"
+  },
+  "name": "flowrunner-canvas"
 }
