@@ -5,5 +5,10 @@
   "useNx": false,
   "version": "independent",
   "npmClient": "yarn",
-  "useWorkspaces": true
+  "useWorkspaces": true,
+  "command" : {
+    "publish": {
+      "npmClient": "npm"
+    }
+  }
 }
