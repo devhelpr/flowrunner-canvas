@@ -1,0 +1,1 @@
+{"version":3,"file":"test-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/test-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAEhD,MAAM,OAAO,QAAS,SAAQ,QAAQ;IAC7B,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,OAAO,IAAI,CAAC,OAAO,CAAC;IACtB,CAAC;IAEM,OAAO;QACZ,OAAO,UAAU,CAAC;IACpB,CAAC;CACF"}

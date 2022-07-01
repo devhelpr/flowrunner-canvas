@@ -1,0 +1,1 @@
+{"version":3,"file":"multi-form-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/multi-form-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAahD,MAAM,OAAO,aAAc,SAAQ,QAAQ;IAClC,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,IAAI,OAAO,GAAG,EAAE,GAAG,IAAI,CAAC,OAAO,EAAE,CAAC;QAClC,OAAO,OAAO,CAAC;IACjB,CAAC;IAEM,OAAO;QACZ,OAAO,eAAe,CAAC;IACzB,CAAC;CACF"}

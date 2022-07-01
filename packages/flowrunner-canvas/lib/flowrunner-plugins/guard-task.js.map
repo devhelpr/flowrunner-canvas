@@ -1,0 +1,1 @@
+{"version":3,"file":"guard-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/guard-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAEhD,MAAM,OAAO,SAAU,SAAQ,QAAQ;IAC9B,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,OAAO,KAAK,CAAC;IACf,CAAC;IAEM,OAAO;QACZ,OAAO,OAAO,CAAC;IACjB,CAAC;CACF"}

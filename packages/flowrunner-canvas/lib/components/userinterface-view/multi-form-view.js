@@ -1,0 +1,230 @@
+import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState, useRef, useEffect } from 'react';
+import * as uuid from 'uuid';
+import { Layout } from '@devhelpr/layoutrunner';
+import { renderLayoutType } from './components/layout-renderer';
+import { Flow } from '../flow';
+import fetch from 'cross-fetch';
+import { useFlowForMultiFormStore } from '../../state/flow-state';
+import { useLayoutForMultiFormStore } from '../../state/layout-state';
+import { useCanvasModeStateForMultiFormStore } from '../../state/canvas-mode-state';
+const uuidV4 = uuid.v4;
+export const MultiFormView = (props) => {
+    const [flowName, setFlowName] = useState("");
+    const [flowHash, setFlowHash] = useState({});
+    const [titleBarBackgroundcolor, setTitleBarBackgroundcolor] = useState("");
+    const [titleBarTitle, setTitleBarTitle] = useState("");
+    const [titleBarColor, setTitleBarColor] = useState("");
+    const [titleBarFont, setTitleBarFont] = useState("");
+    const [titleBarFontSize, setTitleBarFontSize] = useState("");
+    const [titleBarFontWeight, setTitleBarFontWeight] = useState("");
+    const [layoutTree, setLayoutTree] = useState({});
+    const [isFlowLoaded, setIsFlowLoaded] = useState(false);
+    const unmounted = useRef(false);
+    const layoutTreeAsString = useRef("");
+    const flow = useFlowForMultiFormStore();
+    const canvasMode = useCanvasModeStateForMultiFormStore();
+    const layout = useLayoutForMultiFormStore();
+    let nodesStateLocal = useRef({});
+    let touchedNodesLocal = useRef({});
+    const getLayoutNodeFromTree = (level, index, subIndex) => {
+        let treeHashKey = level + "." + index + "." + subIndex;
+        if (layoutTreeAsString.current && layoutTreeAsString.current[treeHashKey]) {
+            let tree = layoutTreeAsString.current[treeHashKey];
+            let layoutTreeNode = [];
+            tree.map((layoutBlock, treeIndex) => {
+                if (layoutBlock.title == "element") {
+                    layoutTreeNode.push({
+                        type: "element",
+                        title: layoutBlock.title,
+                        subtitle: layoutBlock.subtitle || ""
+                    });
+                }
+                else if (layoutBlock.title == "flowNode") {
+                    layoutTreeNode.push({
+                        type: "flowNode",
+                        title: layoutBlock.title,
+                        subtitle: layoutBlock.subtitle || "",
+                        name: layoutBlock.subtitle || ""
+                    });
+                }
+                else if (layoutBlock.title == "layout2columns") {
+                    layoutTreeNode.push({
+                        type: "layout2columns",
+                        title: layoutBlock.title,
+                        layout: [getLayoutNodeFromTree(level + 1, treeIndex, 0),
+                            getLayoutNodeFromTree(level + 1, treeIndex, 1),
+                        ]
+                    });
+                }
+                else {
+                    layoutTreeNode.push({
+                        type: "layout",
+                        title: layoutBlock.title,
+                        layout: getLayoutNodeFromTree(level + 1, treeIndex, 0)
+                    });
+                }
+            });
+            return layoutTreeNode;
+        }
+        return [];
+    };
+    const screenUICallback = (command) => {
+        if (command && command.action == "SendScreen" && command.payload) {
+            const payload = command.payload;
+            if (payload.titleBarBackgroundcolor) {
+                setTitleBarBackgroundcolor(payload.titleBarBackgroundcolor);
+            }
+            if (payload.titleBarColor) {
+                setTitleBarColor(payload.titleBarColor);
+            }
+            if (payload.titleBarFont) {
+                setTitleBarFont(payload.titleBarFont);
+            }
+            if (payload.titleBarFontSize) {
+                setTitleBarFontSize(payload.titleBarFontSize);
+            }
+            if (payload.titleBarFontWeight) {
+                setTitleBarFontWeight(payload.titleBarFontWeight);
+            }
+            if (payload.titleBarFontWeight) {
+                setTitleBarFontWeight(payload.titleBarFontWeight);
+            }
+            if (payload.titleBarTitle) {
+                setTitleBarTitle(payload.titleBarTitle);
+            }
+        }
+    };
+    useEffect(() => {
+        props.flowrunnerConnector.registerScreenUICallback(screenUICallback);
+        props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+        props.flowrunnerConnector.registerNodeStateObserver("canvas", nodeStateObserver);
+        const paths = location.pathname.split("/");
+        if (props.flowrunnerConnector.hasStorageProvider) {
+            loadFlow("flow");
+        }
+        else if (props.flowId !== undefined && props.flowId !== "") {
+            loadFlow(props.flowId);
+        }
+        else if (paths.length > 2) {
+            if (paths[1] == "ui") {
+                const flowId = paths[2];
+                if (flowId !== undefined) {
+                    loadFlow(flowId);
+                }
+                else {
+                    console.error("No flowId specified");
+                }
+            }
+        }
+        return () => {
+            unmounted.current = true;
+            props.flowrunnerConnector.unregisterNodeStateObserver("canvas");
+        };
+    }, []);
+    const setupFlow = (flowPackage, flowId) => {
+        setTimeout(() => {
+            if (flowPackage.flowType === "playground") {
+                props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+                canvasMode.setFlowrunnerPaused(false);
+                canvasMode.setFlowType(flowPackage.flowType || "playground");
+                flow.storeFlow(flowPackage.flow, flowId);
+                layout.storeLayout(JSON.stringify(flowPackage.layout));
+                let flowHash = {};
+                flowPackage.flow.map((node) => {
+                    flowHash[node.name] = node;
+                    return true;
+                });
+                setFlowName(flowPackage.name);
+                setFlowHash(flowHash);
+                setIsFlowLoaded(true);
+            }
+        }, 500);
+    };
+    const loadFlow = (flowId) => {
+        var _a;
+        if (props.flowrunnerConnector.hasStorageProvider) {
+            const flowPackage = (_a = props.flowrunnerConnector.storageProvider) === null || _a === void 0 ? void 0 : _a.getFlow(flowId);
+            setupFlow(flowPackage, flowId);
+            return;
+        }
+        fetch('/flowui?flow=' + flowId)
+            .then(res => {
+            if (res.status >= 400) {
+                throw new Error("Bad response from server");
+            }
+            return res.json();
+        })
+            .then(flowPackage => {
+            setupFlow(flowPackage, flowId);
+        })
+            .catch(err => {
+            console.error(err);
+        });
+    };
+    useEffect(() => {
+        layoutTreeAsString.current = JSON.parse(layout.layout) || {};
+        setLayoutTree(getLayoutNodeFromTree(1, 0, 0));
+        updateTouchedNodes();
+    }, [layout, flow]);
+    const updateTouchedNodes = () => {
+        if (touchedNodesLocal.current) {
+            Object.keys(touchedNodesLocal.current).map((touchNodeId) => {
+                const element = document.getElementById(touchNodeId);
+                if (element) {
+                    if (touchedNodesLocal.current[touchNodeId] === true) {
+                        element.classList.remove("untouched");
+                    }
+                    else {
+                        element.classList.add("untouched");
+                    }
+                }
+            });
+        }
+    };
+    const nodeStateObserver = (nodeName, nodeState, touchedNodes) => {
+        nodesStateLocal.current[nodeName] = nodeState;
+        touchedNodesLocal.current = touchedNodes;
+        updateTouchedNodes();
+    };
+    if (!isFlowLoaded) {
+        return _jsx(_Fragment, {});
+    }
+    let title = flowName || "UserInterface View";
+    if (titleBarTitle !== "") {
+        title = titleBarTitle;
+    }
+    let style = {};
+    let navContainerClassName = "mb-4";
+    let navbarClassName = "navbar navbar-expand-lg navbar-light";
+    let h1ClassName = "text-black";
+    if (titleBarBackgroundcolor) {
+        style.backgroundColor = titleBarBackgroundcolor;
+        navContainerClassName = "mb-4";
+        navbarClassName = "navbar navbar-expand-lg navbar-light";
+    }
+    if (titleBarColor) {
+        style.color = titleBarColor;
+        h1ClassName = "";
+    }
+    if (titleBarFont) {
+        style.fontFamily = titleBarFont;
+    }
+    if (titleBarFontSize) {
+        style.fontSize = titleBarFontSize;
+    }
+    if (titleBarFontWeight) {
+        style.fontWeight = titleBarFontWeight;
+    }
+    return _jsxs("div", { className: "pb-4 container__background", children: [_jsx("div", { style: style, className: navContainerClassName, children: _jsx("nav", { style: style, className: navbarClassName, children: _jsx("h1", { className: h1ClassName, children: title }) }) }), _jsx("div", { className: "container container__ui-view", children: _jsx(Layout, { nodeName: "ui", renderLayoutType: renderLayoutType, payload: {
+                        layout: layoutTree,
+                        context: {
+                            flowHash: flowHash,
+                            flow: flow.flow,
+                            getNodeInstance: props.getNodeInstance,
+                            flowrunnerConnector: props.flowrunnerConnector,
+                            renderHtmlNode: props.renderHtmlNode
+                        }
+                    } }) }), _jsx(Flow, { flow: flow.flow, flowId: flow.flowId, flowrunnerConnector: props.flowrunnerConnector })] });
+};
+//# sourceMappingURL=multi-form-view.js.map

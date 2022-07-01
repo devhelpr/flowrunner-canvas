@@ -1,0 +1,14 @@
+import { Subject } from 'rxjs';
+import { CustomNodeHtmlPluginInfo } from './components/html-plugins/custom-node';
+import { ShapeNodeHtmlPluginInfo } from './components/html-plugins/shape-node';
+import { ExecuteNodeHtmlPluginInfo } from './components/html-plugins/execute-node';
+import { DebugNodeHtmlPluginInfo, GridEditNodeHtmlPluginInfo } from './components/html-plugins/visualizers/info';
+import { SliderNodeHtmlPluginInfo } from './components/html-plugins/slider-node';
+import { InputNodeHtmlPluginInfo } from './components/html-plugins/input-node';
+import { FormNodeHtmlPluginInfo } from './components/html-plugins/form-node';
+import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
+import { DataGridNodeHtmlPluginInfo } from './components/html-plugins/data-grid-node';
+import { IFlowState } from './state/flow-state';
+export declare const setPluginRegistry: (pluginRegistry: any) => void;
+export declare const renderHtmlNode: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any> | undefined, flowId?: string | undefined, overideUseFlowStore?: (() => IFlowState) | undefined) => JSX.Element;
+export declare const getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector | undefined, flow?: any, taskSettings?: any) => FormNodeHtmlPluginInfo | CustomNodeHtmlPluginInfo | ShapeNodeHtmlPluginInfo | ExecuteNodeHtmlPluginInfo | DebugNodeHtmlPluginInfo | GridEditNodeHtmlPluginInfo | SliderNodeHtmlPluginInfo | InputNodeHtmlPluginInfo | DataGridNodeHtmlPluginInfo | undefined;

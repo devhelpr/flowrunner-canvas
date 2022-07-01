@@ -1,0 +1,1 @@
+{"version":3,"file":"on-start-flow-task.js","sourceRoot":"","sources":["../../src/flowrunner-plugins/on-start-flow-task.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,sBAAsB,CAAC;AAEhD,MAAM,OAAO,eAAgB,SAAQ,QAAQ;IACpC,OAAO,CAAC,IAAS,EAAE,QAAa;QACrC,OAAO,IAAI,CAAC;IACd,CAAC;IAEM,OAAO;QACZ,OAAO,aAAa,CAAC;IACvB,CAAC;IAEM,oBAAoB;QACzB,OAAO,IAAI,CAAC;IACd,CAAC;CACF"}
