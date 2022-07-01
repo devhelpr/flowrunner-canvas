@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useMemo, useRef } from 'react';
 import { Line } from './line';
-import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
-import { ErrorBoundary } from '../../../helpers/error';
-import { ThumbPositionRelativeToNode } from './shape-types';
-import { usePositionContext } from '../../contexts/position-context';
-import { IFlowState } from '../../../state/flow-state';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
+import { ErrorBoundary } from '@devhelpr/flowrunner-canvas-core';
+import { ThumbPositionRelativeToNode } from '@devhelpr/flowrunner-canvas-core';
+import { usePositionContext } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowState } from '@devhelpr/flowrunner-canvas-core';
 
 export interface ILineHelperProps {
 	endshapeid : string,

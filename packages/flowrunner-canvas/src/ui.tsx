@@ -4,16 +4,16 @@ import { useState, useEffect, useRef } from 'react';
 
 import { HumanFlowToMachineFlow } from '@devhelpr/flowrunner';
 
-import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
-import { IStorageProvider } from './interfaces/IStorageProvider';
+import { FlowConnector , EmptyFlowConnector} from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector, ApplicationMode } from '@devhelpr/flowrunner-canvas-core';
+import { IStorageProvider } from '@devhelpr/flowrunner-canvas-core';
 
-import { setCustomConfig } from './config';
-import { renderHtmlNode, getNodeInstance , setPluginRegistry } from './render-html-node';
-import { UserInterfaceView } from './components/userinterface-view';
-import { getFlowAgent } from './flow-agent';
+import { setCustomConfig } from '@devhelpr/flowrunner-canvas-core';
+import { renderHtmlNode, getNodeInstance , setPluginRegistry } from '@devhelpr/flowrunner-canvas-core';
+import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
+import { getFlowAgent } from '@devhelpr/flowrunner-canvas-core';
 
-import { FlowStorageProviderService} from './services/FlowStorageProviderService';
+import { FlowStorageProviderService} from '@devhelpr/flowrunner-canvas-core';
 
 export interface IUIViewProps {
 	flowId : string;

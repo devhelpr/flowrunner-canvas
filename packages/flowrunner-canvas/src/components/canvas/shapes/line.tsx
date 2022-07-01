@@ -2,16 +2,16 @@ import * as React from 'react';
 import { useState, useEffect , useRef, useImperativeHandle} from 'react';
 
 import * as Konva from 'react-konva';
-import { calculateLineControlPoints } from '../../../helpers/line-points'
+import { calculateLineControlPoints } from '@devhelpr/flowrunner-canvas-core'
 import { Thumbs }  from './thumbs';
 import { ThumbsStart }  from './thumbsstart';
-import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
 
 const KonvaLine = Konva.Arrow;
 
 import { Group, Text, Rect, Shape } from 'react-konva';
 
-import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbFollowFlow, ThumbPositionRelativeToNode } from './shape-types';
+import { LineTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbFollowFlow, ThumbPositionRelativeToNode } from '@devhelpr/flowrunner-canvas-core';
 
 function getBezierXY(t, sx, sy, cp1x, cp1y, cp2x, cp2y, ex, ey) {
 	// http://www.independent-software.com/determining-coordinates-on-a-html-canvas-bezier-curve.html

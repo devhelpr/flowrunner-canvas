@@ -7,9 +7,7 @@ const KonvaRect = Konva.Rect;
 const KonvaCircle = Konva.Circle;
 
 import { Group, Text } from 'react-konva';
-import { ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbPositionRelativeToNode} from './shape-types';
-import { ShapeMeasures } from '../../../helpers/shape-measures';
-import { ShapeSettings } from '../../../helpers/shape-settings';
+import { ShapeSettings, ShapeMeasures, ThumbTypeProps, ModifyShapeEnum, ShapeStateEnum , ThumbPositionRelativeToNode} from '@devhelpr/flowrunner-canvas-core';
 
 export const Thumbs = React.forwardRef((props: ThumbTypeProps, ref : any) => {
 

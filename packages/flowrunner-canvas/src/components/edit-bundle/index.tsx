@@ -3,19 +3,19 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Modal } from 'react-bootstrap';
 import { Subject } from 'rxjs';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { useBundleFlowStore, useFlowStore} from '../../state/flow-state';
-import { useBundleSelectedNodeStore, useSelectedNodeStore} from '../../state/selected-node-state';
-import { useBundleCanvasModeStateStore } from '../../state/canvas-mode-state';
-import { useFlows } from '../../use-flows';
-import { PositionProvider, usePositionContext } from '../contexts/position-context';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { useBundleFlowStore, useFlowStore} from '@devhelpr/flowrunner-canvas-core';
+import { useBundleSelectedNodeStore, useSelectedNodeStore} from '@devhelpr/flowrunner-canvas-core';
+import { useBundleCanvasModeStateStore } from '@devhelpr/flowrunner-canvas-core';
+import { useFlows } from '@devhelpr/flowrunner-canvas-core';
+import { PositionProvider, usePositionContext } from '@devhelpr/flowrunner-canvas-core';
 import { Canvas } from '../canvas';
 
 import * as uuid from 'uuid';
-import { FlowConnector } from '../../flow-connector';
-import { IModalSize } from '../../interfaces/IModalSize';
-const uuidV4 = uuid.v4;
+import { FlowConnector } from '@devhelpr/flowrunner-canvas-core';
+import { IModalSize } from '@devhelpr/flowrunner-canvas-core';
 
+const uuidV4 = uuid.v4;
 
 export interface EditBundleProps {
 

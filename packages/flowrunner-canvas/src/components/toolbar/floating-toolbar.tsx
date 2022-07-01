@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ICanvasModeState } from '../../state/canvas-mode-state';
+import { ICanvasModeState } from '@devhelpr/flowrunner-canvas-core';
 
 export interface IFloatingToolbarProps {
   useCanvasModeStateStore: () => ICanvasModeState;

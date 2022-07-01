@@ -3,54 +3,62 @@ import { useRef , useState, useEffect , useMemo, useLayoutEffect} from 'react';
 import { Stage, Layer , Rect, Group } from 'react-konva';
 import { Shapes } from './shapes';
 import { LinesForShape } from './shapes/lines-for-shape';
-import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { getTaskConfigForTask } from '../../config';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { ShapeSettings } from '../../helpers/shape-settings';
+import {
+	FlowToCanvas,
+	getTaskConfigForTask,
+	IFlowrunnerConnector,
+	ShapeSettings,
+	getNewNode,
+	getNewConnection,
+	ShapeMeasures,
+	Flow,
+	calculateLineControlPoints,
+	IFlowState,
+	ICanvasModeState,
+	useSelectedNodeStore,
+	INodeState,
+	useNodesTouchedStateStore,
+	ModifyShapeEnum,
+	ShapeStateEnum,
+	ThumbFollowFlow,
+	ThumbPositionRelativeToNode,
+	onFocus,
+	FlowState,
+	ErrorBoundary,
+	IModalSize,
+	INodeDependency,
+	PositionContext,
+	PositionProvider,
+	usePositionContext,
+	setMultiSelectInfo,
+	resetOnSetCanvasStateCallback,
+	setOnSetCanvasStateCallback
+
+} from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
 import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
 import { DragginTask} from '../../dragging-task';
-import { getNewNode, getNewConnection} from '../../helpers/flow-methods';
-import { ShapeMeasures } from '../../helpers/shape-measures';
-import { Flow } from '../flow';
-import { calculateLineControlPoints } from '../../helpers/line-points'
 import { EditNodeSettings } from '../edit-node-settings';
 import { EditNodePopup } from '../edit-node';
 import { HtmlNode} from './canvas-components/html-node';
 import { KonvaNode} from './canvas-components/konva-node';
 
-import { IFlowState} from '../../state/flow-state';
-import { ICanvasModeState} from '../../state/canvas-mode-state';
-import { useSelectedNodeStore, INodeState} from '../../state/selected-node-state';
-import { useNodesTouchedStateStore} from '../../state/nodes-touched';
-
-import { ModifyShapeEnum, ShapeStateEnum, ThumbFollowFlow, ThumbPositionRelativeToNode } from './shapes/shape-types';
-import { onFocus } from '../html-plugins/form-controls/helpers/focus';
-
 import * as uuid from 'uuid';
 
-import { FlowState } from '../../use-flows';
 import { Taskbar } from '../taskbar';
 
 import {
 	restrictToWindowEdges
 } from '@dnd-kit/modifiers';
 
-import { ErrorBoundary } from '../../helpers/error';
 
 import * as Konva from "konva"
 import { animateTo } from "./konva/Tween";
 import { InteractionState } from "./canvas-types/interaction-state"; 
-import { IModalSize } from '../../interfaces/IModalSize';
-import { INodeDependency } from '../../interfaces/INodeDependency';
 
-import { PositionContext, PositionProvider, usePositionContext } from '../contexts/position-context';
-
-import { setMultiSelectInfo } from '../../services/multi-select-service';
 import { AnnotationSection } from './annotations/annotation-section';
 import { AnnotationText } from './annotations/annotation-text';
 import { FloatingToolbar } from '../toolbar';
-import { resetOnSetCanvasStateCallback, setOnSetCanvasStateCallback } from '../../state-machine';
 import { useSetPositionHook } from './hooks/use-set-position-hook';
 
 const uuidV4 = uuid.v4;

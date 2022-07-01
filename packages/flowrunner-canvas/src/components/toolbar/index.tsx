@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useEffect, useState, useCallback, useRef } from 'react';
 
-import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { getNewNode } from '../../helpers/flow-methods';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
+import { getNewNode } from '@devhelpr/flowrunner-canvas-core';
 import { EditPopup } from '../edit-popup';
 //import { ShowSchemaPopup } from '../show-schema-popup';
 
 import fetch from 'cross-fetch';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
@@ -15,22 +15,22 @@ import { ModulesPopup } from '../modules-popup';
 
 import Navbar from 'react-bootstrap/Navbar';
 
-import { useFlowStore } from '../../state/flow-state';
-import { PopupEnum, useCanvasModeStateStore } from '../../state/canvas-mode-state';
-import { useSelectedNodeStore } from '../../state/selected-node-state';
-import { useLayoutStore } from '../../state/layout-state';
-import { useModulesStateStore } from '../../state/modules-menu-state';
-import { PositionProvider, usePositionContext } from '../contexts/position-context';
+import { useFlowStore } from '@devhelpr/flowrunner-canvas-core';
+import { PopupEnum, useCanvasModeStateStore } from '@devhelpr/flowrunner-canvas-core';
+import { useSelectedNodeStore } from '@devhelpr/flowrunner-canvas-core';
+import { useLayoutStore } from '@devhelpr/flowrunner-canvas-core';
+import { useModulesStateStore } from '@devhelpr/flowrunner-canvas-core';
+import { PositionProvider, usePositionContext } from '@devhelpr/flowrunner-canvas-core';
 
 import { NamePopup } from '../popups/name-popup';
 import * as uuid from 'uuid';
 
-import { FlowState } from '../../use-flows';
-import { ThumbPositionRelativeToNode } from '../canvas/shapes/shape-types';
+import { FlowState } from '@devhelpr/flowrunner-canvas-core';
+import { ThumbPositionRelativeToNode } from '@devhelpr/flowrunner-canvas-core';
 import { EditBundle } from '../edit-bundle';
-import { IModalSize } from '../../interfaces/IModalSize';
+import { IModalSize } from '@devhelpr/flowrunner-canvas-core';
 
-import { getMultiSelectInfo } from '../../services/multi-select-service';
+import { getMultiSelectInfo } from '@devhelpr/flowrunner-canvas-core';
 import { EditFlowName } from '../edit-flow-name';
 
 const uuidV4 = uuid.v4;

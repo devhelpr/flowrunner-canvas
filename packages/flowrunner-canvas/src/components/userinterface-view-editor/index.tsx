@@ -3,16 +3,16 @@ import { useState, useRef, useEffect } from 'react';
 
 import { LayoutWithDropArea } from './components/layout-with-droparea';
 
-import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { ShapeSettings } from '../../helpers/shape-settings';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { renderFlowNode } from '../userinterface-view/components/layout-renderer';
-import { Flow } from '../flow';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { renderFlowNode } from '@devhelpr/flowrunner-canvas-ui-view';
+import { Flow } from '@devhelpr/flowrunner-canvas-core';
 
-import { useFlowStore} from '../../state/flow-state';
-import { useLayoutStore} from '../../state/layout-state';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
+import { useFlowStore} from '@devhelpr/flowrunner-canvas-core';
+import { useLayoutStore} from '@devhelpr/flowrunner-canvas-core';
+import { useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';
 
 export interface UserInterfaceViewEditorProps {
 	flowrunnerConnector : IFlowrunnerConnector;

@@ -2,9 +2,9 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { useFlowStore} from '../../state/flow-state';
-import { useSelectedNodeStore} from '../../state/selected-node-state';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { useFlowStore} from '@devhelpr/flowrunner-canvas-core';
+import { useSelectedNodeStore} from '@devhelpr/flowrunner-canvas-core';
 
 export interface EditPopupProps {
 	flowrunnerConnector : IFlowrunnerConnector;

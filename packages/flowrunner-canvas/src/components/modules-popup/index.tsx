@@ -3,8 +3,9 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
 
-import { useModulesStateStore } from '../../state/modules-menu-state';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { useModulesStateStore } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+
 import { TestsModule } from '../modules/tests-module';
 import { CrudModule } from '../modules/crud-module';
 import { ObjectModule } from '../modules/object-module';

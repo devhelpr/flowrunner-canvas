@@ -453,12 +453,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-relative{
 	position: relative;
 }
-.tw-top-1\/2{
-	top: 50%;
-}
-.tw-left-1\/2{
-	left: 50%;
-}
 .tw-top-\[-7px\]{
 	top: -7px;
 }
@@ -477,6 +471,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-left-\[-2px\]{
 	left: -2px;
 }
+.tw-top-1\/2{
+	top: 50%;
+}
+.tw-left-1\/2{
+	left: 50%;
+}
 .tw-mt-4{
 	margin-top: 1rem;
 }
@@ -486,29 +486,14 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-mr-\[8px\]{
 	margin-right: 8px;
 }
-.tw-mt-2{
-	margin-top: 0.5rem;
-}
-.tw-mb-2{
-	margin-bottom: 0.5rem;
-}
-.tw-aspect-square{
-	aspect-ratio: 1 / 1;
-}
 .tw-h-full{
 	height: 100%;
 }
 .tw-h-auto{
 	height: auto;
 }
-.tw-h-\[250px\]{
-	height: 250px;
-}
 .tw-w-full{
 	width: 100%;
-}
-.tw-w-\[250px\]{
-	width: 250px;
 }
 .tw-max-w-full{
 	max-width: 100%;
@@ -536,20 +521,8 @@ Ensure the default browser behavior of the `hidden` attribute.
 	--tw-bg-opacity: 1;
 	background-color: rgb(192 132 252 / var(--tw-bg-opacity));
 }
-.tw-object-cover{
-	-o-object-fit: cover;
-	   object-fit: cover;
-}
-.tw-text-7xl{
-	font-size: 4.5rem;
-	line-height: 1;
-}
 .tw-text-\[7px\]{
 	font-size: 7px;
-}
-.tw-text-white{
-	--tw-text-opacity: 1;
-	color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 .tw-text-blue-500{
 	--tw-text-opacity: 1;
@@ -559,8 +532,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 	--tw-text-opacity: 1;
 	color: rgb(0 0 0 / var(--tw-text-opacity));
 }
-.tw-opacity-20{
-	opacity: 0.2;
+.tw-text-white{
+	--tw-text-opacity: 1;
+	color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 * {
 	-webkit-box-sizing: border-box;

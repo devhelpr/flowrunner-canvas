@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { FormNodeHtmlPlugin } from '../html-plugins/form-node';
-import { IFlowState, useFlowStore} from '../../state/flow-state';
-import { INodeState, useSelectedNodeStore} from '../../state/selected-node-state';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { FormNodeHtmlPlugin } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowState, useFlowStore} from '@devhelpr/flowrunner-canvas-core';
+import { INodeState, useSelectedNodeStore} from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
-import { IModalSize } from '../../interfaces/IModalSize';
+import { IModalSize } from '@devhelpr/flowrunner-canvas-core';
 
 export interface EditNodeProps {
 	node : any;

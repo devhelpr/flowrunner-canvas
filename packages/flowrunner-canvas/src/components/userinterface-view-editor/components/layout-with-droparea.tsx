@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { renderFlowNode } from '../../userinterface-view/components/layout-renderer';
+import { renderFlowNode } from '@devhelpr/flowrunner-canvas-ui-view';
 
 export interface LayoutWithDropAreaProps {
 	//onStoreLayout : (layoutName, layoutIndex, layoutIndexLevel, layout : any[]) => void;

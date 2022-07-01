@@ -2,15 +2,15 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { Shapes } from '../shapes';
 
-import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
-import { ShapeSettings } from '../../../helpers/shape-settings';
-import { IFlowState } from '../../../state/flow-state';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowState } from '@devhelpr/flowrunner-canvas-core';
 import { Thumbs }  from '../shapes/thumbs';
 import { ThumbsStart }  from '../shapes/thumbsstart';
-import { useNodesTouchedStateStore} from '../../../state/nodes-touched';
-import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '../shapes/shape-types';
-import { usePositionContext } from '../../contexts/position-context';
+import { useNodesTouchedStateStore} from '@devhelpr/flowrunner-canvas-core';
+import { ThumbFollowFlow, ThumbPositionRelativeToNode } from '@devhelpr/flowrunner-canvas-core';
+import { usePositionContext } from '@devhelpr/flowrunner-canvas-core';
 
 export interface IKonvaNodeProps {
 	hasTaskNameAsNodeTitle?: boolean;

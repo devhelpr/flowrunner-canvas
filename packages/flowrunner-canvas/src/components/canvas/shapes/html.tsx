@@ -3,9 +3,9 @@ import { useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useImperativeHandle , useRef} from 'react';
 
 import { Group, Rect as KonvaRect } from 'react-konva';
-import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
-import { ShapeMeasures } from '../../../helpers/shape-measures';
-import { ShapeSettings } from '../../../helpers/shape-settings';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeMeasures } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 import { Lines } from './line-helper';
 
 export const Html = React.forwardRef((props: ShapeTypeProps, ref: any) => {

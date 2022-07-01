@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Lines } from './line-helper';
 
-import { ShapeTypeProps } from './shape-types';
+import { ShapeTypeProps } from '@devhelpr/flowrunner-canvas-core';
 
 export const LinesForShape = (props: ShapeTypeProps) => {
 	return <Lines

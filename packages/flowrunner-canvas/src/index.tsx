@@ -12,39 +12,44 @@ import { Toolbar } from './components/toolbar';
 import { FooterToolbar } from './components/footer-toolbar';
 import { Login } from './components/login';
 import { DebugInfo } from './components/debug-info';
-import { FlowConnector , EmptyFlowConnector} from './flow-connector';
-import { IFlowrunnerConnector, ApplicationMode } from './interfaces/IFlowrunnerConnector';
-export type { IFlowrunnerConnector, IExecutionEvent } from './interfaces/IFlowrunnerConnector';
-export { ApplicationMode } from './interfaces/IFlowrunnerConnector';
-import { IStorageProvider } from './interfaces/IStorageProvider';
-
-import { setCustomConfig } from './config';
-import { getFlowAgent } from './flow-agent';
-import { FlowStorageProviderService} from './services/FlowStorageProviderService';
-
-import { 
+import {
+	FlowConnector,
+	EmptyFlowConnector,
+	IFlowrunnerConnector,
+	ApplicationMode,
+	IStorageProvider,
+	setCustomConfig,
+	getFlowAgent,
 	flowrunnerStorageProvider , 
 	configurableFlowrunnerStorageProvider, 
-	readOnlyFlowrunnerStorageProvider
-} from './flow-localstorage-provider';
+	readOnlyFlowrunnerStorageProvider,
+	useFlowStore,
+	useCanvasModeStateStore,
+	useSelectedNodeStore,
+	useFlows,
+	FlowState,
+	registerPlugins,
+	IFlowAgent,
+	IModalSize,
+	INodeDependency,
+	FormNodeDatasourceProvider,
+	useFormNodeDatasourceContext,
+	createIndexedDBStorageProvider,
+	setDefaultFlow,
+	setDefaultFlowTitle,
+	setTasks,
+	PositionProvider,
+	setPluginRegistry,
+	renderHtmlNode,
+	getNodeInstance,
+	ErrorBoundary,
+	FlowStorageProviderService
 
-import { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, setTasks } from './flow-indexeddb-provider'; 
+} from '@devhelpr/flowrunner-canvas-core';
 
-import { useFlowStore } from './state/flow-state';
-import { useCanvasModeStateStore } from './state/canvas-mode-state';
-import { useSelectedNodeStore } from './state/selected-node-state';
+import { UserInterfaceView } from "@devhelpr/flowrunner-canvas-ui-view";
 
-import { useFlows, FlowState } from './use-flows';
-import { registerPlugins } from './external-plugins';
-import { IFlowAgent } from './interfaces/IFlowAgent';
 
-import { ErrorBoundary } from './helpers/error';
-
-import { IModalSize } from './interfaces/IModalSize';
-import { INodeDependency } from './interfaces/INodeDependency';
-
-import { PositionProvider } from './components/contexts/position-context';
-import { FormNodeDatasourceProvider, useFormNodeDatasourceContext } from './components/contexts/form-node-datasource-context';
 
 let flowRunnerConnectorInstance : IFlowrunnerConnector;
 let flowRunnerCanvasPluginRegisterFunctions : any[] = [];
@@ -65,10 +70,6 @@ export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
 export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
 export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
 export { createIndexedDBStorageProvider, setDefaultFlow, setDefaultFlowTitle, setTasks };
-
-export { FormNodeDatasourceProvider , useFormNodeDatasourceContext };
-
-export * from "./state-machine";
 
 export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
@@ -159,21 +160,41 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 
 		canvasToolbarsubject.current = new Subject<string>();
 		formNodesubject.current = new Subject<any>();
-		import( './render-html-node').then((moduleRenderHtmlNode) => 
-		{
-			
-			const setPluginRegistry = moduleRenderHtmlNode.setPluginRegistry;
-			
-			renderHtmlNode.current = moduleRenderHtmlNode.renderHtmlNode;
-			getNodeInstance.current = moduleRenderHtmlNode.getNodeInstance;
+					
+		renderHtmlNode.current = renderHtmlNode;
+		getNodeInstance.current = getNodeInstance;
+	
+		const options : any = {
+		}
+
+		if (hasStorageProvider) {			
+			options.initialStoreState = storageProvider?.getFlowPackage();
+		}
+
+		flowAgent.current = getFlowAgent();
+		if (props.onMessageFromFlow) {
+			flowAgent.current.addEventListener("external", props.onMessageFromFlow);
+		}
+		flowAgent.current.postMessage("worker", {
+			command: 'init'
+		});
+
+		if (flowRunnerCanvasPluginRegisterFunctions) {
+			flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+				registerFunction();
+				return true;
+			});
+		}
+		flowrunnerConnector.current.setPluginRegistry({...pluginRegistry,...props.pluginRegistry});
 		
-			const options : any = {
+		setPluginRegistry({...pluginRegistry,...props.pluginRegistry});			
+
+		const onDestroyAndRecreateWorker = () => {
+			console.log("onDestroyAndRecreateWorker handling");
+			if (flowAgent) {
+				flowAgent.current.removeEventListener("external", props.onMessageFromFlow);
+				flowAgent.current.terminate();
 			}
-	
-			if (hasStorageProvider) {			
-				options.initialStoreState = storageProvider?.getFlowPackage();
-			}
-	
 			flowAgent.current = getFlowAgent();
 			if (props.onMessageFromFlow) {
 				flowAgent.current.addEventListener("external", props.onMessageFromFlow);
@@ -181,43 +202,19 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			flowAgent.current.postMessage("worker", {
 				command: 'init'
 			});
-	
-			if (flowRunnerCanvasPluginRegisterFunctions) {
-				flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
-					registerFunction();
-					return true;
-				});
-			}
-			flowrunnerConnector.current.setPluginRegistry({...pluginRegistry,...props.pluginRegistry});
-			
-			setPluginRegistry({...pluginRegistry,...props.pluginRegistry});			
-
-			const onDestroyAndRecreateWorker = () => {
-				console.log("onDestroyAndRecreateWorker handling");
-				if (flowAgent) {
-					flowAgent.current.removeEventListener("external", props.onMessageFromFlow);
-					flowAgent.current.terminate();
-				}
-				flowAgent.current = getFlowAgent();
-				if (props.onMessageFromFlow) {
-					flowAgent.current.addEventListener("external", props.onMessageFromFlow);
-				}
-				flowAgent.current.postMessage("worker", {
-					command: 'init'
-				});
-				if (flowrunnerConnector.current) {
-					flowrunnerConnector.current.registerWorker(flowAgent.current);
-				}
-			}
-
-			if (flowrunnerConnector.current) {	
+			if (flowrunnerConnector.current) {
 				flowrunnerConnector.current.registerWorker(flowAgent.current);
-				flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
-				flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
-				console.log("RENDER ORDER 1");
-				setRenderFlowCanvas(true);
-			}			
-		});
+			}
+		}
+
+		if (flowrunnerConnector.current) {	
+			flowrunnerConnector.current.registerWorker(flowAgent.current);
+			flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
+			flowrunnerConnector.current.setAppMode(ApplicationMode.Canvas);
+			console.log("RENDER ORDER 1");
+			setRenderFlowCanvas(true);
+		}			
+		
 
 		return () => {
 			isUnmounting.current = true;
@@ -390,297 +387,287 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 		return;
 	}
 
-	import( './render-html-node').then((module) => 
-	{ 
-		fetch('/get-config')
-		.then(res => {
-			if (res.status >= 400) {
-				throw new Error("Bad response from server");
-			}
-			return res.json();
-		})
-		.then(config => {			
-			console.log("config", config);
-			if (config) {
-				Object.keys(config).forEach((keyName) => {
-					setCustomConfig(keyName, config[keyName]);
-				});
-			}
-									
-			const setPluginRegistry = module.setPluginRegistry;
-			const renderHtmlNode = module.renderHtmlNode;
-			const getNodeInstance = module.getNodeInstance;
+	fetch('/get-config')
+	.then(res => {
+		if (res.status >= 400) {
+			throw new Error("Bad response from server");
+		}
+		return res.json();
+	})
+	.then(config => {			
+		console.log("config", config);
+		if (config) {
+			Object.keys(config).forEach((keyName) => {
+				setCustomConfig(keyName, config[keyName]);
+			});
+		}
+								
+		let hasStorageProvider = false;
 
-			let hasStorageProvider = false;
+		let storageProvider : IStorageProvider | undefined= undefined;
+		if (flowStorageProvider !== undefined) {
+			storageProvider = flowStorageProvider as IStorageProvider;
+			hasStorageProvider = true;
+			FlowStorageProviderService.setFlowStorageProvider(storageProvider);
+		}
 
-			let storageProvider : IStorageProvider | undefined= undefined;
-			if (flowStorageProvider !== undefined) {
-				storageProvider = flowStorageProvider as IStorageProvider;
-				hasStorageProvider = true;
-				FlowStorageProviderService.setFlowStorageProvider(storageProvider);
-			}
+		const options : any = {
+		}
 
-			const options : any = {
-			}
+		if (hasStorageProvider) {			
+			options.initialStoreState = storageProvider?.getFlowPackage();
+		}
 
-			if (hasStorageProvider) {			
-				options.initialStoreState = storageProvider?.getFlowPackage();
+		let worker = getFlowAgent();
+		worker.postMessage("worker", {
+			command: 'init'
+		});
+
+		setPluginRegistry(pluginRegistry);
+
+		const root = document.getElementById('flowstudio-root');
+
+		const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
+
+		let flowrunnerConnector : any = undefined;
+
+		const onDestroyAndRecreateWorker = () => {
+			console.log("onDestroyAndRecreateWorker handling");
+			if (worker) {
+				worker.terminate();
 			}
-	
-			let worker = getFlowAgent();
+			worker = getFlowAgent();
 			worker.postMessage("worker", {
 				command: 'init'
 			});
+			flowrunnerConnector.registerWorker(worker);
+		}
 
-			setPluginRegistry(pluginRegistry);
+		if (!!hasRunningFlowRunner) {
+			flowrunnerConnector = new FlowConnector();	
+			flowrunnerConnector.registerWorker(worker);
+			flowrunnerConnector.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
+		} else {
+			flowrunnerConnector = new EmptyFlowConnector();
+		}
+		flowRunnerConnectorInstance = flowrunnerConnector;
 
-			const root = document.getElementById('flowstudio-root');
+		flowrunnerConnector.hasStorageProvider = hasStorageProvider;
+		flowrunnerConnector.storageProvider = storageProvider;
 
-			const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
+		let applicationMode = ApplicationMode.Canvas;
+		if (hasStorageProvider) {
+			if (!!(storageProvider as any).isUI) {
+				applicationMode = ApplicationMode.UI;
+			}
+		}
 
-			let flowrunnerConnector : any = undefined;
+		const paths = location.pathname.split("/");
+		if (paths.length > 1) {
+			if (paths[1] == "ui") {
+				applicationMode = ApplicationMode.UI;
+			}
+		}
+		flowrunnerConnector.setAppMode(applicationMode);
+		
+		const hasLogin = root && root.getAttribute("data-has-login") === "true";
+		const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
 
-			const onDestroyAndRecreateWorker = () => {
-				console.log("onDestroyAndRecreateWorker handling");
-				if (worker) {
-					worker.terminate();
+		let canvasToolbarsubject = new Subject<string>();
+		let formNodesubject = new Subject<any>();
+
+		interface IAppProps {
+			isLoggedIn : boolean;
+		}
+
+		if (applicationMode === ApplicationMode.Canvas) {
+			//import('./components/canvas').then((module) => {
+				//const Canvas = module.Canvas;
+				const App = (props : IAppProps) => {
+					const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
+					const [editorMode, setEditorMode] = useState("canvas");					
+					const flows = useFlows(flowrunnerConnector, useFlowStore);
+
+					const onClose = () => {
+						setLoggedIn(true);
+						return true;
+					}
+
+					const onEditorMode = (editorMode) => {
+						flowrunnerConnector.flowView = editorMode;
+						setEditorMode(editorMode);
+					}
+					/*
+					{false && !!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
+									flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
+					*/
+					return <>
+						{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
+							<>
+								<Suspense fallback={<div>Loading...</div>}>
+									<ErrorBoundary>									
+										
+										{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
+											flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
+
+										<Toolbar canvasToolbarsubject={canvasToolbarsubject}
+											hasTaskNameAsNodeTitle={true}											
+											hasRunningFlowRunner={!!hasRunningFlowRunner}
+											flowrunnerConnector={flowrunnerConnector}
+											hasCustomNodesAndRepository={true}
+											hasJSONEditInMenu={true}
+											onEditorMode={onEditorMode}
+											flow={flows.flow}
+											flowId={flows.flowId}
+											flows={flows.flows}
+											flowType={flows.flowType}
+											flowState={flows.flowState}
+											getFlows={flows.getFlows}
+											loadFlow={flows.loadFlow}
+											saveFlow={flows.saveFlow}
+											onGetFlows={flows.onGetFlows}
+											getNodeInstance={getNodeInstance}
+											renderHtmlNode={renderHtmlNode}
+											></Toolbar>
+										{editorMode == "canvas" &&
+										<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
+											hasCustomNodesAndRepository={true}
+											showsStateMachineUpdates={true}
+											isEditingInModal={false} 
+											formNodesubject={formNodesubject} 
+											renderHtmlNode={renderHtmlNode}
+											flowrunnerConnector={flowrunnerConnector}
+											getNodeInstance={getNodeInstance}
+											flowHasNodes={flows.flow && flows.flow.length > 0}
+											flowId={flows.flowId}
+											flowType={flows.flowType}
+											flowState={flows.flowState}
+											saveFlow={flows.saveFlow}
+											hasTaskNameAsNodeTitle={true}
+											initialOpacity={0}
+											useFlowStore={useFlowStore}
+											useCanvasModeStateStore={useCanvasModeStateStore}
+											useSelectedNodeStore={useSelectedNodeStore}
+											externalId="AppCanvas"
+										></CanvasComponent>}
+										{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
+											<UserInterfaceViewEditor 
+											renderHtmlNode={renderHtmlNode}
+											flowrunnerConnector={flowrunnerConnector}
+											getNodeInstance={getNodeInstance} /></Suspense>}
+										<FooterToolbar></FooterToolbar>
+										
+									</ErrorBoundary>		
+								</Suspense>
+							</>
+						}
+					</>;
+				}				
+					
+				if (flowRunnerCanvasPluginRegisterFunctions) {
+					flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+						registerFunction();
+						return true;
+					});
 				}
-				worker = getFlowAgent();
-				worker.postMessage("worker", {
-					command: 'init'
-				});
-				flowrunnerConnector.registerWorker(worker);
-			}
+				flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
-			if (!!hasRunningFlowRunner) {
-				flowrunnerConnector = new FlowConnector();	
-				flowrunnerConnector.registerWorker(worker);
-				flowrunnerConnector.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
-			} else {
-				flowrunnerConnector = new EmptyFlowConnector();
-			}
-			flowRunnerConnectorInstance = flowrunnerConnector;
-
-			flowrunnerConnector.hasStorageProvider = hasStorageProvider;
-			flowrunnerConnector.storageProvider = storageProvider;
-
-			let applicationMode = ApplicationMode.Canvas;
-			if (hasStorageProvider) {
-				if (!!(storageProvider as any).isUI) {
-					applicationMode = ApplicationMode.UI;
-				}
-			}
-
-			const paths = location.pathname.split("/");
-			if (paths.length > 1) {
-				if (paths[1] == "ui") {
-					applicationMode = ApplicationMode.UI;
-				}
-			}
-			flowrunnerConnector.setAppMode(applicationMode);
-			
-			const hasLogin = root && root.getAttribute("data-has-login") === "true";
-			const hasUIControlsBar = root && root.getAttribute("data-has-uicontrols") === "true";
-
-			let canvasToolbarsubject = new Subject<string>();
-			let formNodesubject = new Subject<any>();
-
-			interface IAppProps {
-				isLoggedIn : boolean;
-			}
-
-			if (applicationMode === ApplicationMode.Canvas) {
-				//import('./components/canvas').then((module) => {
-					//const Canvas = module.Canvas;
-					const App = (props : IAppProps) => {
-						const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
-						const [editorMode, setEditorMode] = useState("canvas");					
-						const flows = useFlows(flowrunnerConnector, useFlowStore);
-
-						const onClose = () => {
-							setLoggedIn(true);
-							return true;
-						}
-
-						const onEditorMode = (editorMode) => {
-							flowrunnerConnector.flowView = editorMode;
-							setEditorMode(editorMode);
-						}
-						/*
-						{false && !!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
-										flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
-						*/
-						return <>
-							{hasLogin && !loggedIn ? <Login onClose={onClose}></Login> : 
-								<>
-									<Suspense fallback={<div>Loading...</div>}>
-										<ErrorBoundary>									
-											
-											{!!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() && <DebugInfo
-												flowrunnerConnector={flowrunnerConnector}></DebugInfo>}
-
-											<Toolbar canvasToolbarsubject={canvasToolbarsubject}
-												hasTaskNameAsNodeTitle={true}											
-												hasRunningFlowRunner={!!hasRunningFlowRunner}
-												flowrunnerConnector={flowrunnerConnector}
-												hasCustomNodesAndRepository={true}
-												hasJSONEditInMenu={true}
-												onEditorMode={onEditorMode}
-												flow={flows.flow}
-												flowId={flows.flowId}
-												flows={flows.flows}
-												flowType={flows.flowType}
-												flowState={flows.flowState}
-												getFlows={flows.getFlows}
-												loadFlow={flows.loadFlow}
-												saveFlow={flows.saveFlow}
-												onGetFlows={flows.onGetFlows}
-												getNodeInstance={getNodeInstance}
-												renderHtmlNode={renderHtmlNode}
-												></Toolbar>
-											{editorMode == "canvas" &&
-											<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
-												hasCustomNodesAndRepository={true}
-												showsStateMachineUpdates={true}
-												isEditingInModal={false} 
-												formNodesubject={formNodesubject} 
-												renderHtmlNode={renderHtmlNode}
-												flowrunnerConnector={flowrunnerConnector}
-												getNodeInstance={getNodeInstance}
-												flowHasNodes={flows.flow && flows.flow.length > 0}
-												flowId={flows.flowId}
-												flowType={flows.flowType}
-												flowState={flows.flowState}
-												saveFlow={flows.saveFlow}
-												hasTaskNameAsNodeTitle={true}
-												initialOpacity={0}
-												useFlowStore={useFlowStore}
-												useCanvasModeStateStore={useCanvasModeStateStore}
-												useSelectedNodeStore={useSelectedNodeStore}
-												externalId="AppCanvas"
-											></CanvasComponent>}
-											{editorMode == "uiview-editor" && <Suspense fallback={<div>Loading...</div>}>
-												<UserInterfaceViewEditor 
-												renderHtmlNode={renderHtmlNode}
-												flowrunnerConnector={flowrunnerConnector}
-												getNodeInstance={getNodeInstance} /></Suspense>}
-											<FooterToolbar></FooterToolbar>
-											
-										</ErrorBoundary>		
-									</Suspense>
-								</>
-							}
-						</>;
-					}				
-						
-					if (flowRunnerCanvasPluginRegisterFunctions) {
-						flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
-							registerFunction();
-							return true;
-						});
-					}
-					flowrunnerConnector.setPluginRegistry(pluginRegistry);
-
-					// isLoggedIn is set below and it forced to true when running using a storageProvider
-					// or it is not used if data-has-login="false" is set on the document root used by reactdom.render
-					const start = (isLoggednIn) => {
-						console.log("pluginRegistry", pluginRegistry);
-						// (ReactDOM as any).createRoot(
-						(ReactDOM as any).render(<PositionProvider>
-								<FormNodeDatasourceProvider>
-								<App isLoggedIn={isLoggednIn}></App>
-							</FormNodeDatasourceProvider>
-						</PositionProvider>, root);
-					}
-
-					if (hasStorageProvider) {
-						start(true);
-						return;
-					}
-
-					fetch('/api/verify-token', {
-						method: "GET",			
-						headers: {
-						"Content-Type": "application/json"
-						}
-					})
-					.then(res => {
-						if (res.status >= 400) {
-							return {
-								isLoggedIn : false
-							}
-						}
-						return {
-							isLoggedIn : true
-						}
-					})
-					.then(response => {
-						start((response as any).isLoggedIn);	
-					})
-					.catch(err => {
-						console.error(err);
-					});																	
-				//});
-			} else
-			if (applicationMode === ApplicationMode.UI) {
-				import('./components/userinterface-view').then((module) => {
-					const UserInterfaceView = module.UserInterfaceView;
-
-					flowrunnerConnector.flowView = "uiview";
-
-					const App = (props) => {
-						return <ErrorBoundary>
-								<UserInterfaceView 						
-								renderHtmlNode={renderHtmlNode}
-								flowrunnerConnector={flowrunnerConnector}
-								getNodeInstance={getNodeInstance}
-							></UserInterfaceView>
-						</ErrorBoundary>;
-					};
-						
-					if (flowRunnerCanvasPluginRegisterFunctions) {
-						flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
-							registerFunction();
-							return true;
-						});
-					}
-					flowrunnerConnector.setPluginRegistry(pluginRegistry);
-
+				// isLoggedIn is set below and it forced to true when running using a storageProvider
+				// or it is not used if data-has-login="false" is set on the document root used by reactdom.render
+				const start = (isLoggednIn) => {
 					console.log("pluginRegistry", pluginRegistry);
+					// (ReactDOM as any).createRoot(
 					(ReactDOM as any).render(<PositionProvider>
-						<FormNodeDatasourceProvider
-							><App></App>
+							<FormNodeDatasourceProvider>
+							<App isLoggedIn={isLoggednIn}></App>
 						</FormNodeDatasourceProvider>
-					</PositionProvider>, root);												
-				});
-			}
-			/*
-			function registerFlowRunnerCanvasPlugin(name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) {
-				pluginRegistry[FlowTaskPluginClassName] = {
-					VisualizationComponent: VisualizationComponent,
-					FlowTaskPlugin: FlowTaskPlugin,
-					FlowTaskPluginClassName: FlowTaskPluginClassName
+					</PositionProvider>, root);
 				}
-				console.log(pluginRegistry);
 
-				setCustomConfig(FlowTaskPluginClassName, {
-					shapeType: 'Html',
-					hasUI : true,
-					presetValues : {
-						htmlPlugin: FlowTaskPluginClassName
+				if (hasStorageProvider) {
+					start(true);
+					return;
+				}
+
+				fetch('/api/verify-token', {
+					method: "GET",			
+					headers: {
+					"Content-Type": "application/json"
 					}
 				})
-				flowrunnerConnector.setPluginRegistry(pluginRegistry);
-			}
-			(window as any).registerFlowRunnerCanvasPlugin = registerFlowRunnerCanvasPlugin;
-			*/
+				.then(res => {
+					if (res.status >= 400) {
+						return {
+							isLoggedIn : false
+						}
+					}
+					return {
+						isLoggedIn : true
+					}
+				})
+				.then(response => {
+					start((response as any).isLoggedIn);	
+				})
+				.catch(err => {
+					console.error(err);
+				});																	
+			//});
+		} else
+		if (applicationMode === ApplicationMode.UI) {
 
-		
-		})
-		.catch(err => {
-			console.error(err);
-		});
-	});
+			flowrunnerConnector.flowView = "uiview";
+
+			const App = (props) => {
+				return <ErrorBoundary>
+						<UserInterfaceView 						
+							renderHtmlNode={renderHtmlNode}
+							flowrunnerConnector={flowrunnerConnector}
+							getNodeInstance={getNodeInstance}
+					></UserInterfaceView>
+				</ErrorBoundary>;
+			};
+				
+			if (flowRunnerCanvasPluginRegisterFunctions) {
+				flowRunnerCanvasPluginRegisterFunctions.map((registerFunction) => {
+					registerFunction();
+					return true;
+				});
+			}
+			flowrunnerConnector.setPluginRegistry(pluginRegistry);
+
+			console.log("pluginRegistry", pluginRegistry);
+			(ReactDOM as any).render(<PositionProvider>
+				<FormNodeDatasourceProvider
+					><App></App>
+				</FormNodeDatasourceProvider>
+			</PositionProvider>, root);												
+		}
+		/*
+		function registerFlowRunnerCanvasPlugin(name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName) {
+			pluginRegistry[FlowTaskPluginClassName] = {
+				VisualizationComponent: VisualizationComponent,
+				FlowTaskPlugin: FlowTaskPlugin,
+				FlowTaskPluginClassName: FlowTaskPluginClassName
+			}
+			console.log(pluginRegistry);
+
+			setCustomConfig(FlowTaskPluginClassName, {
+				shapeType: 'Html',
+				hasUI : true,
+				presetValues : {
+					htmlPlugin: FlowTaskPluginClassName
+				}
+			})
+			flowrunnerConnector.setPluginRegistry(pluginRegistry);
+		}
+		(window as any).registerFlowRunnerCanvasPlugin = registerFlowRunnerCanvasPlugin;
+		*/
+
+	
+	})
+	.catch(err => {
+		console.error(err);
+	});	
 }
 
 if (!!(window as any).autoStartFlowrunnerEditor) {

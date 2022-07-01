@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { FlowToCanvas } from '../../../helpers/flow-to-canvas';
-import { calculateLineControlPoints } from '../../../helpers/line-points';
-import { ShapeSettings } from '../../../helpers/shape-settings';
-import { IFlowrunnerConnector } from '../../../interfaces/IFlowrunnerConnector';
-import { IFlowState } from '../../../state/flow-state';
-import { usePositionContext } from '../../contexts/position-context';
-import { ModifyShapeEnum, ThumbPositionRelativeToNode } from '../shapes/shape-types';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
+import { calculateLineControlPoints } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowState } from '@devhelpr/flowrunner-canvas-core';
+import { usePositionContext } from '@devhelpr/flowrunner-canvas-core';
+import { ModifyShapeEnum, ThumbPositionRelativeToNode } from '@devhelpr/flowrunner-canvas-core';
 
 export const useSetPositionHook = (
   useFlowStore: () => IFlowState,

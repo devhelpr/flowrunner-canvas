@@ -3,9 +3,9 @@ import { useState, useEffect, RefObject, useImperativeHandle , useRef, useMemo} 
 
 import useImage from 'use-image';
 import { Group, Text, Rect as KonvaRect, Image as KonvaImage, Line as KonvaLine } from 'react-konva';
-import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
-import { ShapeMeasures } from '../../../helpers/shape-measures';
-import { ShapeSettings } from '../../../helpers/shape-settings';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeMeasures } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 import { Lines } from './line-helper';
 
 const getStrokeColor = (backgroundColorString, settings) => {

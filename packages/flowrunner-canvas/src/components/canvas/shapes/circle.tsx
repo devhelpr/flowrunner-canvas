@@ -3,9 +3,9 @@ import { useImperativeHandle , useRef, useMemo} from 'react';
 
 import { Group, Text, Circle as KonvaCircle } from 'react-konva';
 
-import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
-import { ShapeMeasures } from '../../../helpers/shape-measures';
-import { ShapeSettings } from '../../../helpers/shape-settings';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeMeasures } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 import { Lines } from './line-helper';
 
 export const Circle = React.forwardRef((props : ShapeTypeProps, ref : any) => {

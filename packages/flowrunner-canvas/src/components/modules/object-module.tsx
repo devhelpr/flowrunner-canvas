@@ -3,10 +3,10 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import useFetch, { CachePolicies } from 'use-http'
 import { Button } from 'react-bootstrap';
 
-import { PopupEnum, useCanvasModeStateStore} from '../../state/canvas-mode-state';
-import { useModulesStateStore } from '../../state/modules-menu-state';
-import { useFlowStore } from '../../state/flow-state';
-import { FormNodeHtmlPlugin } from '../html-plugins/form-node';
+import { PopupEnum, useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';
+import { useModulesStateStore } from '@devhelpr/flowrunner-canvas-core';
+import { useFlowStore } from '@devhelpr/flowrunner-canvas-core';
+import { FormNodeHtmlPlugin } from '@devhelpr/flowrunner-canvas-core';
 
 import * as uuid from 'uuid';
 

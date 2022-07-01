@@ -5,9 +5,9 @@ import { Modal, Button } from 'react-bootstrap';
 
 import fetch from 'cross-fetch';
 
-import { useFlowStore} from '../../state/flow-state';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { useFlowStore} from '@devhelpr/flowrunner-canvas-core';
+import { useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 
 export interface NewFlowProps {
 	onClose : () => void;

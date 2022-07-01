@@ -2,10 +2,10 @@ import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Draggable } from './draggable';
 import fetch from 'cross-fetch';
-import { FlowToCanvas } from '../../helpers/flow-to-canvas';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
-import { useModulesStateStore } from '../../state/modules-menu-state';
+import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import { useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';
+import { useModulesStateStore } from '@devhelpr/flowrunner-canvas-core';
 import { DragginTask} from '../../dragging-task';
 
 

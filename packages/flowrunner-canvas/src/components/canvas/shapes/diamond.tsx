@@ -7,10 +7,10 @@ import { Group, Text, Shape as KonvaShape, RegularPolygon,
 	Circle as KonvaCircle,
 } from 'react-konva';
 
-import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from './shape-types';
-import { ShapeMeasures } from '../../../helpers/shape-measures';
-import { ShapeSettings } from '../../../helpers/shape-settings';
-import { replaceValuesExpressions, hasReplacebleValuesExistingInPayload } from '../../../helpers/replace-values';
+import { ShapeTypeProps, ModifyShapeEnum, ShapeStateEnum } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeMeasures } from '@devhelpr/flowrunner-canvas-core';
+import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
+import { replaceValuesExpressions, hasReplacebleValuesExistingInPayload } from '@devhelpr/flowrunner-canvas-core';
 import { Lines } from './line-helper';
 
 import useImage from 'use-image';

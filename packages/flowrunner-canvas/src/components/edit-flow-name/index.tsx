@@ -3,9 +3,9 @@ import { useState, useRef, useEffect } from 'react';
 
 import { Modal } from 'react-bootstrap';
 
-import { useFlowStore} from '../../state/flow-state';
-import { useCanvasModeStateStore} from '../../state/canvas-mode-state';
-import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+import { useFlowStore} from '@devhelpr/flowrunner-canvas-core';
+import { useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';
+import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 
 export interface EditFlowProps {
 	onClose : () => void;

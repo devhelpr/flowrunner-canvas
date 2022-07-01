@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useImperativeHandle , useRef } from 'react';
 
 import { Group, Text, Rect as KonvaRect, Image as KonvaImage, Line as KonvaLine } from 'react-konva';
-import { ModifyShapeEnum, ShapeStateEnum } from '../shapes/shape-types';
+import { ModifyShapeEnum, ShapeStateEnum } from '@devhelpr/flowrunner-canvas-core';
 
 
 
