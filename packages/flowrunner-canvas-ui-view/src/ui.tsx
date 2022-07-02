@@ -50,7 +50,7 @@ export const UIView = (props: IUIViewProps) => {
 		let pluginRegistry = {};
 		setPluginRegistry(pluginRegistry);
 
-		const root = document.getElementById('flowstudio-root');
+		const root = document.getElementById('xd');
 
 		const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
 
@@ -67,13 +67,13 @@ export const UIView = (props: IUIViewProps) => {
 			flowrunnerConnector.current.registerWorker(worker);		
 		}
 
-		if (!!hasRunningFlowRunner) {
+		//if (!!hasRunningFlowRunner) {
 			flowrunnerConnector.current = new FlowConnector();	
 			flowrunnerConnector.current.registerWorker(worker);
 			flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
-		} else {
-			flowrunnerConnector.current = new EmptyFlowConnector();
-		}
+		//} else {
+		//	flowrunnerConnector.current = new EmptyFlowConnector();
+		//}
 		flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
 		flowrunnerConnector.current.storageProvider = storageProvider;
 
