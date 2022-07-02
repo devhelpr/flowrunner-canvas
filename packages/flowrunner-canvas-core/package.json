@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas-core",
-  "version": "0.43.4",
+  "version": "0.43.5",
   "publishConfig": {
     "access": "public"
   },
@@ -47,11 +47,11 @@
     "react-transition-group": "4.4.1",
     "rxjs": "^6.6.3",
     "typesafe-actions": "^5.1.0",
+    "use-http": "^1.0.26",
+    "use-image": "^1.0.12",
     "uuid": "^8.3.2",
     "victor": "^1.1.0",
-    "zustand": "^3.7.1",
-    "use-http": "^1.0.26",
-    "use-image": "^1.0.12"
+    "zustand": "^3.7.1"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
