@@ -123,13 +123,15 @@ export const UIView = (props: IUIViewProps) => {
 		}
 	}, []);
 
-	return <UserInterfaceView 						
-		renderHtmlNode={renderHtmlNode}
-		flowrunnerConnector={flowrunnerConnector.current}
-		getNodeInstance={getNodeInstance}
-		flowId={props.flowId}
-		flowPackage={flowPackage}
-		showTitleBar={props.showTitleBar}
-	></UserInterfaceView>;
+	return <>
+		{flowPackage && <UserInterfaceView 						
+			renderHtmlNode={renderHtmlNode}
+			flowrunnerConnector={flowrunnerConnector.current}
+			getNodeInstance={getNodeInstance}
+			flowId={props.flowId}
+			flowPackage={flowPackage}
+			showTitleBar={props.showTitleBar}
+		></UserInterfaceView>}
+	</>;
 }
 
