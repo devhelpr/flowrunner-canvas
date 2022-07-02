@@ -6,3 +6,4 @@ secrets.json
 /bundle
 /packages/**/bundle
 /packages/**/lib
+/apps/**/build
