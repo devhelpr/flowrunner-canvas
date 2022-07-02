@@ -8,6 +8,7 @@
     "nx": "14.3.6"
   },
   "scripts": {
+    "css": "lerna run css --stream -- --verbose",
     "build": "lerna run build --stream",
     "start": "lerna run start --stream",
     "versionandpublishpackages": "lerna publish --no-private"

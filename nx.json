@@ -2,12 +2,35 @@
   "implicitDependencies": {
     "package.json": "*"
   },
+  "targets": {
+    "build": {
+      "outputs": [
+        "./lib"
+      ]
+    },
+    "css": {
+      "outputs": [
+        "./assets"
+      ]
+    }
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": []
+        "cacheableOperations": ["build","css"]
       }
+    }
+  },
+  "targetDefaults": {
+    "css": {
+      
+    },
+    "build": {
+      "dependsOn": ["^build","css"]
+    },
+    "start": {
+      "dependsOn": ["build"]
     }
   },
   "pluginsConfig": {
