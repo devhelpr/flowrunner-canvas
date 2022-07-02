@@ -69,6 +69,8 @@ export interface CanvasProps {
 	hasTaskNameAsNodeTitle?: boolean;
 	showsStateMachineUpdates: boolean;
 	hasCustomNodesAndRepository: boolean;
+	hasDefaultUITasks: boolean;
+
 	canvasToolbarsubject : Subject<string>;
 	formNodesubject: Subject<any>;
 	
@@ -5684,6 +5686,7 @@ console.log("getNewConnection in clickShape")
 				<Taskbar flowrunnerConnector={props.flowrunnerConnector} 
 					isDragging={activeId !== undefined}
 					hasCustomNodesAndRepository={props.hasCustomNodesAndRepository}
+					hasDefaultUITasks={props.hasDefaultUITasks}
 				></Taskbar>	
 				<DragOverlay className="taskbar__task-dragging"
 					zIndex={20000}

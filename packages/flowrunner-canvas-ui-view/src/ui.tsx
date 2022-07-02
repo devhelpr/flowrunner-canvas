@@ -11,7 +11,9 @@ import {
 	getNodeInstance,
 	setPluginRegistry,
 	getFlowAgent,
-	FlowStorageProviderService
+	FlowStorageProviderService,
+	getDefaultUITasks,
+	readOnlyFlowrunnerStorageProvider
 } from '@devhelpr/flowrunner-canvas-core';
 
 import {UserInterfaceView} from "./userinterface-view";
@@ -30,10 +32,8 @@ export const UIView = (props: IUIViewProps) => {
 		let hasStorageProvider = false;
 
 		let storageProvider : IStorageProvider | undefined= undefined;
-		if (FlowStorageProviderService.getIsFlowStorageProviderEnabled()) {
-			storageProvider = FlowStorageProviderService.getFlowStorageProvider();
-			hasStorageProvider = true;
-		}
+		storageProvider = readOnlyFlowrunnerStorageProvider(props.flowPackage, getDefaultUITasks);
+		hasStorageProvider = true;
 
 		const options : any = {
 		}

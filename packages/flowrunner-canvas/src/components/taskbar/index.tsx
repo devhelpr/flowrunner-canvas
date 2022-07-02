@@ -2,10 +2,13 @@ import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Draggable } from './draggable';
 import fetch from 'cross-fetch';
-import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
-import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
-import { useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';
-import { useModulesStateStore } from '@devhelpr/flowrunner-canvas-core';
+import { 
+	FlowToCanvas, 
+	getDefaultUITasks,
+	IFlowrunnerConnector,
+	useCanvasModeStateStore,
+	useModulesStateStore
+} from '@devhelpr/flowrunner-canvas-core';
 import { DragginTask} from '../../dragging-task';
 
 
@@ -13,6 +16,7 @@ export interface TaskbarProps {
 	flowrunnerConnector : IFlowrunnerConnector;
 	isDragging: boolean;
 	hasCustomNodesAndRepository: boolean;
+	hasDefaultUITasks : boolean;
 }
 
 export interface TaskbarState {
@@ -83,8 +87,14 @@ export const Taskbar = (props: TaskbarProps) => {
 			return res.json();
 		})
 		.then(metaDataInfo => {
+
+			let defaultTasks : any[] = [];
+			if (!!props.hasDefaultUITasks) {
+				defaultTasks = getDefaultUITasks();
+			}
 			setupTasks([
 				...metaDataInfo,
+				...defaultTasks,
 				...props.flowrunnerConnector.getTasksFromPluginRegistry(),
 				{
 					fullName: "Text annotation",

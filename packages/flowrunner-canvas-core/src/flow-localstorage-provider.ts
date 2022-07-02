@@ -333,55 +333,84 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
 
 const isReadOnly = true;
 
-export const readOnlyFlowrunnerStorageProvider: IStorageProvider = {
-  storeFlowPackage: storeFlowPackage,
-  getFlowPackage: () => {
-    if (isReadOnly) {
-      return JSON.parse(getDefaultFlow());
-    }
-    return getFlowPackage();
-  },
-  getFlows: () => {
-    if (isReadOnly) {
-      return getDefaultFlows();
-    }
-    return getFlows();
-  },
-  getFlow: flowId => {
-    if (isReadOnly) {
-      return JSON.parse(getDefaultFlow());
-    }
-    return getFlow(flowId);
-  },
-  saveFlow: (flowId, flow) => {
-    if (isReadOnly) {
-      return;
-    }
-    saveFlow(flowId, flow);
-  },
-  setSelectedFlow: flowId => {
-    if (isReadOnly) {
-      return;
-    }
-    setSelectedFlow(flowId);
-  },
-  getSelectedFlow: () => {
-    if (isReadOnly) {
-      return 'flow';
-    }
-    return getSelectedFlow();
-  },
-  getTasks: getTasks,
-  getApiProxyUrl: () => {
-    return '';
-  },
-  addFlow: (name, flow) => new Promise(resolve => resolve('UUID')),
-  isUI: false,
-  setDefaultFlow: setDefaultFlow,
-  setAdditionalTasks: setAdditionalTasks,
-  isReadOnly: isReadOnly,
-  canStoreMultipleFlows: false,
-  isAsync: false,
-  setFlowName: setFlowName,
-  getFlowName: getFlowName,
+export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks?: () => any[]) : IStorageProvider => {
+  return {
+  
+    storeFlowPackage: storeFlowPackage,
+    getFlowPackage: () => {
+      if (flowPackage) {
+        return flowPackage;
+      }
+
+      if (isReadOnly) {
+        return JSON.parse(getDefaultFlow());
+      }
+      return getFlowPackage();
+    },
+    getFlows: () => {
+      if (flowPackage) {
+        return [
+          {
+            fileName: 'flow.json',
+            name: flowPackage.name,
+            id: flowPackage.name,
+            flowType: flowPackage.flowType,
+          },
+        ]
+      }
+      if (isReadOnly) {
+        return getDefaultFlows();
+      }
+      return getFlows();
+    },
+    getFlow: flowId => {
+      if (flowPackage) {
+        return flowPackage.flow;
+      }
+      if (isReadOnly) {
+        return JSON.parse(getDefaultFlow());
+      }
+      return getFlow(flowId);
+    },
+    saveFlow: (flowId, flow) => {
+      if (flowPackage) {
+        return;
+      }
+      if (isReadOnly) {
+        return;
+      }
+      saveFlow(flowId, flow);
+    },
+    setSelectedFlow: flowId => {
+      if (flowPackage) {
+        return;
+      }
+      if (isReadOnly) {
+        return;
+      }
+      setSelectedFlow(flowId);
+    },
+    getSelectedFlow: () => {
+      if (flowPackage) {
+        return flowPackage.name;
+      }
+      if (isReadOnly) {
+        return 'flow';
+      }
+      return getSelectedFlow();
+    },
+    getTasks: getFlowTasks || getTasks,
+    getApiProxyUrl: () => {
+      return '';
+    },
+    addFlow: (name, flow) => new Promise(resolve => resolve('UUID')),
+    isUI: false,
+    setDefaultFlow: setDefaultFlow,
+    setAdditionalTasks: setAdditionalTasks,
+    isReadOnly: isReadOnly,
+    canStoreMultipleFlows: false,
+    isAsync: false,
+    setFlowName: setFlowName,
+    getFlowName: getFlowName,
+  }
 };

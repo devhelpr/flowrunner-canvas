@@ -63,10 +63,6 @@ const CanvasComponent = React.lazy(() => import('./components/canvas').then(({ C
 
 let pluginRegistry : any = {};
 
-export const flowrunnerLocalStorageProvider = flowrunnerStorageProvider;
-export const configurableFlowrunnerLocalStorageProvider = configurableFlowrunnerStorageProvider;
-export const readOnlyFlowrunnerLocalStorageProvider = readOnlyFlowrunnerStorageProvider;
-
 export const registerFlowRunnerCanvasPlugin = (name, VisualizationComponent, FlowTaskPlugin, FlowTaskPluginClassName, flowType? : string) => {
 	if (flowRunnerConnectorInstance) {
 		pluginRegistry[FlowTaskPluginClassName] = {
@@ -257,6 +253,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 					showsStateMachineUpdates={props.showsStateMachineUpdates || false}
 					renderHtmlNode={renderHtmlNodeRef.current}
 					isEditingInModal={false}
+					hasDefaultUITasks={false}
 					flowrunnerConnector={flowrunnerConnector.current}
 					getNodeInstance={getNodeInstanceRef.current}
 					formNodesubject={formNodesubject.current}
@@ -502,7 +499,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 											hasTaskNameAsNodeTitle={true}											
 											hasRunningFlowRunner={!!hasRunningFlowRunner}
 											flowrunnerConnector={flowrunnerConnector}
-											hasCustomNodesAndRepository={true}
+											hasCustomNodesAndRepository={true}										
 											hasJSONEditInMenu={true}
 											onEditorMode={onEditorMode}
 											flow={flows.flow}
@@ -520,6 +517,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 										{editorMode == "canvas" &&
 										<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}
 											hasCustomNodesAndRepository={true}
+											hasDefaultUITasks={true}
 											showsStateMachineUpdates={true}
 											isEditingInModal={false} 
 											formNodesubject={formNodesubject} 
