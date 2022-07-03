@@ -1,9 +1,14 @@
+const { createGlobPatternsForDependencies } = require("@nrwl/react/tailwind");
+const dependencies = [...createGlobPatternsForDependencies(__dirname)];
+
+console.log("tailwind dependencies" , dependencies);
+
 module.exports = {
-  mode:'jit',
   content: [
     "./views/**/*.ejs",
     "./src/**/*.{tsx,ts,js,jsx,json}",
-    "./data/modules/*.json"
+    "./data/modules/*.json",
+    ...dependencies
   ],
   theme: {
     extend: {},

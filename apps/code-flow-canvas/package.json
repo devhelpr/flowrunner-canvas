@@ -24,7 +24,8 @@
     "prepare": "npm run build",
     "_version": "npm run format && git add -A src",
     "_postversion": "git push && git push --tags",
-    "buildplugins": "tsc src-plugins/index.tsx --jsx react"
+    "buildplugins": "tsc src-plugins/index.tsx --jsx react",
+    "css": "postcss ./styles/*.pcss --dir ./assets --ext css"
   },
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
@@ -32,9 +33,9 @@
   "dependencies": {
     "@devhelpr/expressionrunner": "^0.2.9",
     "@devhelpr/flowrunner": "^0.13.8",
-    "@devhelpr/flowrunner-canvas": "^0.43.9",
-    "@devhelpr/flowrunner-canvas-core": "^0.43.6",
-    "@devhelpr/flowrunner-canvas-ui-view": "^0.43.7",
+    "@devhelpr/flowrunner-canvas": "latest",
+    "@devhelpr/flowrunner-canvas-core": "latest",
+    "@devhelpr/flowrunner-canvas-ui-view": "latest",
     "@devhelpr/layoutrunner": "^0.0.2",
     "@dnd-kit/core": "^3.1.1",
     "@dnd-kit/modifiers": "^3.0.0",
@@ -105,7 +106,7 @@
     "postcss-import": "^14.1.0",
     "postcss-nested": "^5.0.6",
     "prettier": "^1.19.1",
-    "tailwindcss": "^3.0.24",
+    "tailwindcss": "^3.1.4",
     "ts-jest": "^25.2.1",
     "ts-loader": "^9.2.8",
     "tslint": "^6.0.0",
@@ -114,7 +115,8 @@
     "vinyl-named": "^1.1.0",
     "webpack": "^5.40.0",
     "webpack-stream": "^6.1.1",
-    "worker-loader": "^3.0.6"
+    "worker-loader": "^3.0.6",
+    "@nrwl/react": "latest"
   },
   "resolutions": {
     "@types/react": "^16.9.22",

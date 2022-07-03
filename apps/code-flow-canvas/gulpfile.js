@@ -247,18 +247,19 @@ gulp.task('postcss', () => {
 
 gulp.task('build', function() { return buildTypescript() } );
 gulp.task('builddev', function() { return buildTypescript(true) } );
-gulp.task('default', gulp.series('build', 'postcss', 'startFlowServer', function () {
-  
+gulp.task('default', gulp.series('build',  'startFlowServer', function () {
+  // 'postcss' removed...
+
   console.log("WATCHING...");
   
   gulp.watch('./src/**/*.{ts,tsx}', gulp.series('build'));
-  gulp.watch(['./styles/*.pcss','./src/**/*.{ts,tsx}',"./data/modules/*.json"], gulp.series('postcss'));
+  //gulp.watch(['./styles/*.pcss','./src/**/*.{ts,tsx}',"./data/modules/*.json"], gulp.series('postcss'));
 }));
 
-gulp.task('esbuild', gulp.series('builddev', 'postcss', 'startFlowServer', function () {
-  
+gulp.task('esbuild', gulp.series('builddev',  'startFlowServer', function () {
+  // 'postcss',
   console.log("WATCHING...");
   
   gulp.watch('src/**/*.{ts,tsx}',function() { return buildTypescript(true) });
-  gulp.watch('styles/*.pcss', gulp.series('postcss'));
+  //gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));
