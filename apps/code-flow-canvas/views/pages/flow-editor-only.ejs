@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+	<link rel="preload" href="<%= assetsRootPath %>svg/game-board-light.svg" as="image">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+	<link rel="stylesheet" href="<%= assetsRootPath %>fira_code.css">
+	</link>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+	<link rel="stylesheet" href="<%= assetsRootPath %>bootstrap.min.css">
+	</link>
+	<link rel="stylesheet" href="<%= assetsRootPath %>react-draft-wysiwyg.css"></link>
+	<link rel="stylesheet" href="<%= assetsRootPath %>main.css">
+	</link>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css" integrity="sha384-OLYO0LymqQ+uHXELyx93kblK5YIS3B2ZfLGBmsJaUyor7CpMTBsahDHByqSuWW+q" crossorigin="anonymous">
+</head>
+
+<body>
+	<div id="flowstudio-root" class="flowstudio-root" data-has-login="false" 
+		data-has-running-flowrunner="true" data-has-uicontrols="true"></div>
+	<div id="loading">
+		<div class="text-center">
+			<p>Loading Flowrunner-Studio</p>	
+			<div class="spinner-border"></div>
+		</div>
+	</div>
+	<script>				
+		window.autoStartFlowrunnerEditorOnly = true;
+	</script>
+	
+	<script src="<%= assetsRootPath %>index.js"></script>
+</body>
+
+</html>

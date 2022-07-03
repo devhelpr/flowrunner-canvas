@@ -60,4 +60,4 @@ export * from "./html-plugins/form-node"
 export * from "./state-machine";
 export { onFocus } from "./html-plugins/form-controls/helpers/focus";
 
-export * from "./flow-tasks";
+export { getDefaultUITasks , registerTasks } from "./flow-tasks";

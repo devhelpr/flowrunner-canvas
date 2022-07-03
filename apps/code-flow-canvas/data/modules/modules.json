@@ -1,0 +1,250 @@
+[
+	{
+		"id" : "1234-4567",
+		"name": "Content",
+		"codeName" : "content",
+		"fileName" : "content.json",
+		"moduleType" : "crud-model",
+		"urlProperty" : "url",
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fields" : [
+			{
+				"fieldName": "url"
+			},
+			{
+				"fieldName" : "template",
+				"fieldType" : "select",
+				"options": [
+					{
+					  "label": "Content",
+					  "value": "content"
+					},
+					{
+						"label": "Landing",
+						"value": "landing"
+					}
+				]
+			},
+			{
+				"fieldName": "title"
+			},
+			{
+				"fieldName": "language",
+				"fieldType":"text"
+			},
+			{
+				"fieldName": "subtitle"
+			},
+			{
+				"fieldName": "intro",
+				"fieldType": "textarea"
+			},
+			{
+				"fieldName": "content",
+				"fieldType": "richtexteditor",
+				"label": "Content"
+			},
+			{
+				"fieldName": "windowtitle"
+			},
+			{
+				"fieldName": "metadescription",
+				"fieldType": "textarea"
+			},
+			{
+				"fieldName": "metakeywords",
+				"fieldType": "textarea"
+			},
+			{
+				"fieldName": "blocks",
+				"fieldType" : "hashmap",
+				"idtype" : "name-identifier",
+				"blockFields" : [				
+					{
+						"fieldName": "title"
+					},
+					{
+						"fieldName": "content",
+						"fieldType": "richtexteditor",
+						"label": "Content"
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "13f79819-8790-419b-8109-43c345b424b3",
+		"name": "Flows",
+		"codeName" : "flows",
+		"moduleType" : "crud-model",
+		"datasource" : "flows",
+		"crudOperations" : ["edit","delete"]
+	},
+	{
+		"id" : "829c55a6-caff-4130-b5e6-051460fd270b",
+		"name": "Media",
+		"codeName" : "media",
+		"fileName" : "media.json",
+		"moduleType" : "crud-model",		
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fileuploadField": "filename",
+		"fileuploadTYpe": "media",
+		"fields" : [			
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "alt"
+			},
+			{
+				"fieldName": "filename",
+				"fieldType": "fileupload",
+				"accept":"image/png, image/jpeg",
+				"api" : "/api/media"
+			}
+		]
+	},
+	{
+		"id" : "f42914f3-6529-4458-80b3-07c496e85297",
+		"name": "Data",
+		"codeName" : "data",
+		"fileName" : "data.json",
+		"moduleType" : "crud-model",		
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fileuploadField": "filename",
+		"fileuploadTYpe":"data",
+		"fields" : [			
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "alt"
+			},
+			{
+				"fieldName": "filename",
+				"fieldType": "fileupload",				
+				"accept":"application/json"
+			}
+		]
+	},
+	{
+		"id" : "72765406-8bcf-40ec-b0a6-79e757f14c57",
+		"name": "Repository",
+		"codeName" : "repository",
+		"fileName" : "repository.json",
+		"moduleType" : "crud-model",		
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fields" : [
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "title"
+			},
+			{
+				"fieldName": "flow",
+				"fieldType": "json"
+			}
+		]
+	},
+	{
+		"id" : "71402a90-8fb9-43cc-8ef9-43d4338332f8",
+		"name": "Menus",
+		"codeName" : "menu",
+		"fileName" : "menu.json",
+		"moduleType" : "object-model",	
+		"datasources" : [
+			"content"
+		],	
+		"fields" : [			
+			{
+				"fieldName": "menus",
+				"fieldType": "hashmap",
+				"idtype" : "name-identifier",
+				"blockFields" : [	
+					{
+						"fieldName": "title"
+					}, 
+					{
+						"fieldName": "codeName"
+					},
+					{
+						"fieldName": "language",
+						"fieldType":"text"
+					},
+					{
+						"fieldName":"options",
+						"fieldType":"objectList",
+						"idProperty":"id",
+						"metaInfo": [
+							{
+								"fieldName": "page",
+								"fieldType":"select",
+								"datasource":"module",
+								"datasourceId":"content"
+							}
+						]
+					}
+					
+				]
+			}
+		]
+	},
+	{
+		"id" : "eb680f3f-5971-4dbc-829c-c8015b70db1e",
+		"name": "customNodes",
+		"codeName" : "customNodes",
+		"fileName" : "custom-nodes.json",
+		"moduleType" : "crud-model",
+		"structure" : "list",
+		"primaryKey" : "id",
+		"fields" : [
+			{
+				"fieldName": "name"
+			},
+			{
+				"fieldName": "taskName"
+			},			
+			{
+				"fieldName": "objects",
+				"fieldType": "objectList",
+				"idProperty":"id",
+				"metaInfo": [					
+					{
+						"fieldName": "iconSpec"
+					},
+					{
+						"fieldName": "imageUrl"
+					},
+					{
+						"fieldName": "css",
+						"fieldType": "textarea"
+					},
+					{
+						"fieldName": "x"
+					},
+					{
+						"fieldName": "y"
+					},
+					{
+						"fieldName": "color"
+					},
+					{
+						"fieldName": "rotate"
+					},
+					{
+						"fieldName": "scale"
+					},
+					{
+						"fieldName": "visibilityCondition",
+						"fieldType": "textarea"
+					}
+				]
+			}
+		]
+	}
+]

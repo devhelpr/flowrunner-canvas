@@ -1,0 +1,15 @@
+{
+  "menus": {
+    "primaryMenu": {
+      "title": "primaryMenu",
+      "codeName": "primaryMenu",
+      "language": "nl",
+      "options": [
+        { "page": "2","id":"c6e293a1-d446-43d5-9855-af6b616ec00f" },
+        { "page": "56487c37-d329-4a19-b7a4-b4c793630b29","id":"385091da-ef39-424f-9930-aedcbb888207" },
+        { "page": "f32ec6d3-4ce7-46ed-9c69-ee351102bfca","id":"f33d2692-f65f-4f97-ae06-937ba63488f5" },
+        { "page": "1","id":"c5d931b1-343e-4556-8e72-05eb1ab41307" }
+      ]
+    }
+  }
+}

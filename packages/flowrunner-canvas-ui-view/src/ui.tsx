@@ -50,7 +50,7 @@ export const UIView = (props: IUIViewProps) => {
 		let pluginRegistry = {};
 		setPluginRegistry(pluginRegistry);
 
-		const root = document.getElementById('xd');
+		const root = document.getElementById('flowstudio-root');
 
 		const hasRunningFlowRunner = root && root.getAttribute("data-has-running-flowrunner") == "true";
 

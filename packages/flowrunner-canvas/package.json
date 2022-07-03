@@ -16,9 +16,7 @@
     "rust/**/*"
   ],
   "scripts": {
-    "start": "gulp esbuild",
-    "oldstart": "gulp // WERKT NIET MEER door update typescript en bugs in awesome-ts-loader",
-    "esbuild": "gulp esbuild",
+    "css": "postcss ./styles/*.pcss --dir ./assets --ext css",
     "test": "jest --config jestconfig.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
@@ -102,6 +100,7 @@
     "gulp-watch": "5.0.1",
     "jest": "^25.1.0",
     "postcss": "^8.4.13",
+    "postcss-cli": "10.0.0",
     "postcss-import": "^14.1.0",
     "postcss-nested": "^5.0.6",
     "prettier": "^1.19.1",

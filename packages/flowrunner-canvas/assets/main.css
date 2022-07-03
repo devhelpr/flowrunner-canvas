@@ -471,12 +471,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-left-\[-2px\]{
 	left: -2px;
 }
-.tw-top-1\/2{
-	top: 50%;
-}
-.tw-left-1\/2{
-	left: 50%;
-}
 .tw-mt-4{
 	margin-top: 1rem;
 }
@@ -486,27 +480,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-mr-\[8px\]{
 	margin-right: 8px;
 }
-.tw-h-full{
-	height: 100%;
-}
-.tw-h-auto{
-	height: auto;
-}
 .tw-w-full{
 	width: 100%;
 }
 .tw-max-w-full{
 	max-width: 100%;
-}
-.-tw-translate-x-1\/2{
-	--tw-translate-x: -50%;
-	-webkit-transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-	        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-.-tw-translate-y-1\/2{
-	--tw-translate-y: -50%;
-	-webkit-transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-	        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .tw-rotate-\[135deg\]{
 	--tw-rotate: 135deg;
@@ -517,24 +495,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 	--tw-bg-opacity: 1;
 	background-color: rgb(209 213 219 / var(--tw-bg-opacity));
 }
-.tw-bg-purple-400{
-	--tw-bg-opacity: 1;
-	background-color: rgb(192 132 252 / var(--tw-bg-opacity));
-}
 .tw-text-\[7px\]{
 	font-size: 7px;
 }
 .tw-text-blue-500{
 	--tw-text-opacity: 1;
 	color: rgb(59 130 246 / var(--tw-text-opacity));
-}
-.tw-text-black{
-	--tw-text-opacity: 1;
-	color: rgb(0 0 0 / var(--tw-text-opacity));
-}
-.tw-text-white{
-	--tw-text-opacity: 1;
-	color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 * {
 	-webkit-box-sizing: border-box;
