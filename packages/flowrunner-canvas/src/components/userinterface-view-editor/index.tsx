@@ -132,26 +132,9 @@ export const UserInterfaceViewEditor = (props : UserInterfaceViewEditorProps) =>
 		<div className="container-fluid">
 			<h1>UIVIEW EDITOR</h1>
 			<div className="row ui-editor__row">
-				<div className="col-10 layout__dropzone">
-					<div className="layout__dropzone-inner" data-renderindex={renderIndex}>
-						<LayoutWithDropArea 
-							onGetLayout={onGetLayout}
-							onStoreLayout={onStoreLayout} 
-							layoutIndex={0} 
-							name="l" 
-							level={1}
-							tree={tree}
-							getNodeInstance={props.getNodeInstance}
-							flowrunnerConnector={props.flowrunnerConnector}
-							flow={flow.flow}
-							renderHtmlNode={props.renderHtmlNode}
-							flowHash={flowHash}
-						></LayoutWithDropArea>
-					</div>
-				</div>
 				<div className="col-2 layout__draggables">
 					<div>
-						<button type="button" onClick={clearLayout} className="btn btn-danger">Clear layout</button>
+						<button onClick={clearLayout} className="btn btn-danger">Clear layout</button>
 					</div>
 					<div onDragStart={onDragStart} data-draggable="layout" draggable={true} className="layout__draggable">Layout</div>
 					<div onDragStart={onDragStart} data-draggable="layout2columns" draggable={true} className="layout__draggable">Layout 2columns</div>
@@ -184,6 +167,25 @@ export const UserInterfaceViewEditor = (props : UserInterfaceViewEditorProps) =>
 							})
 						}
 				</div>
+
+				<div className="col-10 layout__dropzone">
+					<div className="layout__dropzone-inner" data-renderindex={renderIndex}>
+						<LayoutWithDropArea 
+							onGetLayout={onGetLayout}
+							onStoreLayout={onStoreLayout} 
+							layoutIndex={0} 
+							name="l" 
+							level={1}
+							tree={tree}
+							getNodeInstance={props.getNodeInstance}
+							flowrunnerConnector={props.flowrunnerConnector}
+							flow={flow.flow}
+							renderHtmlNode={props.renderHtmlNode}
+							flowHash={flowHash}
+						></LayoutWithDropArea>
+					</div>
+				</div>
+				
 			</div>
 		</div>
 		<Flow 

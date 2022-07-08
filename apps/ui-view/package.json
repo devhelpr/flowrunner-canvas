@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@devhelpr/flowrunner-canvas": "latest",
-    "@devhelpr/flowrunner-canvas-core": "latest",
-    "@devhelpr/flowrunner-canvas-ui-view": "latest",
+    "@devhelpr/flowrunner-canvas": "*",
+    "@devhelpr/flowrunner-canvas-core": "*",
+    "@devhelpr/flowrunner-canvas-ui-view": "*",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
     "react": "^18.2.0",
@@ -18,12 +18,12 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "postcss-normalize": "^10.0.1",
-    "string.prototype.replaceall": "^1.0.6"  
+    "string.prototype.replaceall": "^1.0.6"
   },
   "scripts": {
-    "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=./custom-test-env.js",
+    "start": "cross-env GENERATE_SOURCEMAP=false craco start",
+    "build": "cross-env GENERATE_SOURCEMAP=false craco build",
+    "test": "craco test --env=./custom-test-env.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

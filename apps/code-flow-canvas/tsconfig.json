@@ -12,8 +12,16 @@
 	  "esModuleInterop": true,
 	  "sourceMap": true,
 	  "declaration": true,
-	  "skipLibCheck": true
-	},
+	  "skipLibCheck": true,
+	  "baseUrl": ".",
+	  "paths": {
+		"*": ["./*"],
+		"@devhelpr/flowrunner-canvas": ["../../packages/flowrunner-canvas/"],
+		"@devhelpr/flowrunner-canvas-core": ["../../packages/flowrunner-canvas-core/"],
+		"@devhelpr/flowrunner-canvas-ui-view": ["../../packages/flowrunner-canvas-ui-view/"]
+	  }
+	}
+  ,
 	"include": ["src"],
 	"exclude": ["node_modules", "**/__tests__/*"]
   }

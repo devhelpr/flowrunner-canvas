@@ -14,6 +14,9 @@ const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
 
 const ASSET_PATH = process.env.ASSET_PATH || '/';
 
+const pathResolve = pathEntry => path.resolve(__dirname, pathEntry);
+
+
 var tsProject = ts.createProject('tsconfig.json');
 
 /*
@@ -82,8 +85,20 @@ function buildTypescript(devbuild) {
   }
 
   if (devbuild) {
+    /*
+    include: [
+        pathResolve('../../packages/flowrunner-canvas/src'),
+        pathResolve('../../packages/flowrunner-canvas-core/src'),
+        pathResolve('../../packages/flowrunner-canvas-ui-view/src'),
+        pathResolve('./src')],
+    */
     loader = {
       test: /\.tsx?$/,
+      include: [
+        pathResolve('../../packages/flowrunner-canvas/src'),
+        pathResolve('../../packages/flowrunner-canvas-core/src'),
+        pathResolve('../../packages/flowrunner-canvas-ui-view/src'),
+        pathResolve('./src')],
       loader: 'esbuild-loader',
       options: {
         loader: 'tsx',  
@@ -260,6 +275,13 @@ gulp.task('esbuild', gulp.series('builddev',  'startFlowServer', function () {
   // 'postcss',
   console.log("WATCHING...");
   
-  gulp.watch('src/**/*.{ts,tsx}',function() { return buildTypescript(true) });
+  gulp.watch([
+    'src/**/*.{ts,tsx}',
+    pathResolve('../../packages/flowrunner-canvas/src') + "/**/*.{ts,tsx}",
+    pathResolve('../../packages/flowrunner-canvas-core/src') + "/**/*.{ts,tsx}",
+    pathResolve('../../packages/flowrunner-canvas-ui-view/src') + "/**/*.{ts,tsx}"
+  ]
+  
+  ,function() { return buildTypescript(true) });
   //gulp.watch('styles/*.pcss', gulp.series('postcss'));
 }));

@@ -485,18 +485,6 @@ video {
 .tw-relative{
 	position: relative;
 }
-.-tw-inset-1{
-	top: -0.25rem;
-	right: -0.25rem;
-	bottom: -0.25rem;
-	left: -0.25rem;
-}
-.tw--inset-1{
-	top: -0.25rem;
-	right: -0.25rem;
-	bottom: -0.25rem;
-	left: -0.25rem;
-}
 .tw-top-1\/2{
 	top: 50%;
 }
@@ -520,12 +508,6 @@ video {
 }
 .tw-left-\[-2px\]{
 	left: -2px;
-}
-.-tw-top-1{
-	top: -0.25rem;
-}
-.tw--top-1{
-	top: -0.25rem;
 }
 .tw-mt-4{
 	margin-top: 1rem;
@@ -578,18 +560,6 @@ video {
 	-webkit-transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 	        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
-.tw-space-y-reverse > :not([hidden]) ~ :not([hidden]){
-	--tw-space-y-reverse: 1;
-}
-.tw-space-x-reverse > :not([hidden]) ~ :not([hidden]){
-	--tw-space-x-reverse: 1;
-}
-.tw-divide-y-reverse > :not([hidden]) ~ :not([hidden]){
-	--tw-divide-y-reverse: 1;
-}
-.tw-divide-x-reverse > :not([hidden]) ~ :not([hidden]){
-	--tw-divide-x-reverse: 1;
-}
 .tw-bg-purple-400{
 	--tw-bg-opacity: 1;
 	background-color: rgb(192 132 252 / var(--tw-bg-opacity));
@@ -609,14 +579,6 @@ video {
 	font-size: 4.5rem;
 	line-height: 1;
 }
-.tw-ordinal{
-	--tw-ordinal: ordinal;
-	font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
-}
-.tw-slashed-zero{
-	--tw-slashed-zero: slashed-zero;
-	font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
-}
 .tw-text-black{
 	--tw-text-opacity: 1;
 	color: rgb(0 0 0 / var(--tw-text-opacity));
@@ -631,9 +593,6 @@ video {
 }
 .tw-opacity-20{
 	opacity: 0.2;
-}
-.tw-ring-inset{
-	--tw-ring-inset: inset;
 }
 * {
 	-webkit-box-sizing: border-box;
@@ -2454,11 +2413,4 @@ textarea.form-control:disabled {
 }
 #flowstudio-root .container-fluid .ui-editor__row {
     height: calc(100vh);
-}
-@media (prefers-color-scheme: dark){
-	@media (min-width: 1024px){
-		.dark\:lg\:hover\:\[paint-order\:markers\]:hover{
-			paint-order: markers;
-		}
-	}
 }
