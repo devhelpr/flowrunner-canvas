@@ -13,15 +13,22 @@
 	  "sourceMap": true,
 	  "declaration": true,
 	  "skipLibCheck": true,
+
+	  "noEmit": true,
 	  "baseUrl": ".",
-	  "paths": {
-		"*": ["./*"],
-		"@devhelpr/flowrunner-canvas": ["../../packages/flowrunner-canvas/"],
-		"@devhelpr/flowrunner-canvas-core": ["../../packages/flowrunner-canvas-core/"],
-		"@devhelpr/flowrunner-canvas-ui-view": ["../../packages/flowrunner-canvas-ui-view/"]
-	  }
-	}
-  ,
+	  "rootDir": "src"
+	},
+  "references": [
+	{
+		"path" : "../../packages/flowrunner-canvas"
+	},
+	{
+		"path" : "../../packages/flowrunner-canvas-core"
+	},
+	{
+		"path" : "../../packages/flowrunner-canvas-ui-view"
+	}	
+],
 	"include": ["src"],
-	"exclude": ["node_modules", "**/__tests__/*"]
+	"exclude": ["node_modules", "**/__tests__/*"]	
   }

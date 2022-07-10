@@ -275,7 +275,7 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 	return <div className="pb-4 container__background">
 		{(props.showTitleBar === undefined || props.showTitleBar === true) && <div style={style} className={navContainerClassName}>
 			<nav style={style} className={navbarClassName}>
-				<h1 className={h1ClassName}>{title}</h1>
+				<h1 className={h1ClassName}>TITLE:{title}</h1>
 			</nav>
 		</div>}
 		<div className="container container__ui-view">

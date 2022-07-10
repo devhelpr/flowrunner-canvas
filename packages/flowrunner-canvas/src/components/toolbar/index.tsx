@@ -1012,7 +1012,7 @@ export const Toolbar = (props: ToolbarProps) => {
                         }
                         title="Add new flow"
                       >
-                        <span>New flow..</span>
+                        <span>New flow.</span>
                       </a>
                     )}
                   </>

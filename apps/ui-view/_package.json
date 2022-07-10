@@ -1,0 +1,50 @@
+{
+  "name": "ui-view",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@devhelpr/flowrunner-canvas": "*",
+    "@devhelpr/flowrunner-canvas-core": "*",
+    "@devhelpr/flowrunner-canvas-ui-view": "*",
+    "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.0.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.1.2",
+    "uuid": "^8.3.2",
+    "web-vitals": "^1.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "postcss-normalize": "^10.0.1",
+    "string.prototype.replaceall": "^1.0.6"
+  },
+  "scripts": {
+    "start": "cross-env GENERATE_SOURCEMAP=false craco start",
+    "build": "cross-env GENERATE_SOURCEMAP=false craco build",
+    "test": "craco test --env=./custom-test-env.js",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "resolutions": {
+    "ua-parser-js": "^1.0.1"
+  }
+}

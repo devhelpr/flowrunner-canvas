@@ -81,7 +81,7 @@ function buildTypescript(devbuild) {
     exclude: /node_modules/ 
   }
 
-  if (devbuild) {
+  if (false && devbuild) {
     loader = {
       test: /\.tsx?$/,
       loader: 'esbuild-loader',

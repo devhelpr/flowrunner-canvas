@@ -12,8 +12,18 @@
 	  "esModuleInterop": true,
 	  "sourceMap": true,
 	  "declaration": true,
-	  "skipLibCheck": true
+	  "skipLibCheck": true,
+	  "composite": true,
+	  "rootDir": "src"
 	},
+	"references": [
+		{
+			"path" : "../flowrunner-canvas"
+		},
+		{
+			"path" : "../flowrunner-canvas-core"
+		}
+	],
 	"include": ["src"],
 	"exclude": ["node_modules", "**/__tests__/*"]
   }
