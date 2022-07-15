@@ -3,7 +3,7 @@
   "version": "0.43.14",
   "publishConfig": {
     "access": "public",
-    "directory": "../../../dist/packages/flowrunner-canvas-core"
+    "directory": "../../dist/packages/flowrunner-canvas-core"
   },
   "description": "core for flowrunner-canvas and related packages",
   "main": "index.js",
@@ -42,5 +42,5 @@
     "victor": "^1.1.0",
     "zustand": "^3.7.1"
   },
-  "gitHead": "681f5d9941386b788a3720178cfd66d216c237a9"
+  "gitHead": "ae98d3992f51c38aa520f991d872f58ac51381eb"
 }
