@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas",
-  "version": "0.43.24",
+  "version": "0.43.25",
   "publishConfig": {
     "access": "public",
     "directory": "../../dist/packages/flowrunner-canvas"
@@ -17,8 +17,8 @@
   "dependencies": {
     "@devhelpr/expressionrunner": "^0.2.9",
     "@devhelpr/flowrunner": "^0.13.8",
-    "@devhelpr/flowrunner-canvas-core": "^0.43.21",
-    "@devhelpr/flowrunner-canvas-ui-view": "^0.43.22",
+    "@devhelpr/flowrunner-canvas-core": "^0.43.22",
+    "@devhelpr/flowrunner-canvas-ui-view": "^0.43.23",
     "@devhelpr/layoutrunner": "^0.0.2",
     "@dnd-kit/core": "^3.1.1",
     "@dnd-kit/modifiers": "^3.0.0",
