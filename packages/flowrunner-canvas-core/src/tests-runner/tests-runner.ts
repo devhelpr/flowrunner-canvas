@@ -1,4 +1,4 @@
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 import { FlowEventRunner } from '@devhelpr/flowrunner';
 
 export interface ITestDefinition {

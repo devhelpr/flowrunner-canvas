@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 
 import { Subject } from 'rxjs';
 
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 
 import { Toolbar } from './components/toolbar';
 export { Toolbar };

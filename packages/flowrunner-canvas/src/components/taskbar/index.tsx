@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Draggable } from './draggable';
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 import { 
 	FlowToCanvas, 
 	getDefaultUITasks,

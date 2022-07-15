@@ -6,7 +6,7 @@ import { getNewNode } from '@devhelpr/flowrunner-canvas-core';
 import { EditPopup } from '../edit-popup';
 //import { ShowSchemaPopup } from '../show-schema-popup';
 
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
 import { NewFlow } from '../new-flow';

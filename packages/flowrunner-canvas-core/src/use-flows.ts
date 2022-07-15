@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 import { IFlowState } from './state/flow-state';

@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
 
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 
 import { useFlowStore} from '@devhelpr/flowrunner-canvas-core';
 import { useCanvasModeStateStore} from '@devhelpr/flowrunner-canvas-core';

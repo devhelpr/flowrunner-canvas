@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 
 // /api/taskdoc/
 
