@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 
 import { IFormControlProps } from './form-control-interface';
 import { useFormControlFromCode } from './use-form-control';
-import Slider from '@material-ui/core/Slider';
 import { onFocus } from './helpers/focus';
+
+import * as muicore from '@material-ui/core';
+const Slider = muicore.Slider;
 
 export const InputSlider = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;

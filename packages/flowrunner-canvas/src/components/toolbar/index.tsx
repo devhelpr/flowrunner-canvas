@@ -13,7 +13,7 @@ import { NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
 import { ModulesPopup } from '../modules-popup';
 
-import Navbar from 'react-bootstrap/Navbar';
+import { Navbar } from 'react-bootstrap';
 
 import { useFlowStore } from '@devhelpr/flowrunner-canvas-core';
 import { PopupEnum, useCanvasModeStateStore } from '@devhelpr/flowrunner-canvas-core';

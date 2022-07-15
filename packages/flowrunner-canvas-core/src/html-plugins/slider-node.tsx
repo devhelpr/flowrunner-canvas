@@ -2,9 +2,11 @@ import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
 
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
-import Slider from '@material-ui/core/Slider';
 import { useCanvasModeStateStore} from '../state/canvas-mode-state';
 import { useSelectedNodeStore} from '../state/selected-node-state';
+
+import * as muicore from '@material-ui/core';
+const Slider = muicore.Slider;
 
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
