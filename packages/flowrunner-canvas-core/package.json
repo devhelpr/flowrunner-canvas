@@ -8,7 +8,7 @@
   "description": "core for flowrunner-canvas and related packages",
   "main": "index.js",
   "types": "index.d.ts",
-  "files": [],
+  "files": ["**"],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
   "license": "MIT",

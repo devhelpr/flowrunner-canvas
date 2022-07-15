@@ -8,7 +8,7 @@
   "description": "view components for flowrunner-canvas to use in webapps",
   "main": "index.js",
   "types": "index.d.ts",
-  "files": [],
+  "files": ["**"],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
   "license": "MIT",

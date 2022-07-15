@@ -8,7 +8,7 @@
   "description": "Flow based programming ('nodes + wires') and UI designer which can run standalone or export flows in json format for external use",
   "main": "index.js",
   "types": "index.d.ts",
-  "files": [],
+  "files": ["**"],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
