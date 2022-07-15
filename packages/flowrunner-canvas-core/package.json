@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas-core",
-  "version": "0.43.7",
+  "version": "0.43.8",
   "publishConfig": {
     "access": "public"
   },
