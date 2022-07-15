@@ -2,13 +2,13 @@
   "name": "@devhelpr/flowrunner-canvas-core",
   "version": "0.43.9",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "directory": "../../dist/packages/flowrunner-canvas-core/**/*"
   },
   "description": "core for flowrunner-canvas and related packages",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "../../dist/packages/flowrunner-canvas-core/**/*"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
