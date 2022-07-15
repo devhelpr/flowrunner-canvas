@@ -1,5 +1,5 @@
 /*import * as React from 'react';
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 import { setCustomConfig } from "../../config";
 import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
 

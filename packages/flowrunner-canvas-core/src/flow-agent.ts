@@ -47,7 +47,7 @@ export const getFlowAgent: GetFlowAgentFunction = () => {
 
 import { BehaviorSubject, Subject } from 'rxjs';
 
-import fetch from 'cross-fetch';
+//import fetch from 'cross-fetch';
 import { replaceValues } from './helpers/replace-values';
 import * as uuid from 'uuid';
 
