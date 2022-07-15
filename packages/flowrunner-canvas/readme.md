@@ -1,5 +1,7 @@
 DON'T USE except for experiments! Still in active development
 
+This package is part of a monorepo
+
 # What is Flowrunner-canvas?
 
 Flowrunner-canvas is a flow based programming environment that can be used standalone but also very easily be added to an existent frontend javascript/typescript toolchain. 
