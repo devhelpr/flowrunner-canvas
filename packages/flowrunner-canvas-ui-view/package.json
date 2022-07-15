@@ -3,7 +3,7 @@
   "version": "0.43.11",
   "publishConfig": {
     "access": "public",
-    "directory": "../../dist/packages/flowrunner-canvas-ui-view/**/*"
+    "directory": "../../dist/packages/flowrunner-canvas-ui-view"
   },
   "description": "view components for flowrunner-canvas to use in webapps",
   "main": "dist/index.js",
@@ -34,5 +34,5 @@
     "uuid": "^8.3.2",
     "zustand": "^3.7.1"
   },
-  "gitHead": "ccb1095fb8894fea528261420f025ebb811ff762"
+  "gitHead": "ac0549e51653349cbc2469eae09ca321d77ddb72"
 }
