@@ -12,11 +12,8 @@ export interface GridCanvasState {
 
 export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState> {
 
-	state = {
+	override state = {
 				
-	}
-
-	componentDidMount() {
 	}
 
 	getWidth() {
@@ -29,7 +26,7 @@ export class GridCanvas extends React.Component<GridCanvasProps, GridCanvasState
 		//return ((this.props.node.rows || 8) * 16) + (3 * 16) + 4;
 	}
 
-	render() {
+	override render() {
 		// 	
 
 		let circles : any = null;

@@ -69,7 +69,7 @@ export class DataGridTask extends FlowTask {
     return variables;
   };
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     try {
       let payload = Object.assign({}, node.payload);
       let promises: any[] = [];
@@ -194,7 +194,7 @@ export class DataGridTask extends FlowTask {
     }
   }
 
-  public getName() {
+  public override getName() {
     return 'DataGridTask';
   }
 }

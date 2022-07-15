@@ -3,7 +3,7 @@ import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
 export class FormTask extends ObservableTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     //console.log('FormTask', node);
 
     if (!!node.formDefinitionAsPayload) {
@@ -79,7 +79,7 @@ export class FormTask extends ObservableTask {
     return false;
   }
 
-  public getName() {
+  public override getName() {
     return 'FormTask';
   }
 }

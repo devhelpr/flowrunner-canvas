@@ -39,10 +39,8 @@ interface IMinMax {
 }
 
 export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
-	state = {
+	override state = {
 				
-	}
-	componentDidMount() {
 	}
 
 	getCurrentDebugNotifier = () => {
@@ -265,7 +263,7 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
 				strokeWidth={1}></Line>;
 	}
 
-	render() {
+	override render() {
 		let height = (this.props.node.height || 250) - heightCorrection;
 		let circles : any = null;
 		const {node, payloads} = this.props;

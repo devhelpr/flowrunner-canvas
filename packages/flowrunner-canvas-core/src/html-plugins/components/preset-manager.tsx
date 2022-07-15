@@ -42,7 +42,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 	);
 	const loadInitialPresets = useCallback(async () => {
 		// 
-		const initialPresets = await get(`/get-presets?flowId=${flow.flowId}&nodeName=${props.node.name}`);
+		const initialPresets = await get(`/api/get-presets?flowId=${flow.flowId}&nodeName=${props.node.name}`);
 		if (response.ok) {
 			setPresets(initialPresets.data);
 		}
@@ -56,7 +56,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 		event.preventDefault();
 		setSelectedPreset(event.target.value);
 		if (event.target.value != "") {
-			get(`/get-preset?flowId=${flow.flowId}&nodeName=${props.node.name}&preset=${event.target.value}`).then((preset) => {
+			get(`/api/get-preset?flowId=${flow.flowId}&nodeName=${props.node.name}&preset=${event.target.value}`).then((preset) => {
 				console.log("preset.data", preset.data);
 				props.onSetData(JSON.parse(preset.data));
 			});
@@ -72,7 +72,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 				return preset.preset == selectedPreset;
 			});
 			let presetName = (foundPresets.length > 0 && foundPresets[0].name) || "Preset " + selectedPreset;
-			post(`/save-preset?flowId=${flow.flowId}&name=${presetName}&nodeName=${props.node.name}&preset=${selectedPreset}`, {data: data}).then(() => {
+			post(`/api/save-preset?flowId=${flow.flowId}&name=${presetName}&nodeName=${props.node.name}&preset=${selectedPreset}`, {data: data}).then(() => {
 				//
 			});
 		}
@@ -89,7 +89,7 @@ export const PresetManager = (props : IPresetManagerProps) => {
 		}]);
 		setSelectedPreset(newId);
 
-		post(`/save-preset?flowId=${flow.flowId}&nodeName=${props.node.name}&name=${name}&preset=${newId}`, {data: data}).then(() => {
+		post(`/api/save-preset?flowId=${flow.flowId}&nodeName=${props.node.name}&name=${name}&preset=${newId}`, {data: data}).then(() => {
 			//
 		});
 	}

@@ -17,7 +17,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class TransformTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.outputProperty) {
       if (node.mode && node.mode == 'indexedObjects') {
@@ -87,7 +87,7 @@ export class TransformTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'TransformTask';
   }
 

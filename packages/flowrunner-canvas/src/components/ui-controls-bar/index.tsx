@@ -83,7 +83,7 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 		(list as any) = null;
 	}
 
-	render() {
+	override render() {
 		if (this.props.canvasMode.flowType !== "playground") {
 			return <></>;
 		}

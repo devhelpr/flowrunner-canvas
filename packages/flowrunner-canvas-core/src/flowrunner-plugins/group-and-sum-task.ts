@@ -12,7 +12,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class GroupAndSumTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (
       node.outputProperty &&
@@ -63,7 +63,7 @@ export class GroupAndSumTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'GroupAndSumTask';
   }
 }

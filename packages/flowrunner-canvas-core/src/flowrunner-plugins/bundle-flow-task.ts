@@ -32,7 +32,7 @@ export class BundleFlowTask extends FlowTask {
   worker?: Worker = undefined;
   flowrunnerConnector?: FlowConnector;
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     try {
       console.log('bundle flow', services, node.flow);
       //if (!this.worker && !this.flowrunnerConnector) {
@@ -79,7 +79,7 @@ export class BundleFlowTask extends FlowTask {
     this.worker = undefined;
   }
 
-  public getName() {
+  public override getName() {
     return 'BundleFlowTask';
   }
 }

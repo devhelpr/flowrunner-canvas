@@ -10,11 +10,11 @@ export interface NumberState {
 }
 
 export class Number extends React.Component<NumberProps, NumberState> {
-	state = {
+	override state = {
 				
 	}
 
-	render() {
+	override render() {
 		let data = "";
 		if (this.props.payloads.length > 0) {
 			let payload = this.props.payloads[this.props.payloads.length - 1];

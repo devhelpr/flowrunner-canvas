@@ -28,7 +28,7 @@ export class ExpressionTask extends FlowTask {
   private compiledExpressionTree: any = undefined;
   private expression: string = '';
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     return new Promise((resolve, reject) => {
       if (node.expression !== 'undefined' && node.expression !== '') {
         if (!this.compiledExpressionTree || this.expression !== node.expression) {
@@ -84,47 +84,47 @@ export class ExpressionTask extends FlowTask {
     });
   }
 
-  public getDescription() {
+  public override getDescription() {
     return 'Node that executes an expression';
   }
 
-  public getName() {
+  public override getName() {
     return 'ExpressionTask';
   }
 
-  public getFullName() {
+  public override getFullName() {
     return 'Expression';
   }
 
-  public getIcon() {
+  public override getIcon() {
     return 'expression';
   }
 
-  public getShape() {
+  public override getShape() {
     return 'rect';
   }
 
-  public getDefaultColor() {
+  public override getDefaultColor() {
     return '#00ff80ff';
   }
 
-  public getTaskType() {
+  public override getTaskType() {
     return 'both';
   }
 
-  public getPackageType() {
+  public override getPackageType() {
     return FlowTaskPackageType.DEFAULT_NODE;
   }
 
-  public getCategory() {
+  public override getCategory() {
     return 'FlowCanvas';
   }
 
-  public getController() {
+  public override getController() {
     return 'FlowCanvasController';
   }
 
-  public getConfigMetaData() {
+  public override getConfigMetaData() {
     return [
       { name: 'assignToProperty', defaultValue: '', valueType: 'string', required: true },
       { name: 'assignAsPropertyFromObject', defaultValue: '', valueType: 'string', required: false },

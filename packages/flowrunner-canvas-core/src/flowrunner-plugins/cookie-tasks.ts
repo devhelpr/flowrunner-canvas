@@ -10,7 +10,7 @@ function getCookie(name: string) {
 }
 
 export class GetCookie extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     const payload = { ...node.payload };
     if (node.cookieName) {
       let cookie = getCookie(node.cookieName) || '';
@@ -29,13 +29,13 @@ export class GetCookie extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'GetCookie';
   }
 }
 
 export class SetCookie extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.cookieName) {
       let value = node.value;
       if (!value && node.valueFromProperty) {
@@ -47,7 +47,7 @@ export class SetCookie extends FlowTask {
     return true;
   }
 
-  public getName() {
+  public override getName() {
     return 'SetCookie';
   }
 }

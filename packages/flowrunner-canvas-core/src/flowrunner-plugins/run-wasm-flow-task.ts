@@ -4,7 +4,7 @@ import { FlowLoader } from './components/flow-loader';
 export class RunWasmFlowTask extends FlowTask {
   webassemblyFlowrunner: any = undefined;
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     try {
       if (this.webassemblyFlowrunner === undefined) {
         if (node.flowId) {
@@ -53,7 +53,7 @@ export class RunWasmFlowTask extends FlowTask {
     }
   }
 
-  public getName() {
+  public override getName() {
     return 'RunWasmFlowTask';
   }
 }

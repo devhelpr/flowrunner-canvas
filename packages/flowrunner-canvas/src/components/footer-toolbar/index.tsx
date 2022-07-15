@@ -10,11 +10,11 @@ export interface FooterState {
 
 export class FooterToolbar extends React.Component<FooterProps, FooterState> {
 
-	componentDidMount() {
+	override componentDidMount() {
 
 	}
 
-	render() {
+	override render() {
 		return <></>;
 		/*
 		return <nav className="navbar fixed-bottom navbar-light bg-light">

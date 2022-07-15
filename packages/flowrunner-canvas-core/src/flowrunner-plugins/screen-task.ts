@@ -1,7 +1,7 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class ScreenTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     console.log('ScreenTask', node);
     try {
       services.workerContext.postMessage('worker', {
@@ -21,7 +21,7 @@ export class ScreenTask extends FlowTask {
     return false;
   }
 
-  public getName() {
+  public override getName() {
     return 'ScreenTask';
   }
 }

@@ -1,11 +1,11 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class CustomNodeTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     return node.payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'CustomNodeTask';
   }
 }

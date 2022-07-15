@@ -14,7 +14,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 export class CustomCodeTask extends FlowTask {
   functionInstance?: any;
   code?: string;
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.code && (!this.code || this.code !== node.code)) {
       if (node.mode === 'matrix') {
@@ -36,7 +36,7 @@ export class CustomCodeTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'CustomCodeTask';
   }
 }

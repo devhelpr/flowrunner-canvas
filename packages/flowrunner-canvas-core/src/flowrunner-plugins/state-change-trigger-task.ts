@@ -6,7 +6,7 @@ export class StateChangeTriggerTask extends FlowTask {
   _nodeName: string = '';
   _lastState: string = '';
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     const observable = new Subject<any>();
     this._nodeName = node.name;
     registerStateChangeHandler(
@@ -65,7 +65,7 @@ export class StateChangeTriggerTask extends FlowTask {
     return true;
   }
 
-  public getName() {
+  public override getName() {
     return 'StateChangeTriggerTask';
   }
 }

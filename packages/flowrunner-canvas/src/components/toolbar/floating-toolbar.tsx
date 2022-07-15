@@ -28,7 +28,7 @@ export const FloatingToolbar = (props: IFloatingToolbarProps) => {
 		  title="Connect nodes"
 		  onClick={onConnectClick}
 		  className={`tw-mr-[8px] tw-relative ${canvasMode.isConnectingNodes ? "tw-text-blue-500" : ""}`}>
-			  <span className='far fa-square tw-text-[7px] tw-absolute tw-top-[-7px] tw-left-[-7px]'></span>
+			  <span className='far fa-square tw-text-[7px] tw-text-[8px] tw-absolute tw-top-[-7px] tw-left-[-7px]'></span>
 			  <span className='far fa-square tw-text-[7px] tw-top-[5px] tw-left-[5px] tw-absolute'></span>
 			  <span className='fas fa-arrow-up tw-text-[7px] tw-top-[-2px] tw-left-[-2px] tw-absolute tw-rotate-[135deg]'></span>
 		  </a>

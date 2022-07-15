@@ -57,7 +57,7 @@ export const NewFlow = (props: NewFlowProps) => {
 			});
 		} else {
 			try {
-				fetch('/flow?flow=' + value + 
+				fetch('/api/flow?flow=' + value + 
 					"&flowType=" + flowType +
 					"&addJSONFlow=" + addJSONFlow, {
 					method : "post",

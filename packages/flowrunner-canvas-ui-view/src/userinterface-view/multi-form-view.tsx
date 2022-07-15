@@ -188,7 +188,7 @@ export const MultiFormView = (props : MultiFormViewProps) => {
 			return;
 		}
 
-		fetch('/flowui?flow=' + flowId)
+		fetch('/api/flowui?flow=' + flowId)
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");

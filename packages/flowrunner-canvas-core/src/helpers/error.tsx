@@ -19,17 +19,17 @@ export class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBo
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  override componentDidCatch(error, errorInfo) {
     // You can also log the error to an error reporting service
     console.log(error, errorInfo);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return null;
     }
 
-    return this.props.children;
+    return (this.props as any).children;
   }
 }

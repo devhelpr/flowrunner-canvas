@@ -32,7 +32,7 @@ export class RunFlowTask extends FlowTask {
   worker?: Worker = undefined;
   flowrunnerConnector?: FlowConnector;
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     try {
       if (!this.worker && !this.flowrunnerConnector) {
         this.worker = services.getWorker();
@@ -110,7 +110,7 @@ export class RunFlowTask extends FlowTask {
     this.worker = undefined;
   }
 
-  public getName() {
+  public override getName() {
     return 'RunFlowTask';
   }
 }

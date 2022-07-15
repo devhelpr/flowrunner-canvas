@@ -5,7 +5,7 @@ export class PrototypeTask extends FlowTask {
   wasm: any;
   input: string = '';
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.prototype == 'webassembly-test') {
       return new Promise(async (resolve, reject) => {
         if (!this.wasm || this.input === '' || this.input !== node.input) {
@@ -63,7 +63,7 @@ export class PrototypeTask extends FlowTask {
     return node.payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'PrototypeTask';
   }
 }

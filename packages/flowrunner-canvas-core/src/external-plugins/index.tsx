@@ -18,7 +18,7 @@ class PluginTask {
 
 class PluginVisualizer extends React.Component<DefaultProps> {
 
-	render() { 
+	override render() { 
 		console.log("PluginVisualizer render" , this.props.payload);
 		return <div className="html-plugin-node" style={{			
 			backgroundColor: "white"

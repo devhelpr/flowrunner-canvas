@@ -10,11 +10,11 @@ export interface ColorState {
 }
 
 export class Color extends React.Component<ColorProps, ColorState> {
-	state = {
+	override state = {
 				
 	}
 
-	render() {
+	override render() {
 		let background = "#ffffff";
 		if (this.props.payloads.length > 0) 
 		{

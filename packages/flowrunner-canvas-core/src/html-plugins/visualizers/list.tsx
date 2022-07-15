@@ -10,11 +10,11 @@ export interface ListState {
 }
 
 export class List extends React.Component<ListProps, ListState> {
-	state = {
+	override state = {
 				
 	}
 
-	render() {
+	override render() {
 		let payload;
 		if (this.props.payloads.length > 0) {
 			payload = this.props.payloads[this.props.payloads.length - 1];

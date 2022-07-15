@@ -3,7 +3,7 @@ import { getCurrentStateMachine } from '../state-machine';
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 
 export class StateMachineTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     const promise = new Promise((resolve, reject) => {
       const payload = { ...node.payload };
       const stateMachine = getCurrentStateMachine();
@@ -63,7 +63,7 @@ export class StateMachineTask extends FlowTask {
     return promise;
   }
 
-  public getName() {
+  public override getName() {
     return 'StateMachine';
   }
 }

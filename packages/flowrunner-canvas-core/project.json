@@ -1,0 +1,43 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/flowrunner-canvas-core/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:rollup",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/flowrunner-canvas-core",
+        "tsConfig": "packages/flowrunner-canvas-core/tsconfig.lib.json",
+        "project": "packages/flowrunner-canvas-core/package.json",
+        "entryFile": "packages/flowrunner-canvas-core/src/index.tsx",
+        "external": ["react/jsx-runtime"],
+        "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
+        "compiler": "babel",
+        "assets": [
+          {
+            "glob": "packages/flowrunner-canvas-core/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/flowrunner-canvas-core/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/flowrunner-canvas-core"],
+      "options": {
+        "jestConfig": "packages/flowrunner-canvas-core/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

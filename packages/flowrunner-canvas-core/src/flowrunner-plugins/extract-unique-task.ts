@@ -8,7 +8,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class ExtractUniqueTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.sourceProperty && node.outputProperty) {
       if (payload[node.sourceProperty] && Array.isArray(payload[node.sourceProperty])) {
@@ -41,7 +41,7 @@ export class ExtractUniqueTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'ExtractUniqueTask';
   }
 }

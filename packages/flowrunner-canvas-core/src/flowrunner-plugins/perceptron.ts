@@ -5,7 +5,7 @@ function sigmoid(t) {
 }
 
 export class WeightedSumTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     services.logMessage('RUNNING WeightedSumTask: ' + node.id + ' - ' + node.name);
     //const weights = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'weights');
     //const bias = services.flowEventRunner.getPropertyFromNode(node.weightsNode, 'bias');
@@ -30,28 +30,28 @@ export class WeightedSumTask extends FlowTask {
     return { ...node.payload, output: weightedSum + bias };
   }
 
-  public getName() {
+  public override getName() {
     return 'WeightedSumTask';
   }
 
-  public getConfigMetaData() {
+  public override getConfigMetaData() {
     return [];
   }
 }
 
 export class ActivationTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     services.logMessage('RUNNING ActivationTask: ' + node.id + ' - ' + node.name);
     const sigmoidResult = sigmoid(node.payload.output);
     console.log('sigmoidResult', sigmoidResult, sigmoidResult >= node.threshold, node.threshold);
     return { ...node.payload, output: sigmoidResult >= node.threshold ? 1 : 0 };
   }
 
-  public getName() {
+  public override getName() {
     return 'ActivationTask';
   }
 
-  public getConfigMetaData() {
+  public override getConfigMetaData() {
     return [];
   }
 }
@@ -62,7 +62,7 @@ function delta(actual, expected, input, learnrate) {
 }
 
 export class UpdateWeightsTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     services.logMessage(
       'RUNNING UpdateWeightsTask: ' + node.id + ' - ' + node.name + ' node.weightsNode:' + node.weightsNode,
     );
@@ -109,11 +109,11 @@ export class UpdateWeightsTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'UpdateWeightsTask';
   }
 
-  public getConfigMetaData() {
+  public override getConfigMetaData() {
     return [];
   }
 }

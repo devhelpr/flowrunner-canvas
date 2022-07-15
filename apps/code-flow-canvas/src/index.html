@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+	<link rel="preload" href="/assets/svg/game-board-light.svg" as="image">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+	<link rel="stylesheet" href="/assets/fira_code.css">
+	</link>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+	<link rel="stylesheet" href="/assets/bootstrap.min.css">
+	</link>
+	<link rel="stylesheet" href="/assets/react-draft-wysiwyg.css"></link>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css" integrity="sha384-OLYO0LymqQ+uHXELyx93kblK5YIS3B2ZfLGBmsJaUyor7CpMTBsahDHByqSuWW+q" crossorigin="anonymous">
+</head>
+
+<body>
+	<div id="flowstudio-root" class="flowstudio-root" data-has-login="false" 
+		data-has-running-flowrunner="true" data-has-uicontrols="true"></div>
+	<div id="loading">
+		<div class="text-center">
+			<p>Loading Flowrunner-Studio</p>	
+			<div class="spinner-border"></div>
+		</div>
+	</div>
+	<script>
+
+		function getTasks() {
+			tasks = [];
+
+			tasks.push({className:"AssignTask", fullName:"AssignTask", flowType:"playground"});
+			tasks.push({className:"ClearTask", fullName:"ClearTask", flowType:"playground"});
+			tasks.push({className:"InjectIntoPayloadTask", fullName:"InjectIntoPayloadTask", flowType:"playground"});
+			tasks.push({className:"IfConditionTask", fullName:"IfConditionTask", flowType:"playground"});
+			tasks.push({className:"WhileTask", fullName:"WhileTask", flowType:"playground"});
+
+			tasks.push({className:"PreviewTask", fullName:"PreviewTask", flowType:"playground"});
+			tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
+			tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
+			tasks.push({className:"RandomTask", fullName:"RandomTask", flowType:"playground"});
+			tasks.push({className:"TimerTask", fullName:"TimerTask", flowType:"playground"});
+			tasks.push({className:"ExpressionTask", fullName:"ExpressionTask", flowType:"playground"});
+			tasks.push({className:"OutputValueTask", fullName:"OutputValueTask", flowType:"playground"});
+			tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask", flowType:"playground"});
+			tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask", flowType:"playground"});
+			tasks.push({className:"ListTask", fullName: "ListTask", flowType:"playground"});					
+			tasks.push({className:"MatrixTask", fullName: "MatrixTask", flowType:"playground"});
+			tasks.push({className:"GridEditTask", fullName: "GridEditTask", flowType:"playground"});
+			tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
+			tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
+			tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
+			tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
+			tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
+			tasks.push({className:"DeepAssignTask", fullName: "DeepAssignTask", flowType: "playground"});
+			tasks.push({className:"ExtractUniqueTask", fullName: "ExtractUniqueTask", flowType: "playground"});									
+			tasks.push({className:"FilterTask", fullName: "FilterTask", flowType: "playground"});									
+			tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
+			tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
+				
+			tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
+			tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});			
+			tasks.push({className:"CustomNodeTask", fullName: "CustomNodeTask", flowType:"playground"});
+			tasks.push({className:"ShapeNodeTask", fullName: "ShapeNodeTask", flowType:"playground"});
+			return tasks;
+		}
+
+		function storeFlowPackage(flowPackage) {
+			if (flowPackage) {
+				saveFlow(getSelectedFlow(), flowPackage.flow);
+			}
+			localStorage.setItem('flowPackage', JSON.stringify(flowPackage));
+		}
+		function getFlowPackage() {
+			var packageAsString = localStorage.getItem('flowPackage');
+			if (packageAsString) {
+				return JSON.parse(packageAsString);
+			}
+			return {
+				dummy: "",
+				flow: [],
+				layout: "{}",
+				selectedNode: {},
+				selectedFlow: "flow"
+			}
+		}
+
+		function getFlows() {
+			var flowsAsString = localStorage.getItem('flows');
+			if (flowsAsString) {
+				return JSON.parse(flowsAsString);
+			}
+			return [{
+				"fileName": "flow.json",
+				"name": "flow",
+				"id": "flow",
+				"flowType": "playground"
+			}];
+		}
+
+		function getFlow(flowId) {			
+			var flowAsString = localStorage.getItem('flow-' + flowId);
+			if (flowAsString) {
+				return JSON.parse(flowAsString);
+			}
+			return [];
+		}
+
+		function saveFlow(flowId, flow) {
+			const flowPackage = {
+				flow: flow,
+				name: flowId,
+				id: flowId,
+				flowType: "playground"
+			};
+			localStorage.setItem('flow-' + flowId , JSON.stringify(flowPackage));
+		}
+		
+		function setSelectedFlow(flowName) {
+			localStorage.setItem('selected-flow', flowName);
+		}
+
+		function getSelectedFlow() {
+			return localStorage.getItem('selected-flow') || "flow";
+		}
+
+		// enable this to override storage via api's
+		
+		/*window.flowrunnerStorageProvider = {
+			storeFlowPackage: storeFlowPackage,
+			getFlowPackage: getFlowPackage,
+			getFlows: getFlows,
+			getFlow: getFlow,
+			saveFlow: saveFlow,
+			setSelectedFlow: setSelectedFlow,
+			getSelectedFlow: getSelectedFlow,
+			getTasks: getTasks
+		};		
+		*/
+		
+		window.autoStartFlowrunnerEditor = true;
+	</script>
+
+</body>
+
+</html>

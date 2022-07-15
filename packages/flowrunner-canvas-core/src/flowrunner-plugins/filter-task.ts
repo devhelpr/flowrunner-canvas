@@ -6,7 +6,7 @@ export class FilterTask extends FlowTask {
   expression: string = '';
   expressionTree: any = undefined;
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.expression && (this.expression !== node.expression || !this.expressionTree)) {
       this.expression = node.expression;
@@ -27,7 +27,7 @@ export class FilterTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'FilterTask';
   }
 }

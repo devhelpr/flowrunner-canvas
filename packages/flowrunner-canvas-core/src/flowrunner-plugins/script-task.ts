@@ -1,7 +1,7 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class ScriptTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.outputProperty && node.script) {
       payload[node.outputProperty] = node.script;
@@ -9,7 +9,7 @@ export class ScriptTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'ScriptTask';
   }
 }

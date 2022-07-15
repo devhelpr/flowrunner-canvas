@@ -66,7 +66,7 @@ class ContainedTaskSelector extends React.Component<TaskSelectorProps, TaskSelec
 			return;
 		}
 
-		fetch('/tasks')
+		fetch('/api/tasks')
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");

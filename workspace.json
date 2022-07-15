@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
+  "version": 2,
+  "projects": {
+    "api": "apps/api",
+    "code-flow-canvas": "apps/code-flow-canvas",
+    "code-flow-canvas-e2e": "apps/code-flow-canvas-e2e",
+    "flowrunner-canvas": "packages/flowrunner-canvas",
+    "flowrunner-canvas-core": "packages/flowrunner-canvas-core",
+    "flowrunner-canvas-ui-view": "packages/flowrunner-canvas-ui-view",
+    "ui-view": "apps/ui-view",
+    "ui-view-e2e": "apps/ui-view-e2e"
+  }
+}

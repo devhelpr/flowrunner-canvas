@@ -79,7 +79,7 @@ export const Taskbar = (props: TaskbarProps) => {
 			return;
 		}
 
-		fetch('/tasks', { signal })
+		fetch('/api/tasks', { signal })
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");

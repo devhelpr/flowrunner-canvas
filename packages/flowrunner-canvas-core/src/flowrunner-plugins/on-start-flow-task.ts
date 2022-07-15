@@ -1,11 +1,11 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class OnStartFlowTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     return true;
   }
 
-  public getName() {
+  public override getName() {
     return 'OnStartFlow';
   }
 

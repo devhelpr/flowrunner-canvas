@@ -415,7 +415,7 @@ export const ObjectList = (props: IFormControlProps) => {
 							<DragOverlay dropAnimation={defaultDropAnimationConfig}>
 								{activeId != "" ? <Item id={activeId.toString()}
 									style={{}}
-									children={{}}	
+									children={<></>}
 									listeners={{}}		
 									index={-1}
 									node={{...getValueByActiveId(activeId), metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + activeId, 
@@ -477,7 +477,7 @@ export const ObjectList = (props: IFormControlProps) => {
 				<DragOverlay>
 					{activeId != "" ? <Item id={activeId.toString()}
 						style={{}}						
-						children={{}}		
+						children={<></>}		
 						listeners={{}}	
 						index={-1}
 						node={{...getValueByActiveId(activeId), metaInfo:props.metaInfo.metaInfo, name: props.node.name + "-edit-" + activeId, 

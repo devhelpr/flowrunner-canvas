@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
 export class SelectValueFromListTask extends ObservableTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.inputProperty && node.outputProperty && node.selectvalue && node.list && node.list.length > 0) {
       let payload = { ...node.payload };
       if (payload[node.inputProperty]) {
@@ -58,7 +58,7 @@ export class SelectValueFromListTask extends ObservableTask {
     return false;
   }
 
-  public getName() {
+  public override getName() {
     return 'SelectValueFromListTask';
   }
 }

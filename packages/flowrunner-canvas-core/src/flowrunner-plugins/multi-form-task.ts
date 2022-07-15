@@ -12,12 +12,12 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class MultiFormTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'MultiFormTask';
   }
 }

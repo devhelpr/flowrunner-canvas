@@ -3,4 +3,4 @@
 - clone this github repo
 - this is a monorepo, run from root of this repo:
 - yarn install
-- yarn start 
+- yarn nx serve code-flow-canvas

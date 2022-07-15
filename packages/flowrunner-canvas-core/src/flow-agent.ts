@@ -157,7 +157,7 @@ registerExpressionFunction('vlookup', (a: number, ...args: number[]) => {
 });
 
 export class PreviewTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     //console.log('previewtask', node);
     return true;
   }
@@ -166,13 +166,13 @@ export class PreviewTask extends FlowTask {
     return false;
   }
 
-  public getName() {
+  public override getName() {
     return 'PreviewTask';
   }
 }
 
 export class ListTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.propertyName) {
       let nodeName = node.name;
       if (node.useListFromNode) {
@@ -258,13 +258,13 @@ export class ListTask extends FlowTask {
     return [];
   }
 
-  public getName() {
+  public override getName() {
     return 'ListTask';
   }
 }
 
 export class OutputValueTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.propertyName && node.maxValue) {
       const payload = Object.assign({}, node.payload);
       let value = services.flowEventRunner.getPropertyFromNode(node.name, node.propertyName) || node.startValue || 0;
@@ -280,13 +280,13 @@ export class OutputValueTask extends FlowTask {
     return node.payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'OutputValueTask';
   }
 }
 
 export class InputTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.propertyName) {
       node.payload = Object.assign({}, node.payload);
       let value = node.defaultValue || '';
@@ -315,7 +315,7 @@ export class InputTask extends FlowTask {
     return node.payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'InputTask';
   }
 }
@@ -324,7 +324,7 @@ let flowPluginNodes = {};
 
 const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
   class FlowPluginWrapperTaskInternal extends FlowTask {
-    public execute(node: any, services: any) {
+    public override execute(node: any, services: any) {
       if (node.observable) {
         new Promise((resolve, reject) => {
           const executeId = uuidV4();
@@ -358,7 +358,7 @@ const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
       return false;
     }
 
-    public getName() {
+    public override getName() {
       return pluginName;
     }
 
@@ -369,7 +369,7 @@ const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
       return node.observable;
     }
 
-    public isAttachedToExternalObservable() {
+    public override isAttachedToExternalObservable() {
       return false;
     }
   }
@@ -442,7 +442,7 @@ export class TimerTask extends FlowTask {
     }
   };
 
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     this.node = node;
     this.isExecuting = false;
     this.flow = services.workerContext.flow;
@@ -489,13 +489,13 @@ export class TimerTask extends FlowTask {
     }
   }
 
-  public getName() {
+  public override getName() {
     return 'TimerTask';
   }
 }
 
 export class RandomTask extends ObservableTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     node.payload = Object.assign({}, node.payload);
     let propertyName = 'value';
     if (node.assignToProperty) {
@@ -509,13 +509,13 @@ export class RandomTask extends ObservableTask {
     return node.payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'RandomTask';
   }
 }
 
 export class ApiProxyTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     const promise = new Promise((resolve, reject) => {
       node.payload = Object.assign({}, node.payload);
       try {
@@ -552,13 +552,13 @@ export class ApiProxyTask extends FlowTask {
     return promise;
   }
 
-  public getName() {
+  public override getName() {
     return 'ApiProxyTask';
   }
 }
 
 export class MapPayloadTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     /*
 			TODO :
 				- loop through all properties of "node.map"-property
@@ -573,7 +573,7 @@ export class MapPayloadTask extends FlowTask {
 		*/
     return true;
   }
-  public getName() {
+  public override getName() {
     return 'MapPayloadTask';
   }
 }

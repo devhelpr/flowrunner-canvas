@@ -5694,7 +5694,7 @@ console.log("getNewConnection in clickShape")
 				>				
 						{activeId ? <DragginTask id={activeId} 
 							style={{}}											
-							children={{}}		
+							children={<></>}		
 							listeners={{}}
 						/> : null}
 				</DragOverlay>

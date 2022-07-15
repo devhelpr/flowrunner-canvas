@@ -4,7 +4,7 @@ export class FlowLoader {
   public getFlow = (id, doNotConvertFlowToWasm = false) => {
     return new Promise((resolve, reject) => {
       try {
-        fetch('/flow?flow=' + id, {
+        fetch('/api/flow?flow=' + id, {
           method: 'GET',
           credentials: 'include',
           mode: 'same-origin',

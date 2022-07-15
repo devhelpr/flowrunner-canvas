@@ -21,7 +21,7 @@ export class HelpPopup extends React.Component<HelpPopupProps, HelpPopupState> {
   }
   ref;
 
-  state = {
+  override state = {
     open: false,
     content: '',
     taskName: '',
@@ -33,7 +33,7 @@ export class HelpPopup extends React.Component<HelpPopupProps, HelpPopupState> {
     this.setState({ open: false });
   };
 
-  componentDidMount() {
+  override componentDidMount() {
     fetch('/api/taskdoc/' + this.props.taskName)
       .then(res => {
         if (res.status >= 400) {
@@ -56,7 +56,7 @@ export class HelpPopup extends React.Component<HelpPopupProps, HelpPopupState> {
       });
   }
 
-  render() {
+  override render() {
     return (
       <div ref={this.ref}>
         <Modal show={this.state.open} centered size="lg" container={this.ref.current}>

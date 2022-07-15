@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState, useEffect,useRef, useCallback, memo } from 'react';
 import { Suspense } from 'react';
 
+import "./styles.css";
+
 import ReactDOM from 'react-dom';
 
 import { Subject } from 'rxjs';

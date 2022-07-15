@@ -29,7 +29,7 @@ export interface IMatrixValue {
 
 export class GridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPluginProps,GridEditNodeHtmlPluginState> {
 
-	state = {
+	override state = {
 		value : this.props.node.defaultValue || 0,
 		receivedPayload : [],
 		data : []
@@ -38,7 +38,7 @@ export class GridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPlug
 	observableId = uuidV4();
 
 
-	componentDidMount() {
+	override componentDidMount() {
 		
 		console.log("componentDidMount slider");
 		if (this.props.node) {
@@ -61,7 +61,7 @@ export class GridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPlug
 		}
 	}
 
-	componentDidUpdate(prevProps : any) {
+	override componentDidUpdate(prevProps : any) {
 		if (prevProps.flow != this.props.flow) {
 			if (this.props.node) {
 				this.props.flowrunnerConnector.modifyFlowNode(
@@ -76,7 +76,7 @@ export class GridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPlug
 	}
 
 	unmounted = false;
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		this.unmounted = true;
 	}
 
@@ -164,7 +164,7 @@ export class GridEditNodeHtmlPlugin extends React.Component<GridEditNodeHtmlPlug
 		);
 	}
 
-	render() {
+	override render() {
 
 		let circles : any = null;
 		let {node} = this.props;

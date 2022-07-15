@@ -1,34 +1,25 @@
 {
-	"compilerOptions": {
-	  "jsx":"react-jsx",
-	  "target": "es2018",
-	  "noImplicitAny": false,
-	  "module": "esnext",
-	  "removeComments": true,
-	  "moduleResolution":"node",
-	  "outDir": "./lib",
-	  "strict": true,
-	  "allowJs": true,
-	  "esModuleInterop": true,
-	  "sourceMap": true,
-	  "declaration": true,
-	  "skipLibCheck": true,
-
-	  "noEmit": true,
-	  "baseUrl": ".",
-	  "rootDir": "src"
-	},
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  "files": [],
+  "include": [],
   "references": [
-	{
-		"path" : "../../packages/flowrunner-canvas"
-	},
-	{
-		"path" : "../../packages/flowrunner-canvas-core"
-	},
-	{
-		"path" : "../../packages/flowrunner-canvas-ui-view"
-	}	
-],
-	"include": ["src"],
-	"exclude": ["node_modules", "**/__tests__/*"]	
-  }
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

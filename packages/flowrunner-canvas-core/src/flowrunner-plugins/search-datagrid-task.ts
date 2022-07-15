@@ -11,7 +11,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class SearchDataGridTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (
       node.searchColumn &&
@@ -39,7 +39,7 @@ export class SearchDataGridTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'SearchDataGridTask';
   }
 }

@@ -1,7 +1,7 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class ConditionalTriggerTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     //console.log('ConditionalTriggerTask', node);
     try {
       if (node.propertyName) {
@@ -33,7 +33,7 @@ export class ConditionalTriggerTask extends FlowTask {
     //return false;
   }
 
-  public getName() {
+  public override getName() {
     return 'ConditionalTriggerTask';
   }
 }

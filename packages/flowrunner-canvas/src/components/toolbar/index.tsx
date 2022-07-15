@@ -187,7 +187,7 @@ export const Toolbar = (props: ToolbarProps) => {
 			return;
 		};
 
-		fetch('/get-flows')
+		fetch('/api/get-flows')
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -820,7 +820,7 @@ export const Toolbar = (props: ToolbarProps) => {
 			return;
 		}
 
-		fetch('/flow?flow=' + flowId)
+		fetch('/api/flow?flow=' + flowId)
 		.then(res => {
 			if (res.status >= 400) {
 				throw new Error("Bad response from server");
@@ -1012,7 +1012,7 @@ export const Toolbar = (props: ToolbarProps) => {
                         }
                         title="Add new flow"
                       >
-                        <span>New flow.</span>
+                        <span>New flow</span>
                       </a>
                     )}
                   </>
@@ -1021,7 +1021,7 @@ export const Toolbar = (props: ToolbarProps) => {
                       title="playground"
                       width="32px"
                       style={{ marginLeft: -10, marginRight: 10 }}
-                      src="/svg/game-board-light.svg"
+                      src="/assets/svg/game-board-light.svg"
                     />
                   )}
                   {!isFlowEditorOnly &&
@@ -1031,7 +1031,7 @@ export const Toolbar = (props: ToolbarProps) => {
                         title="rust/webassembly flow"
                         width="32px"
                         style={{ marginLeft: -10, marginRight: 10 }}
-                        src="/svg/webassembly.svg"
+                        src="/assets/svg/webassembly.svg"
                       />
                     )}
                   {!isFlowEditorOnly && canvasMode.flowType === 'backend' && canvasMode.editorMode === 'canvas' && (
@@ -1039,7 +1039,7 @@ export const Toolbar = (props: ToolbarProps) => {
                       title="backend flow"
                       width="32px"
                       style={{ marginLeft: -10, marginRight: 10 }}
-                      src="/svg/server-solid.svg"
+                      src="/assets/svg/server-solid.svg"
                     />
                   )}
                   {canvasMode.isInMultiSelect && props.hasCustomNodesAndRepository && (

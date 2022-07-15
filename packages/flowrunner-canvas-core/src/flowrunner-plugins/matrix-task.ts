@@ -13,7 +13,7 @@ export interface IMatrix {
 export class MatrixTask extends FlowTask {
   webassembly: any = undefined;
   performance: any = undefined;
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     //console.log("MatrixTask execute", node);
     if (this.performance === undefined) {
       this.performance = performance.now();
@@ -491,7 +491,7 @@ export class MatrixTask extends FlowTask {
     //
   }
 
-  public getName() {
+  public override getName() {
     return 'MatrixTask';
   }
 }

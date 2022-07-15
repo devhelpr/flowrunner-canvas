@@ -64,7 +64,7 @@ export const useFlows = (
       return;
     }
 
-    fetch('/get-flows')
+    fetch('/api/get-flows')
       .then(res => {
         if (res.status >= 400) {
           setFlowState(FlowState.error);
@@ -141,7 +141,7 @@ export const useFlows = (
         return;
       }
 
-      fetch('/flow?flow=' + currentFlowId)
+      fetch('/api/flow?flow=' + currentFlowId)
         .then(res => {
           if (res.status >= 400) {
             setFlowState(FlowState.error);
@@ -212,7 +212,7 @@ export const useFlows = (
         return;
       }
 
-      fetch('/save-flow?id=' + selectedFlow, {
+      fetch('/api/save-flow?id=' + selectedFlow, {
         method: 'POST',
         body: JSON.stringify({
           flow: flowAndUpdatedPositions,

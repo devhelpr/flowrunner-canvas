@@ -40,7 +40,7 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 		}
 	}
 	
-	componentDidUpdate(prevProps) {
+	override componentDidUpdate(prevProps) {
 		if (this.props.tree !== undefined && this.props.tree !== null &&
 			prevProps.tree !== this.props.tree) {
 			let layout = [];
@@ -164,7 +164,7 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 		}
 	}
 
-	render() {
+	override render() {
 		const { level , name } = this.props;
 		return <>{this.state.layout.map((layout : any, index) => {
 				if (layout.title == "element") {

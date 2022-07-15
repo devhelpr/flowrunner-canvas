@@ -45,7 +45,7 @@ export const UIView = (props: IUIViewProps) => {
 			command: 'init'
 		});
 
-		let pluginRegistry = {};
+		const pluginRegistry = {};
 		setPluginRegistry(pluginRegistry);
 
 		const root = document.getElementById('flowstudio-root');
@@ -65,7 +65,7 @@ export const UIView = (props: IUIViewProps) => {
 			flowrunnerConnector.current.registerWorker(worker);		
 		}
 
-		if (!!hasRunningFlowRunner) {
+		if (hasRunningFlowRunner) {
 			flowrunnerConnector.current = new FlowConnector();	
 			flowrunnerConnector.current.registerWorker(worker);
 			flowrunnerConnector.current.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
@@ -75,7 +75,7 @@ export const UIView = (props: IUIViewProps) => {
 		flowrunnerConnector.current.hasStorageProvider = hasStorageProvider;
 		flowrunnerConnector.current.storageProvider = storageProvider;
 
-		let applicationMode = ApplicationMode.UI;
+		const applicationMode = ApplicationMode.UI;
 				
 		flowrunnerConnector.current.setAppMode(applicationMode);		
 		

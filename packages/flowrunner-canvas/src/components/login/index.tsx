@@ -20,7 +20,7 @@ export interface LoginPopupState {
 
 
 export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
-  state = {
+  override state = {
     username: '',
     password: '',
     passwordCompare: '',
@@ -30,7 +30,7 @@ export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
     isRegistratingNewUser: false,
   };
 
-  componentDidMount() {
+  override componentDidMount() {
     let loadingElement = document.getElementById("loading");
     if (loadingElement && !loadingElement.classList.contains("loaded")) {
       loadingElement.classList.add("loaded");
@@ -148,7 +148,7 @@ export class Login extends React.Component<LoginPopupProps, LoginPopupState> {
     return false;
   };
 
-  render() {
+  override render() {
     return (
       <Modal show={true} centered size="sm">
         <Modal.Header>

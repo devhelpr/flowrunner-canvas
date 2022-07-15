@@ -5,8 +5,12 @@ export const FlowConnectorCore = (props: any) => {
 }
 
 export { FlowConnector , EmptyFlowConnector} from './flow-connector';
-export { IFlowrunnerConnector, ApplicationMode, IExecutionEvent } from './interfaces/IFlowrunnerConnector';
-export { IStorageProvider } from './interfaces/IStorageProvider';
+export { ApplicationMode } from './interfaces/IFlowrunnerConnector';
+
+export type { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector'; 
+export type { IExecutionEvent } from './interfaces/IFlowrunnerConnector';
+
+export type { IStorageProvider } from './interfaces/IStorageProvider';
 
 export * from './interfaces/IFlowAgent';
 export * from './interfaces/IFlowrunnerSocketConnector';

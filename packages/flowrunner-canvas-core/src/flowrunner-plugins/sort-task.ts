@@ -12,7 +12,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class SortTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.sortProperty && node.mode && node.compareField) {
       if (payload[node.sortProperty]) {
@@ -22,7 +22,7 @@ export class SortTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'SortTask';
   }
 

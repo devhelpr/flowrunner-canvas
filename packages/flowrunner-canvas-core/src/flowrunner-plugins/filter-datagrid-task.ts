@@ -11,7 +11,7 @@ import { FlowTask } from '@devhelpr/flowrunner';
 */
 
 export class FilterDataGridTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     let payload = { ...node.payload };
     if (node.filterColumn && node.filterValueFromProperty && payload.values) {
       if (payload[node.filterValueFromProperty]) {
@@ -25,7 +25,7 @@ export class FilterDataGridTask extends FlowTask {
     return payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'FilterDataGridTask';
   }
 }

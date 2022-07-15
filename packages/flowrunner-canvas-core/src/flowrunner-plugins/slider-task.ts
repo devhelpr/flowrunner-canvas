@@ -1,7 +1,7 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class SliderTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public override execute(node: any, services: any) {
     if (node.propertyName) {
       node.payload = Object.assign({}, node.payload);
       let value = node.defaultValue || 0;
@@ -20,7 +20,7 @@ export class SliderTask extends FlowTask {
     return node.payload;
   }
 
-  public getName() {
+  public override getName() {
     return 'SliderTask';
   }
 }
