@@ -26,8 +26,9 @@ declare module 'express' {
   }
 }
 
+// this is needed to have the correct location
+// for file storage
 const getPathToLocalFile = (fileName : string) : string => {
-	console.log("getPathToLocalFile:" , process.env.NX_WORKSPACE_ROOT);
   return join(process.env.NX_WORKSPACE_ROOT,'/',fileName);
 }
 
@@ -440,7 +441,7 @@ function start(flowFileName, taskPlugins, options) {
 			res.send(editorState);
 		});
 
-		app.post('/flow', (req, res) => {
+		app.post('/api/flow', (req, res) => {
 			if (flowsFileName == "") {
 				throw new Error("no flows-file specified");
 			}

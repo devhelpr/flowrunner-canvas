@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect,useRef, useCallback, memo } from 'react';
 import { Suspense } from 'react';
 
+//import 'bootstrap/dist/css/bootstrap.min.css';
 import "./styles.css";
 
 import ReactDOM from 'react-dom';

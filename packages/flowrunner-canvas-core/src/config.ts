@@ -1356,6 +1356,10 @@ const taskTypeConfig: any = {
                   label: 'Image',
                 },
                 {
+                  value: 'video',
+                  label: 'Video',
+                },
+                {
                   value: 'stateMachineEventButton',
                   label: 'StateMachine Event Button',
                 },

@@ -10,6 +10,7 @@ import { ObjectList } from './object-list';
 import { IFormControlProps } from './form-control-interface';
 import { HashMap } from './hashmap';
 import { Image } from './image';
+import { Video } from './video';
 import { StateMachineEventButton } from './stateMachineEventButton';
 
 const RichTextEditor = React.lazy(() => import('./richtexteditor').then(({ RichTextEditor }) => ({ default: RichTextEditor })));
@@ -26,6 +27,7 @@ const formControls = {
 	hashmap: HashMap,
 	richtexteditor: RichTextEditor,
 	image: Image,
+	video: Video,
 	stateMachineEventButton: StateMachineEventButton
 }
 

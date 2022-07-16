@@ -62,9 +62,8 @@
     "tailwindcss": "^3.1.6"
   },
   "scripts": {
-    "css": "lerna run css --stream -- --verbose",
-    "build": "lerna run build --stream",
-    "start": "lerna run start --stream",
+    "build": "nx build",
+    "start": "nx serve code-flow-canvas",
     "versionandpublishpackages": "lerna publish --no-private"
   },
   "name": "flowrunner-canvas-root",

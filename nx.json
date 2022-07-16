@@ -28,18 +28,7 @@
   "targetDefaults": {
     "build": {
       "dependsOn": [
-        "^build",
-        "css"
-      ]
-    },
-    "start": {
-      "dependsOn": [
-        "build"
-      ]
-    },
-    "serve": {
-      "dependsOn": [
-        "css"
+        "^build"
       ]
     }
   },
