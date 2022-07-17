@@ -33,6 +33,11 @@ export class FormTask extends ObservableTask {
               if (datasource) {
                 let isFound = false;
                 datasource.map(item => {
+                  if (typeof item === "string" || typeof item === "number") {
+                    if (item.toString() === currentValue) {
+                      isFound = true;
+                    }
+                  } else
                   if (item.value !== undefined && item.value === currentValue) {
                     isFound = true;
                   }

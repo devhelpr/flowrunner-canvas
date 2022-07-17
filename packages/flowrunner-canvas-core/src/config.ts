@@ -493,8 +493,8 @@ const taskTypeConfig: any = {
   },
   InjectIntoPayloadTask: {
     icon: 'fa-cubes',
-    shapeType: 'Html',
-    htmlPlugin: 'shapeNode',
+    _shapeType: 'Html',
+    _htmlPlugin: 'shapeNode',
     layout: {
       strokeColor: '#d61bd8',
       fillColor: '#d550d7',
@@ -512,11 +512,11 @@ const taskTypeConfig: any = {
       border: '2px solid purple',
     },
     styleShapeBody: {
-      width: '200px',
-      height: '200px',
+      _width: '200px',
+      _height: '200px',
     },
-    width: 200,
-    height: 200,
+    _width: 200,
+    _height: 200,
     config: {
       objects: [
         {
@@ -588,7 +588,7 @@ const taskTypeConfig: any = {
     isSkewed: true,
     presetValues: {
       url: '',
-      method: 'get',
+      httpMethod: 'get',
       sendPayloadToApi: false,
     },
   },

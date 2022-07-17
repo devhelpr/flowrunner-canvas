@@ -473,18 +473,29 @@ function start(flowFileName, taskPlugins, options) {
 
 			const url = req.body.url;
 			const urlWithSecrets = replaceValues(url, secrets);
-			console.log(urlWithSecrets);
+			console.log("api proxy", url, req.body);
+
+			const options : any = {};
+
+			if (req.body?.body) {
+				options.headers = {
+					'Content-Type': 'application/json'
+				};
+				options.body = JSON.stringify(req.body?.body ?? {});
+			}
 			fetch(urlWithSecrets, {
-				method: req.body.httpMethod	|| "get"
+				method: req.body?.httpMethod ?? "get",
+				...options
 			}).then((response) => {
 			
 				// TODO make this configurable and also check non-happy path
 				return response.json();
 				
 			}).then(json => {
-				console.log("api proxy", json);
+				console.log("api proxy response", json);
 				res.send(json);
-			}).catch(() => {
+			}).catch((err) => {
+				console.log("api proxy error", err);
 				res.send({});
 			});
 			
