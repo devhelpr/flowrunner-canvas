@@ -4,7 +4,8 @@
 - this is a monorepo, run from root of this repo:
 - yarn install
 - yarn start (under the hood this runs: nx serve code-flow-canvas)
-
+- in other tab: yarn startapi
+  
 ## project setup
 
 - monorepo using nx
