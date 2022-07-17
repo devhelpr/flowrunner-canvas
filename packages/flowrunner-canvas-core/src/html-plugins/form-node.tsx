@@ -925,7 +925,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			backgroundColor: "white"
 		}}>
 		<div className={"w-100 h-auto"}>
-			<Suspense fallback={<div>Loading...</div>}>
+			<Suspense fallback={<div>Loading formnode...</div>}>
 			{!!props.isObjectListNodeEditing ?
 			<div className="form">
 				{renderFields()}
