@@ -176,7 +176,6 @@ export class FlowConnector implements IFlowrunnerConnector {
         });
       } else if (event.data.command == 'SendObservableNodePayload') {
         // TODO : de eerst keer gaat dit niet goed...
-        //console.log('SendObservableNodePayload', event.data);
         if (
           event.data.payload &&
           event.data.payload.nodeName &&
@@ -249,7 +248,6 @@ export class FlowConnector implements IFlowrunnerConnector {
         }
         //
       } else if (event.data.command == 'RegisterFlowNodeObservers') {
-        console.log('RegisterFlowNodeObservers', this.observables);
         this.observables.map(observable => {
           if (this.worker) {
             this.worker.postMessage('worker', {
@@ -511,7 +509,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     observableId: string,
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
   ) => {
-    console.log('registerNodeStateObserver', observableId);
+    //console.log('registerNodeStateObserver', observableId);
     let results = this.nodeStateObservables.filter(ob => {
       return ob.id == observableId;
     });
@@ -524,7 +522,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   unregisterNodeStateObserver = (observableId: string) => {
-    console.log('unregisterNodeStateObserver', observableId);
+    //console.log('unregisterNodeStateObserver', observableId);
     let indexes: number[] = [];
 
     // TODO : refactor this to a better way !!

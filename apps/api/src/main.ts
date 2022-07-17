@@ -29,6 +29,7 @@ declare module 'express' {
 // this is needed to have the correct location
 // for file storage
 const getPathToLocalFile = (fileName : string) : string => {
+	console.log("getPathToLocalFile", join(process.env.NX_WORKSPACE_ROOT,'/',fileName));
   return join(process.env.NX_WORKSPACE_ROOT,'/',fileName);
 }
 
@@ -236,8 +237,8 @@ function start(flowFileName, taskPlugins, options) {
 			const flowFileName = flowFilesFound[0].fileName;
 			const layoutFileName = dirname(flowFileName) + "/layout-" + basename(flowFileName, extname(flowFileName)) + ".json";
 
-			writeFileSync(flowFileName, bodyAsJsonString);
-			writeFileSync(layoutFileName, layoutAsJsonString);
+			writeFileSync(getPathToLocalFile("data/"+flowFileName), bodyAsJsonString);
+			writeFileSync(getPathToLocalFile("data/"+layoutFileName), layoutAsJsonString);
 			console.log("Flow file written to:", flowFileName);
 			res.send(JSON.stringify({ status: true }));
 
@@ -288,10 +289,12 @@ function start(flowFileName, taskPlugins, options) {
 				throw new Error("flow not found");
 			}
 
-			const flowFileName = flowFilesFound[0].fileName;
-			const layoutFileName = dirname(flowFileName) + "/layout-" + basename(flowFileName, extname(flowFileName)) + ".json";
+			let flowFileName = flowFilesFound[0].fileName;
+			flowFileName = basename(flowFileName);
+			const layoutFileName = "layout-" + basename(flowFileName);
 			
-      const flowPackage = {
+		
+      		const flowPackage = {
 				flow: [],
 				flowType : flowFilesFound[0].flowType,
 				layout : {},
@@ -299,14 +302,14 @@ function start(flowFileName, taskPlugins, options) {
 			};
 
 			try {
-				flowPackage.layout = JSON.parse(readFileSync(layoutFileName).toString()) || {};
+				flowPackage.layout = JSON.parse(readFileSync(getPathToLocalFile('data/'+layoutFileName)).toString()) || {};
 			} catch (err) {
 				console.log("error in get-flow api: ", err);
 				flowPackage.layout = {};
 			}
 
 			try {				
-				flowPackage.flow = JSON.parse(readFileSync(flowFileName).toString());
+				flowPackage.flow = JSON.parse(readFileSync(getPathToLocalFile('data/'+flowFileName)).toString());
 			} catch (err) {
 				console.log("error in get-flow api: ", err);
 				flowPackage.flow = [];
@@ -328,9 +331,9 @@ function start(flowFileName, taskPlugins, options) {
 			}
 
 			const flowFileName = flowFilesFound[0].fileName;
-			const testFileName = dirname(flowFileName) + "/test-" + basename(flowFileName, extname(flowFileName)) + ".json";
+			const testFileName = "/data/test-" + basename(flowFileName, extname(flowFileName)) + ".json";
 			
-			res.send(JSON.stringify(JSON.parse(readFileSync(testFileName).toString())));
+			res.send(JSON.stringify(JSON.parse(readFileSync(getPathToLocalFile(testFileName)).toString())));
 		};
 
 		app.get('/test', testRouteHandler);
@@ -351,7 +354,7 @@ function start(flowFileName, taskPlugins, options) {
 		*/
 
 		app.get('/api/get-presets', (req, res) => {
-			const presets = JSON.parse(readFileSync("./presets.json").toString());		
+			const presets = JSON.parse(readFileSync(getPathToLocalFile("presets.json")).toString());		
 			let list = [];
 			if (!req.query.flowId || !req.query.nodeName) {
 				throw new Error("Required parameters not specified.");
@@ -369,7 +372,7 @@ function start(flowFileName, taskPlugins, options) {
 			res.send(JSON.stringify({data:list}));
 		});
 		app.get('/api/get-preset', (req, res) => {			
-			const presets = JSON.parse(readFileSync("./presets.json").toString());
+			const presets = JSON.parse(readFileSync(getPathToLocalFile("presets.json")).toString());
 			if (!req.query.flowId || !req.query.nodeName) {
 				throw new Error("Required parameters not specified.");
 			}
@@ -386,7 +389,7 @@ function start(flowFileName, taskPlugins, options) {
 			}
 		});
 		app.post('/api/save-preset', (req, res) => {
-			const presets = JSON.parse(readFileSync("./presets.json").toString());
+			const presets = JSON.parse(readFileSync(getPathToLocalFile("presets.json")).toString());
 			if (!req.query.flowId || !req.query.nodeName) {
 				throw new Error("Required parameters not specified.");
 			}
@@ -447,11 +450,11 @@ function start(flowFileName, taskPlugins, options) {
 			}
 			
 			const newId = uuidV4();
-			const fileName = getPathToLocalFile("data/" + req.query.flow + ".json");
+			const fileName = getPathToLocalFile(`data/${req.query.flow}.json`);
 			flowFiles.push({
 				id: newId,
 				name: req.query.flow,
-				fileName:fileName,
+				fileName: `${req.query.flow}.json`,
 				flowType: req.query.flowType || "playground"
 			});
 

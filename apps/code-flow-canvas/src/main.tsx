@@ -280,6 +280,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 					{false && !!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
 									flowrunnerConnector={flowrunnerConnector}></UIControlsBar>}
 					*/
+					// eslint-disable-next-line react/jsx-no-useless-fragment
 					return <>{(hasLogin && !loggedIn) ? <Login onClose={onClose}></Login> : 
 							
 								<Suspense fallback={<div>Loading...</div>}>
@@ -354,7 +355,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 				const start = (isLoggednIn) => {
 					console.log("pluginRegistry", pluginRegistry);
 					// (ReactDOM as any).createRoot(
-					(ReactDOM as any).render(<PositionProvider>
+					ReactDOM.render(<PositionProvider>
 							<FormNodeDatasourceProvider>
 							<App isLoggedIn={isLoggednIn}></App>
 						</FormNodeDatasourceProvider>
@@ -413,7 +414,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 			console.log("pluginRegistry", pluginRegistry);
-			(ReactDOM as any).render(<PositionProvider>
+			ReactDOM.render(<PositionProvider>
 				<FormNodeDatasourceProvider
 					><App></App>
 				</FormNodeDatasourceProvider>

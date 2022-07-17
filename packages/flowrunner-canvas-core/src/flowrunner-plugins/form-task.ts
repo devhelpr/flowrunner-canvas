@@ -4,8 +4,6 @@ const uuidV4 = uuid.v4;
 
 export class FormTask extends ObservableTask {
   public override execute(node: any, services: any) {
-    //console.log('FormTask', node);
-
     if (!!node.formDefinitionAsPayload) {
       const payload = { ...node.payload };
       payload['metaInfo'] = node.metaInfo || [];
@@ -63,7 +61,6 @@ export class FormTask extends ObservableTask {
           isValid = false;
         }
       });
-      console.log('form task', values);
       let payload = { ...node.payload, ...values };
       payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
       super.execute({ ...node, sendNodeName: true, payload: payload }, services);

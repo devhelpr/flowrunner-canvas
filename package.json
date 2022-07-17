@@ -8,13 +8,15 @@
     "@nrwl/next": "^14.4.2",
     "core-js": "^3.6.5",
     "express": "4.17.2",
+    "express-fileupload": "1.4.0",
     "next": "12.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.3.0",
     "regenerator-runtime": "0.13.7",
     "tslib": "^2.3.0",
-    "rxjs": "^6.4.0"
+    "rxjs": "^6.4.0",
+    "ejs": "^3.1.8"
   },
   "devDependencies": {
     "@craco/craco": "~6.4.4",

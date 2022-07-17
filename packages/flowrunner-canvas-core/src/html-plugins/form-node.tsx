@@ -144,6 +144,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 	useEffect(() => {
 
+		unmounted.current = false;
 		let subscription;
 		if (props.formNodesubject) {
 			
@@ -231,7 +232,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
 		const THROTTLE_TIMEOUT = 500;
 
-		//console.log("FORMNODE VALUES UPDATE", values);
 		if (modifyFlowThrottleEnabled.current) {
 			modifyFlowThrottleTimer.current = setTimeout(() => {
 				modifyFlowThrottleEnabled.current = false;
@@ -292,7 +292,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		if (unmounted.current) {
 			return;
 		}		
-		
 
 		let metaInfo : any[] = [];
 
@@ -417,7 +416,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 	
 	const onModifyFlowThrottleTimer = useCallback(() => {
-		console.log("onModifyFlowThrottleTimer triggered", node,values);		
 		storeFlowNode({...node,...values}, props.node.name);
 
 		props.flowrunnerConnector?.modifyFlowNode(
@@ -453,7 +451,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					})
 				}
 			}
-			//console.log("setValueViaOnReceive", metaInfo.fieldName, clearValues);
 			const updatedValues = {
 				...values,
 				...clearValues,			
@@ -466,12 +463,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				[fieldName]: value
 			};
 			setNode(updatedNode);
-			//console.log("setValueHelper",updatedValues);
-			//console.log("props.node.name",value,props.node.name);
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
 				if (props.node.taskType == "FormTask" ||
 					(props.taskSettings && !!props.taskSettings.isFormTask)) {
-					//console.log("pre modifyFlowNode 2", updatedValues);
 					if (props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
@@ -531,7 +525,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		let valueForNode : any;
 
 		event.persist();
-		console.log("onChange", fieldName, event.target.files);
 
 		if (fieldType == "fileupload") {
 			valueForNode = {
@@ -585,7 +578,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				...clearValues,				
 				[metaInfo.fieldName]: newValue
 			};
-			//console.log("setValueViaOnReceive", metaInfo.fieldName, newValue, newValues);
 			setValues(newValues);
 			setErrors(_errors);
 			let updatedNode = {

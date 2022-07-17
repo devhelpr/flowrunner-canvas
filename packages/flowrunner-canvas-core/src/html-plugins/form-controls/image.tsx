@@ -7,7 +7,6 @@ import { useFormControlFromCode } from './use-form-control';
 export const Image = (props: IFormControlProps) => {
 	const { metaInfo, node } = props;
 	let formControl = useFormControlFromCode(props.value, metaInfo, props.onChange);
-	
 	useEffect(() => {
 		formControl.setValue(props.value);
 	}, [props.value]);
