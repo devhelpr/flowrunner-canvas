@@ -1404,7 +1404,18 @@ const taskTypeConfig: any = {
               idProperty: 'datasourceId',
               autoId: 'none',
             },
-            ,
+            {
+              visibilityCondition: "fieldType=='select'",
+              fieldName: 'datasourceLabelProperty',
+              fieldType: 'text',
+              label: 'Datasource label property',
+            },
+            {
+              visibilityCondition: "fieldType=='select'",
+              fieldName: 'datasourceValueProperty',
+              fieldType: 'text',
+              label: 'Datasource value property',
+            },          
             {
               fieldName: 'visibilityCondition',
               fieldType: 'textarea',

@@ -473,6 +473,7 @@ function start(flowFileName, taskPlugins, options) {
 
 			const url = req.body.url;
 			const urlWithSecrets = replaceValues(url, secrets);
+			console.log(urlWithSecrets);
 			fetch(urlWithSecrets, {
 				method: req.body.httpMethod	|| "get"
 			}).then((response) => {
@@ -896,7 +897,7 @@ function start(flowFileName, taskPlugins, options) {
 
 			backendFlows.map((flowFile) => {
 				try {
-					const flow = JSON.parse(readFileSync(flowFile.fileName).toString());
+					const flow = JSON.parse(readFileSync(getPathToLocalFile("data/"+flowFile.fileName)).toString());
 					if (flow) {
 						const runner = new FlowEventRunner();
 						flowRunners[flowFile.id] = runner;						

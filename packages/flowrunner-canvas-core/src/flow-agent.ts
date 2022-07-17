@@ -537,7 +537,11 @@ export class ApiProxyTask extends FlowTask {
             return res.json();
           })
           .then(response => {
-            resolve({ ...node.payload, ...response });
+            if (Array.isArray(response)) {
+              resolve({ ...node.payload, result: [...response] });
+            } else {
+              resolve({ ...node.payload, ...response });
+            }
           })
           .catch(err => {
             console.error(err);
@@ -852,6 +856,8 @@ const startFlow = (
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
     */
+    worker.flow.registerTask('OutputValueTask', OutputValueTask);    
+    
     worker.flow.registerTask('RandomTask', RandomTask);
     worker.flow.registerTask('TimerTask', TimerTask);
     worker.flow.registerTask('InputTask', InputTask);

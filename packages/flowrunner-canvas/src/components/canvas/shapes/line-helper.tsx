@@ -47,7 +47,11 @@ export const LineHelper = (props : ILineHelperProps) => {
 	const positionContext = usePositionContext();
 	
 	const endNode = useMemo(() => {
-		const endIndex = flow.flowHashmap.get(props.endshapeid).index;
+		const item = flow.flowHashmap.get(props.endshapeid);
+		if (!item) {
+			return false;
+		}
+		const endIndex = item.index;
 		if (endIndex < 0) {
 			return false;
 		}
@@ -55,7 +59,11 @@ export const LineHelper = (props : ILineHelperProps) => {
 	}, [props.node.name, flow, flow.flowHashmap, props.endshapeid]);
 
 	const startNode = useMemo(() => {
-		const startIndex = flow.flowHashmap.get(props.startshapeid).index;
+		const item = flow.flowHashmap.get(props.startshapeid);
+		if (!item) {
+			return false;
+		}
+		const startIndex = item.index;
 		if (startIndex < 0) {
 			return false;
 		}
@@ -190,7 +198,11 @@ export const Lines = (
 	const positionContext = usePositionContext();
 
 	const lines = useMemo(() => {
-		return flow.flowHashmap.get(props.node.name).start.map((lineIndex, index) => {
+		const item = flow.flowHashmap.get(props.node.name);
+		if (!item) {
+			return [];
+		}
+		return item.start.map((lineIndex, index) => {
 			return flow.flow[lineIndex];
 		});	
 	}, [props.node.name, flow, flow.flowHashmap]);
@@ -208,7 +220,11 @@ export const Lines = (
 			/*
 				- lijnen vanuit de huidige node naar een andere node
 			*/
-			const endIndex = flow.flowHashmap.get(lineNode.endshapeid).index;
+			const item = flow.flowHashmap.get(lineNode.endshapeid);
+			if (!item) {
+				return false;
+			}
+			const endIndex = item.index;
 			if (endIndex < 0) {
 				return false;
 			}

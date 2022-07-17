@@ -14,7 +14,7 @@ import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Suspense } from 'react';
 
-import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom/client';
 
 import { Subject } from 'rxjs';
 
@@ -137,7 +137,7 @@ const TestApp = (props: ITestAppProps) => {
 export const startEditor = async (flowStorageProvider? : IStorageProvider, doLocalStorageFlowEditorOnly? : boolean) => {
 	
 	if (doLocalStorageFlowEditorOnly) {
-		const root = document.getElementById('flowstudio-root');
+		//const root = document.getElementById('flowstudio-root');
 
 		createIndexedDBStorageProvider().then((result) => {
 			if (!result) {
@@ -145,10 +145,14 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 			}
 			const flowrunnerStorageProvider = result as IStorageProvider;
 			console.log("flowrunnerStorageProvider",flowrunnerStorageProvider);
-			(ReactDOM as any).render(
-				<FormNodeDatasourceProvider>
-					<TestApp flowrunnerStorageProvider={flowrunnerStorageProvider}></TestApp>
-				</FormNodeDatasourceProvider>, root);
+			const reactRoot = ReactDOM.createRoot(document.getElementById('flowstudio-root') as HTMLElement);
+
+			reactRoot.render(
+				<React.StrictMode>
+					<FormNodeDatasourceProvider>
+						<TestApp flowrunnerStorageProvider={flowrunnerStorageProvider}></TestApp>
+					</FormNodeDatasourceProvider>
+				</React.StrictMode>);
 			/*
 			(ReactDOM as any).render(<FlowrunnerCanvas 
 				developmentMode={true}
@@ -354,12 +358,14 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 				// or it is not used if data-has-login="false" is set on the document root used by reactdom.render
 				const start = (isLoggednIn) => {
 					console.log("pluginRegistry", pluginRegistry);
-					// (ReactDOM as any).createRoot(
-					ReactDOM.render(<PositionProvider>
-							<FormNodeDatasourceProvider>
-							<App isLoggedIn={isLoggednIn}></App>
-						</FormNodeDatasourceProvider>
-					</PositionProvider>, root);
+					const reactRoot = ReactDOM.createRoot(root as HTMLElement);
+					reactRoot.render(<React.StrictMode>
+							<PositionProvider>
+								<FormNodeDatasourceProvider>
+								<App isLoggedIn={isLoggednIn}></App>
+							</FormNodeDatasourceProvider>
+						</PositionProvider>
+					</React.StrictMode>);
 				}
 
 				if (hasStorageProvider) {
@@ -414,11 +420,14 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 			flowrunnerConnector.setPluginRegistry(pluginRegistry);
 
 			console.log("pluginRegistry", pluginRegistry);
-			ReactDOM.render(<PositionProvider>
-				<FormNodeDatasourceProvider
-					><App></App>
-				</FormNodeDatasourceProvider>
-			</PositionProvider>, root);												
+			const reactRoot = ReactDOM.createRoot(root as HTMLElement);
+			reactRoot.render(<React.StrictMode>
+				<PositionProvider>
+					<FormNodeDatasourceProvider
+						><App></App>
+					</FormNodeDatasourceProvider>
+				</PositionProvider>
+			</React.StrictMode>);							
 		}
 	})
 	.catch(err => {

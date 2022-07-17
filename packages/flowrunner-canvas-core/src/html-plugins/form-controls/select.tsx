@@ -78,8 +78,16 @@ export const Select = (props: IFormControlProps) => {
 				onChange={formControl.onChange} >
 				{showDefaultOption === true && <option value="" disabled>Select value</option>}
 				{metaInfo && (props.datasource || metaInfo.options || []).map((option : ISelectOption, index) => {
+					let optionOutput: any = option;
+					if (metaInfo.datasourceLabelProperty && metaInfo.datasourceValueProperty) {
+						optionOutput.label = option[metaInfo.datasourceLabelProperty];
+						optionOutput.value = option[metaInfo.datasourceValueProperty];
+					}
+					
 					return <React.Fragment key={"select"+index}>
-						<option value={option.value || (typeof option === "string" && option) || "" }>{option.label || (typeof option === "string" && option) || ""}</option>
+						<option value={optionOutput.value || 
+							((typeof option === "string" || typeof option === "number") && (option as any).toString()) || "" }>{optionOutput.label || 
+							((typeof option === "string" || typeof option === "number") && (option as any).toString()) || ""}</option>
 					</React.Fragment>
 				})}
 			</select>
