@@ -11,5 +11,6 @@
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
-  "license": "MIT"
+  "license": "MIT",
+  "gitHead": "e87a85acf0c5858409eae15a2c75641c607c3580"
 }

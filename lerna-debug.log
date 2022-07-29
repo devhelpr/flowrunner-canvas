@@ -1,0 +1,161 @@
+0 silly argv {
+0 silly argv   _: [ 'publish' ],
+0 silly argv   private: false,
+0 silly argv   composed: 'publish',
+0 silly argv   lernaVersion: '5.1.6',
+0 silly argv   '$0': '/Users/audax/Development/Nodejs/packages/flowrunner-canvas/node_modules/.bin/lerna'
+0 silly argv }
+1 notice cli v5.1.6
+2 verbose rootPath /Users/audax/Development/Nodejs/packages/flowrunner-canvas
+3 info versioning independent
+4 verbose session 285471c6ed0a1441
+5 verbose user-agent lerna/5.1.6/node@v14.18.0+x64 (darwin)
+6 warn Yarn's registry proxy is broken, replacing with public npm registry
+7 warn If you don't have an npm token, you should exit and run `npm login`
+8 silly argv {
+8 silly argv   _: [ 'publish' ],
+8 silly argv   private: false,
+8 silly argv   composed: 'publish',
+8 silly argv   lernaVersion: '5.1.6'
+8 silly argv }
+9 verbose rootPath /Users/audax/Development/Nodejs/packages/flowrunner-canvas
+10 silly isAnythingCommitted
+11 verbose isAnythingCommitted 1
+12 silly getCurrentBranch
+13 verbose currentBranch master
+14 silly remoteBranchExists
+15 silly isBehindUpstream
+16 silly isBehindUpstream master is behind origin/master by 0 commit(s) and ahead by 0
+17 silly hasTags
+18 verbose hasTags true
+19 silly git-describe.sync "@devhelpr/flowrunner-canvas-core@0.43.27-4-g6e2f1f2" => {"lastTagName":"@devhelpr/flowrunner-canvas-core@0.43.27","lastVersion":"0.43.27","refCount":"4","sha":"6e2f1f2","isDirty":false}
+20 info Looking for changed packages since @devhelpr/flowrunner-canvas-core@0.43.27
+21 silly checking diff libs/flowrunner-canvas-icons
+22 silly found diff in libs/flowrunner-canvas-icons/package.json
+23 verbose filtered diff [ 'libs/flowrunner-canvas-icons/package.json' ]
+24 silly checking diff packages/flowrunner-canvas-core
+25 silly found diff in packages/flowrunner-canvas-core/package.json
+26 verbose filtered diff [ 'packages/flowrunner-canvas-core/package.json' ]
+27 silly checking diff packages/flowrunner-canvas-ui-view
+28 silly no diff found in @devhelpr/flowrunner-canvas-ui-view
+29 silly checking diff packages/flowrunner-canvas
+30 silly no diff found in @devhelpr/flowrunner-canvas
+31 verbose updated @devhelpr/flowrunner-canvas-icons
+32 verbose updated @devhelpr/flowrunner-canvas-core
+33 verbose updated @devhelpr/flowrunner-canvas-ui-view
+34 verbose updated @devhelpr/flowrunner-canvas
+35 verbose git-describe undefined => "@devhelpr/flowrunner-canvas-core@0.43.27-4-g6e2f1f2"
+36 silly git-describe parsed => {"lastTagName":"@devhelpr/flowrunner-canvas-core@0.43.27","lastVersion":"0.43.27","refCount":"4","sha":"6e2f1f2","isDirty":false}
+37 info execute Skipping releases
+38 silly lifecycle No script for "preversion" in "flowrunner-canvas-root", continuing
+39 silly lifecycle No script for "preversion" in "@devhelpr/flowrunner-canvas-icons", continuing
+40 silly lifecycle No script for "version" in "@devhelpr/flowrunner-canvas-icons", continuing
+41 silly lifecycle No script for "preversion" in "@devhelpr/flowrunner-canvas-core", continuing
+42 silly lifecycle No script for "version" in "@devhelpr/flowrunner-canvas-core", continuing
+43 silly lifecycle No script for "preversion" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+44 silly lifecycle No script for "version" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+45 silly lifecycle No script for "preversion" in "@devhelpr/flowrunner-canvas", continuing
+46 silly lifecycle No script for "version" in "@devhelpr/flowrunner-canvas", continuing
+47 silly lifecycle No script for "version" in "flowrunner-canvas-root", continuing
+48 silly gitAdd [
+48 silly gitAdd   'libs/flowrunner-canvas-icons/package.json',
+48 silly gitAdd   'packages/flowrunner-canvas-core/package.json',
+48 silly gitAdd   'packages/flowrunner-canvas-ui-view/package.json',
+48 silly gitAdd   'packages/flowrunner-canvas/package.json'
+48 silly gitAdd ]
+49 silly gitCommit Publish
+49 silly gitCommit
+49 silly gitCommit  - @devhelpr/flowrunner-canvas-icons@0.0.2
+49 silly gitCommit  - @devhelpr/flowrunner-canvas-core@0.43.28
+49 silly gitCommit  - @devhelpr/flowrunner-canvas-ui-view@0.43.29
+49 silly gitCommit  - @devhelpr/flowrunner-canvas@0.43.31
+50 verbose git [
+50 verbose git   'commit',
+50 verbose git   '-F',
+50 verbose git   '/private/var/folders/rx/z84wzp25385fpbwl1q2rbt180000gn/T/7d0fb59a-5768-45e7-9462-88a9be8a5d15/lerna-commit.txt'
+50 verbose git ]
+51 silly gitTag @devhelpr/flowrunner-canvas-icons@0.0.2
+52 verbose git [
+52 verbose git   'tag',
+52 verbose git   '@devhelpr/flowrunner-canvas-icons@0.0.2',
+52 verbose git   '-m',
+52 verbose git   '@devhelpr/flowrunner-canvas-icons@0.0.2'
+52 verbose git ]
+53 silly gitTag @devhelpr/flowrunner-canvas-core@0.43.28
+54 verbose git [
+54 verbose git   'tag',
+54 verbose git   '@devhelpr/flowrunner-canvas-core@0.43.28',
+54 verbose git   '-m',
+54 verbose git   '@devhelpr/flowrunner-canvas-core@0.43.28'
+54 verbose git ]
+55 silly gitTag @devhelpr/flowrunner-canvas-ui-view@0.43.29
+56 verbose git [
+56 verbose git   'tag',
+56 verbose git   '@devhelpr/flowrunner-canvas-ui-view@0.43.29',
+56 verbose git   '-m',
+56 verbose git   '@devhelpr/flowrunner-canvas-ui-view@0.43.29'
+56 verbose git ]
+57 silly gitTag @devhelpr/flowrunner-canvas@0.43.31
+58 verbose git [
+58 verbose git   'tag',
+58 verbose git   '@devhelpr/flowrunner-canvas@0.43.31',
+58 verbose git   '-m',
+58 verbose git   '@devhelpr/flowrunner-canvas@0.43.31'
+58 verbose git ]
+59 silly lifecycle No script for "postversion" in "@devhelpr/flowrunner-canvas-icons", continuing
+60 silly lifecycle No script for "postversion" in "@devhelpr/flowrunner-canvas-core", continuing
+61 silly lifecycle No script for "postversion" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+62 silly lifecycle No script for "postversion" in "@devhelpr/flowrunner-canvas", continuing
+63 silly lifecycle No script for "postversion" in "flowrunner-canvas-root", continuing
+64 info git Pushing tags...
+65 silly gitPush origin master
+66 info publish Publishing packages to npm...
+67 info Verifying npm credentials
+68 verbose Retrieving npm user profile
+69 http fetch GET 200 https://registry.npmjs.org/-/npm/v1/user 414ms
+70 silly npm profile get received {"tfa":{"pending":false,"mode":"auth-and-writes"},"name":"mvandelisdonk","email":"maikel@devhelpr.com","email_verified":true,"created":"2019-03-10T07:49:10.824Z","updated":"2021-11-19T19:09:51.586Z","cidr_whitelist":null}
+71 silly get npm username received {"username":"mvandelisdonk","tfa":{"pending":false,"mode":"auth-and-writes"},"name":"mvandelisdonk","email":"maikel@devhelpr.com","email_verified":true,"created":"2019-03-10T07:49:10.824Z","updated":"2021-11-19T19:09:51.586Z","cidr_whitelist":null}
+72 silly verifyNpmPackageAccess
+73 http fetch GET 200 https://registry.npmjs.org/-/org/mvandelisdonk/package?format=cli 317ms (cache updated)
+74 info Checking two-factor auth mode
+75 verbose Retrieving npm user profile
+76 http fetch GET 200 https://registry.npmjs.org/-/npm/v1/user 320ms
+77 silly npm profile get received {"tfa":{"pending":false,"mode":"auth-and-writes"},"name":"mvandelisdonk","email":"maikel@devhelpr.com","email_verified":true,"created":"2019-03-10T07:49:10.824Z","updated":"2021-11-19T19:09:51.586Z","cidr_whitelist":null}
+78 silly 2FA { pending: false, mode: 'auth-and-writes' }
+79 silly getCurrentSHA
+80 verbose getCurrentSHA e87a85acf0c5858409eae15a2c75641c607c3580
+81 silly lifecycle No script for "prepublish" in "flowrunner-canvas-root", continuing
+82 silly lifecycle No script for "prepare" in "flowrunner-canvas-root", continuing
+83 silly lifecycle No script for "prepublishOnly" in "flowrunner-canvas-root", continuing
+84 silly lifecycle No script for "prepack" in "flowrunner-canvas-root", continuing
+85 verbose pack-directory libs/flowrunner-canvas-icons/src
+86 silly lifecycle No script for "prepublish" in "@devhelpr/flowrunner-canvas-icons", continuing
+87 silly lifecycle No script for "prepare" in "@devhelpr/flowrunner-canvas-icons", continuing
+88 silly lifecycle No script for "prepublishOnly" in "@devhelpr/flowrunner-canvas-icons", continuing
+89 silly lifecycle No script for "prepack" in "@devhelpr/flowrunner-canvas-icons", continuing
+90 silly lifecycle No script for "postpack" in "@devhelpr/flowrunner-canvas-icons", continuing
+91 verbose packed libs/flowrunner-canvas-icons/src
+92 verbose pack-directory dist/packages/flowrunner-canvas-core
+93 silly lifecycle No script for "prepublish" in "@devhelpr/flowrunner-canvas-core", continuing
+94 silly lifecycle No script for "prepare" in "@devhelpr/flowrunner-canvas-core", continuing
+95 silly lifecycle No script for "prepublishOnly" in "@devhelpr/flowrunner-canvas-core", continuing
+96 silly lifecycle No script for "prepack" in "@devhelpr/flowrunner-canvas-core", continuing
+97 silly lifecycle No script for "postpack" in "@devhelpr/flowrunner-canvas-core", continuing
+98 verbose packed dist/packages/flowrunner-canvas-core
+99 verbose pack-directory dist/packages/flowrunner-canvas-ui-view
+100 silly lifecycle No script for "prepublish" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+101 silly lifecycle No script for "prepare" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+102 silly lifecycle No script for "prepublishOnly" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+103 silly lifecycle No script for "prepack" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+104 silly lifecycle No script for "postpack" in "@devhelpr/flowrunner-canvas-ui-view", continuing
+105 verbose packed dist/packages/flowrunner-canvas-ui-view
+106 verbose pack-directory dist/packages/flowrunner-canvas
+107 silly lifecycle No script for "prepublish" in "@devhelpr/flowrunner-canvas", continuing
+108 silly lifecycle No script for "prepare" in "@devhelpr/flowrunner-canvas", continuing
+109 silly lifecycle No script for "prepublishOnly" in "@devhelpr/flowrunner-canvas", continuing
+110 silly lifecycle No script for "prepack" in "@devhelpr/flowrunner-canvas", continuing
+111 silly lifecycle No script for "postpack" in "@devhelpr/flowrunner-canvas", continuing
+112 verbose packed dist/packages/flowrunner-canvas
+113 silly lifecycle No script for "postpack" in "flowrunner-canvas-root", continuing
+114 verbose publish @devhelpr/flowrunner-canvas-icons
+115 error
