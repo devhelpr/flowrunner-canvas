@@ -27,7 +27,7 @@
         "packages/flowrunner-canvas-core/src/index.tsx"
       ],
       "@devhelpr/flowrunner-canvas-icons/*": [
-        "libs/flowrunner-canvas-icons/src/lib/*"
+        "libs/flowrunner-canvas-icons/*"
       ],
       "@devhelpr/flowrunner-canvas-ui-view": [
         "packages/flowrunner-canvas-ui-view/src/index.tsx"

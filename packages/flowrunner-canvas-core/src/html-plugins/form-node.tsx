@@ -20,9 +20,9 @@ import * as uuid from 'uuid';
 
 import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-context';
 
-import { ReactComponent as IconMap } from '@devhelpr/flowrunner-canvas-icons/icon-map-event.svg';
-import { ReactComponent as IconFilter } from '@devhelpr/flowrunner-canvas-icons/icon-filter-event.svg';
-import { ReactComponent as IconReduce } from '@devhelpr/flowrunner-canvas-icons/icon-reduce-event.svg';
+import { ReactComponent as IconMap } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-map-event.svg';
+import { ReactComponent as IconFilter } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-filter-event.svg';
+import { ReactComponent as IconReduce } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-reduce-event.svg';
 
 const uuidV4 = uuid.v4;
 
