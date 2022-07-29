@@ -1,7 +1,9 @@
 const { join } = require('path');
 
 const { createGlobPatternsForDependencies } = require("@nrwl/react/tailwind");
-const dependencies = [...createGlobPatternsForDependencies(__dirname)];
+const dependencies = [...createGlobPatternsForDependencies(__dirname,
+  '/**/!(*.stories|*.spec).{tsx,ts,jsx,js,html}'
+)];
 console.log("dependencies", dependencies);
 module.exports = {
   content: [
