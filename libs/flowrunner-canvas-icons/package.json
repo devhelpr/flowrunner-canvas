@@ -1,0 +1,17 @@
+{
+  "name": "@devhelpr/flowrunner-canvas-icons",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "directory": "../../dist/libs/flowrunner-canvas-icons"
+  },
+  "description": "icons for flowrunner-canvas and related packages",
+  "files": [
+    "**"
+  ],
+  "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
+  "author": "Maikel van de Lisdonk",
+  "license": "MIT",
+  "dependencies": {
+  }
+}
