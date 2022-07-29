@@ -194,7 +194,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
 			if (flowAgent) {
 				flowAgent.current.removeEventListener("external", props.onMessageFromFlow);
 				flowAgent.current.terminate();
-			}
+			}			
 			flowAgent.current = getFlowAgent();
 			if (props.onMessageFromFlow) {
 				flowAgent.current.addEventListener("external", props.onMessageFromFlow);

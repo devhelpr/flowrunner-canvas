@@ -34,6 +34,10 @@ export class FlowAgent implements IFlowAgent {
     }
   };
   terminate = () => {
+    if (this.flow) {
+      console.log("before calling destroyFlow");
+      this.flow.destroyFlow();
+    }
     this.eventListeners = {};
   };
 }
