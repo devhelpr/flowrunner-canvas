@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "publishConfig": {
     "access": "public",
-    "directory": "../../dist/libs/flowrunner-canvas-icons"
+    "directory": "../../libs/flowrunner-canvas-icons/src"
   },
   "description": "icons for flowrunner-canvas and related packages",
   "files": [
