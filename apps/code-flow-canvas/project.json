@@ -10,7 +10,7 @@
       ],
       "defaultConfiguration": "production",
       "options": {
-        "compiler": "swc",
+        "compiler": "babel",
         "outputPath": "dist/apps/code-flow-canvas",
         "index": "apps/code-flow-canvas/src/index.html",
         "baseHref": "/",

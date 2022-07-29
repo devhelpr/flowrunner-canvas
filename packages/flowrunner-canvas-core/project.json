@@ -14,7 +14,7 @@
         "entryFile": "packages/flowrunner-canvas-core/src/index.tsx",
         "external": ["react/jsx-runtime"],
         "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
-        "compiler": "swc",
+        "compiler": "babel",
         "assets": [
           {
             "glob": "packages/flowrunner-canvas-core/README.md",
