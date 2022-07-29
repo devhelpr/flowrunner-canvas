@@ -236,8 +236,15 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 					onMouseUp={(event) => props.onMouseConnectionEndEnd(props.node,false,event)}
 					onMouseLeave={(event) => props.onMouseConnectionEndLeave(props.node,false,event)}				
 				><span className="canvas__html-shape-thumb-female-indicaator"></span></div>}
-				{hasThumbs && settings.events && settings.events.map((event ,eventIndex) => {
-					return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} key={"_" + props.node.name + (props.flowId || "") + "-" + eventIndex}></div>
+				{hasThumbs && settings.events && settings.events.map((eventName ,eventIndex) => {
+					return <div className={"canvas__html-shape-event canvas__html-shape-" + (eventIndex + 1)} 
+						key={"_" + props.node.name + (props.flowId || "") + "-" + eventIndex}
+						onMouseOver={(event) => props.onMouseConnectionStartOver(props.node,true,event)}
+						onMouseOut={(event) => props.onMouseConnectionStartOut(props.node,true,event)}
+						onMouseDown={(event) => props.onMouseConnectionStartStart(props.node,true,eventName.eventName,ThumbFollowFlow.default, ThumbPositionRelativeToNode.default,event)}
+						onMouseMove={(event) => props.onMouseConnectionStartMove(props.node,true,event)}
+						onMouseUp={(event) => props.onMouseConnectionStartEnd(props.node,true,ThumbPositionRelativeToNode.default,event)}
+					></div>
 				})}
 		</div>;						
 	}

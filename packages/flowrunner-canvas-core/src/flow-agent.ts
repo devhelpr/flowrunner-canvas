@@ -397,6 +397,7 @@ export class TimerTask extends FlowTask {
       executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
 
     */
+    console.log("timer", this,this.isExecuting, this.node.name);
     if (!this.isExecuting) {
       this.isExecuting = true;
 
@@ -454,10 +455,11 @@ export class TimerTask extends FlowTask {
         this.clearTimeout = undefined;
       }
       this.clearTimeout = setTimeout(this.timer, node.interval);
-      return;
+      return true;
     } else {
       if (node.interval) {
-        if (timers[node.name]) {
+        console.log("node.interval" , node.interval);
+        /*if (timers[node.name]) {
           clearInterval(timers[node.name]);
           timers[node.name] = undefined;
         }
@@ -468,6 +470,8 @@ export class TimerTask extends FlowTask {
         }, node.interval);
         timers[node.name] = timer;
         return subject;
+        */
+       return false;
       }
     }
     /*if (timers[node.name]) {
@@ -480,7 +484,7 @@ export class TimerTask extends FlowTask {
 
   isBeingKilled = false;
   public kill() {
-    //console.log('kill TimerTask');
+    console.log('kill TimerTask');
 
     this.isBeingKilled = true;
     if (this.clearTimeout) {

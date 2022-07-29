@@ -13,7 +13,7 @@ export const Image = (props: IFormControlProps) => {
 
 	return <div className="form-group">						
 			<img src={props.payload?.imageUrl ?? metaInfo.defaultValue}
-				className="tw-aspect-square tw-object-cover tw-w-full tw-h-auto"				 
+				className={`${metaInfo.aspectRatio || ""} tw-object-cover tw-w-full tw-h-auto`}				 
 				id={"image-" + props.node.name + "-" + metaInfo.fieldName}
 			/>			
 	</div>;

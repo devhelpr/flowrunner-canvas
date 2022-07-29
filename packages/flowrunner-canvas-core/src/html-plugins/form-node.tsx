@@ -19,6 +19,11 @@ import { PresetManager } from './components/preset-manager';
 import * as uuid from 'uuid';
 
 import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-context';
+
+import { ReactComponent as IconMap } from '@devhelpr/flowrunner-canvas-icons/icon-map-event.svg';
+import { ReactComponent as IconFilter } from '@devhelpr/flowrunner-canvas-icons/icon-filter-event.svg';
+import { ReactComponent as IconReduce } from '@devhelpr/flowrunner-canvas-icons/icon-reduce-event.svg';
+
 const uuidV4 = uuid.v4;
 
 /*
@@ -926,6 +931,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}}>
 		<div className={"w-100 h-auto"}>
 			<Suspense fallback={<div>Loading formnode...</div>}>
+
+			{props.taskSettings?.iconIllustration === "map" && <div className="tw-w-100 icon-wrapper"><IconMap /></div>}
+			{props.taskSettings?.iconIllustration === "filter" && <div className="tw-w-100 icon-wrapper"><IconFilter /></div>}
+			{props.taskSettings?.iconIllustration === "reduce" && <div className="tw-w-100 icon-wrapper"><IconReduce /></div>}
+
 			{!!props.isObjectListNodeEditing ?
 			<div className="form">
 				{renderFields()}

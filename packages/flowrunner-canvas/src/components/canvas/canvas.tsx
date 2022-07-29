@@ -130,6 +130,8 @@ export const Canvas = (props: CanvasProps) => {
 	//const selectedNode = useSelectedNodeStore();
 	const selectNode = props.useSelectedNodeStore(state => state.selectNode) as any;
 	const touchedNodesStore = useNodesTouchedStateStore();
+
+	let currentFlowId = useRef<string | number | undefined>("");
 	
 	//let flowHashMap = useRef({} as any);
 
@@ -1119,8 +1121,13 @@ export const Canvas = (props: CanvasProps) => {
 				
 				nodesStateLocal.current = {};
 				touchedNodesLocal.current = {};
-
-				fitStage(undefined, false, false);
+				console.log("pre fitstage FlowState.loaded 1", flowStore.flowId, currentFlowId.current, props.flowId );
+			
+				if (!currentFlowId.current || flowStore.flowId !== currentFlowId.current) {
+					// this causes fitStage after save
+					fitStage(undefined, false, false);	
+				}
+				currentFlowId.current = flowStore.flowId;
 
 				if (stage && stage.current) {
 					let stageDiv = (stage.current as any);
@@ -1173,7 +1180,7 @@ export const Canvas = (props: CanvasProps) => {
 				if (canvasOpacity == 0) {
 					setCanvasOpacity(1);
 				}
-
+console.log("pre fitstage FlowState.loaded 2");
 				fitStage(undefined, false, false);
 				flowIsFittedStageForSingleNode.current = true;
 			}
@@ -1757,7 +1764,7 @@ console.log("clearstate");
 
 	const connectConnectionToNode = (node, thumbPositionRelativeToNode?) => {
 
-console.log("connectConnectionToNode" , node);
+		console.log("connectConnectionToNode" ,touchNode.current, node, connectionNodeEventName.current);
 
 		let eventHelper : any = undefined;
 		if (connectionNodeEventName !== undefined &&
@@ -2116,7 +2123,7 @@ console.log("onmouseend", node.name);
 	};
 
 	const onStageMouseEnd = (event) => {
-		console.log("onStageMouseEnd", interactionState.current);
+		console.log("onStageMouseEnd", interactionState.current, connectionNodeEventName.current, connectionNodeEvent.current);
 		if (interactionState.current === InteractionState.selectingNodes) {
 			interactionState.current = InteractionState.multiSelect;
 			const nodes = selectNodesForSelectRectangle(event);
@@ -2246,7 +2253,9 @@ console.log("onmouseend", node.name);
 					}
 				} else {
 					const touchPos = getCurrentPosition(event);
-					if (connectionNodeThumbs.current === "thumbstart") { 												
+					if (connectionNodeThumbs.current === "thumbstart") {
+						
+						console.log("onstagemoouseend thumbstart", connectionNodeEventName.current, connectionNodeEvent.current);
 						const scaleFactor = (stageInstance as any).scaleX();
 		
 						let newPosition = {
@@ -2282,6 +2291,7 @@ console.log("onmouseend", node.name);
 
 					} else 
 					if (connectionNodeThumbs.current === "thumbend") {
+						console.log("onstagemoouseend thumbend", connectionNodeEventName.current, connectionNodeEvent.current);
 						const scaleFactor = (stageInstance as any).scaleX();
 		
 						let newPosition = {
@@ -3256,6 +3266,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 			document.body.style.cursor = 'pointer';
 			return;
 		}
+		console.log("onMouseConnectionStartOver", nodeEvent);
 		const settings = ShapeSettings.getShapeSettings(node.taskType, node);	
 		const allowedOutputs = FlowToCanvas.getAllowedOutputs(node.shapeType, settings);
 		if (allowedOutputs == 0 || 
@@ -3292,7 +3303,7 @@ console.log("onStageTouchMove draggingMultipleNodes");
 		if (node && touching.current && touchNode.current) {
 			return;
 		}
-		
+		console.log("onMouseConnectionStartStart", nodeEvent, nodeEventName);
 
 		const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 		if (node && node.shapeType !== "Line") {
@@ -3517,7 +3528,9 @@ console.log("onStageTouchMove draggingMultipleNodes");
 	}
 
 	const onMouseConnectionEndEnd = (node, nodeEvent,event, thumbPositionRelativeToNode?) => {
-		console.log("onMouseConnectionEndEnd");
+
+		console.log("onMouseConnectionEndEnd", interactionState.current, connectionNodeEventName.current, connectionNodeEvent.current);
+
 		if (!!canvasMode.isConnectingNodes) {
 			if (!event.evt) {
 				event.preventDefault();

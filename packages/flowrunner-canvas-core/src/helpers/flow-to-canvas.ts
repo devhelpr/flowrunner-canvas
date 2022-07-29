@@ -312,7 +312,7 @@ export class FlowToCanvas {
 
       return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
-        y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 : -8 + -4 - 32 - 8),
+        y: newPosition.y - (isEvent ? (-32 + -4 - 32 - 8) - 12 : -8 + -4 - 32 - 8),
       };
 
       //return result;
@@ -355,7 +355,7 @@ export class FlowToCanvas {
       return {
         // + (isEvent ? 18 - 14 : 0)
         x: newPosition.x + ShapeMeasures.rectWidht + skewXOffset,
-        y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (isEvent ? 4 + 8 + 24 : 4 + 8),
+        y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (isEvent ? 4 + 8 + 24 + 36 : 4 + 8),
       };
       // y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
     }

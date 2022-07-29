@@ -16,6 +16,7 @@
 
 :root {
 	--thumb-color : #000;
+	--illustrate-color: #a2a2a2;
 }
 
 body, html {
@@ -367,19 +368,44 @@ img {
 	background: transparent;
 	position: absolute;
 	right: 0px;
-	top: 44px;
-	z-index: 2;
-
-	border-top: 12px solid transparent;
-	border-bottom: 12px solid transparent;
-	border-right: 12px solid #a000a0;
+	top: 80px;
+	z-index: 3;
 	
 	width: 16px;
 	height: 16px;
 	right: -8px;
 	border-radius: 50%;
 	border: 0 transparent none;
-	background: #a000a0;
+	background: #e2e2e2;
+
+	pointer-events: auto;
+}
+
+.canvas__html-shape-event:before {
+	content: "";
+	border: 2px dashed black;
+	display: block;
+	position: absolute;
+	top: -4px;
+	left: -4px;
+	width: 24px;
+	height: 24px;
+	z-index: 2;
+	border-radius: 50%;
+	background: #e2e2e2;
+}
+
+.canvas__html-shape-event:after {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 16px;
+	height: 16px;
+	z-index: 3;
+	border-radius: 50%;
+	background: black;
 }
 
 
@@ -388,11 +414,11 @@ img {
 }
 
 .canvas__html-shape-1 {
-	top: 68px;
+	top: 80px;
 }
 
 .canvas__html-shape-2 {
-	top: 92px;
+	top: 98px;
 }
 
 .canvas__html-shape--in-bar {
@@ -1896,4 +1922,32 @@ textarea.form-control:disabled {
 
 #flowstudio-root .container-fluid .ui-editor__row {
     height: calc(100vh);
+}
+
+[data-task="FormTask"] {
+	.canvas__html-shape-bar {
+		outline: 2px solid #a2a2a2;
+		z-index: 2;
+		border-radius: 2px;
+	}
+
+	.canvas__html-shape-body {
+		outline: 2px solid #a2a2a2;
+		border-radius: 0;
+		border-bottom-right-radius: 2px;
+		border-bottom-left-radius: 2px;
+	}
+}
+
+.icon-wrapper {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+.icon-wrapper svg {
+	width: auto;
+	height: 20px;
+	color: var(--illustrate-color);
 }

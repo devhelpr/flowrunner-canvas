@@ -896,6 +896,13 @@ const taskTypeConfig: any = {
         eventName: 'onTimer',
       },
     ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onTimer',
+        },
+      ],
+    },
     hasConfigMenu: true,
     configMenu: {
       fields: [
@@ -915,7 +922,7 @@ const taskTypeConfig: any = {
         },
         {
           fieldName: 'executeNode',
-          visibilityCondition: 'mode="executeNode"',
+          visibilityCondition: 'mode=="executeNode"',
         },
       ],
     },
@@ -937,6 +944,111 @@ const taskTypeConfig: any = {
     presetValues: {
       arrayProperty: '',
       outputProperty: '',
+    },
+  },
+  MapEventTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    iconIllustration: "map",
+    events: [
+      {
+        eventName: 'onElement',
+      },
+    ],
+    metaInfo: [
+      {
+        fieldName: 'listProperty',
+      },
+      {
+        fieldName: 'outputProperty',
+      },
+    ],
+  },
+  OperationEventTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    events: [
+      {
+        eventName: 'onElement',
+      },
+    ],
+    metaInfo: [
+      {
+        fieldName: 'operation',
+        fieldType: 'select',
+        options: [
+          { label: 'Fill list', value: 'fillList' },
+          { label: 'Call operator', value: 'callOperator' },
+        ],
+      },
+      {
+        fieldName: 'ExecuteCount',
+        label: 'Execure count',
+      },
+
+      {
+        fieldName: 'outputProperty',
+      },
+    ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onElement',
+        },
+      ],
+    },
+  },
+  FilterEventTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    iconIllustration: "filter",
+    events: [
+      {
+        eventName: 'onElement',
+      },
+    ],
+    metaInfo: [
+      {
+        fieldName: 'listProperty',
+      },
+      {
+        fieldName: 'outputProperty',
+      },
+    ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onElement',
+        },
+      ],
+    },
+  },
+  ReduceEventTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    iconIllustration: "reduce",
+    events: [
+      {
+        eventName: 'onElement',
+      },
+    ],
+    metaInfo: [
+      {
+        fieldName: 'listProperty',
+      },
+      {
+        fieldName: 'outputProperty',
+      },
+      {
+        fieldName: 'startValue',
+      },
+    ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onElement',
+        },
+      ],
     },
   },
   ExtractUniqueTask: {
@@ -1415,7 +1527,27 @@ const taskTypeConfig: any = {
               fieldName: 'datasourceValueProperty',
               fieldType: 'text',
               label: 'Datasource value property',
-            },          
+            },
+            {
+              visibilityCondition: "fieldType=='image'",
+              fieldName: 'aspectRatio',
+              fieldType: 'select',
+              defaultValue: '',
+              options: [
+                {
+                  value: '',
+                  label: 'Default',
+                },
+                {
+                  value: 'tw-aspect-square',
+                  label: 'Square',
+                },
+                {
+                  value: 'tw-aspect-video',
+                  label: '16/9',
+                },
+              ],
+            },
             {
               fieldName: 'visibilityCondition',
               fieldType: 'textarea',
@@ -1753,6 +1885,6 @@ export const getTaskConfig = () => {
   return { ...taskTypeConfig, ...customConfig };
 };
 
-export const getTaskConfigForTask = className => {
+export const getTaskConfigForTask = (className) => {
   return fullConfig[className] || {};
 };

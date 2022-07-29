@@ -65,3 +65,7 @@ export * from "./state-machine";
 export { onFocus } from "./html-plugins/form-controls/helpers/focus";
 
 export { getDefaultUITasks , registerTasks } from "./flow-tasks";
+
+export { MapEventTask } from "./flowrunner-plugins/map-event-task";
+export { FilterEventTask } from "./flowrunner-plugins/filter-event-task";
+export { ReduceEventTask } from "./flowrunner-plugins/reduce-event-task";

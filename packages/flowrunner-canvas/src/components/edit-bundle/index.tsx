@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 
 import { Modal } from 'react-bootstrap';
 import { Subject } from 'rxjs';
@@ -29,6 +29,8 @@ export interface EditBundleProps {
 }
 
 export const EditBundle = (props: EditBundleProps) => {
+	const [preshow, setPreShow] = useState(false);
+	const [show, setShow] = useState(false);
 	const positionContext = usePositionContext();
 	const [value, setValue] = useState("");
 	const [orgNodeName, setOrgNodeName] = useState("");
@@ -43,6 +45,16 @@ export const EditBundle = (props: EditBundleProps) => {
 	const flow = useBundleFlowStore();
 	const orgFlow = useFlowStore();
 	const selectedNode = useSelectedNodeStore();	
+
+	useLayoutEffect(() => {
+		// this is needed to prevent unnessary rerender because of the container ref reference
+		// when this is not here, the component rerenders after first input in input controls
+		setPreShow(true);
+	}, [preshow]);
+
+	useEffect(() => {
+		setShow(true);
+	}, []);
 
 	const flowrunnerConnector = useRef((() => {
 		const flowConnector = new FlowConnector();
@@ -215,7 +227,7 @@ export const EditBundle = (props: EditBundleProps) => {
 
 	return <div className="edit-bundle" ref={ref => ((containerRef as any).current = ref)}>
 			<Modal 
-				show={true} 
+				show={show} 
 				centered 
 				size={props.modalSize || "xl"} 
 				className="tw-w-full tw-max-w-full"

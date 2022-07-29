@@ -1187,7 +1187,7 @@ export const Toolbar = (props: ToolbarProps) => {
                       Delete
                     </a>
                   )}
-                  {!isFlowEditorOnly &&
+                  {false && !isFlowEditorOnly &&
                     !!selectedNode.node.name &&
                     selectedNode.node.node &&
                     selectedNode.node.node.shapeType !== 'Line' && (

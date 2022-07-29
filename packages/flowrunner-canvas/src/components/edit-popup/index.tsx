@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
 import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
@@ -13,7 +13,8 @@ export interface EditPopupProps {
 }
 
 export const EditPopup = (props: EditPopupProps) => {
-
+	const [preshow, setPreShow] = useState(false);
+	const [show, setShow] = useState(false);
 	const [value, setValue] = useState("");
 	const [orgNodeName, setOrgNodeName] = useState("");
 	const [orgNodeValues, setOrgNodeValues] = useState({});
@@ -23,6 +24,16 @@ export const EditPopup = (props: EditPopupProps) => {
 
 	const flow = useFlowStore();
 	const selectedNode = useSelectedNodeStore();
+
+	useLayoutEffect(() => {
+		// this is needed to prevent unnessary rerender because of the container ref reference
+		// when this is not here, the component rerenders after first input in input controls
+		setPreShow(true);
+	}, [preshow]);
+
+	useEffect(() => {
+		setShow(true);
+	}, []);
 
 	useEffect(() => {		
 		const node = {...selectedNode.node.node};
@@ -101,7 +112,7 @@ export const EditPopup = (props: EditPopupProps) => {
 
 	return <div ref={ref => ((containerRef as any).current = ref)}>
 			<Modal 
-				show={true} 
+				show={show} 
 				centered 
 				size="xl" 
 				container={containerRef.current}>

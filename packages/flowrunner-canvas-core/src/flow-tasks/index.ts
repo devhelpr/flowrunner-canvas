@@ -46,6 +46,10 @@ import { GuardTask } from '../flowrunner-plugins/guard-task';
 import { GetCookie, SetCookie } from '../flowrunner-plugins/cookie-tasks';
 import { OnStartFlowTask } from '../flowrunner-plugins/on-start-flow-task';
 import { ImageTask } from '../flowrunner-plugins/image-task';
+import { MapEventTask } from '../flowrunner-plugins/map-event-task';
+import { FilterEventTask } from '../flowrunner-plugins/filter-event-task';
+import { ReduceEventTask } from '../flowrunner-plugins/reduce-event-task';
+import { OperationEventTask } from '../flowrunner-plugins/operation-event-task';
 
 export const registerTasks = flow => {
   flow.registerTask('Annotation', FlowTask);
@@ -98,6 +102,12 @@ export const registerTasks = flow => {
   flow.registerTask('SvgTestTask', SvgTestTask);
   flow.registerTask('customNodeTask', CustomNodeTask);
   flow.registerTask('shapeNodeTask', ShapeNodeTask);
+
+  flow.registerTask('MapEventTask', MapEventTask);
+  flow.registerTask('FilterEventTask', FilterEventTask);
+  flow.registerTask('ReduceEventTask', ReduceEventTask);
+  flow.registerTask('OperationEventTask', OperationEventTask);
+
 };
 
 export const getDefaultUITasks = () => {
@@ -175,5 +185,10 @@ export const getDefaultUITasks = () => {
   tasks.push({className:"SvgTestTask", fullName: "SvgTestTask", flowType:"playground"});
   tasks.push({className:"BundleFlowTask", fullName: "BundleFlowTask", flowType:"playground"});
 
+  tasks.push({className:"MapEventTask", fullName: "MapEventTask", flowType: "playground"});									
+  tasks.push({className:"FilterEventTask", fullName: "FilterEventTask", flowType: "playground"});									
+  tasks.push({className:"ReduceEventTask", fullName: "ReduceEventTask", flowType: "playground"});									
+  tasks.push({className:"OperationEventTask", fullName: "OperationEventTask", flowType: "playground"});									
+  
   return tasks;
 }

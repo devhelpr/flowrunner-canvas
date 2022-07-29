@@ -66,7 +66,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 		}
 
 		if (props.isEventNode) {
-			_fillColor = "#a000a0";  
+			//_fillColor = "#a000a0";  
 			_strokeWidth = 4;
 		}
 

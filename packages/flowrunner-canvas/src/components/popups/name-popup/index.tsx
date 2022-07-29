@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 import { Modal, Button } from 'react-bootstrap';
 
@@ -11,15 +11,18 @@ export interface NamePopupProps {
 }
 
 export const NamePopup = (props: NamePopupProps) => {
+	const [preshow, setPreShow] = useState(false);
 	const [show, setShow] = useState(false);
 	const [value, setValue] = useState("");
 	const containerRef = useRef(null);
 
-
-	useEffect(() => {
-		
+	useLayoutEffect(() => {
 		// this is needed to prevent unnessary rerender because of the container ref reference
 		// when this is not here, the component rerenders after first input in input controls
+		setPreShow(true);
+	}, [preshow]);
+
+	useEffect(() => {
 		setShow(true);
 	}, []);
 

@@ -17,6 +17,7 @@
  import { replaceValues } from './utils/replace-values';
 import * as express from 'express';
 import { json } from 'body-parser';
+//import { FilterEventTask, MapEventTask, ReduceEventTask } from '@devhelpr/flowrunner-canvas-core';
 
 declare module 'express' {
   interface Request {
@@ -149,7 +150,12 @@ function start(flowFileName, taskPlugins, options) {
 				tasks.push({className:"InjectIntoPayloadTask", fullName: "InjectIntoPayloadTask", flowType: "backend"});
 				tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "backend"});
 				tasks.push({className:"ExpressionTask", fullName: "ExpressionTask", flowType: "backend"});
+
+				//tasks.push({className:"MapEventTask", fullName: "MapEventTask", flowType: "backend"});
+				//tasks.push({className:"FilterEventTask", fullName: "FilterEventTask", flowType: "backend"});
+				//tasks.push({className:"ReduceEventTask", fullName: "ReduceEventTask", flowType: "backend"});
 				
+
 				tasks.push({className:"CustomNodeTask", fullName: "CustomNodeTask", flowType:"backend"});				
 
 				//tasks.push({className:"PieChartVisualizer", fullName:"PieChartVisualizer"});
@@ -471,7 +477,12 @@ function start(flowFileName, taskPlugins, options) {
 
 		app.all('/api/proxy', (req, res) => {
 
-			const url = req.body.url;
+			let url = req.body.url;
+			console.log("url.indexOf-http", url.indexOf("http"));
+			if (url.indexOf("http") !== 0) {
+				url = req.protocol + '://' + req.get('host') + url;
+				console.log("info", req.protocol,req.get('host'));
+			}
 			const urlWithSecrets = replaceValues(url, secrets);
 			console.log("api proxy", url, req.body);
 
@@ -917,7 +928,10 @@ function start(flowFileName, taskPlugins, options) {
 						runner.registerTask('SendJsonTask', SendJsonTask);
 						runner.registerTask('ExpressionTask', ExpressionTask);
 						runner.registerTask('HtmlViewTask', HtmlViewTask);
-								
+						//runner.registerTask('MapEventTask', MapEventTask);
+						//runner.registerTask('FilterEventTask', FilterEventTask);
+						//runner.registerTask('ReduceEventTask', ReduceEventTask);
+						  
 						/*
 
 							TODO : make endpoints needing authentication
@@ -943,7 +957,7 @@ function start(flowFileName, taskPlugins, options) {
 
 						flow.map((node) => {
 							if (node.taskType == "RouteEndpointTask") {
-								flowRoutes[node.name] = app.get(node.url, function routeHandler (req, res) {			
+								flowRoutes[node.name] = app.get(node.url.indexOf("/api/") !== 0 ? `/api${node.url}` : node.url, function routeHandler (req, res) {			
 									runner.executeNode(node.name, {
 										...req.query,
 										...req.body

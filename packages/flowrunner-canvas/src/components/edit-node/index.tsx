@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 import { FormNodeHtmlPlugin } from '@devhelpr/flowrunner-canvas-core';
@@ -28,6 +28,7 @@ export interface EditNodesState {
 }
 
 export const EditNodePopup = (props: EditNodeProps) => {
+	const [preshow, setPreShow] = useState(false);
 	const [show, setShow] = useState(false);
 	const [value, setValue] = useState({});
 	const [orgNodeName, setOrgNodeName] = useState("");
@@ -39,11 +40,15 @@ export const EditNodePopup = (props: EditNodeProps) => {
 	const flow = props.useFlowStore();
 	const selectNode = props.useSelectedNodeStore(state => state.selectNode) as any;
 
-	useEffect(() => {		
+	useLayoutEffect(() => {		
 		// this is needed to prevent unnessary rerender because of the container ref reference
 		// when this is not here, the component rerenders after first input in input controls
-		setShow(true);
+		setPreShow(true);
 	}, []);
+
+	useEffect(() => {
+		setShow(true);
+	}, [preshow]);
 
 	useEffect(() => {
 		if (!props.node) {
