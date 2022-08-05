@@ -92,6 +92,7 @@ const taskTypeConfig: any = {
   StateChangeTriggerTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
+    iconIllustration: "event",
     constraints: {
       input: {
         allowedInputs: 0,

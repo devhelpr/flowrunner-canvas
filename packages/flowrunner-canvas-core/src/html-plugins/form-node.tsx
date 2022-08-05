@@ -23,6 +23,7 @@ import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-c
 import { ReactComponent as IconMap } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-map-event.svg';
 import { ReactComponent as IconFilter } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-filter-event.svg';
 import { ReactComponent as IconReduce } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-reduce-event.svg';
+import { ReactComponent as IconLightning } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-bolt-lightning.svg';
 
 const uuidV4 = uuid.v4;
 
@@ -935,7 +936,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			{props.taskSettings?.iconIllustration === "map" && <div className="tw-w-100 icon-wrapper"><IconMap /></div>}
 			{props.taskSettings?.iconIllustration === "filter" && <div className="tw-w-100 icon-wrapper"><IconFilter /></div>}
 			{props.taskSettings?.iconIllustration === "reduce" && <div className="tw-w-100 icon-wrapper"><IconReduce /></div>}
-
+			{props.taskSettings?.iconIllustration === "event" && <div className="tw-w-100 icon-wrapper"><IconLightning /></div>}
+			
 			{!!props.isObjectListNodeEditing ?
 			<div className="form">
 				{renderFields()}
