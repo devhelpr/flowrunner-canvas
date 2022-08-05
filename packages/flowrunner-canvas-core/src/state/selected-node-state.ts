@@ -1,5 +1,6 @@
 import create from 'zustand';
 import { State, SetState } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
 
 export interface ISelectedNode {
   name: string;
@@ -44,6 +45,6 @@ let storeHandler = (set: SetState<INodeState>): INodeState => {
   };
 };
 
-export const useSelectedNodeStore = create<INodeState>(set => storeHandler(set));
-export const useSelectedNodeForMultiFormStore = create<INodeState>(set => storeHandler(set));
-export const useBundleSelectedNodeStore = create<INodeState>(set => storeHandler(set));
+export const useSelectedNodeStore = create<INodeState>(subscribeWithSelector(set => storeHandler(set)));
+export const useSelectedNodeForMultiFormStore = create<INodeState>(subscribeWithSelector(set => storeHandler(set)));
+export const useBundleSelectedNodeStore = create<INodeState>(subscribeWithSelector(set => storeHandler(set)));

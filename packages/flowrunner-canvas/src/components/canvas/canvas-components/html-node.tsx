@@ -73,7 +73,9 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
 		const nodeClone = {...props.node};
 		const position = positionContext.getPosition(props.node.name) || props.node;
 		let nodeState = (props.nodesStateLocal || "") === "error" ? " has-error" : "";
-
+		if (nodeClone.resetOutputPathOnError || nodeClone.resetOutput) {
+			nodeState = "";
+		}
 		const isSelected = false;//selectedNode && selectedNode.node.name === props.node.name;
 		nodeClone.htmlPlugin = props.node.htmlPlugin || (settings as any).htmlPlugin || "";
 

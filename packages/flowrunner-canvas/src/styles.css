@@ -1794,6 +1794,17 @@ textarea.form-control:disabled {
 	.canvas__html-shape-bar-title {
 		display: none;
 	}
+
+	.html-plugin-node__label {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		font-size: 32px;
+		font-weight: 700;
+		white-space: nowrap;
+		transform: translateX(-50%);
+		left: 50%;
+	}
 }
 
 [data-task="StartState"] {

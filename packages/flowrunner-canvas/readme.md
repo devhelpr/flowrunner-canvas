@@ -13,9 +13,11 @@ Flowrunner-canvas can use Nodejs express to add some basic http services to read
 
 The basic flowrunner-canvas just uses the standard flowrunner taskplugins, but you can add plugins depending on your needs.
 
-[Codesandbox](https://codesandbox.io/s/flowrunner-canvas-wljy9)
+[Codesandbox updated](https://codesandbox.io/s/flowrunner-canvas-forked-kosul3)
 
-[Codesandbox wasm-tixy](https://codesandbox.io/s/flowrunner-canvas-wasm-example-p68pz)
+[old Codesandbox](https://codesandbox.io/s/flowrunner-canvas-wljy9)
+
+[old Codesandbox wasm-tixy](https://codesandbox.io/s/flowrunner-canvas-wasm-example-p68pz)
 
 # Ways to use flowrunner-canvas
 

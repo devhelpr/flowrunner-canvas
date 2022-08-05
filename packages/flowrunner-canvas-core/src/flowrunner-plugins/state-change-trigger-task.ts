@@ -26,7 +26,6 @@ export class StateChangeTriggerTask extends FlowTask {
 
         if (!node.State) {
           if (currentState !== this._lastState || !this._lastState) {
-            console.log('observable next state change', currentState);
             this._lastState = currentState;
             observable.next({
               nodeName: node.name,
@@ -37,9 +36,21 @@ export class StateChangeTriggerTask extends FlowTask {
                 [stateMachineName]: currentState,
               },
             });
+          } else {
+            observable.next({
+              nodeName: node.name,
+              payload: {
+                ...node.payload,
+                stateMachine: stateMachineName,
+                currentState,
+                [stateMachineName]: currentState,
+                followFlow: 'isError'
+              },
+              isError: true,
+              resetNodeState: true
+            });
           }
         } else if (currentState === node.State) {
-          console.log('observable next');
           observable.next({
             nodeName: node.name,
             payload: {
@@ -48,6 +59,19 @@ export class StateChangeTriggerTask extends FlowTask {
               currentState,
               [stateMachineName]: currentState,
             },
+          });
+        } else {
+          observable.next({
+            nodeName: node.name,
+            payload: {
+              ...node.payload,
+              stateMachine: stateMachineName,
+              currentState,
+              [stateMachineName]: currentState,
+              followFlow: 'isError'
+            },
+            isError: true,
+            resetNodeState: true
           });
         }
       },

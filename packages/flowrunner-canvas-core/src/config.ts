@@ -82,6 +82,7 @@ const taskTypeConfig: any = {
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'straight',
+      label: 'OnStartFlow'
     },
     configMenu: {
       fields: [],
@@ -101,7 +102,10 @@ const taskTypeConfig: any = {
         fieldName: 'State',
       },
     ],
-    presetValues: {},
+    presetValues: {
+      resetOutputPath: true,
+      resetOutputPathOnError: true
+    },
   },
 
   StateMachine: {
