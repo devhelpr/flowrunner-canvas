@@ -91,22 +91,39 @@ const taskTypeConfig: any = {
 
   StateChangeTriggerTask: {
     shapeType: 'Html',
-    htmlPlugin: 'formNode',
+    htmlPlugin: 'shapeNode',
+    styleShapeBody: {
+      width: '64px',
+      height: '64px',
+    },
+    width: 64,
+    height: 64,
+    hasClone: false,
+    hasThumbs: false,
     iconIllustration: "event",
     constraints: {
       input: {
         allowedInputs: 0,
       },
+    }, 
+    metaInfo: [],
+    configMenu: {
+      fields: [
+        {
+          fieldName: 'State',
+        },
+        {
+          fieldName: 'label',
+        }
+      ],
     },
-    metaInfo: [
-      {
-        fieldName: 'State',
-      },
-    ],
     presetValues: {
       resetOutputPath: true,
-      resetOutputPathOnError: true
+      resetOutputPathOnError: true,
+      lineConnectionEndPoints: 'center-of-node',
+      curveMode: 'straight'
     },
+    hasConfigMenu: true    
   },
 
   StateMachine: {

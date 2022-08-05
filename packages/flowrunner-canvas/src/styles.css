@@ -1783,6 +1783,7 @@ textarea.form-control:disabled {
 	}
 }
 
+[data-task="StateChangeTriggerTask"],
 [data-task="OnStartFlow"] {
 	.canvas__html-shape-bar {
 		background: black;
