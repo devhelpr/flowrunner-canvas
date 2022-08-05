@@ -1812,9 +1812,10 @@ textarea.form-control:disabled {
 		display: flex;
 		align-items: center;
 	}
-	
+
 	.icon-wrapper svg {
 		color: white;
+		height: 30px;
 	}
 
 	.canvas__html-shape-body {
