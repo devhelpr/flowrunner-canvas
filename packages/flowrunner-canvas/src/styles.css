@@ -1806,6 +1806,20 @@ textarea.form-control:disabled {
 		transform: translateX(-50%);
 		left: 50%;
 	}
+
+	.icon-wrapper {
+		margin: 0;
+		display: flex;
+		align-items: center;
+	}
+	
+	.icon-wrapper svg {
+		color: white;
+	}
+
+	.canvas__html-shape-body {
+		z-index: 20;
+	}
 }
 
 [data-task="StartState"] {

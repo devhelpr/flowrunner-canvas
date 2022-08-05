@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
 import { useCanvasModeStateStore} from '../state/canvas-mode-state';
+import { IconIllustration } from './components/icon-illustration';
 
 export interface ShapeNodeHtmlPluginProps {
 	flowrunnerConnector : IFlowrunnerConnector;
@@ -66,5 +67,6 @@ export const  ShapeNodeHtmlPlugin = (props :  ShapeNodeHtmlPluginProps) => {
 		}}>{iconBgCssClasses && <span className={`html-plugin-node__icon ${iconBgCssClasses}`}></span>}
 		{node && node.hint && <span className="html-plugin-node__hint">{node.hint}</span>}		
 		{node && node.label && <span className="html-plugin-node__label">{node.label}</span>}
+		<IconIllustration iconIllustration={props.taskSettings?.iconIllustration} />
 	</div>;	
 }

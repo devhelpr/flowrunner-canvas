@@ -20,10 +20,7 @@ import * as uuid from 'uuid';
 
 import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-context';
 
-import { ReactComponent as IconMap } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-map-event.svg';
-import { ReactComponent as IconFilter } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-filter-event.svg';
-import { ReactComponent as IconReduce } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-reduce-event.svg';
-import { ReactComponent as IconLightning } from '@devhelpr/flowrunner-canvas-icons/src/lib/icon-bolt-lightning.svg';
+import { IconIllustration } from './components/icon-illustration';
 
 const uuidV4 = uuid.v4;
 
@@ -932,12 +929,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}}>
 		<div className={"w-100 h-auto"}>
 			<Suspense fallback={<div>Loading formnode...</div>}>
+			<IconIllustration iconIllustration={props.taskSettings?.iconIllustration} />
 
-			{props.taskSettings?.iconIllustration === "map" && <div className="tw-w-100 icon-wrapper"><IconMap /></div>}
-			{props.taskSettings?.iconIllustration === "filter" && <div className="tw-w-100 icon-wrapper"><IconFilter /></div>}
-			{props.taskSettings?.iconIllustration === "reduce" && <div className="tw-w-100 icon-wrapper"><IconReduce /></div>}
-			{props.taskSettings?.iconIllustration === "event" && <div className="tw-w-100 icon-wrapper"><IconLightning /></div>}
-			
 			{!!props.isObjectListNodeEditing ?
 			<div className="form">
 				{renderFields()}
