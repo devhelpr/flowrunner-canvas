@@ -26,7 +26,7 @@
   "license": "MIT",
   "dependencies": {
     "@devhelpr/expressionrunner": "^0.2.9",
-    "@devhelpr/flowrunner": "^0.13.8",
+    "@devhelpr/flowrunner": "^0.13.9",
     "@devhelpr/layoutrunner": "^0.0.2",
     "@material-ui/core": "4.12.4",
     "@material-ui/icons": "^4.11.3",

@@ -1786,14 +1786,20 @@ textarea.form-control:disabled {
 [data-task="StateChangeTriggerTask"],
 [data-task="OnStartFlow"] {
 	.canvas__html-shape-bar {
-		background: black;
-		border-radius: 50%;
+		background: transparent;
 		width: 64px;
 		height: 64px;
+		z-index: 30;
 	}
 
 	.canvas__html-shape-bar-title {
 		display: none;
+	}
+
+	.canvas__html-shape-body {
+		z-index: 20;
+		background: black;
+    	border-radius: 32px;
 	}
 
 	.html-plugin-node__label {
@@ -1818,8 +1824,9 @@ textarea.form-control:disabled {
 		height: 30px;
 	}
 
-	.canvas__html-shape-body {
-		z-index: 20;
+	&[data-html-plugin="shapeNode"]:hover .canvas__html-shape-bar-icon {
+		top: 0;
+		right: -20px;
 	}
 }
 

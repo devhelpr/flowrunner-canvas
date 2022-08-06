@@ -78,7 +78,7 @@ const taskTypeConfig: any = {
     hasClone: false,
     hasThumbs: false,
     hasConfigMenu: false,
-
+    iconIllustration: "event",
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'straight',
