@@ -20,6 +20,35 @@
 		State should be usable in ifconditions
 		new StateFlow node : triggered when statemachine is transitioned to given state
 
+  HOW TO implement support for multiple state machines / statecharts?
+
+  - StateMachine class
+    - has all the properties/methods that are currently defined on the global level
+
+  - every statemachine should have a start-node/state
+    - the start-node has the statemachine name
+  - algoritm
+    - Find all start-nodes in a flow
+    - Find all connected nodes via this start-node and store these nodes and connections
+      in a helper array
+    - Statemachine can only have 1 start-node .. if another start-node is found:
+      Throw an error
+    
+    - Prevent infinite loops
+
+
+  - Create StateMachine class separately so that it doesn't influence current behavor
+    
+  - new nodes:
+    - StateRegion
+    - ChildStateMachine
+
+    ... both can be connected to from a State node
+    ... StateRegion can point to multiple ChildStateMachines
+    ... A ChildStateMachine is connected to an initial State node
+
+    ... A ChildStateMachine is only active when the state of the parent StateMachine is the current state
+
 */
 
 export interface IStateMachine {
@@ -441,3 +470,18 @@ export const setOnGuardEventCallback = (
 export const resetOnGuardEventCallback = () => {
   _onGuardEventCallback = undefined;
 };
+
+
+export class StateMachine {
+  public stateMachine: IStateMachine = emptyStateMachine;
+  private _stateMachineName: string = '';
+  private _oldStateMachine: IStateMachine = emptyStateMachine;
+  private _currentState: string = '';
+  public name: string = "";
+  public active: boolean = false;
+  public parentStateMachine? : StateMachine = undefined;
+}
+
+export const initializeStateMachine = (flow: any[]) : StateMachine[] => {
+  return [];
+}

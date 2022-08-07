@@ -19,10 +19,6 @@ export interface TaskbarProps {
 	hasDefaultUITasks : boolean;
 }
 
-export interface TaskbarState {
-	metaDataInfo: any[];
-}
-
 export enum TaskMenuMode {
 	tasks = 0,
 	modules
@@ -68,12 +64,17 @@ export const Taskbar = (props: TaskbarProps) => {
 				icon : taskSettings.icon || task.icon || ""
 			};
 		});
+
+		console.log("setupTasks - setMetaDataInfo");
 		setMetaDataInfo(tasks);
+		console.log("setupTasks - after setMetaDataInfo", metaDataInfo);
 	}
 
 	const loadTasks = () => {
+		console.log("loadTasks", metaDataInfo);
 		const { signal } = abortableControllerRef.current;
 		if (props.flowrunnerConnector.hasStorageProvider) {
+			console.log("loadTasks - hasStorageProvider");
 			let tasks : any[] = props.flowrunnerConnector.storageProvider?.getTasks() || [];
 			setupTasks([...tasks, ...props.flowrunnerConnector.getTasksFromPluginRegistry()]);
 			return;
@@ -87,6 +88,8 @@ export const Taskbar = (props: TaskbarProps) => {
 			return res.json();
 		})
 		.then(metaDataInfo => {
+			
+			console.log("loadTasks - after fetch", metaDataInfo);
 
 			let defaultTasks : any[] = [];
 			if (!!props.hasDefaultUITasks) {
@@ -176,13 +179,13 @@ export const Taskbar = (props: TaskbarProps) => {
 	}, []);
 
 	useEffect(() => {
-		console.log("USEEFFECT taskbar : trigger loadTasks etc is done now");
+		console.log("USEEFFECT taskbar : trigger loadTasks etc is done now", metaDataInfo.length);
 		loadTasks();
 		if (props.hasCustomNodesAndRepository) {
 			loadRepositoryItems();	
 			loadCustomNodesItems();
 		}
-	}, [canvasMode, props.hasCustomNodesAndRepository]);
+	}, [canvasMode.flowType, props.hasCustomNodesAndRepository]);
 
 	useEffect(() => {
 		if (modulesMenu.isOpen) {
@@ -255,6 +258,10 @@ export const Taskbar = (props: TaskbarProps) => {
 			<div className="taskbar__taskname">{taskMetaData.title || className}</div>
 			{taskMetaData.icon && <span className={"taskbar__task-icon fas " +  taskMetaData.icon}></span>}			
 		</div>;
+	}
+
+	if (menuMode == TaskMenuMode.tasks && metaDataInfo.length <= 1) {
+		return <></>;
 	}
 
 	return <>

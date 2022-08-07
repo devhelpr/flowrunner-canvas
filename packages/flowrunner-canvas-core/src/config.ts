@@ -79,6 +79,7 @@ const taskTypeConfig: any = {
     hasThumbs: false,
     hasConfigMenu: false,
     iconIllustration: "event",
+    icon: 'fa-bolt',
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'straight',
@@ -101,6 +102,7 @@ const taskTypeConfig: any = {
     hasClone: false,
     hasThumbs: false,
     iconIllustration: "event",
+    icon: 'fa-bolt',
     constraints: {
       input: {
         allowedInputs: 0,
