@@ -24,6 +24,7 @@ export const NewFlow = (props: NewFlowProps) => {
 	const [requiredNodeValues , setRequiredNodeValues] = useState({});
 	const [flowType , setFlowType] = useState("playground");
 	const [addJSONFlow, setAdJSONFlow] = useState(false);
+	const [cloneJSONFlow , setCloneJSONFlow] = useState(false);
 	const [json, setJSON] = useState("");
 
 	const containerRef = useRef(null);
@@ -54,19 +55,27 @@ export const NewFlow = (props: NewFlowProps) => {
 				return;
 			}
 		}
+		
+		let jsonData : any = [];
+		if (cloneJSONFlow) {
+			jsonData = flow.flow;
+		} else {
+			jsonData = JSON.parse(json || "[]");
+		}
+
 		if (props.flowrunnerConnector.hasStorageProvider) {
 			// save to storage
-			props.flowrunnerConnector.storageProvider?.addFlow(value, JSON.parse(json || "[]")).then((result : any) => {
+			props.flowrunnerConnector.storageProvider?.addFlow(value, jsonData).then((result : any) => {
 				props.onSave(result.id, flowType);
 			});
 		} else {
 			try {
 				fetch('/api/flow?flow=' + value + 
 					"&flowType=" + flowType +
-					"&addJSONFlow=" + addJSONFlow, {
+					"&addJSONFlow=" + (addJSONFlow || cloneJSONFlow), {
 					method : "post",
 					body: JSON.stringify({
-						nodes : JSON.parse(json || "[]")
+						nodes : jsonData
 					}),
 					headers: {
 						"Content-Type": "application/json"
@@ -91,9 +100,13 @@ export const NewFlow = (props: NewFlowProps) => {
 	}
 
 	const onAddJSONFlow = (event) => {
-		event.preventDefault();
-		setAdJSONFlow(!addJSONFlow);
-		return false;
+		event.persist();
+		setAdJSONFlow(event.target.checked);
+	}
+
+	const onCloneJSONFlow = (event) => {
+		event.persist();
+		setCloneJSONFlow(event.target.checked);
 	}
 
 	const onChangeJson = (event) => {
@@ -145,6 +158,11 @@ export const NewFlow = (props: NewFlowProps) => {
 						<option value="mobile-app">Mobile app</option>
 						<option value="backend">Backend</option>
 					</select>				
+				</div>
+				<div className="form-group">
+					<input id="addCloneFlow" type="checkbox" checked={cloneJSONFlow} 
+						onChange={onCloneJSONFlow} />
+					<label htmlFor="addCloneFlow" className="ms-2">Clone current flow</label>
 				</div>
 				<div className="form-group">
 					<input id="addJSONFlow" type="checkbox" checked={addJSONFlow} 
