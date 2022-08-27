@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState, useRef , useCallback } from 'react';
+import { useEffect, useState, useRef , useCallback, useLayoutEffect } from 'react';
 import { Suspense } from 'react';
 
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
@@ -96,6 +96,9 @@ export class FormNodeHtmlPluginInfo {
 	}
 }
 
+export interface IFormInfoProps {
+	onCanSubmitForm : () => boolean;
+}
 
 export interface FormNodeHtmlPluginProps {
 	flowrunnerConnector? : IFlowrunnerConnector;
@@ -116,6 +119,8 @@ export interface FormNodeHtmlPluginProps {
 	useFlowStore? : (param? : any) => IFlowState;
 
 	onOverrideReceiveValues? : (nodeName: string, values: any) => void;
+
+	onFormInfo? : (formInfo : IFormInfoProps) => void;
 }
 
 export interface FormNodeHtmlPluginState {
@@ -370,10 +375,25 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		return;
 	}, [props.taskSettings, props.node]);
 
+	useLayoutEffect(() => {
+		if (props.onFormInfo) {
+			props.onFormInfo({
+				onCanSubmitForm
+			});
+		}
+	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 	
-	const onSubmit = useCallback((event: any) => {
-		event.preventDefault();
-		//		
+	const onSubmit = useCallback((event?: any) => {
+		if (event && event.preventDefault) {
+			event.preventDefault();
+		}
+		onCanSubmitForm();
+		return false;
+	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
+
+
+	const onCanSubmitForm = useCallback(() => {
+	//		
 		//	 debugNode doesn't get triggered after pushFlow...
 		//   .. in the worker the observables that are used to send SendObservableNodePayload
 		//     are reset/cleared before starting the flow
@@ -417,10 +437,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		});
 		if (doSubmit) {
 			setErrors([]);
+			return true;
 		} else {
 			setErrors(updatedErrors);
+			return false;
 		}
-		return false;
 	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 	
 	const onModifyFlowThrottleTimer = useCallback(() => {
@@ -961,7 +982,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				{renderFields()}
 			</div>
 			:
-			<form className="form" onSubmit={onSubmit}>				
+			<form className="form" onSubmit={onSubmit} id={`form-${props.node.name}`}>
 				{renderFields()}
 			</form>
 			}

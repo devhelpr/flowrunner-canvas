@@ -9,7 +9,7 @@ import { ExecuteNodeHtmlPlugin, ExecuteNodeHtmlPluginInfo } from './html-plugins
 import { DebugNodeHtmlPluginInfo,GridEditNodeHtmlPluginInfo } from './html-plugins/visualizers/info';
 import { SliderNodeHtmlPlugin, SliderNodeHtmlPluginInfo } from './html-plugins/slider-node';
 import { InputNodeHtmlPlugin , InputNodeHtmlPluginInfo } from './html-plugins/input-node';
-import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo } from './html-plugins/form-node';
+import { FormNodeHtmlPlugin , FormNodeHtmlPluginInfo, IFormInfoProps } from './html-plugins/form-node';
 
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 import { DataGridNodeHtmlPluginInfo , DataGridNodeHtmlPlugin} from './html-plugins/data-grid-node';
@@ -26,7 +26,8 @@ export const setPluginRegistry = (pluginRegistry) => {
 
 export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>, flowId? : string, overideUseFlowStore? : () => IFlowState, 
 	initialValues? : any, onOverrideReceiveValues? : (nodeName: string, values: any) => void,
-	isInFormConfirmMode? : boolean) => {
+	isInFormConfirmMode? : boolean,
+	onFormInfo? : (formInfo : IFormInfoProps) => void) => {
 
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -105,7 +106,8 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 			initialValues={initialValues}	
 			useFlowStore={overideUseFlowStore || useFlowStore}
 			onOverrideReceiveValues={onOverrideReceiveValues}
-			isInFormConfirmMode={isInFormConfirmMode}	
+			isInFormConfirmMode={isInFormConfirmMode}
+			onFormInfo={onFormInfo}	
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {

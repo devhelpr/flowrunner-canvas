@@ -1,7 +1,8 @@
 import React from 'react';
 import { useState, useRef, useLayoutEffect,useCallback } from 'react';
-import { FlowToCanvas, IFlowrunnerConnector, ShapeSettings, useFlowStore } from '@devhelpr/flowrunner-canvas-core';
+import { FlowToCanvas, IFlowrunnerConnector, IFormInfoProps, ShapeSettings, useFlowStore } from '@devhelpr/flowrunner-canvas-core';
 import * as uuid from 'uuid';
+import "./auto-form-step.css";
 const uuidV4 = uuid.v4;
 
 /*
@@ -60,10 +61,13 @@ export interface IAutoFormStepProps {
 
 export const AutoFormStep = (props: IAutoFormStepProps) => {
   const flow = useFlowStore();
+
   let nodesStateLocal: any = useRef({} as any);
   let touchedNodesLocal: any = useRef({} as any);
   let flowRef = useRef<any>(null);
   let flowHashmapRef = useRef<any>(null);
+  let formInfoRef = useRef<IFormInfoProps | undefined>(undefined);
+
   const [currentNode, setCurrentNode] = useState('');
   const [flowSteps, setFlowSteps] = useState<string[]>([]);
   const flowStepsRef = useRef<string[]>([]);
@@ -219,6 +223,13 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 
   const onNextStep = (event) => {
     event.preventDefault();
+
+	if (!formInfoRef.current ||
+		(formInfoRef.current && formInfoRef.current.onCanSubmitForm &&
+			!formInfoRef.current.onCanSubmitForm())) {
+		return;
+	}
+
 	if (props.flowrunnerConnector) {
 
 		if (flowRef.current && flowSteps.length > 0) {
@@ -270,6 +281,10 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 		setCurrentNode(previousStep);
 	}
     return false;
+  };
+
+  const onFormInfo = (formInfo : IFormInfoProps) => {
+	  formInfoRef.current = formInfo;
   };
 
   //console.log('currentNode', currentNode, flowHashmapRef.current, flowRef.current);
@@ -340,7 +355,8 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 			<div className="canvas__html-shape-body">
 				{props.renderHtmlNode &&
 				props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flow, settings, 
-					undefined, undefined, undefined, payload, onOverrideReceiveValues, true)}
+					undefined, undefined, undefined, payload, onOverrideReceiveValues, true,
+					onFormInfo)}
 			</div>
 			</div>
           </div>
@@ -348,13 +364,15 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 		<div className="row mt-2 tw-justify-end">
 			{flowSteps.length > 1 && 
 			<div className="col-auto">
-				<button className="btn btn-outline-primary" onClick={onPreviousStep}>
+				<button className="tw-bg-transparent tw-border tw-border-blue-500 hover:tw-border-blue-700 tw-text-blue-700 tw-font-bold tw-py-2 tw-px-4 tw-rounded" 
+					type="button" onClick={onPreviousStep}>
 				Previous
 				</button>
 			</div>
 			}
 			{(!isLastNode && (currentValues || payload)) && <div className="col-auto">
-				<button className="btn btn-primary" onClick={onNextStep}>Next</button>
+				<button className="tw-bg-blue-500 hover:tw-bg-blue-700 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded"
+					type="submit" form={`form-${currentNode}`} onClick={onNextStep}>Next</button>
 			</div>}
 		</div>
       </>
