@@ -71,7 +71,6 @@ import {
   sendCurrentState,
   setOnGuardEventCallback,
 } from './state-machine';
-import { emptyStatement } from '@babel/types';
 
 const uuidV4 = uuid.v4;
 
@@ -692,6 +691,15 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
           });
       }
       payload = null;
+    } else if (command == 'clearNodeState') {
+      if (!data.nodeName) {
+        return;
+      }
+
+      if (!worker.flow) {
+        return;
+      }
+      (worker.flow as any).clearNodeState(data.nodeName);
     } else if (command == 'modifyFlowNode') {
       if (!data.nodeName) {
         return;

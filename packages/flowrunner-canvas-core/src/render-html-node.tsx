@@ -24,7 +24,9 @@ export const setPluginRegistry = (pluginRegistry) => {
 	_pluginRegistry = pluginRegistry;
 }
 
-export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>, flowId? : string, overideUseFlowStore? : () => IFlowState) => {
+export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings: any, formNodesubject?: Subject<any>, flowId? : string, overideUseFlowStore? : () => IFlowState, 
+	initialValues? : any, onOverrideReceiveValues? : (nodeName: string, values: any) => void,
+	isInFormConfirmMode? : boolean) => {
 
 	let htmlPlugin = node.htmlPlugin;
 	if (!htmlPlugin || htmlPlugin == "") {
@@ -99,8 +101,11 @@ export const renderHtmlNode = (node: any, flowrunnerConnector: IFlowrunnerConnec
 			node={node}
 			taskSettings={taskSettings}
 			isInFlowEditor={true}
-			formNodesubject={formNodesubject}		
-			useFlowStore={overideUseFlowStore || useFlowStore}	
+			formNodesubject={formNodesubject}
+			initialValues={initialValues}	
+			useFlowStore={overideUseFlowStore || useFlowStore}
+			onOverrideReceiveValues={onOverrideReceiveValues}
+			isInFormConfirmMode={isInFormConfirmMode}	
 		></FormNodeHtmlPlugin>;
 	} else	
 	if (htmlPlugin == "dataGridNode") {

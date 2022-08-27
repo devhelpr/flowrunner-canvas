@@ -139,6 +139,7 @@ export const UserInterfaceViewEditor = (props : UserInterfaceViewEditorProps) =>
 					<div onDragStart={onDragStart} data-draggable="layout" draggable={true} className="layout__draggable">Layout</div>
 					<div onDragStart={onDragStart} data-draggable="layout2columns" draggable={true} className="layout__draggable">Layout 2columns</div>
 					<div onDragStart={onDragStart} data-draggable="element" draggable={true} className="layout__draggable">Element</div>
+					<div onDragStart={onDragStart} data-draggable="autoFormStepElement" draggable={true} className="layout__draggable">Auto Form Step</div>
 
 						{flow.flow.filter((node, index) => {
 								if (!!node.hideFromUI || nodesOnLayout[node.name]) {

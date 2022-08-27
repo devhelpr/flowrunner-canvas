@@ -108,9 +108,14 @@ export interface FormNodeHtmlPluginProps {
 	isInFlowEditor: boolean;
 	isNodeSettingsUI? : boolean;
 	datasources? : any;
+
+	initialValues? : any;
+	isInFormConfirmMode? : boolean;
 	onSetValue? : (value, fieldName) => void;
 
 	useFlowStore? : (param? : any) => IFlowState;
+
+	onOverrideReceiveValues? : (nodeName: string, values: any) => void;
 }
 
 export interface FormNodeHtmlPluginState {
@@ -125,7 +130,7 @@ export interface FormNodeHtmlPluginState {
 export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	
 	const [value, setValue] = useState("");
-	const [values, setValues] = useState([] as any[]);
+	const [values, setValues] = useState<any[]>(props.initialValues || []);
 	const [node, setNode] = useState({} as any);
 	const [errors, setErrors] = useState({} as any);
 	const [datasource, setDatasource] = useState({} as any);
@@ -175,7 +180,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					setValue(props.node.value || props.node.defaultValue || "");
 				}
 			} else {
-				if (props.node.taskType == "FormTask" ||
+				if (!props.isInFormConfirmMode && props.node.taskType == "FormTask" ||
 					(props.taskSettings && !!props.taskSettings.isFormTask)) {
 					//console.log("pre modifyFlowNode mount", values);
 					if (props.flowrunnerConnector) {
@@ -188,7 +193,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					}
 				}
 				setNode(props.node);
-				setValues([]);
+				setValues(props.initialValues || []);
 				setValue(props.node.defaultValue || "");
 			}
 		} else {
@@ -419,16 +424,20 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	}, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
 	
 	const onModifyFlowThrottleTimer = useCallback(() => {
-		storeFlowNode({...node,...values}, props.node.name);
 
-		props.flowrunnerConnector?.modifyFlowNode(
-			props.node.name, 
-			"", 
-			"",
-			props.node.name,
-			'',
-			values
-		);
+
+		//console.log("onModifyFlowThrottleTimer", props.node.name, node, values);
+		storeFlowNode({...node,...values}, props.node.name);
+		if (!props.isInFormConfirmMode) {
+			props.flowrunnerConnector?.modifyFlowNode(
+				props.node.name, 
+				"", 
+				"",
+				props.node.name,
+				'',
+				values
+			);
+		}
 
 	}, [props.taskSettings, props.node, values, 
 		errors,
@@ -437,6 +446,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 	]);
 
 	const setValueHelper = useCallback((fieldName, value, metaInfo) => {
+		//console.log("setValueHelper", fieldName, value);
 		if (props.node && fieldName) {	
 			let updatedErrors = {...errors};
 			if (updatedErrors[fieldName]) {
@@ -469,7 +479,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			if (!props.isNodeSettingsUI && !props.isObjectListNodeEditing) {
 				if (props.node.taskType == "FormTask" ||
 					(props.taskSettings && !!props.taskSettings.isFormTask)) {
-					if (props.flowrunnerConnector) {
+
+					if (props.onOverrideReceiveValues) {
+						props.onOverrideReceiveValues(props.node.name, updatedValues);
+					} else
+					if (!props.isInFormConfirmMode && props.flowrunnerConnector) {
+
+						//console.log("setValueHelper pre modifyFlowNode", value, updatedValues);
+
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
 							fieldName, 
@@ -593,10 +610,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 				if (props.node.taskType == "FormTask" ||
 					(props.taskSettings && !!props.taskSettings.isFormTask)) {
 
+					//console.log("setValueViaOnReceive pre modifyFlowNode",props.node.name, value, newValues);
 					// TODO : this should also push through all fields from this formnode
 					// 		kan dat de hele state.values zijn ?
 					//console.log("pre modifyFlowNode 1", newValues);
-					if (props.flowrunnerConnector) {
+					
+					if (props.onOverrideReceiveValues) {
+						props.onOverrideReceiveValues(props.node.name, newValues);
+					} else
+					if (!props.isInFormConfirmMode && props.flowrunnerConnector) {
 						props.flowrunnerConnector?.modifyFlowNode(
 							props.node.name, 
 							metaInfo.fieldName, 
@@ -699,19 +721,22 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			...data
 		};
 		
-		//console.log("Preset onSetData", updatedNode);
+		//console.log("onSetData", data, updatedNode);
 
 		setNode(updatedNode);
 		if (props.flowrunnerConnector) {
 			storeFlowNode(updatedNode, props.node.name);
-			props.flowrunnerConnector?.modifyFlowNode(
-				props.node.name, 
-				"", 
-				value,
-				props.node.name,
-				'',
-				data
-			);
+
+			if(!props.isInFormConfirmMode) {
+				props.flowrunnerConnector?.modifyFlowNode(
+					props.node.name, 
+					"", 
+					value,
+					props.node.name,
+					'',
+					data
+				);
+			}
 		}
 	}, [props.node, node, value, values, props.flowrunnerConnector]);
 

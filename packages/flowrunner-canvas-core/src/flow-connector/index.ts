@@ -42,6 +42,8 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   executeFlowNode = (nodeName: string, payload?: any) => {};
 
+  clearNodeState = (nodeName) => {};
+  
   modifyFlowNode = (
     nodeName: string,
     propertyName: string,
@@ -435,6 +437,17 @@ export class FlowConnector implements IFlowrunnerConnector {
       }
     }
   };
+
+  clearNodeState = (nodeName) => {
+    if (this.flowType == 'playground') {
+      if (this.worker) {
+        this.worker.postMessage('worker', {
+          command: 'clearNodeState',
+          nodeName: nodeName
+        });
+      }
+    }
+  }
 
   isActiveFlowRunner = () => {
     return true;

@@ -9,6 +9,7 @@ import {
 import { FlowToCanvas } from '@devhelpr/flowrunner-canvas-core';
 import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 import { MultiForm } from './multi-form';
+import { AutoFormStep } from './auto-form-step';
 
 export const renderFlowNode = (node : any, rootLayout : any, isInEditMode : boolean = false) => {
 	if (!!node.hideFromUI) {
@@ -88,7 +89,7 @@ export const renderLayoutType = (layoutBlock : any,
     setLayoutVisibleState : (layoutBlockName : string, isVisible : boolean) => void,
     rootLayout : IRootLayout
   ) => {
-
+	console.log("layoutBlock" , layoutBlock.type);
 	if (layoutBlock.type === "layout2columns") {
 		if (!layoutBlock.layout && layoutBlock.layout.length !== 2) {
 			return <></>;
@@ -154,6 +155,16 @@ export const renderLayoutType = (layoutBlock : any,
 	} else
 	if (layoutBlock.type === "element") {
 		return <div>{layoutBlock.title || ""}</div>
+	} 
+	else if (layoutBlock.type === "autoFormStepElement") {
+		return <div className="w-100">{layoutBlock.title || ""}
+			<AutoFormStep 
+				renderHtmlNode={rootLayout.context.renderHtmlNode}
+				getNodeInstance={rootLayout.context.getNodeInstance}
+				flowrunnerConnector={rootLayout.context.flowrunnerConnector}
+				flow={rootLayout.context.flow}
+			/>		
+		</div>
 	}
 	else if (layoutBlock.type === "flowNode") {
 		const node = rootLayout.context.flowHash[layoutBlock.subtitle];

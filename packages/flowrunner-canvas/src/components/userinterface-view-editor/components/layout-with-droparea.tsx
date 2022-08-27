@@ -179,6 +179,19 @@ export class LayoutWithDropArea extends React.Component<LayoutWithDropAreaProps,
 							className="draggable-element font-weight-bold">{layout.title}</div>
 					</React.Fragment>;
 				}
+				
+				if (layout.title == "autoFormStepElement") {
+					return <React.Fragment key={index}>
+						<div draggable={true}
+							data-layout-parent={this.props.name} 
+							id={this.props.name + "-autoFormStepElement" + index}
+							onDragOver={this.onAllowDropOther}
+							onDragStart={this.onDragStartOther}
+							onDrop={this.onDropTaskOther}
+							onDragLeave={this.onDragLeaveOther}
+							className="draggable-element font-weight-bold">{layout.title}</div>
+					</React.Fragment>;
+				}
 
 				if (layout.title == "flowNode") {
 					const flowNode = this.props.flowHash[layout.subtitle];

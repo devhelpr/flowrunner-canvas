@@ -66,6 +66,14 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 						subtitle: layoutBlock.subtitle || ""
 					});
 				} else
+				if (layoutBlock.title == "autoFormStepElement") {
+					layoutTreeNode.push({
+						type : "autoFormStepElement",
+						title: layoutBlock.title,
+						subtitle: layoutBlock.subtitle || "",
+						name: layoutBlock.subtitle || ""
+					});
+				} else
 				if (layoutBlock.title == "flowNode") {
 					layoutTreeNode.push({
 						type : "flowNode",
@@ -221,19 +229,21 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 		updateTouchedNodes();		
 	}, [layout, flow]);
 
-
 	const updateTouchedNodes = () => {
 		if (touchedNodesLocal.current) {
 			Object.keys(touchedNodesLocal.current).map((touchNodeId: string) => {
-				const element = document.getElementById(touchNodeId);
-				if (element) {
-					if (touchedNodesLocal.current[touchNodeId] === true) {
-						element.classList.remove("untouched");
-					} else {
-						element.classList.add("untouched");
+				if (touchNodeId !== "undefined") {
+					const element = document.getElementById(touchNodeId);
+					if (element) {
+						if (touchedNodesLocal.current[touchNodeId] === true) {
+							element.classList.remove("untouched");
+						} else {
+							element.classList.add("untouched");
+						}					
 					}					
 				}
-			})
+				
+			});
 		}
 	}
 	const nodeStateObserver = (nodeName: string, nodeState : string, touchedNodes : any) => {
