@@ -427,7 +427,16 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		}		
 
 		(metaInfo || []).map((metaInfo) => {
-			if (metaInfo && !!metaInfo.required) {
+
+			let isVisible = true;
+			if (metaInfo.visibilityCondition) {				
+				const expression = createExpressionTree(metaInfo.visibilityCondition);
+				let data = {...props.node, ...receivedPayload, ...values};				
+				const result = executeExpressionTree(expression, data);
+				isVisible = !!result;
+			}
+
+			if (isVisible && metaInfo && !!metaInfo.required) {
 				const value = values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || "";
 				if (value === "") {
 					doSubmit = false;
@@ -439,6 +448,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 			setErrors([]);
 			return true;
 		} else {
+			console.log("updatedErrors", props.node.name, updatedErrors);
 			setErrors(updatedErrors);
 			return false;
 		}

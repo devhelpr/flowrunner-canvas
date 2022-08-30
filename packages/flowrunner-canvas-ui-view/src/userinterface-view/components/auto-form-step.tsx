@@ -1,8 +1,14 @@
 import React from 'react';
-import { useState, useRef, useLayoutEffect,useCallback } from 'react';
-import { FlowToCanvas, IFlowrunnerConnector, IFormInfoProps, ShapeSettings, useFlowStore } from '@devhelpr/flowrunner-canvas-core';
+import { useState, useRef, useLayoutEffect, useCallback } from 'react';
+import {
+  FlowToCanvas,
+  IFlowrunnerConnector,
+  IFormInfoProps,
+  ShapeSettings,
+  useFlowStore,
+} from '@devhelpr/flowrunner-canvas-core';
 import * as uuid from 'uuid';
-import "./auto-form-step.css";
+import './auto-form-step.css';
 const uuidV4 = uuid.v4;
 
 /*
@@ -52,6 +58,11 @@ const uuidV4 = uuid.v4;
 		on next : send form-control value into form and execute node
 */
 
+export interface IFormStep {
+  title: string;
+  nodeName: string;
+}
+
 export interface IAutoFormStepProps {
   flowrunnerConnector: IFlowrunnerConnector;
   renderHtmlNode: any;
@@ -68,9 +79,9 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   let flowHashmapRef = useRef<any>(null);
   let formInfoRef = useRef<IFormInfoProps | undefined>(undefined);
 
-  const [currentNode, setCurrentNode] = useState('');
-  const [flowSteps, setFlowSteps] = useState<string[]>([]);
-  const flowStepsRef = useRef<string[]>([]);
+  const [currentNode, setCurrentNode] = useState<any>(undefined);
+  const [flowSteps, setFlowSteps] = useState<IFormStep[]>([]);
+  const flowStepsRef = useRef<IFormStep[]>([]);
   const observableId = useRef(uuidV4());
   const [payload, setPayload] = useState<any>({});
   const [currentValues, setCurrentValues] = useState<any>(undefined);
@@ -116,7 +127,7 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
           if (checkingNode.taskType === 'FormTask' || checkingNode.taskType === 'DebugTask') {
             if (touchedNodesLocal.current[checkingNode.name] === true) {
               //console.log('checkingNode is touched', checkingNode.name);
-			  setIsLastNode(true);
+              setIsLastNode(true);
             } else {
               nodeHasTouchedOuputNode = checkIfNodeHasTouchedOutputNodes(checkingNode.name, true);
             }
@@ -156,15 +167,15 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     if (touchedNodesLocal.current) {
       let showNode = '';
       //console.log('updateTouchedNodes', touchedNodesLocal.current);
-      Object.keys(touchedNodesLocal.current).map((touchNodeId: string) => {
-        if (touchNodeId !== 'undefined') {          
+      Object.keys(touchedNodesLocal.current).forEach((touchNodeId: string) => {
+        if (touchNodeId !== 'undefined') {
           const nodeHash = flowHashmapRef.current.get(touchNodeId);
           if (nodeHash && !showNode && touchNodeId && touchedNodesLocal.current[touchNodeId] === true) {
             //console.log('check nodes', touchNodeId, showNode);
             if (!checkIfNodeHasOutputNodes(touchNodeId)) {
               //console.log('check nodes checkIfNodeHasOutputNodes', touchNodeId, showNode);
               showNode = touchNodeId;
-			  setCurrentValues(undefined);
+              setCurrentValues(undefined);
             } else if (!checkIfNodeHasTouchedOutputNodes(touchNodeId, false)) {
               //console.log('check nodes checkIfNodeHasTouchedOutputNodes', touchNodeId, showNode);
               showNode = touchNodeId;
@@ -175,10 +186,31 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
       });
 
       //console.log('showNode', showNode);
-      setCurrentNode(showNode);
 
-      if (showNode && flowStepsRef.current.indexOf(showNode) < 0) {
-        setFlowSteps([...flowStepsRef.current, showNode]);
+      if (showNode && flowStepsRef.current.findIndex((item) => item.nodeName === showNode) < 0) {
+        let title = showNode;
+        if (flowHashmapRef.current) {
+          const flowHash = flowHashmapRef.current.get(showNode);
+          if (flowHash) {
+            const nodeViaFlowHash = flowRef.current[flowHash.index];
+            if (nodeViaFlowHash && 
+                (nodeViaFlowHash.taskType === "FormTask" || nodeViaFlowHash.taskType === "DebugTask")) {
+
+              title = nodeViaFlowHash.formStepTitle || nodeViaFlowHash.formTitle || showNode;
+              setCurrentNode(nodeViaFlowHash);
+
+              setFlowSteps(flowSteps => [
+                ...flowSteps,
+                {
+                  nodeName: showNode,
+                  title: title,
+                },
+              ]);
+            }
+          }
+        }
+
+        
       }
     }
   };
@@ -190,23 +222,29 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     updateTouchedNodes();
   };
 
-  const receivePayloadFromNode = useCallback((incomingPayload : any) => {
-	//console.log("receivePayloadFromNode", currentNode, incomingPayload);
-	setPayload(incomingPayload);
-  }, [currentNode]);
+  const receivePayloadFromNode = useCallback(
+    (incomingPayload: any) => {
+      //console.log("receivePayloadFromNode", currentNode, incomingPayload);
+      setPayload(incomingPayload);
+    },
+    [currentNode],
+  );
 
   useLayoutEffect(() => {
-    if (props.flowrunnerConnector) {
-		props.flowrunnerConnector?.registerFlowNodeObserver(currentNode, observableId.current, receivePayloadFromNode);
-	}
-	setCurrentValues(undefined);
-	setIsLastNode(!checkIfNodeHasOutputNodes(currentNode));
-	return () => {
-		if (props.flowrunnerConnector) {
-			props.flowrunnerConnector?.unregisterFlowNodeObserver(currentNode, observableId.current);
-		}
-	}
-  }, [currentNode]); 
+    let registeredNode = currentNode?.name ?? "";
+    if (currentNode && props.flowrunnerConnector) {
+      props.flowrunnerConnector?.registerFlowNodeObserver(currentNode.name, observableId.current, receivePayloadFromNode);
+    }
+    setCurrentValues(undefined);
+    if (registeredNode) {
+      setIsLastNode(!checkIfNodeHasOutputNodes(registeredNode));
+    }
+    return () => {
+      if (registeredNode && props.flowrunnerConnector) {
+        props.flowrunnerConnector?.unregisterFlowNodeObserver(registeredNode, observableId.current);
+      }
+    };
+  }, [currentNode]);
 
   useLayoutEffect(() => {
     if (props.flowrunnerConnector) {
@@ -224,74 +262,97 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   const onNextStep = (event) => {
     event.preventDefault();
 
-	if (!formInfoRef.current ||
-		(formInfoRef.current && formInfoRef.current.onCanSubmitForm &&
-			!formInfoRef.current.onCanSubmitForm())) {
-		return;
-	}
+    if (currentNode && currentNode.taskType === "DebugTask") {
 
-	if (props.flowrunnerConnector) {
+      if (props.flowrunnerConnector) {
+        props.flowrunnerConnector?.modifyFlowNode(currentNode.name, '', undefined, currentNode.name, '', {
+          waitForUserSubmit: true
+        });
+      }
+      return;
+    }
+  
+    if (
+      !formInfoRef.current ||
+      (formInfoRef.current && formInfoRef.current.onCanSubmitForm && !formInfoRef.current.onCanSubmitForm())
+    ) {
+      return;
+    }
 
-		if (flowRef.current && flowSteps.length > 0) {
-			let sendValues = {...payload, ...currentValues};
-			flowRef.current.forEach(node => {
-				if (node.taskType === "FormTask") {
-					if (flowSteps.indexOf(node.name) < 0) {
-						props.flowrunnerConnector?.clearNodeState(
-							node.name
-						);
-						const metaInfo = node.metaInfo || [];
-						//console.log("onNextStep metaInfo", node.name, metaInfo);
-						metaInfo.forEach(field => {
-							if (field && field.fieldName) {
-								delete sendValues[field.fieldName];
-							}
-						});
-					}
-				}
-			});
-			//console.log("sendValues", sendValues);
-			props.flowrunnerConnector?.modifyFlowNode(
-				currentNode, 
-				"", 
-				undefined,
-				currentNode,
-				'',
-				sendValues
-			);
-		}
-	}
+    if (props.flowrunnerConnector) {
+      if (flowRef.current && flowSteps.length > 0) {
+        let sendValues = { ...payload, ...currentValues };
+
+        // temp workaround for removing properties of current node
+        let metaInfoCurrentNode: any[] = [];
+        flowRef.current.forEach((node) => {
+          if (node.name === currentNode.name) {
+            metaInfoCurrentNode = node.metaInfo || [];
+          }
+        });
+        let fieldInCurrentNode: string[] = [];
+        metaInfoCurrentNode.forEach((field) => fieldInCurrentNode.push(field.fieldName));
+
+        // end temp workaround
+        flowRef.current.forEach((node) => {
+          // TODO : should check if node is in current down or upstream
+          if (node.taskType === 'FormTask') {
+            if (flowSteps.findIndex((item) => item.nodeName === node.name) < 0) {
+              props.flowrunnerConnector?.clearNodeState(node.name);
+              const metaInfo = node.metaInfo || [];
+              //console.log("onNextStep metaInfo", node.name, metaInfo);
+              metaInfo.forEach((field) => {
+                if (field && field.fieldName && fieldInCurrentNode.indexOf(field.fieldName) < 0) {
+                  delete sendValues[field.fieldName];
+                }
+              });
+            }
+          }
+        });
+        //console.log("sendValues", sendValues);
+        props.flowrunnerConnector?.modifyFlowNode(currentNode.name, '', undefined, currentNode.name, '', sendValues);
+      }
+    }
     return false;
   };
 
   const onOverrideReceiveValues = (nodeName: string, values: any) => {
-	//console.log("onOverrideReceiveValues", nodeName, currentNode, values);
-	if (currentNode === nodeName) {
-		setCurrentValues(values);
-	}
-  }
+    //console.log("onOverrideReceiveValues", nodeName, currentNode, values, currentNode && currentNode.name === nodeName, isLastNode);
+    if (currentNode && currentNode.name === nodeName) {
+      setCurrentValues(values);
+    }
+  };
 
   const onPreviousStep = (event) => {
     event.preventDefault();
-	if (flowSteps.length > 1) {
-		let previousStep = flowSteps[flowSteps.length - 2];
-		let newFlowSteps = [...flowSteps];
-		newFlowSteps.pop();
-		setFlowSteps([...newFlowSteps]);
-		setCurrentNode(previousStep);
-	}
+    if (flowSteps.length > 1) {
+      let previousStep = flowSteps[flowSteps.length - 2];
+      let newFlowSteps = [...flowSteps];
+      newFlowSteps.pop();
+      setFlowSteps([...newFlowSteps]);
+
+      if (flowHashmapRef.current) {
+        const flowHash = flowHashmapRef.current.get(previousStep.nodeName);
+        if (flowHash) {
+          const nodeViaFlowHash = flowRef.current[flowHash.index];
+          if (nodeViaFlowHash) {
+            setCurrentNode(nodeViaFlowHash);
+          }
+        }
+      }
+    }
     return false;
   };
 
-  const onFormInfo = (formInfo : IFormInfoProps) => {
-	  formInfoRef.current = formInfo;
+  const onFormInfo = (formInfo: IFormInfoProps) => {
+    formInfoRef.current = formInfo;
   };
 
   //console.log('currentNode', currentNode, flowHashmapRef.current, flowRef.current);
   if (!currentNode) {
     return <></>;
   }
-  const nodeHash = flowHashmapRef.current.get(currentNode);
+  const nodeHash = flowHashmapRef.current.get(currentNode.name);
   if (!nodeHash) {
     return <></>;
   }
@@ -314,7 +375,7 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     let height = undefined;
 
     if (props.getNodeInstance) {
-      const instance = props.getNodeInstance(currentNode, props.flowrunnerConnector, props.flow, settings);
+      const instance = props.getNodeInstance(currentNode.name, props.flowrunnerConnector, props.flow, settings);
       if (instance) {
         if (instance.getWidth && instance.getHeight) {
           width = instance.getWidth(node);
@@ -326,55 +387,79 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 
     return (
       <>
-        <div className="w-100">
-		  <div className="tw-flex tw-flex-row">
-			  {flowSteps.map((item, index) => <React.Fragment key={"flowstep" + index}>
-				{index > 0 && index < flowSteps.length ? <span>&nbsp;|&nbsp;</span> : ""}
-			  	<span>{item}</span>
-			  </React.Fragment>)}
-		  </div>
+        <div className="w-100 auto-form-step">
+          <h1>{currentNode.formTitle || currentNode.name}</h1>
+          <div className="tw-flex tw-flex-row">
+            {flowSteps.map((item, index) => (
+              <React.Fragment key={'flowstep' + index}>
+                {index > 0 && index < flowSteps.length ? <span>&nbsp;|&nbsp;</span> : ''}
+                <span>{item.title}</span>
+              </React.Fragment>
+            ))}
+          </div>
           <div className="py-3">
-			<div
-			style={{
-				width: (width || node.width || 250) + 'px',
-				minHeight: (height || node.height || 250) + 'px',
-				height: 'auto',
-				opacity: 1,
-				position: 'relative',
-			}}
-			id={node.name}
-			data-task={node.taskType}
-			data-node={node.name}
-			data-html-plugin={nodeClone.htmlPlugin}
-			data-node-type={node.taskType}
-			data-visualizer={nodeClone.visualizer || ''}
-			data-x={node.x}
-			data-y={node.y}
-			className="canvas__html-shape"
-			>
-			<div className="canvas__html-shape-body">
-				{props.renderHtmlNode &&
-				props.renderHtmlNode(nodeClone, props.flowrunnerConnector, props.flow, settings, 
-					undefined, undefined, undefined, payload, onOverrideReceiveValues, true,
-					onFormInfo)}
-			</div>
-			</div>
+            <div
+              style={{
+                width: (width || node.width || 250) + 'px',
+                minHeight: (height || node.height || 250) + 'px',
+                height: 'auto',
+                opacity: 1,
+                position: 'relative',
+              }}
+              id={node.name}
+              data-task={node.taskType}
+              data-node={node.name}
+              data-html-plugin={nodeClone.htmlPlugin}
+              data-node-type={node.taskType}
+              data-visualizer={nodeClone.visualizer || ''}
+              data-x={node.x}
+              data-y={node.y}
+              className="canvas__html-shape"
+            >
+              <div className="canvas__html-shape-body">
+                {props.renderHtmlNode &&
+                  props.renderHtmlNode(
+                    nodeClone,
+                    props.flowrunnerConnector,
+                    props.flow,
+                    settings,
+                    undefined,
+                    undefined,
+                    undefined,
+                    payload,
+                    onOverrideReceiveValues,
+                    true,
+                    onFormInfo,
+                  )}
+              </div>
+            </div>
           </div>
         </div>
-		<div className="row mt-2 tw-justify-end">
-			{flowSteps.length > 1 && 
-			<div className="col-auto">
-				<button className="tw-bg-transparent tw-border tw-border-blue-500 hover:tw-border-blue-700 tw-text-blue-700 tw-font-bold tw-py-2 tw-px-4 tw-rounded" 
-					type="button" onClick={onPreviousStep}>
-				Previous
-				</button>
-			</div>
-			}
-			{(!isLastNode && (currentValues || payload)) && <div className="col-auto">
-				<button className="tw-bg-blue-500 hover:tw-bg-blue-700 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded"
-					type="submit" form={`form-${currentNode}`} onClick={onNextStep}>Next</button>
-			</div>}
-		</div>
+        <div className="row mt-2 tw-justify-end">
+          {flowSteps.length > 1 && (
+            <div className="col-auto">
+              <button
+                className="tw-bg-transparent tw-border tw-border-blue-500 hover:tw-border-blue-700 tw-text-blue-700 tw-font-bold tw-py-2 tw-px-4 tw-rounded"
+                type="button"
+                onClick={onPreviousStep}
+              >
+                Previous
+              </button>
+            </div>
+          )}
+          {!isLastNode && (currentValues || payload) && (
+            <div className="col-auto">
+              <button
+                className="tw-bg-blue-500 hover:tw-bg-blue-700 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded"
+                type="submit"
+                form={`form-${currentNode.name}`}
+                onClick={onNextStep}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
       </>
     );
   }

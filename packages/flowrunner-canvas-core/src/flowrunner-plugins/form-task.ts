@@ -1,3 +1,4 @@
+import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 import { FlowTask, ObservableTask } from '@devhelpr/flowrunner';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
@@ -62,7 +63,15 @@ export class FormTask extends ObservableTask {
           values[metaInfo.fieldName] = node[metaInfo.fieldName];
         }
 
-        if (!!metaInfo.required && metaInfo.fieldName && values[metaInfo.fieldName] === undefined) {
+        let isVisible = true;
+        if (metaInfo.visibilityCondition) {				
+					const expression = createExpressionTree(metaInfo.visibilityCondition);
+					let data = {...node, ...node.payload, ...values};
+          const result = executeExpressionTree(expression, data);
+          isVisible = !!result;
+        }
+  
+        if (isVisible && !!metaInfo.required && metaInfo.fieldName && values[metaInfo.fieldName] === undefined) {
           isValid = false;
         }
       });
@@ -72,8 +81,15 @@ export class FormTask extends ObservableTask {
 
       let hasValues = Object.keys(values).length > 0;
       if (isValid && hasValues) {
+
+        if (node.outputProperty && node.outputExpression) {
+          const expression = createExpressionTree(node.outputExpression);
+					let data = {...values};
+          payload[node.outputProperty] = executeExpressionTree(expression, data);
+        }
         return payload;
       }
+      console.log("form-task", node.name, isValid, hasValues, values, metaInfoDefinition);
       return false;
     } catch (err) {
       console.log('FormTask error', err);

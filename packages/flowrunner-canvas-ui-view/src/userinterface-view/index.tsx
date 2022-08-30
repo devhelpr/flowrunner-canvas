@@ -180,11 +180,19 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 
 		if (flowPackage.flowType === "playground") {
 			props.flowrunnerConnector.setFlowType(flowPackage.flowType || "playground");
+
+			props.flowrunnerConnector.isInAutoFormStepMode = false;
+			if (hasLayoutComponentOfType("autoFormStepElement" , flowPackage.layout || {})) {
+				props.flowrunnerConnector.isInAutoFormStepMode = true;
+			}
+
 			canvasMode.setFlowrunnerPaused(false);
 			canvasMode.setFlowType(flowPackage.flowType || "playground");
 			flow.storeFlow(flowPackage.flow, flowId);
 			layout.storeLayout(JSON.stringify(flowPackage.layout));
 			
+			
+
 			let flowHash = {};
 			flowPackage.flow.map((node) => {
 				flowHash[node.name] = node;
@@ -221,6 +229,23 @@ export const UserInterfaceView = (props : UserInterfaceViewProps) => {
 		.catch(err => {
 			console.error(err);
 		});
+	}
+
+	const hasLayoutComponentOfType = (componentType : string, layout) => {
+		let isFound = false;
+		if (layout) {
+			Object.keys(layout).forEach((keyName) => {
+				const subLayout = layout[keyName];
+				if (subLayout) {
+					subLayout.forEach(layoutComponent => {
+						if (layoutComponent.title === componentType || layoutComponent.subtitle === componentType) {
+							isFound = true;
+						}
+					})
+				}
+			})
+		}
+		return isFound;
 	}
 
 	useLayoutEffect(() => {

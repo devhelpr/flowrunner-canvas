@@ -1,7 +1,26 @@
-[data-node="DebugTask"] {
-	width: 100%;
-}
+.auto-form-step {
 
-.text-visualizer  {
-	width: 100%;
+	h1 {
+		font-size : 1.8rem;
+	}
+
+	[data-node="DebugTask"] {
+		flex: 1 1 100%;
+		width: 100% !important;
+	}
+
+	.text-visualizer  {
+		width: 100%;
+	}
+
+	[data-task="FormTask"] {
+		flex: 1 1 100%;
+		width: 100% !important;
+		min-height: auto !important;
+		height: auto !important;
+	}
+
+	[data-task="FormTask"] .canvas__html-shape-body {
+		outline: none;
+	}
 }

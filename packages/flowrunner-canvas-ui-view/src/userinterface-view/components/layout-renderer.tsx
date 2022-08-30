@@ -157,7 +157,7 @@ export const renderLayoutType = (layoutBlock : any,
 		return <div>{layoutBlock.title || ""}</div>
 	} 
 	else if (layoutBlock.type === "autoFormStepElement") {
-		return <div className="w-100">{layoutBlock.title || ""}
+		return <div className="w-100">
 			<AutoFormStep 
 				renderHtmlNode={rootLayout.context.renderHtmlNode}
 				getNodeInstance={rootLayout.context.getNodeInstance}

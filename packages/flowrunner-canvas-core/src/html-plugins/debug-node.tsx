@@ -183,12 +183,10 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 	if (props.node.visibilityCondition && expressionTree) {
 		let payload = receivedPayload.length > 0 ? receivedPayload[receivedPayload.length - 1] : {};
 		const result = executeExpressionTree(expressionTree as unknown as ExpressionNode, payload);
-		console.log("executeExpressionTree", result, result == 1, !(result == 1) && expressionTree && 
-			props.flowrunnerConnector.flowView != "uiview", payload);
-		visible = result == 1;
+		visible = result === 1;
 	}
 
-	if (props.flowrunnerConnector.flowView == "uiview" && expressionTree) {
+	if (props.flowrunnerConnector.flowView === "uiview" && expressionTree) {
 		if (!visible) {
 			return <></>;
 		} 
@@ -200,7 +198,6 @@ export const DebugNodeHtmlPlugin = (props : DebugNodeHtmlPluginProps) => {
 			backgroundColor: "#ffffff"
 		}}></div>;
 	}
-	//console.log("debugnode", props.node && props.node.name, expressionTree);
 	
 	if (props.node.visualizer == "children") {
 		const childrenWithProps = Children.map(props.children, child => {

@@ -8,6 +8,8 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   flowView = '';
   forcePushToFlowRunner = false;
 
+  isInAutoFormStepMode = false;
+
   getNodeExecutions() {
     return [];
   }
@@ -111,6 +113,8 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   nodeState: any = {};
   forcePushToFlowRunner = false;
+
+  isInAutoFormStepMode = false;
 
   screenUICallback: (action: any) => void = action => {
     return;
@@ -365,6 +369,8 @@ export class FlowConnector implements IFlowrunnerConnector {
         this.onDestroyAndRecreateWorker();
       }
 
+      this.worker.isInAutoFormStepMode = this.isInAutoFormStepMode;
+      
       this.currentFlowId = flowId;
 
       console.log('AFTER onDestroyAndRecreateWorker');

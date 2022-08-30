@@ -6,6 +6,7 @@ import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressio
 
 export class FlowAgent implements IFlowAgent {
   eventListeners: any = {};
+  isInAutoFormStepMode = false;
   flow?: FlowEventRunner = undefined;
   observables = {};
 
@@ -902,6 +903,7 @@ const startFlow = (
   }
   let services = {
     flowEventRunner: worker.flow,
+    isInAutoFormStepMode : worker.isInAutoFormStepMode,
     pluginClasses: {},
     logMessage: (arg1, arg2) => {
       console.log(arg1, arg2);

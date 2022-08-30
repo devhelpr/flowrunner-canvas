@@ -1429,14 +1429,14 @@ const taskTypeConfig: any = {
     configMenu: {
       fields: [
         {
-          fieldName: 'formDefinitionAsPayload',
-          fieldType: 'checkbox',
-          label: 'Send form definition via payload',
+          fieldName: 'formTitle',
+          fieldType: 'text',
+          label: 'Form Title',
         },
         {
-          fieldName: 'renderFormViaMetaInfoInPayload',
-          fieldType: 'checkbox',
-          label: 'Render form based on payload',
+          fieldName: 'formStepTitle',
+          fieldType: 'text',
+          label: 'Form Step Title',
         },
         {
           fieldName: 'metaInfo',
@@ -1590,6 +1590,27 @@ const taskTypeConfig: any = {
             },
           ],
         },
+        {
+          fieldName: 'formDefinitionAsPayload',
+          fieldType: 'checkbox',
+          label: 'Send form definition via payload',
+        },
+        {
+          fieldName: 'renderFormViaMetaInfoInPayload',
+          fieldType: 'checkbox',
+          label: 'Render form based on payload',
+        },
+        {
+          fieldName: 'outputExpression',
+          fieldType: 'text',
+          label: 'Output expression',
+        },
+        ,
+        {
+          fieldName: 'outputProperty',
+          fieldType: 'text',
+          label: 'Output property',
+        }
       ],
     },
   },
