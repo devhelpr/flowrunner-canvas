@@ -324,23 +324,23 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 			shadowForStrokeEnabled={false}
 		>
 		</KonvaLine>
-		{/*<Text
-			ref={textRef} 
+		{/*props.lineNode && props.lineNode.flowPath && <Text
+			ref={textRef2} 
 			x={center.x}
 			y={center.y}
 			align="center"			
 			verticalAlign="middle"
-			text={"Dit is een test"}
-		></Text>
-		<Rect
+			text={props.lineNode.flowPath}
+			></Text>*/}
+		{/*<Rect
 			ref={rectRef} 
 			x={center.x-6}
 			y={center.y-6}
 			width={12}
 			height={12}
 			fill={"#000000"}
-		></Rect>*/}
-		{props.lineNode && props.lineNode.label && <Shape
+		></Rect>*/} 
+		{props.lineNode && props.lineNode.flowPath && <Shape
 			ref={textRef2}
 			x={center.x}
 			y={center.y}
@@ -348,8 +348,8 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 				context._context.textAlign = "center";
 				context._context.textBaseline = "middle";
 				
-				const size = context.measureText(props.lineNode.label);
-				context._context.fillStyle = "rgba(255, 255, 255, 0.75)";
+				const size = context.measureText(props.lineNode.flowPath);
+				context._context.fillStyle = "rgba(255, 255, 255, 1)";
 				context.fillRect(
 					-(size.width + 10)/2,
 					-(10 + size.actualBoundingBoxAscent + size.actualBoundingBoxDescent)/2, 
@@ -357,7 +357,7 @@ export const Line = React.forwardRef((props : LineTypeProps, ref : any) => {
 					10 + size.actualBoundingBoxAscent + size.actualBoundingBoxDescent);
 			  
 			  	context._context.fillStyle = "#000000";
-				context.fillText(props.lineNode.label, 0,0);
+				context.fillText(props.lineNode.flowPath, 0,0);
 				context._context.textAlign = "left";
 				context._context.textBaseline = "alphabetic";
             }}

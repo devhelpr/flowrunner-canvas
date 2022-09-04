@@ -528,14 +528,14 @@ const taskTypeConfig: any = {
     presetValues: {
       object: {},
     },
-    styleNode: {
+    _styleNode: {
       '--thumb-color': 'purple',
     },
-    style: {
+    _style: {
       borderRadius: '40px',
       border: '2px solid purple',
     },
-    styleShapeBody: {
+    _styleShapeBody: {
       _width: '200px',
       _height: '200px',
     },

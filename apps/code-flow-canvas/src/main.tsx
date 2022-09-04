@@ -241,13 +241,28 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 
 		// eslint-disable-next-line no-restricted-globals
 		const paths = location.pathname.split("/");
+		let initalFlowId : string | undefined = undefined;
+console.log("path", paths);
 		if (paths.length > 1) {
-			if (paths[1] == "ui") {
+			if (paths[1] === "ui") {
 				applicationMode = ApplicationMode.UI;
 				document.querySelector("body")?.classList.add("body-ui-view");
 				const element = document.querySelector("#loading");
 				if (element && element.parentElement) {
 					element.parentElement.removeChild(element);
+				}
+			} else 
+			if (paths[1] === "canvas") {
+				applicationMode = ApplicationMode.Canvas;
+
+				if (paths.length > 2) {
+					const flowId = paths[2];
+					if (flowId !== undefined) {
+						initalFlowId = flowId;
+						console.log("initalFlowId", initalFlowId);
+					} else {
+						console.error("No flowId specified");
+					}
 				}
 			}
 		}
@@ -269,7 +284,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 				const App = (props : IAppProps) => {
 					const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
 					const [editorMode, setEditorMode] = useState("canvas");					
-					const flows = useFlows(flowrunnerConnector, useFlowStore);
+					const flows = useFlows(flowrunnerConnector, useFlowStore, initalFlowId);
 
 					const onClose = () => {
 						setLoggedIn(true);
@@ -279,6 +294,10 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 					const onEditorMode = (editorMode) => {
 						flowrunnerConnector.flowView = editorMode;
 						setEditorMode(editorMode);
+					}
+
+					const onRedirectToFlowUrl = (flowId) => {
+						window.location.href = `/canvas/${flowId}`;
 					}
 					/*
 					{false && !!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
@@ -311,6 +330,7 @@ export const startEditor = async (flowStorageProvider? : IStorageProvider, doLoc
 											onGetFlows={flows.onGetFlows}
 											getNodeInstance={getNodeInstance}
 											renderHtmlNode={renderHtmlNode}
+											onRedirectToFlowUrl={onRedirectToFlowUrl}
 											></Toolbar>
 										{editorMode == "canvas" &&
 										<CanvasComponent canvasToolbarsubject={canvasToolbarsubject}

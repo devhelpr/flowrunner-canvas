@@ -74,6 +74,7 @@ export interface ToolbarProps {
   loadFlow: (flowId) => void;
   saveFlow: (flowId?) => void;
   onGetFlows: (id?: string | number) => void;
+  onRedirectToFlowUrl? : (flowId: string) => void;
 
   getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
   renderHtmlNode?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings?: any) => any;
@@ -854,6 +855,11 @@ export const Toolbar = (props: ToolbarProps) => {
 
   const setSelectedFlowChange = event => {
     console.log('FLOW selected', event.target.value, performance.now());
+    
+    if (props.onRedirectToFlowUrl) {
+      props.onRedirectToFlowUrl(event.target.value);
+      return;
+    }
 
     positionContext.clearPositions();
 

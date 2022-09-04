@@ -4,7 +4,12 @@
 		font-size : 1.8rem;
 	}
 
-	[data-node="DebugTask"] {
+	.html-plugin-node {
+		pointer-events: auto;
+		user-select: auto;
+	}
+
+	[data-task="DebugTask"] {
 		flex: 1 1 100%;
 		width: 100% !important;
 	}

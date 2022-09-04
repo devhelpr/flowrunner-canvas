@@ -21,6 +21,7 @@ import * as uuid from 'uuid';
 import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-context';
 
 import { IconIllustration } from './components/icon-illustration';
+import { replaceValuesExpressions } from '../helpers/replace-values';
 
 const uuidV4 = uuid.v4;
 
@@ -796,14 +797,11 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		return <>
 			{metaInfo.map((metaInfo, index) => {
 				const fieldType = getFieldType(metaInfo);
+
+				let data = {...props.node, ...receivedPayload, ...values};
 				if (metaInfo.visibilityCondition) {				
 					const expression = createExpressionTree(metaInfo.visibilityCondition);
-					let data = {};
-					if (!!props.isObjectListNodeEditing) {
-						data = {...props.node, ...receivedPayload, ...values};
-					} else {
-						data = {...props.node, ...receivedPayload, ...values};
-					}
+					
 					const result = executeExpressionTree(expression, data);
 					//console.log("visibilityCondition", metaInfo.visibilityCondition, data, result, expression);
 					if (!result) {
@@ -814,7 +812,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					if (!!props.isReadOnly) {
 						return <React.Fragment key={"index-f-r-" + index}>
 							<div className="form-group">						
-								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.fieldName || props.node.name}</strong></label>
+								<label htmlFor={"input-" + props.node.name}><strong>{replaceValuesExpressions(metaInfo.fieldName || props.node.name, data, "")}</strong></label>
 								<div className="">{values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || ""}</div>
 							</div>
 						</React.Fragment>
@@ -880,7 +878,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 					*/
 					return <React.Fragment key={"index-f-" + index}>
 							<div className="form-group">						
-								<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || props.node.name}</strong>{!!metaInfo.required && " *"}</label>
+								<label htmlFor={"input-" + props.node.name}><strong>{replaceValuesExpressions(metaInfo.label || metaInfo.fieldName || props.node.name, data, "")}</strong>{!!metaInfo.required && " *"}</label>
 								{fieldType === "fileupload" && fileObject && <div>{fileObject.fileName || ""}</div>}
 								<div className="input-group mb-1">									
 									<input
