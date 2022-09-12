@@ -48,8 +48,10 @@ export const DebugInfo = (props : DebugInfoProps) => {
 		}
 	}, []);
 
-	const onToggleFullscreen = () => {
+	const onToggleFullscreen = (event) => {
+		event.preventDefault();
 		setFullscreen(!fullscreen);
+		return false;
 	}
 
 	if (flowType !== "playground") {

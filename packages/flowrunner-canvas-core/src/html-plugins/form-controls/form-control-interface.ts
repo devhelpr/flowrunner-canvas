@@ -12,4 +12,5 @@ export interface IFormControlProps {
   fieldDefinition?: any;
   enabled?: boolean;
   fieldIndex: number;
+  currentFormValues?: any;
 }

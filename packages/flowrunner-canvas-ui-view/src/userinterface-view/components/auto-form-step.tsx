@@ -86,10 +86,71 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   const [payload, setPayload] = useState<any>({});
   const [currentValues, setCurrentValues] = useState<any>(undefined);
   const [isLastNode, setIsLastNode] = useState(false);
+  const [allFlowSteps , setAllFlowSteps] = useState<string[]>([]);
+
+  const getFormFlowPath = (nodeName, nodeIndex) => {
+    let path : string[] = [];
+    const nodeHash = flowHashmapRef.current.get(nodeName);
+    if (nodeHash) {
+      const nodeByIndex =  flowRef.current[nodeHash.index];
+      if (nodeByIndex.taskType  === "FormTask" || nodeByIndex.taskType === "DebugTask") {
+        path.push( nodeByIndex.formStepTitle || nodeByIndex.formTitle || nodeByIndex.name);
+      }
+    
+      if (nodeHash.start.length > 0) {
+        const startNodeByIndex =  flowRef.current[nodeHash.start[0]];
+        if (startNodeByIndex) {
+          if (startNodeByIndex.taskType === "connection") {
+            const startshapeHash = flowHashmapRef.current.get(startNodeByIndex.endshapeid);
+            if (startshapeHash) {
+              const startshapeByIndex =  flowRef.current[startshapeHash.index];
+              if (startshapeByIndex) {
+                path = [...path, ...getFormFlowPath(startshapeByIndex.name, startshapeHash.index)];
+              }
+            }
+          } else {
+            path = [...path, ...getFormFlowPath(startNodeByIndex.name, nodeHash.start[0])];
+          }
+        }
+      }
+    }
+    return path;
+  }
+
+  useLayoutEffect(() => {
+    document.body.classList.add("auto-form-step__body");
+  }, []);
 
   useLayoutEffect(() => {
     flowRef.current = flow.flow;
     flowHashmapRef.current = flow.flowHashmap;
+    if (flow.flow && flow.flowHashmap) {
+      let startNodeName = "";
+      let startNodeIndex = -1;
+      let startNode : any = undefined;
+      flow.flow.forEach((node, index) => {
+        if (node.taskType !== "connection" && node.taskType !== "FunctionInputTask" && node.taskType !== "Annotation" && node.taskType !== "Section") {
+          const nodeHash = flow.flowHashmap.get(node.name);
+          if (nodeHash) {
+            if (!startNodeName && nodeHash.end.length === 0) {
+              startNodeName = node.name;
+              startNodeIndex = index;
+              startNode = node;
+            }
+          }
+        }
+      });
+
+      if (startNodeIndex >= 0) {
+
+        let helper : string[] = [] ;
+        if (startNode.taskType === "FormTask" && startNode.taskType === "DebugTask") {
+          helper = [startNodeName];
+        }
+        helper = [...helper, ...getFormFlowPath(startNodeName, startNodeIndex)];
+        setAllFlowSteps(helper);
+      }
+    }
   }, [flow]);
 
   useLayoutEffect(() => {
@@ -387,15 +448,26 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 
     return (
       <>
-        <div className="w-100 auto-form-step">
+        <div className={`w-100 auto-form-step ${currentNode?.cssClassName ?? ""}`}>
           <h1>{currentNode.formTitle || currentNode.name}</h1>
           <div className="tw-flex tw-flex-row">
-            {flowSteps.map((item, index) => (
-              <React.Fragment key={'flowstep' + index}>
-                {index > 0 && index < flowSteps.length ? <span>&nbsp;|&nbsp;</span> : ''}
-                <span>{item.title}</span>
-              </React.Fragment>
-            ))}
+            {allFlowSteps.map((item, index) => {
+              const separator = index > 0 && index < allFlowSteps.length ? <span>&nbsp;|&nbsp;</span> : '';
+              if (currentNode) {
+                const currentStepTitle = currentNode.formStepTitle || currentNode.formTitle || currentNode.name;
+                if (currentStepTitle === item) {
+                  return <React.Fragment key={'flowstep' + index}>                
+                    {separator}
+                    <span><strong>{item}</strong></span>
+                  </React.Fragment>;
+                }
+              }
+              const className = flowSteps.find(step => step.title === item) ? "" : "tw-text-gray-300";
+              return <React.Fragment key={'flowstep' + index}>                
+                {separator}
+                <span className={className}>{item}</span>
+              </React.Fragment>;
+            })}
           </div>
           <div className="py-3">
             <div

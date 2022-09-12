@@ -21,6 +21,16 @@ export const RadioButton = (props: IFormControlProps) => {
 		<label htmlFor={"input-" + props.node.name}><strong>{metaInfo.label || metaInfo.fieldName || node.name}</strong>{!!metaInfo.required && " *"}</label>
 		<div className="mb-1">
 			{metaInfo && (props.datasource || metaInfo.options || []).map((option : IRadioButtonOption, index) => {
+
+				let optionOutput: any = option;
+				if (metaInfo.datasourceLabelProperty && metaInfo.datasourceValueProperty) {
+					optionOutput.label = option[metaInfo.datasourceLabelProperty];
+					optionOutput.value = option[metaInfo.datasourceValueProperty];
+				}
+				
+				const currrentOptionValue = optionOutput.value || 
+					((typeof option === "string" || typeof option === "number") && (option as any).toString()) || "";
+
 				return <React.Fragment key={"radiobutton"+index}>
 					<div className="form-check">
 						<input 
@@ -28,13 +38,14 @@ export const RadioButton = (props: IFormControlProps) => {
 							className="form-check-input"
 							id={metaInfo.fieldName + "-" + index}
 							name={metaInfo.fieldName} 
-							value={option.value} 
+							value={currrentOptionValue} 
 							onChange={formControl.onChange} 
 							onFocus={onFocus}
-							checked={formControl.value === option.value}></input>
+							checked={formControl.value === currrentOptionValue}></input>
 						<label 
 							className="form-check-label"
-							htmlFor={metaInfo.fieldName + "-" + index}>{option.label}</label>
+							htmlFor={metaInfo.fieldName + "-" + index}>{optionOutput.label || 
+								((typeof option === "string" || typeof option === "number") && (option as any).toString()) || ""}</label>
 					</div>
 				</React.Fragment>
 			})}

@@ -943,7 +943,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 						}
 					}
 
-					return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType,{
+					return <React.Fragment key={"index-f-" + index}>{getFormControl(fieldType, {
+						currentFormValues: values,
 						value: inputValue,
 						onChange: onReceiveValue,
 						node: props.node,

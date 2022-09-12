@@ -762,6 +762,13 @@ const taskTypeConfig: any = {
         fieldName: 'nodeName',
         required: true,
       },
+      {
+        fieldName: 'linkToFlow',
+        fieldType: 'linkbutton',
+        linkTemplate: '/canvas/{flowId}',
+        label: 'Open flow',
+        enabledIfPropertyIsTruthy: 'flowId'
+      },
     ],
     presetValues: {},
   },
@@ -1533,7 +1540,7 @@ const taskTypeConfig: any = {
               ],
             },
             {
-              visibilityCondition: "fieldType=='select'",
+              visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
               fieldName: 'datasource',
               fieldType: 'text',
               label: 'Datasource',
@@ -1541,13 +1548,13 @@ const taskTypeConfig: any = {
               autoId: 'none',
             },
             {
-              visibilityCondition: "fieldType=='select'",
+              visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
               fieldName: 'datasourceLabelProperty',
               fieldType: 'text',
               label: 'Datasource label property',
             },
             {
-              visibilityCondition: "fieldType=='select'",
+              visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
               fieldName: 'datasourceValueProperty',
               fieldType: 'text',
               label: 'Datasource value property',
@@ -1576,13 +1583,11 @@ const taskTypeConfig: any = {
               fieldName: 'visibilityCondition',
               fieldType: 'textarea',
             },
-            ,
             {
               fieldName: 'min',
               fieldType: 'text',
               visibilityCondition: "(fieldType=='slider')",
             },
-            ,
             {
               fieldName: 'max',
               fieldType: 'text',
@@ -1605,11 +1610,15 @@ const taskTypeConfig: any = {
           fieldType: 'text',
           label: 'Output expression',
         },
-        ,
         {
           fieldName: 'outputProperty',
           fieldType: 'text',
           label: 'Output property',
+        },
+        {
+          fieldName: 'cssClassName',
+          fieldType: 'text',
+          label: 'CSS ClassName',
         }
       ],
     },
@@ -1796,6 +1805,16 @@ const taskTypeConfig: any = {
           fieldType: 'textarea',
           visibilityCondition: 'visualizer == "animatedgridcanvas"',
         },
+        {
+          fieldName: 'formTitle',
+          fieldType: 'text',
+          label: 'Form Title',
+        },
+        {
+          fieldName: 'formStepTitle',
+          fieldType: 'text',
+          label: 'Form Step Title',
+        }
       ],
     },
   },
