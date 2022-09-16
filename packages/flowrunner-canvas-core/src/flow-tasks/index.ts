@@ -51,7 +51,33 @@ import { FilterEventTask } from '../flowrunner-plugins/filter-event-task';
 import { ReduceEventTask } from '../flowrunner-plugins/reduce-event-task';
 import { OperationEventTask } from '../flowrunner-plugins/operation-event-task';
 
-export const registerTasks = flow => {
+export interface IFlowTask {
+  new (): FlowTask;
+}
+
+export type FlowType = 'playground' | 'backend';
+export interface ITask {
+  FlowTask: IFlowTask;
+  name: string;
+  flowType: FlowType;
+}
+
+const customTasks: ITask[] = [];
+
+export const registerCustomTask = (name: string, TaskClass: IFlowTask, flowType: FlowType) => {
+  customTasks.push({
+    FlowTask: TaskClass,
+    name,
+    flowType,
+  });
+};
+
+export const registerTasks = (flow) => {
+  console.log('registerTasks', customTasks);
+  customTasks.forEach((task) => {
+    flow.registerTask(task.name, task.FlowTask);
+  });
+
   flow.registerTask('Annotation', FlowTask);
   flow.registerTask('TestTask', TestTask);
 
@@ -107,88 +133,91 @@ export const registerTasks = flow => {
   flow.registerTask('FilterEventTask', FilterEventTask);
   flow.registerTask('ReduceEventTask', ReduceEventTask);
   flow.registerTask('OperationEventTask', OperationEventTask);
-
 };
 
 export const getDefaultUITasks = () => {
-  const tasks : any[] = [];
+  const tasks: any[] = [];
 
-  tasks.push({className:"TestTask", fullName: "TestTask", flowType: "playground"});
+  customTasks.forEach((task) => {
+    tasks.push({ className: task.name, fullName: task.name, flowType: task.flowType });
+  });
 
-  tasks.push({className:"OnStartFlow", fullName: "OnStartFlow", flowType: "playground"});
-  tasks.push({className:"StateMachine", fullName: "StateMachine", flowType: "playground"});
-  tasks.push({className:"StartState", fullName: "StartState", flowType: "playground"});
-  tasks.push({className:"State", fullName: "State", flowType: "playground"});
-  tasks.push({className:"Event", fullName: "Event", flowType: "playground"});
-  tasks.push({className:"Guard", fullName: "Guard", flowType: "playground"});
-  tasks.push({className:"StateChangeTriggerTask", fullName: "StateChangeTriggerTask", flowType: "playground"});
-  
-  tasks.push({className:"SetCookie", fullName: "SetCookie", flowType: "playground"});
-  tasks.push({className:"GetCookie", fullName: "GetCookie", flowType: "playground"});
+  tasks.push({ className: 'TestTask', fullName: 'TestTask', flowType: 'playground' });
 
-  tasks.push({className:"AssignTask", fullName: "AssignTask", flowType: "playground"});
-  tasks.push({className:"ClearTask", fullName: "ClearTask", flowType: "playground"});
-  tasks.push({className:"ForwardTask", fullName: "ForwardTask", flowType: "playground"});
-  tasks.push({className:"InjectIntoPayloadTask", fullName: "InjectIntoPayloadTask", flowType: "playground"});
-  tasks.push({className:"ObserverTask", fullName: "ObserverTask", flowType: "playground"});
-  tasks.push({className:"ObservableTask", fullName: "ObservableTask", flowType: "playground"});
-  tasks.push({className:"TraceConsoleTask", fullName: "TraceConsoleTask", flowType: "playground"});
-  tasks.push({className:"IfConditionTask", fullName: "IfConditionTask", flowType: "playground"});
-  tasks.push({className:"WhileTask", fullName: "WhileTask", flowType: "playground"});
-  tasks.push({className:"FunctionCallTask", fullName: "FunctionCallTask", flowType: "playground"});
-  tasks.push({className:"FunctionInputTask", fullName: "FunctionInputTask", flowType: "playground"});
-  tasks.push({className:"FunctionOutputTask", fullName: "FunctionOutputTask", flowType: "playground"});
-  tasks.push({className:"ParallelTask", fullName: "ParallelTask", flowType: "playground"});
-  tasks.push({className:"ParallelResolveTask", fullName: "ParallelResolveTask", flowType: "playground"});
-  
-  tasks.push({className:"DebugTask", fullName:"DebugTask", flowType:"playground"});
-  tasks.push({className:"SliderTask", fullName:"SliderTask", flowType:"playground"});
-  tasks.push({className:"RandomTask", fullName:"RandomTask", flowType:"playground"});
-  tasks.push({className:"TimerTask", fullName:"TimerTask", flowType:"playground"});
-  tasks.push({className:"ExpressionTask", fullName:"ExpressionTask", flowType:"playground"});
-  tasks.push({className:"OutputValueTask", fullName:"OutputValueTask", flowType:"playground"});
-  tasks.push({className:"ConditionalTriggerTask", fullName:"ConditionalTriggerTask", flowType:"playground"});
-  tasks.push({className:"ApiProxyTask", fullName: "ApiProxyTask", flowType:"playground"});
-  tasks.push({className:"MapPayloadTask", fullName: "MapPayloadTask", flowType:"playground"});
-  tasks.push({className:"InputTask", fullName: "InputTask", flowType:"playground"});
-  tasks.push({className:"ListTask", fullName: "ListTask", flowType:"playground"});					
-  tasks.push({className:"MatrixTask", fullName: "MatrixTask", flowType:"playground"});
-  tasks.push({className:"GridEditTask", fullName: "GridEditTask", flowType:"playground"});
-  tasks.push({className:"DataGridTask", fullName: "DataGridTask", flowType:"playground"});
-  tasks.push({className:"SearchDataGridTask", fullName: "SearchDataGridTask", flowType: "playground"});
-  tasks.push({className:"FilterDataGridTask", fullName: "FilterDataGridTask", flowType: "playground"});
-  tasks.push({className:"TransformTask", fullName: "TransformTask", flowType: "playground"});
-  tasks.push({className:"GroupAndSumTask", fullName: "GroupAndSumTask", flowType: "playground"});
-  tasks.push({className:"SortTask", fullName: "SortTask", flowType: "playground"});
-  tasks.push({className:"DeepAssignTask", fullName: "DeepAssignTask", flowType: "playground"});
-  tasks.push({className:"ExtractUniqueTask", fullName: "ExtractUniqueTask", flowType: "playground"});									
-  tasks.push({className:"FilterTask", fullName: "FilterTask", flowType: "playground"});									
-  tasks.push({className:"CountTask", fullName: "CountTask", flowType: "playground"});									
-  tasks.push({className:"CustomCodeTask", fullName: "CustomCodeTask", flowType: "playground"});									
-  tasks.push({className:"SelectValueFromListTask", fullName: "SelectValueFromListTask", flowType: "playground"});									
-  tasks.push({className:"ImageTask", fullName: "ImageTask", flowType: "playground"});									
-    
-  tasks.push({className:"RunWasmFlowTask", fullName: "RunWasmFlowTask", flowType:"playground"});
-  tasks.push({className:"ScreenTask", fullName: "ScreenTask", flowType:"playground"});
-  tasks.push({className:"FormTask", fullName: "FormTask", flowType:"playground"});
-  tasks.push({className:"RunFlowTask", fullName: "RunFlowTask", flowType:"playground"});
-  tasks.push({className:"PrototypeTask", fullName: "PrototypeTask", flowType:"playground"});
-  tasks.push({className:"ScriptTask", fullName: "ScriptTask", flowType:"playground"});
-  tasks.push({className:"CustomNodeTask", fullName: "CustomNodeTask", flowType:"playground"});				
-  tasks.push({className:"ShapeNodeTask", fullName: "ShapeNodeTask", flowType:"playground"});				
-  tasks.push({className:"MultiFormTask", fullName: "MultiFormTask", flowType:"playground"});
+  tasks.push({ className: 'OnStartFlow', fullName: 'OnStartFlow', flowType: 'playground' });
+  tasks.push({ className: 'StateMachine', fullName: 'StateMachine', flowType: 'playground' });
+  tasks.push({ className: 'StartState', fullName: 'StartState', flowType: 'playground' });
+  tasks.push({ className: 'State', fullName: 'State', flowType: 'playground' });
+  tasks.push({ className: 'Event', fullName: 'Event', flowType: 'playground' });
+  tasks.push({ className: 'Guard', fullName: 'Guard', flowType: 'playground' });
+  tasks.push({ className: 'StateChangeTriggerTask', fullName: 'StateChangeTriggerTask', flowType: 'playground' });
 
-  tasks.push({className:"WeightedSumTask", fullName: "WeightedSumTask", flowType:"playground"});
-  tasks.push({className:"ActivationTask", fullName: "ActivationTask", flowType:"playground"});
-  tasks.push({className:"UpdateWeightsTask", fullName: "UpdateWeightsTask", flowType:"playground"});
+  tasks.push({ className: 'SetCookie', fullName: 'SetCookie', flowType: 'playground' });
+  tasks.push({ className: 'GetCookie', fullName: 'GetCookie', flowType: 'playground' });
 
-  tasks.push({className:"SvgTestTask", fullName: "SvgTestTask", flowType:"playground"});
-  tasks.push({className:"BundleFlowTask", fullName: "BundleFlowTask", flowType:"playground"});
+  tasks.push({ className: 'AssignTask', fullName: 'AssignTask', flowType: 'playground' });
+  tasks.push({ className: 'ClearTask', fullName: 'ClearTask', flowType: 'playground' });
+  tasks.push({ className: 'ForwardTask', fullName: 'ForwardTask', flowType: 'playground' });
+  tasks.push({ className: 'InjectIntoPayloadTask', fullName: 'InjectIntoPayloadTask', flowType: 'playground' });
+  tasks.push({ className: 'ObserverTask', fullName: 'ObserverTask', flowType: 'playground' });
+  tasks.push({ className: 'ObservableTask', fullName: 'ObservableTask', flowType: 'playground' });
+  tasks.push({ className: 'TraceConsoleTask', fullName: 'TraceConsoleTask', flowType: 'playground' });
+  tasks.push({ className: 'IfConditionTask', fullName: 'IfConditionTask', flowType: 'playground' });
+  tasks.push({ className: 'WhileTask', fullName: 'WhileTask', flowType: 'playground' });
+  tasks.push({ className: 'FunctionCallTask', fullName: 'FunctionCallTask', flowType: 'playground' });
+  tasks.push({ className: 'FunctionInputTask', fullName: 'FunctionInputTask', flowType: 'playground' });
+  tasks.push({ className: 'FunctionOutputTask', fullName: 'FunctionOutputTask', flowType: 'playground' });
+  tasks.push({ className: 'ParallelTask', fullName: 'ParallelTask', flowType: 'playground' });
+  tasks.push({ className: 'ParallelResolveTask', fullName: 'ParallelResolveTask', flowType: 'playground' });
 
-  tasks.push({className:"MapEventTask", fullName: "MapEventTask", flowType: "playground"});									
-  tasks.push({className:"FilterEventTask", fullName: "FilterEventTask", flowType: "playground"});									
-  tasks.push({className:"ReduceEventTask", fullName: "ReduceEventTask", flowType: "playground"});									
-  tasks.push({className:"OperationEventTask", fullName: "OperationEventTask", flowType: "playground"});									
-  
+  tasks.push({ className: 'DebugTask', fullName: 'DebugTask', flowType: 'playground' });
+  tasks.push({ className: 'SliderTask', fullName: 'SliderTask', flowType: 'playground' });
+  tasks.push({ className: 'RandomTask', fullName: 'RandomTask', flowType: 'playground' });
+  tasks.push({ className: 'TimerTask', fullName: 'TimerTask', flowType: 'playground' });
+  tasks.push({ className: 'ExpressionTask', fullName: 'ExpressionTask', flowType: 'playground' });
+  tasks.push({ className: 'OutputValueTask', fullName: 'OutputValueTask', flowType: 'playground' });
+  tasks.push({ className: 'ConditionalTriggerTask', fullName: 'ConditionalTriggerTask', flowType: 'playground' });
+  tasks.push({ className: 'ApiProxyTask', fullName: 'ApiProxyTask', flowType: 'playground' });
+  tasks.push({ className: 'MapPayloadTask', fullName: 'MapPayloadTask', flowType: 'playground' });
+  tasks.push({ className: 'InputTask', fullName: 'InputTask', flowType: 'playground' });
+  tasks.push({ className: 'ListTask', fullName: 'ListTask', flowType: 'playground' });
+  tasks.push({ className: 'MatrixTask', fullName: 'MatrixTask', flowType: 'playground' });
+  tasks.push({ className: 'GridEditTask', fullName: 'GridEditTask', flowType: 'playground' });
+  tasks.push({ className: 'DataGridTask', fullName: 'DataGridTask', flowType: 'playground' });
+  tasks.push({ className: 'SearchDataGridTask', fullName: 'SearchDataGridTask', flowType: 'playground' });
+  tasks.push({ className: 'FilterDataGridTask', fullName: 'FilterDataGridTask', flowType: 'playground' });
+  tasks.push({ className: 'TransformTask', fullName: 'TransformTask', flowType: 'playground' });
+  tasks.push({ className: 'GroupAndSumTask', fullName: 'GroupAndSumTask', flowType: 'playground' });
+  tasks.push({ className: 'SortTask', fullName: 'SortTask', flowType: 'playground' });
+  tasks.push({ className: 'DeepAssignTask', fullName: 'DeepAssignTask', flowType: 'playground' });
+  tasks.push({ className: 'ExtractUniqueTask', fullName: 'ExtractUniqueTask', flowType: 'playground' });
+  tasks.push({ className: 'FilterTask', fullName: 'FilterTask', flowType: 'playground' });
+  tasks.push({ className: 'CountTask', fullName: 'CountTask', flowType: 'playground' });
+  tasks.push({ className: 'CustomCodeTask', fullName: 'CustomCodeTask', flowType: 'playground' });
+  tasks.push({ className: 'SelectValueFromListTask', fullName: 'SelectValueFromListTask', flowType: 'playground' });
+  tasks.push({ className: 'ImageTask', fullName: 'ImageTask', flowType: 'playground' });
+
+  tasks.push({ className: 'RunWasmFlowTask', fullName: 'RunWasmFlowTask', flowType: 'playground' });
+  tasks.push({ className: 'ScreenTask', fullName: 'ScreenTask', flowType: 'playground' });
+  tasks.push({ className: 'FormTask', fullName: 'FormTask', flowType: 'playground' });
+  tasks.push({ className: 'RunFlowTask', fullName: 'RunFlowTask', flowType: 'playground' });
+  tasks.push({ className: 'PrototypeTask', fullName: 'PrototypeTask', flowType: 'playground' });
+  tasks.push({ className: 'ScriptTask', fullName: 'ScriptTask', flowType: 'playground' });
+  tasks.push({ className: 'CustomNodeTask', fullName: 'CustomNodeTask', flowType: 'playground' });
+  tasks.push({ className: 'ShapeNodeTask', fullName: 'ShapeNodeTask', flowType: 'playground' });
+  tasks.push({ className: 'MultiFormTask', fullName: 'MultiFormTask', flowType: 'playground' });
+
+  tasks.push({ className: 'WeightedSumTask', fullName: 'WeightedSumTask', flowType: 'playground' });
+  tasks.push({ className: 'ActivationTask', fullName: 'ActivationTask', flowType: 'playground' });
+  tasks.push({ className: 'UpdateWeightsTask', fullName: 'UpdateWeightsTask', flowType: 'playground' });
+
+  tasks.push({ className: 'SvgTestTask', fullName: 'SvgTestTask', flowType: 'playground' });
+  tasks.push({ className: 'BundleFlowTask', fullName: 'BundleFlowTask', flowType: 'playground' });
+
+  tasks.push({ className: 'MapEventTask', fullName: 'MapEventTask', flowType: 'playground' });
+  tasks.push({ className: 'FilterEventTask', fullName: 'FilterEventTask', flowType: 'playground' });
+  tasks.push({ className: 'ReduceEventTask', fullName: 'ReduceEventTask', flowType: 'playground' });
+  tasks.push({ className: 'OperationEventTask', fullName: 'OperationEventTask', flowType: 'playground' });
+
   return tasks;
-}
+};

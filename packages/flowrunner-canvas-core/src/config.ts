@@ -1,3 +1,6 @@
+import { FlowTask } from '@devhelpr/flowrunner';
+import { FlowType, IFlowTask, registerCustomTask } from './flow-tasks';
+
 const stateTypeTask = {
   shapeType: 'Circle',
   strokeColor: '#0080e0',
@@ -22,12 +25,68 @@ const variableAttached = {
 
 const customConfig = {};
 
-const taskTypeConfig: any = {
-  _variable: {
+export interface ICustomTaskConfig {
+  shapeType?: string;
+  subShapeType?: string;
+  htmlPlugin?: 'formNode' | 'shapeNode' | string;
+
+  label?: string;
+  icon?: string;
+  iconIllustration?: string;
+  background?: string;
+
+  configMenu?: any;
+  config?: any;
+  hasClone?: boolean;
+  hasThumbs?: boolean;
+  hasConfigMenu?: boolean;
+  hasUI?: boolean;
+
+  constraints?: any;
+  events?: any[];
+
+  metaInfo?: any[];
+  presetValues?: any;
+  hasMetaInfoInNode?: boolean;
+
+  width?: number;
+  height?: number;
+
+  styleShapeBody?: any;
+  style?: any;
+  iconBgCssClasses?: string;
+  iconBg?: string;
+  strokeColor?: string;
+  fillColor?: string;
+  fillSelectedColor?: string;
+  textColor?: string;
+
+  htmlDataAttributes?: any;
+  layout?: any;
+
+  altThumbPositions?: number;
+  cornerRadius?: number;
+  isSkewed?: boolean;
+
+  showNotSelectedAsLabels?: boolean;
+  uiComponent?: string;
+  supportsPresets?: boolean;
+
+  isStartEnd?: boolean;
+}
+
+export interface ITaskTypeConfig {
+  [taskName: string]: ICustomTaskConfig;
+}
+
+/*
+_variable: {
     ...variableAttached,
   },
+*/
+const taskTypeConfig: ITaskTypeConfig = {
   AssignTask: {
-    _background: 'background-yellow',
+    //_background: 'background-yellow',
     icon: 'fa-cube',
     shapeType: 'Html',
     htmlPlugin: 'formNode',
@@ -78,12 +137,12 @@ const taskTypeConfig: any = {
     hasClone: false,
     hasThumbs: false,
     hasConfigMenu: false,
-    iconIllustration: "event",
+    iconIllustration: 'event',
     icon: 'fa-bolt',
     presetValues: {
       lineConnectionEndPoints: 'center-of-node',
       curveMode: 'straight',
-      label: 'OnStartFlow'
+      label: 'OnStartFlow',
     },
     configMenu: {
       fields: [],
@@ -101,13 +160,13 @@ const taskTypeConfig: any = {
     height: 64,
     hasClone: false,
     hasThumbs: false,
-    iconIllustration: "event",
+    iconIllustration: 'event',
     icon: 'fa-bolt',
     constraints: {
       input: {
         allowedInputs: 0,
       },
-    }, 
+    },
     metaInfo: [],
     configMenu: {
       fields: [
@@ -116,16 +175,16 @@ const taskTypeConfig: any = {
         },
         {
           fieldName: 'label',
-        }
+        },
       ],
     },
     presetValues: {
       resetOutputPath: true,
       resetOutputPathOnError: true,
       lineConnectionEndPoints: 'center-of-node',
-      curveMode: 'straight'
+      curveMode: 'straight',
     },
-    hasConfigMenu: true    
+    hasConfigMenu: true,
   },
 
   StateMachine: {
@@ -374,7 +433,6 @@ const taskTypeConfig: any = {
       valueFromProperty: '',
     },
   },
-
   IfConditionTask: {
     shapeType: 'Diamond',
     presetValues: {
@@ -385,7 +443,7 @@ const taskTypeConfig: any = {
       dataType: 'string',
       dontTriggerOnEmptyValues: true,
     },
-    _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
+    //_label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
       '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
     hasConfigMenu: true,
@@ -453,7 +511,7 @@ const taskTypeConfig: any = {
       dataType: 'string',
       dontTriggerOnEmptyValues: true,
     },
-    _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
+    //_label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
       '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
     hasConfigMenu: true,
@@ -511,14 +569,14 @@ const taskTypeConfig: any = {
   },
   if: {
     shapeType: 'Diamond',
-    _label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
+    //_label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
     label:
       'value {condition=>"eq":"=","not-equals":"<>","lower":"<","lowereq":"<=","bigger-or-equal":">=","bigger":">","default":""} {valueInt}',
   },
   InjectIntoPayloadTask: {
     icon: 'fa-cubes',
-    _shapeType: 'Html',
-    _htmlPlugin: 'shapeNode',
+    //_shapeType: 'Html',
+    //_htmlPlugin: 'shapeNode',
     layout: {
       strokeColor: '#d61bd8',
       fillColor: '#d550d7',
@@ -528,6 +586,7 @@ const taskTypeConfig: any = {
     presetValues: {
       object: {},
     },
+    /*
     _styleNode: {
       '--thumb-color': 'purple',
     },
@@ -541,6 +600,7 @@ const taskTypeConfig: any = {
     },
     _width: 200,
     _height: 200,
+    */
     config: {
       objects: [
         {
@@ -578,7 +638,7 @@ const taskTypeConfig: any = {
     },
   },
   FunctionInputTask: {
-    _isStartEnd: true,
+    //_isStartEnd: true,
     background: 'background-yellow',
     constraints: {
       input: {
@@ -767,7 +827,7 @@ const taskTypeConfig: any = {
         fieldType: 'linkbutton',
         linkTemplate: '/canvas/{flowId}',
         label: 'Open flow',
-        enabledIfPropertyIsTruthy: 'flowId'
+        enabledIfPropertyIsTruthy: 'flowId',
       },
     ],
     presetValues: {},
@@ -980,7 +1040,7 @@ const taskTypeConfig: any = {
   MapEventTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    iconIllustration: "map",
+    iconIllustration: 'map',
     events: [
       {
         eventName: 'onElement',
@@ -1032,7 +1092,7 @@ const taskTypeConfig: any = {
   FilterEventTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    iconIllustration: "filter",
+    iconIllustration: 'filter',
     events: [
       {
         eventName: 'onElement',
@@ -1057,7 +1117,7 @@ const taskTypeConfig: any = {
   ReduceEventTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
-    iconIllustration: "reduce",
+    iconIllustration: 'reduce',
     events: [
       {
         eventName: 'onElement',
@@ -1619,7 +1679,7 @@ const taskTypeConfig: any = {
           fieldName: 'cssClassName',
           fieldType: 'text',
           label: 'CSS ClassName',
-        }
+        },
       ],
     },
   },
@@ -1814,7 +1874,7 @@ const taskTypeConfig: any = {
           fieldName: 'formStepTitle',
           fieldType: 'text',
           label: 'Form Step Title',
-        }
+        },
       ],
     },
   },
@@ -1939,6 +1999,14 @@ const taskTypeConfig: any = {
 let fullConfig = { ...taskTypeConfig };
 
 export const setCustomConfig = (className: string, config: any) => {
+  if (config) {
+    customConfig[className] = config;
+  }
+  fullConfig = getTaskConfig();
+};
+
+export const registerCustomNodeType = (className: string, config: any, flowType: FlowType, taskClass: IFlowTask) => {
+  registerCustomTask(className, taskClass, flowType);
   if (config) {
     customConfig[className] = config;
   }
