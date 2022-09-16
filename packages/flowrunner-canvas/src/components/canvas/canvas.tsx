@@ -56,6 +56,7 @@ import { AnnotationSection } from './annotations/annotation-section';
 import { AnnotationText } from './annotations/annotation-text';
 import { FloatingToolbar } from '../toolbar';
 import { useSetPositionHook } from './hooks/use-set-position-hook';
+import { getWidthForHtmlNode } from './utils';
 
 const uuidV4 = uuid.v4;
 
@@ -1579,7 +1580,7 @@ export const Canvas = (props: CanvasProps) => {
         ) {
           if (node && ((event.evt && !!event.evt.shiftKey) || (event && !!event.shiftKey))) {
             console.log('START DRAGGING MULTIPLE NODES');
-            const width = getWidthForHtmlNode(node);
+            const { width } = getWidthForHtmlNode(node, props.getNodeInstance);
             if ((node.name, mouseStartX.current > width / 2)) {
               interactionState.current = InteractionState.draggingNodesUpstream;
               getAllConnectedNodes(node, 'output');
@@ -1637,36 +1638,6 @@ export const Canvas = (props: CanvasProps) => {
         });
       }
     }
-  };
-
-  const getWidthForHtmlNode = (node: any) => {
-    if (node) {
-      if (props.getNodeInstance) {
-        const shapeType = FlowToCanvas.getShapeType(node.shapeType, node.taskType, node.isStartEnd);
-        if (shapeType === 'Html') {
-          const settings = ShapeSettings.getShapeSettings(node.taskType, node);
-          const instance = props.getNodeInstance(node, undefined, undefined, settings);
-          if (instance && instance.getWidth && instance.getHeight) {
-            let width = instance.getWidth(node);
-            let element = document.querySelector('#' + node.name + ' .html-plugin-node');
-            if (element) {
-              const elementWidth = element.clientWidth;
-              if (elementWidth > width) {
-                width = elementWidth;
-              }
-            }
-            return width;
-          }
-        } else {
-          if (shapeType == 'Rect') {
-            return ShapeMeasures.rectWidht;
-          } else if (shapeType == 'Diamond') {
-            return ShapeMeasures.diamondSize;
-          }
-        }
-      }
-    }
-    return 0;
   };
 
   const onMouseMove = (node, event) => {

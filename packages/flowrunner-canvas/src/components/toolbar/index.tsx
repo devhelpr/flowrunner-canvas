@@ -32,6 +32,7 @@ import { IModalSize } from '@devhelpr/flowrunner-canvas-core';
 
 import { getMultiSelectInfo } from '@devhelpr/flowrunner-canvas-core';
 import { EditFlowName } from '../edit-flow-name';
+import { createFlowAsSvg } from '../export/svg-exporter';
 
 const uuidV4 = uuid.v4;
 
@@ -74,7 +75,7 @@ export interface ToolbarProps {
   loadFlow: (flowId) => void;
   saveFlow: (flowId?) => void;
   onGetFlows: (id?: string | number) => void;
-  onRedirectToFlowUrl? : (flowId: string) => void;
+  onRedirectToFlowUrl?: (flowId: string) => void;
 
   getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
   renderHtmlNode?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings?: any) => any;
@@ -146,10 +147,10 @@ export const Toolbar = (props: ToolbarProps) => {
 
       canvasMode.setFlowsPlayground(
         flows
-          .filter(flow => {
+          .filter((flow) => {
             return flow.flowType == 'playground';
           })
-          .map(flow => {
+          .map((flow) => {
             return {
               label: flow.name,
               value: flow.id,
@@ -159,10 +160,10 @@ export const Toolbar = (props: ToolbarProps) => {
 
       canvasMode.setFlowsWasm(
         flows
-          .filter(flow => {
+          .filter((flow) => {
             return flow.flowType == 'rustflowrunner';
           })
-          .map(flow => {
+          .map((flow) => {
             return {
               label: flow.name,
               value: flow.id,
@@ -204,19 +205,19 @@ export const Toolbar = (props: ToolbarProps) => {
 	}
 	*/
 
-  const addNewFlow = event => {
+  const addNewFlow = (event) => {
     event.preventDefault();
     setShowNewFlow(true);
     return false;
   };
 
-  const openEditFlowNamePopup = event => {
+  const openEditFlowNamePopup = (event) => {
     event.preventDefault();
     setEditFlowName(true);
     return false;
   };
 
-  const onSavePresetName = name => {
+  const onSavePresetName = (name) => {
     if (canvasMode.onPresetName) {
       canvasMode.onPresetName(name);
     }
@@ -228,7 +229,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const addNode = event => {
+  const addNode = (event) => {
     event.preventDefault();
     if (!canvasMode.isConnectingNodes) {
       let newNode = getNewNode(
@@ -247,7 +248,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const editNode = event => {
+  const editNode = (event) => {
     event.preventDefault();
     if (!canvasMode.isConnectingNodes) {
       setShowEditPopup(true);
@@ -256,7 +257,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const editBundle = event => {
+  const editBundle = (event) => {
     event.preventDefault();
     if (!canvasMode.isConnectingNodes) {
       setShowEditBundle(true);
@@ -264,7 +265,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const connectNode = event => {
+  const connectNode = (event) => {
     event.preventDefault();
     if (!showEditPopup) {
       canvasMode.setConnectiongNodeCanvasMode(true);
@@ -272,7 +273,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const deleteLine = event => {
+  const deleteLine = (event) => {
     event.preventDefault();
     flow.deleteConnection(selectedNode.node);
     selectedNode.selectNode('', undefined);
@@ -280,7 +281,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const deleteNode = event => {
+  const deleteNode = (event) => {
     event.preventDefault();
     flow.deleteNode(selectedNode.node, !!event.shiftKey);
     selectedNode.selectNode('', undefined);
@@ -288,7 +289,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const markAsUnHappyFlow = event => {
+  const markAsUnHappyFlow = (event) => {
     event.preventDefault();
     flow.storeFlowNode(
       {
@@ -301,7 +302,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const markAsHappyFlow = event => {
+  const markAsHappyFlow = (event) => {
     event.preventDefault();
     flow.storeFlowNode(
       {
@@ -323,8 +324,8 @@ export const Toolbar = (props: ToolbarProps) => {
     let idCounter = 1;
     let xmin = 99999999;
     let ymin = 99999999;
-    canvasMode.selectedNodes.forEach(nodeName => {
-      flow.flow.forEach(node => {
+    canvasMode.selectedNodes.forEach((nodeName) => {
+      flow.flow.forEach((node) => {
         if (node.shapeType !== 'Line' && node.name === nodeName) {
           renameIdMap[nodeName] = 'node' + idCounter;
           idCounter++;
@@ -348,7 +349,7 @@ export const Toolbar = (props: ToolbarProps) => {
       });
     });
 
-    flow.flow.forEach(node => {
+    flow.flow.forEach((node) => {
       if (node.shapeType === 'Line' && !renameIdMap[node.startshapeid] && renameIdMap[node.endshapeid]) {
         node.endshapeid = renameIdMap[node.endshapeid];
         inputConnections.push(node);
@@ -374,7 +375,7 @@ export const Toolbar = (props: ToolbarProps) => {
     let centerX = 0;
     let centerY = 0;
     let positionsAdded = 0;
-    repoFlow.forEach(node => {
+    repoFlow.forEach((node) => {
       if (node.shapeType !== 'Line') {
         const position = positionContext.getPosition(node.name) || {
           x: node.x,
@@ -398,7 +399,7 @@ export const Toolbar = (props: ToolbarProps) => {
         x: centerX,
         y: centerY,
       },
-      flow: repoFlow.map(node => {
+      flow: repoFlow.map((node) => {
         if (node.shapeType === 'Line') {
           const position = positionContext.getPosition(node.name) || {
             xstart: node.xstart,
@@ -426,7 +427,7 @@ export const Toolbar = (props: ToolbarProps) => {
     };
   };
 
-  const addToRepository = event => {
+  const addToRepository = (event) => {
     event.preventDefault();
     console.log('addToRepository', canvasMode.selectedNodes, flow.flow);
     if (flow.flow && canvasMode.isInMultiSelect && canvasMode.selectedNodes.length > 0) {
@@ -449,14 +450,14 @@ export const Toolbar = (props: ToolbarProps) => {
             'Content-Type': 'application/json',
           },
         })
-          .then(res => {
+          .then((res) => {
             if (res.status >= 400) {
               throw new Error('Bad response from server');
             }
 
             return true;
           })
-          .catch(err => {
+          .catch((err) => {
             console.error(err);
           });
       }
@@ -464,7 +465,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const bundleNode = event => {
+  const bundleNode = (event) => {
     /*
 			TODO : also handle output node ...
 		*/
@@ -474,7 +475,7 @@ export const Toolbar = (props: ToolbarProps) => {
       const bundledNodesInfo = getSelectedNodes();
       if (bundledNodesInfo.flow.length > 0) {
         let allowBundling = true;
-        bundledNodesInfo.flow.forEach(node => {
+        bundledNodesInfo.flow.forEach((node) => {
           if (node.taskType === 'BundleFlowTask') {
             allowBundling = false;
           }
@@ -488,22 +489,22 @@ export const Toolbar = (props: ToolbarProps) => {
 
         const newNodeId = 'bundle_' + uuidV4();
         let startNodeName: string = '';
-		let startNode: any = undefined;
+        let startNode: any = undefined;
 
         if (bundledNodesInfo.inputConnections.length > 0) {
           startNodeName = bundledNodesInfo.inputConnections[0].endshapeid;
         } else {
           const connections: any[] = [];
-          bundledNodesInfo.flow.forEach(node => {
+          bundledNodesInfo.flow.forEach((node) => {
             if (node.shapeType === 'Line') {
               connections.push(node);
             }
           });
-          
-          bundledNodesInfo.flow.forEach(node => {
+
+          bundledNodesInfo.flow.forEach((node) => {
             if (node.shapeType !== 'Line') {
               let hasInputNode = false;
-              connections.forEach(connection => {
+              connections.forEach((connection) => {
                 if (connection.endshapeid === node.name) {
                   hasInputNode = true;
                 }
@@ -550,7 +551,8 @@ export const Toolbar = (props: ToolbarProps) => {
               x: newNode.x,
               y: newNode.y,
             },
-            undefined, undefined,
+            undefined,
+            undefined,
             props.getNodeInstance,
             bundledNodesInfo.inputConnections[0].thumbPosition as ThumbPositionRelativeToNode,
           );
@@ -570,7 +572,7 @@ export const Toolbar = (props: ToolbarProps) => {
         //flow.storeFlowNode(bundledNodesInfo.inputConnections[0], bundledNodesInfo.inputConnections[0].id);
 
         if (bundledNodesInfo.outputConnections.length > 0) {
-          bundledNodesInfo.outputConnections.forEach(outputConnection => {
+          bundledNodesInfo.outputConnections.forEach((outputConnection) => {
             outputConnection.startshapeid = newNodeId;
 
             let newStartPosition = FlowToCanvas.getStartPointForLine(
@@ -579,7 +581,8 @@ export const Toolbar = (props: ToolbarProps) => {
                 x: newNode.x,
                 y: newNode.y,
               },
-			  undefined, undefined,
+              undefined,
+              undefined,
               outputConnection,
               props.getNodeInstance,
               outputConnection.thumbPosition as ThumbPositionRelativeToNode,
@@ -609,7 +612,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const createSection = event => {
+  const createSection = (event) => {
     event.preventDefault();
     const info = getMultiSelectInfo();
 
@@ -644,25 +647,24 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const createStateMachine = event => {
+  const createStateMachine = (event) => {
     event.preventDefault();
     const info = getMultiSelectInfo();
 
-	const nodesToSelect : string[] = [];
+    const nodesToSelect: string[] = [];
 
-	console.log("createStateMachine", canvasMode.selectedNodes);
-	canvasMode.selectedNodes.forEach((nodeName) => {
-		const nodeIndex = flow.flowHashmap.get(nodeName);
-		console.log("createStateMachine nodeName", nodeName, nodeIndex);
-		if (nodeIndex && nodeIndex.index >= 0) {
-			const flowNode = flow.flow[nodeIndex.index];
-			console.log("createStateMachine flowNode", flowNode.taskType);
-			if (["State","Action","StartState"].indexOf(flowNode.taskType) >= 0) {
-				nodesToSelect.push(nodeName);
-			}
-		}
-	});
-	
+    console.log('createStateMachine', canvasMode.selectedNodes);
+    canvasMode.selectedNodes.forEach((nodeName) => {
+      const nodeIndex = flow.flowHashmap.get(nodeName);
+      console.log('createStateMachine nodeName', nodeName, nodeIndex);
+      if (nodeIndex && nodeIndex.index >= 0) {
+        const flowNode = flow.flow[nodeIndex.index];
+        console.log('createStateMachine flowNode', flowNode.taskType);
+        if (['State', 'Action', 'StartState'].indexOf(flowNode.taskType) >= 0) {
+          nodesToSelect.push(nodeName);
+        }
+      }
+    });
 
     const newNodeId = 'section_' + uuidV4();
 
@@ -674,7 +676,7 @@ export const Toolbar = (props: ToolbarProps) => {
         taskType: 'Annotation',
         shapeType: 'Section',
         isAnnotation: true,
-		isStateMachine: true,
+        isStateMachine: true,
         x: info.x,
         y: info.y,
         width: info.width,
@@ -697,7 +699,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const saveFlow = event => {
+  const saveFlow = (event) => {
     event.preventDefault();
     props.saveFlow(selectedFlow);
     return false;
@@ -722,7 +724,7 @@ export const Toolbar = (props: ToolbarProps) => {
   };
 
   const onSaveFlowName = (flowId: string, flowName: string) => {
-    let flows = (props.flows || []).map(flow => {
+    let flows = (props.flows || []).map((flow) => {
       if (flow.id === flowId) {
         return {
           name: flowName,
@@ -762,12 +764,12 @@ export const Toolbar = (props: ToolbarProps) => {
     setSelectedFlow(id as string);
   };
 
-  const onSelectTask = taskClassName => {
+  const onSelectTask = (taskClassName) => {
     setSelectedTask(taskClassName);
     canvasMode.setSelectedTask(taskClassName);
   };
 
-  const showSchema = event => {
+  const showSchema = (event) => {
     event.preventDefault();
     if (!canvasMode.isConnectingNodes) {
       setShowEditPopup(false);
@@ -776,12 +778,12 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const onShowDependenciesChange = event => {
+  const onShowDependenciesChange = (event) => {
     canvasMode.setShowDependencies(!showDependencies);
     setShowDependencies(!showDependencies);
   };
 
-  const onSnapToGridChange = event => {
+  const onSnapToGridChange = (event) => {
     canvasMode.setSnapToGrid(!snapToGrid);
     setSnapToGrid(!snapToGrid);
   };
@@ -853,9 +855,9 @@ export const Toolbar = (props: ToolbarProps) => {
 		*/
   };
 
-  const setSelectedFlowChange = event => {
+  const setSelectedFlowChange = (event) => {
     console.log('FLOW selected', event.target.value, performance.now());
-    
+
     if (props.onRedirectToFlowUrl) {
       props.onRedirectToFlowUrl(event.target.value);
       return;
@@ -871,7 +873,7 @@ export const Toolbar = (props: ToolbarProps) => {
     props.loadFlow(event.target.value);
   };
 
-  const onSetPausedClick = event => {
+  const onSetPausedClick = (event) => {
     event.preventDefault();
     if (canvasMode.isFlowrunnerPaused) {
       props.flowrunnerConnector.resumeFlowrunner();
@@ -882,7 +884,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const exportFlowToPng = event => {
+  const exportFlowToPng = (event) => {
     event.preventDefault();
     if (props.canvasToolbarsubject) {
       props.canvasToolbarsubject.next('export');
@@ -890,7 +892,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const fitStage = event => {
+  const fitStage = (event) => {
     event.preventDefault();
     if (props.canvasToolbarsubject) {
       props.canvasToolbarsubject.next('fitStage');
@@ -898,13 +900,13 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const helpNode = event => {
+  const helpNode = (event) => {
     event.preventDefault();
     setShowTaskHelp(true);
     return false;
   };
 
-  const swithToUIViewEditor = event => {
+  const swithToUIViewEditor = (event) => {
     event.preventDefault();
     if (props.onEditorMode) {
       canvasMode.setEditorMode('uiview-editor');
@@ -913,7 +915,7 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const swithToCanvasEditor = event => {
+  const swithToCanvasEditor = (event) => {
     event.preventDefault();
     if (props.onEditorMode) {
       canvasMode.setEditorMode('canvas');
@@ -927,9 +929,25 @@ export const Toolbar = (props: ToolbarProps) => {
     return false;
   };
 
-  const showModules = event => {
+  const showModules = (event) => {
     event.preventDefault();
     modulesMenu.setOpen(!modulesMenu.isOpen);
+    return false;
+  };
+
+  const onClickExportToSvg = (event) => {
+    event.preventDefault();
+    const output = createFlowAsSvg(props.flow, positionContext, props.getNodeInstance, props.flowrunnerConnector);
+    if (output) {
+      const svgBlob = new Blob([output], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = svgUrl;
+      downloadLink.download = 'flow.svg';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
     return false;
   };
 
@@ -1193,7 +1211,8 @@ export const Toolbar = (props: ToolbarProps) => {
                       Delete
                     </a>
                   )}
-                  {false && !isFlowEditorOnly &&
+                  {false &&
+                    !isFlowEditorOnly &&
                     !!selectedNode.node.name &&
                     selectedNode.node.node &&
                     selectedNode.node.node.shapeType !== 'Line' && (
@@ -1237,6 +1256,11 @@ export const Toolbar = (props: ToolbarProps) => {
                   {!isFlowEditorOnly && canvasMode.flowType == 'playground' && canvasMode.editorMode != 'canvas' && (
                     <a href="#" onClick={swithToCanvasEditor} className="ms-2 text-white">
                       Edit Flow
+                    </a>
+                  )}
+                  {!isFlowEditorOnly && canvasMode.flowType == 'playground' && (
+                    <a href="#" className="ms-2 text-white" onClick={onClickExportToSvg}>
+                      Export to SVG
                     </a>
                   )}
                   <>{props.renderMenuOptions && <span className="ms-auto">{props.renderMenuOptions()}</span>}</>

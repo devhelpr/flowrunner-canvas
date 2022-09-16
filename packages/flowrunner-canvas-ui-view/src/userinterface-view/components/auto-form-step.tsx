@@ -13,23 +13,24 @@ const uuidV4 = uuid.v4;
 
 /*
 	TODO: 
-	- only send values to flowconnector which are
-		applicable to current steps:
-		remove values which are in inactive steps
+	- if a form-node is in a Section ...
+    - store the section
+    - get the next step(s) from within the section
+  
+    - after filling in the form .. and it's in a valid state
 
-		foreach formNode in flow
-			if formNode is not in formSteps
-				remove values from fields in this formNode
+      .. peek at the next node using the values from the current form-node
+      .. if the next step is in the section, show it below the current form-node
+          .. if it's not in the current section.. show/enabled the submit button
+      .. when the user makes a change to the upper form-nodes.. reset and hide all form-nodes below
+      .. after filling in this next form step (which appeared below the upper form-node) do the same as is above here
 
-		the above doesn't work as expected
+    - show/enabled submit button when all form-nodes are in a valid-state and when submitted .. 
+        send the values to each step individually one by one
 
-	=>	- call props.flowrunnerConnector?.modifyFlowNode
-			
-			for each node in flowsteps with its required
-				values only?
-			
-			...[DOESN't WORK] or call the first node with
-				only the filteredValues?
+    - if a form-node is not in a section , reset the "section-mode" (clear the current section)
+
+
 
 	- FormNode : force all fieldNames to be unique
 		in the flow (can this cause problems??)
