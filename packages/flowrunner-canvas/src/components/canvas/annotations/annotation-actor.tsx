@@ -61,13 +61,13 @@ export const AnnotationActor = React.forwardRef((props: IAnnotationActorProps, r
         }
         case ModifyShapeEnum.SetXY: {
           if (rect && rect.current && parameters) {
-            rect.current.x(parameters.x);
-            rect.current.y(parameters.y);
+            rect.current.x(parameters.x + 50);
+            rect.current.y(parameters.y - 40);
           }
 
           if (actor && actor.current && parameters) {
-            actor.current.x(parameters.x - 50);
-            actor.current.y(parameters.y + 40);
+            actor.current.x(parameters.x);
+            actor.current.y(parameters.y);
           }
           break;
         }
@@ -132,8 +132,8 @@ export const AnnotationActor = React.forwardRef((props: IAnnotationActorProps, r
     <>
       <Shape
         ref={(ref) => setRef(ref)}
-        x={props.x}
-        y={props.y}
+        x={props.x + 50}
+        y={props.y - 40}
         sceneFunc={(context, shape) => {
           context._context.textAlign = 'center';
           context._context.textBaseline = 'middle';
@@ -155,8 +155,8 @@ export const AnnotationActor = React.forwardRef((props: IAnnotationActorProps, r
         listening={true}
         perfectDrawEnabled={false}
         transformsEnabled={'position'}
-        x={props.x - 50}
-        y={props.y + 40}
+        x={props.x}
+        y={props.y}
         onClick={props.onClick}
         onMouseOver={props.onMouseOver}
         onMouseOut={props.onMouseOut}
