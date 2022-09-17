@@ -1,10 +1,12 @@
+import { ThumbPositionRelativeToNode } from './shape-types';
+
 export interface INode {
   x: number;
   y: number;
   name: string;
   label?: string;
   taskType: 'connection' | 'Annotation' | string;
-  shapeType: 'Line' | 'Rect' | 'Diamond' | 'Text' | 'Section' | 'Html';
+  shapeType: 'Line' | 'Rect' | 'Diamond' | 'Text' | 'Section' | 'Actor' | 'Html';
 }
 
 export interface IConnectionNode extends INode {
@@ -15,4 +17,7 @@ export interface IConnectionNode extends INode {
   xend: number;
   yend: number;
   flowPath?: string;
+  followflow?: string;
+  thumbPosition?: ThumbPositionRelativeToNode;
+  thumbEndPosition?: ThumbPositionRelativeToNode;
 }

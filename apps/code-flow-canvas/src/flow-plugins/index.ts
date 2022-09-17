@@ -36,4 +36,32 @@ export const registerCustomPlugins = () => {
     'playground',
     DummyTestTask,
   );
+
+  registerCustomNodeType(
+    'LinkFlowTask',
+    {
+      icon: 'fa-cube',
+      shapeType: 'Html',
+      htmlPlugin: 'formNode',
+      showNotSelectedAsLabels: true,
+
+      metaInfo: [
+        {
+          fieldName: 'flowId',
+          fieldType: 'select',
+          required: true,
+          datasource: '[PLAYGROUNDFLOW]',
+        },
+        {
+          fieldName: 'linkToFlow',
+          fieldType: 'linkbutton',
+          linkTemplate: '/canvas/{flowId}',
+          label: 'Open flow',
+          enabledIfPropertyIsTruthy: 'flowId',
+        },
+      ],
+    },
+    'highlevel',
+    DummyTestTask,
+  );
 };

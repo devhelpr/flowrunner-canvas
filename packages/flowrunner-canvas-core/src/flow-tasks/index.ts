@@ -55,7 +55,7 @@ export interface IFlowTask {
   new (): FlowTask;
 }
 
-export type FlowType = 'playground' | 'backend';
+export type FlowType = 'playground' | 'backend' | 'highlevel';
 export interface ITask {
   FlowTask: IFlowTask;
   name: string;
@@ -75,7 +75,9 @@ export const registerCustomTask = (name: string, TaskClass: IFlowTask, flowType:
 export const registerTasks = (flow) => {
   console.log('registerTasks', customTasks);
   customTasks.forEach((task) => {
-    flow.registerTask(task.name, task.FlowTask);
+    if (task.flowType === 'playground') {
+      flow.registerTask(task.name, task.FlowTask);
+    }
   });
 
   flow.registerTask('Annotation', FlowTask);

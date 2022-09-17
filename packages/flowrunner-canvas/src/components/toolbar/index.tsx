@@ -1258,7 +1258,7 @@ export const Toolbar = (props: ToolbarProps) => {
                       Edit Flow
                     </a>
                   )}
-                  {!isFlowEditorOnly && canvasMode.flowType == 'playground' && (
+                  {!!!selectedNode.node.name && (
                     <a href="#" className="ms-2 text-white" onClick={onClickExportToSvg}>
                       Export to SVG
                     </a>

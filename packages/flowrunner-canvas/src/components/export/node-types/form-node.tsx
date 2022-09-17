@@ -1,5 +1,6 @@
 import { INode, ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 import * as React from 'react';
+import { getColor } from '../utils/color';
 import { INodeTypeProps } from './node-type-props';
 
 export const FormNode = (props: INodeTypeProps) => {
@@ -19,7 +20,8 @@ export const FormNode = (props: INodeTypeProps) => {
         y={node.y - minY}
         width={width}
         height={height}
-        style={{ fill: 'white', stroke: 'black', strokeWidth: 2 }}
+        style={{ fill: getColor(settings) || 'white', stroke: 'black', strokeWidth: 2 }}
+        rx="15"
       />
       <line
         x1={node.x - minX}
@@ -40,6 +42,7 @@ export const FormNode = (props: INodeTypeProps) => {
       <>
         {metaInfo.map((field, index) => (
           <text
+            key={`${node.name}_text_${index}`}
             x={node.x - minX + 8}
             y={node.y - minY + 64 + index * 24}
             style={{ fontFamily: 'arial, sans-serif', fontWeight: 500, fontSize: 18 }}

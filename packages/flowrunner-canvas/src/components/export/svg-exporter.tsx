@@ -90,7 +90,7 @@ export const createFlowAsSvg = (
     <>
       {flow
         .filter((node) => node.taskType === 'connection')
-        .map((node) => {
+        .map((node, index) => {
           const connectionNode = node as unknown as IConnectionNode;
           if (connectionNode.startshapeid && connectionNode.endshapeid) {
             const start = flowIndexByName[connectionNode.startshapeid];
@@ -100,6 +100,7 @@ export const createFlowAsSvg = (
               const endNode = flow[end.index];
               return (
                 <Line
+                  key={`line${index}}`}
                   connectionNode={connectionNode}
                   startNode={startNode}
                   endNode={endNode}
@@ -111,6 +112,8 @@ export const createFlowAsSvg = (
                   minY={minY}
                   maxX={maxX}
                   maxY={maxY}
+                  positionContext={positionContext}
+                  getNodeInstance={getNodeInstance}
                 />
               );
             }
@@ -122,10 +125,14 @@ export const createFlowAsSvg = (
   const nodesAsSvg = (
     <>
       {flow
-        .filter((node) => node.taskType !== 'connection' && node.taskType !== 'Annotation')
-        .map((node) => {
+        .filter((node) => node.taskType !== 'connection')
+        .map((node, index) => {
           const nodeHelper = flowIndexByName[node.name];
-          return <>{getNode(node, minX, minY, maxX, maxY, nodeHelper.width, nodeHelper.height)}</>;
+          return (
+            <React.Fragment key={`element${index}}`}>
+              {getNode(node, minX, minY, maxX, maxY, nodeHelper.width, nodeHelper.height)}
+            </React.Fragment>
+          );
         })}
     </>
   );

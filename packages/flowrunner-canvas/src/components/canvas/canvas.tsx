@@ -57,6 +57,7 @@ import { AnnotationText } from './annotations/annotation-text';
 import { FloatingToolbar } from '../toolbar';
 import { useSetPositionHook } from './hooks/use-set-position-hook';
 import { getWidthForHtmlNode } from './utils';
+import { AnnotationActor } from './annotations/annotation-actor';
 
 const uuidV4 = uuid.v4;
 
@@ -4916,6 +4917,11 @@ export const Canvas = (props: CanvasProps) => {
               customProperties.shapeType = 'Text';
               customProperties.label = 'Select and click EDIT to change label';
               customProperties.fontSize = 18;
+            } else if (taskClassName === 'AnnotationActor') {
+              taskType = 'Annotation';
+              customProperties.shapeType = 'Actor';
+              customProperties.label = 'Select and click EDIT to change label';
+              customProperties.fontSize = 18;
             }
 
             let presetValues = {};
@@ -6064,6 +6070,31 @@ export const Canvas = (props: CanvasProps) => {
                         ></Rect>
 
                         {flowStore.flow.map((node, index) => {
+                          if (node.shapeType === 'Actor') {
+                            return (
+                              <AnnotationActor
+                                key={`text-${index}`}
+                                ref={(ref) => (shapeRefs.current[node.name] = ref)}
+                                x={node.x}
+                                y={node.y}
+                                width={node.width}
+                                height={node.height}
+                                name={node.name}
+                                node={node}
+                                onClick={(event) => onClickShape(node, event)}
+                                onMouseStart={(event) => onMouseStart(node, event)}
+                                onMouseOver={(event) => onMouseOver(node, event)}
+                                onMouseOut={(event) => onMouseOut()}
+                                onTouchStart={(event) => onTouchStart(node, event)}
+                                onMouseEnd={(event) => onMouseEnd(node, event)}
+                                onMouseMove={(event) => onMouseMove(node, event)}
+                                onMouseLeave={(event) => onMouseLeave(node, event)}
+                                onDragStart={(event) => onDragStart(node, event)}
+                                onDragEnd={(event) => onDragEnd(node, event)}
+                                onDragMove={(event) => onDragMove(node, event)}
+                              ></AnnotationActor>
+                            );
+                          }
                           if (node.shapeType === 'Text') {
                             return (
                               <AnnotationText

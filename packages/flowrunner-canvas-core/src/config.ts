@@ -29,7 +29,7 @@ export interface ICustomTaskConfig {
   shapeType?: string;
   subShapeType?: string;
   htmlPlugin?: 'formNode' | 'shapeNode' | string;
-
+  shapeHint?: 'rect' | 'circle' | 'diamond' | 'triangle' | 'actor';
   label?: string;
   icon?: string;
   iconIllustration?: string;
