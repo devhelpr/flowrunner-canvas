@@ -64,6 +64,7 @@ let flowRunnerCanvasPluginRegisterFunctions: any[] = [];
 
 import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
 import { Canvas as CanvasComponent } from './components/canvas';
+import { IExampleFlow } from './components/new-flow';
 export { CanvasComponent };
 export { UserInterfaceViewEditor };
 export { IExampleFlow } from './components/new-flow';
@@ -123,6 +124,8 @@ export interface IFlowrunnerCanvasProps {
 
   showsStateMachineUpdates?: boolean;
 
+  onGetExamples: undefined | (() => Promise<IExampleFlow[]>);
+  onGetExampleFlow: undefined | ((exampleName: string) => Promise<any[]>);
   onMessageFromFlow?: (message, flowAgent: IFlowAgent) => void;
   getNodeDependencies?: (nodeName: string) => INodeDependency[];
   renderMenuOptions?: () => JSX.Element;
@@ -261,8 +264,8 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
             loadFlow={flows.loadFlow}
             saveFlow={flows.saveFlow}
             onGetFlows={flows.onGetFlows}
-            onGetExamples={undefined}
-            onGetExampleFlow={undefined}
+            onGetExamples={props.onGetExamples}
+            onGetExampleFlow={props.onGetExampleFlow}
             getNodeInstance={getNodeInstanceRef.current}
             renderHtmlNode={renderHtmlNodeRef.current}
           ></Toolbar>
@@ -338,6 +341,8 @@ const TestApp = (props: ITestAppProps) => {
       flowStorageProvider={props.flowrunnerStorageProvider}
       onMessageFromFlow={onMessageFromFlow}
       flowrunnerConnector={new FlowConnector()}
+      onGetExamples={undefined}
+      onGetExampleFlow={undefined}
     ></FlowrunnerCanvas>
   );
 
