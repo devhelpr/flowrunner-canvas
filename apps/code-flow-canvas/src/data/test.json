@@ -1,0 +1,13 @@
+[
+  {
+    "name": "AssignTask",
+    "id": "AssignTask",
+    "taskType": "AssignTask",
+    "shapeType": "Html",
+    "x": 319,
+    "y": 280,
+    "assignToProperty": "test",
+    "value": "hello world",
+    "htmlPlugin": "formNode"
+  }
+]

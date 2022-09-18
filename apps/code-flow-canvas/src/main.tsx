@@ -28,6 +28,7 @@ import {
   Login,
   DebugInfo,
   UserInterfaceViewEditor,
+  IExampleFlow,
 } from '@devhelpr/flowrunner-canvas';
 
 import {
@@ -131,6 +132,24 @@ const TestApp = (props: ITestAppProps) => {
 	);
   }
   */
+
+const onGetExampleFlows = () => {
+  return new Promise<IExampleFlow[]>((resolve, _reject) => {
+    resolve([
+      {
+        exampleName: 'test',
+        exampleTitle: 'Test flow',
+      },
+    ]);
+  });
+};
+const onGetExampleFlow = () => {
+  return new Promise<any[]>((resolve, _reject) => {
+    import('./data/test.json').then((data) => {
+      resolve(data.default as unknown as any[]);
+    });
+  });
+};
 
 export const startEditor = async (flowStorageProvider?: IStorageProvider, doLocalStorageFlowEditorOnly?: boolean) => {
   if (doLocalStorageFlowEditorOnly) {
@@ -334,6 +353,8 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
                       getNodeInstance={getNodeInstance}
                       renderHtmlNode={renderHtmlNode}
                       onRedirectToFlowUrl={onRedirectToFlowUrl}
+                      onGetExamples={onGetExampleFlows}
+                      onGetExampleFlow={onGetExampleFlow}
                     ></Toolbar>
                     {editorMode == 'canvas' && (
                       <CanvasComponent

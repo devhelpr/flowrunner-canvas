@@ -9,7 +9,7 @@ import { EditPopup } from '../edit-popup';
 //import fetch from 'cross-fetch';
 import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
-import { NewFlow } from '../new-flow';
+import { IExampleFlow, NewFlow } from '../new-flow';
 import { HelpPopup } from '../help-popup';
 import { ModulesPopup } from '../modules-popup';
 
@@ -76,6 +76,9 @@ export interface ToolbarProps {
   saveFlow: (flowId?) => void;
   onGetFlows: (id?: string | number) => void;
   onRedirectToFlowUrl?: (flowId: string) => void;
+
+  onGetExamples: undefined | (() => Promise<IExampleFlow[]>);
+  onGetExampleFlow: undefined | ((exampleName: string) => Promise<any[]>);
 
   getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
   renderHtmlNode?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings?: any) => any;
@@ -1284,7 +1287,13 @@ export const Toolbar = (props: ToolbarProps) => {
       )}
       {showEditPopup && <EditPopup flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} />}
       {showNewFlow && (
-        <NewFlow flowrunnerConnector={props.flowrunnerConnector} onClose={onClose} onSave={onCloseNewFlowPopup} />
+        <NewFlow
+          flowrunnerConnector={props.flowrunnerConnector}
+          onClose={onClose}
+          onSave={onCloseNewFlowPopup}
+          onGetExampleFlow={props.onGetExampleFlow}
+          onGetExamples={props.onGetExamples}
+        />
       )}
       {editFlowName && (
         <EditFlowName

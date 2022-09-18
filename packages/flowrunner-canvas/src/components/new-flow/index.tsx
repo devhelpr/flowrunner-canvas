@@ -9,9 +9,15 @@ import { useFlowStore } from '@devhelpr/flowrunner-canvas-core';
 import { useCanvasModeStateStore } from '@devhelpr/flowrunner-canvas-core';
 import { IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
 
+export interface IExampleFlow {
+  exampleName: string;
+  exampleTitle: string;
+}
 export interface NewFlowProps {
   onClose: () => void;
   onSave: (id: number | string, flowType: string) => void;
+  onGetExamples: undefined | (() => Promise<IExampleFlow[]>);
+  onGetExampleFlow: undefined | ((exampleName: string) => Promise<any[]>);
   flowrunnerConnector: IFlowrunnerConnector;
 }
 
@@ -26,6 +32,8 @@ export const NewFlow = (props: NewFlowProps) => {
   const [addJSONFlow, setAdJSONFlow] = useState(false);
   const [cloneJSONFlow, setCloneJSONFlow] = useState(false);
   const [json, setJSON] = useState('');
+  const [exampleFlow, setExampleFlow] = useState('');
+  const [exampleFlows, setExampleFlows] = useState<IExampleFlow[]>([]);
 
   const containerRef = useRef(null);
 
@@ -33,36 +41,26 @@ export const NewFlow = (props: NewFlowProps) => {
   const canvasMode = useCanvasModeStateStore();
 
   useLayoutEffect(() => {
+    if (props.onGetExamples) {
+      props.onGetExamples().then((list) => {
+        setExampleFlows(list);
+      });
+    }
+  }, []);
+
+  useLayoutEffect(() => {
     // this is needed to prevent unnessary rerender because of the container ref reference
     // when this is not here, the component rerenders after first input in input controls
-    setPreShow(true);
+    if (!preshow) {
+      setPreShow(true);
+    }
   }, [preshow]);
 
   useEffect(() => {
     setShow(true);
   }, []);
 
-  const saveNode = (e) => {
-    if (addJSONFlow) {
-      try {
-        let flow = JSON.parse(json);
-        if (!Array.isArray(flow)) {
-          alert('The JSON should be an array of nodes and connections');
-          return;
-        }
-      } catch (err) {
-        alert('Error in JSON: ' + err);
-        return;
-      }
-    }
-
-    let jsonData: any = [];
-    if (cloneJSONFlow) {
-      jsonData = flow.flow;
-    } else {
-      jsonData = JSON.parse(json || '[]');
-    }
-
+  const storeFlow = (jsonData: any[]) => {
     if (props.flowrunnerConnector.hasStorageProvider) {
       // save to storage
       props.flowrunnerConnector.storageProvider?.addFlow(value, jsonData).then((result: any) => {
@@ -93,8 +91,39 @@ export const NewFlow = (props: NewFlowProps) => {
         alert('Error while adding flow');
       }
     }
+  };
 
+  const saveNode = (e) => {
     e.preventDefault();
+
+    if (addJSONFlow) {
+      try {
+        let flow = JSON.parse(json);
+        if (!Array.isArray(flow)) {
+          alert('The JSON should be an array of nodes and connections');
+          return;
+        }
+      } catch (err) {
+        alert('Error in JSON: ' + err);
+        return;
+      }
+    }
+
+    let jsonData: any = [];
+    if (cloneJSONFlow) {
+      jsonData = flow.flow;
+      storeFlow(jsonData);
+    } else {
+      if (exampleFlow !== '' && props.onGetExampleFlow) {
+        props.onGetExampleFlow(exampleFlow).then((data) => {
+          storeFlow(data);
+        });
+      } else {
+        jsonData = JSON.parse(json || '[]');
+        storeFlow(jsonData);
+      }
+    }
+
     return false;
   };
 
@@ -123,6 +152,12 @@ export const NewFlow = (props: NewFlowProps) => {
   const onChangeFlowType = (event) => {
     event.preventDefault();
     setFlowType(event.target.value);
+    return false;
+  };
+
+  const onChangeExampleFlow = (event) => {
+    event.preventDefault();
+    setExampleFlow(event.target.value);
     return false;
   };
 
@@ -164,6 +199,19 @@ export const NewFlow = (props: NewFlowProps) => {
           {addJSONFlow && (
             <div className="form-group">
               <textarea className="form-control" value={json} onChange={onChangeJson}></textarea>
+            </div>
+          )}
+          {!cloneJSONFlow && (
+            <div className="form-group">
+              <label>Example flow</label>
+              <select className="form-control form-select" value={exampleFlow} onChange={onChangeExampleFlow}>
+                <option value="">no example</option>
+                {exampleFlows.map((example, index) => (
+                  <option key={`example${index}`} value={example.exampleName}>
+                    {example.exampleTitle}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
         </Modal.Body>
