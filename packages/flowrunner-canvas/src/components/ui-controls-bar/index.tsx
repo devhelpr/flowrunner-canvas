@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 /*import * as React from 'react';
 import { IFlowrunnerConnector, IExecutionEvent } from '../../interfaces/IFlowrunnerConnector';
 
@@ -110,3 +112,5 @@ class ContainedUIControlsBar extends React.Component<UIControlsBarProps, UIContr
 export const UIControlsBar = connect(mapStateToProps, mapDispatchToProps)(ContainedUIControlsBar);
 
 */
+
+export const UIControlsBar = () => <></>;

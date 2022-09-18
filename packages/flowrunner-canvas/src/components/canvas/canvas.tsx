@@ -54,7 +54,7 @@ import { InteractionState } from './canvas-types/interaction-state';
 
 import { AnnotationSection } from './annotations/annotation-section';
 import { AnnotationText } from './annotations/annotation-text';
-import { FloatingToolbar } from '../toolbar';
+import { FloatingToolbar } from '../toolbar/floating-toolbar';
 import { useSetPositionHook } from './hooks/use-set-position-hook';
 import { getWidthForHtmlNode } from './utils';
 import { AnnotationActor } from './annotations/annotation-actor';
