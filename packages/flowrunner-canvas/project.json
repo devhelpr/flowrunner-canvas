@@ -8,7 +8,7 @@
       "executor": "@nrwl/web:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "packages/flowrunner-canvas/dist/packages/flowrunner-canvas",
+        "outputPath": "packages/flowrunner-canvas",
         "tsConfig": "packages/flowrunner-canvas/tsconfig.lib.json",
         "project": "packages/flowrunner-canvas/package.json",
         "entryFile": "packages/flowrunner-canvas/src/index.tsx",
