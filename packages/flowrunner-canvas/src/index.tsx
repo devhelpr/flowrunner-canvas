@@ -67,7 +67,7 @@ import { Canvas as CanvasComponent } from './components/canvas';
 import { IExampleFlow } from './components/new-flow';
 export { CanvasComponent };
 export { UserInterfaceViewEditor };
-export { IExampleFlow } from './components/new-flow';
+export type { IExampleFlow } from './components/new-flow';
 
 // TODO : improve this.. currently needed to be able to use react in an external script
 // which is used by the online editor to provide external defined tasks
