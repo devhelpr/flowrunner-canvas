@@ -8,6 +8,7 @@
   "description": "icons for flowrunner-canvas and related packages",
   "files": [
     "lib",
+    "src/lib/*.svg",
     "package.json"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
