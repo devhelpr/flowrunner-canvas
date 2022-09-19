@@ -100,6 +100,8 @@ const TestApp = (props: ITestAppProps) => {
       flowStorageProvider={props.flowrunnerStorageProvider}
       onMessageFromFlow={onMessageFromFlow}
       flowrunnerConnector={new FlowConnector()}
+      onGetExamples={undefined}
+      onGetExampleFlow={undefined}
     ></FlowrunnerCanvas>
   );
 
@@ -127,7 +129,9 @@ const TestApp = (props: ITestAppProps) => {
   return (
 	  <FlowrunnerCanvas
 		flowStorageProvider={flowrunnerLocalStorageProvider} 
-		onMessageFromFlow={onMessageFromFlow}     
+		onMessageFromFlow={onMessageFromFlow
+      onGetExamples={undefined}
+      onGetExampleFlow={undefined}    
 	  ></FlowrunnerCanvas>
 	);
   }
