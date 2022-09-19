@@ -3,13 +3,14 @@
   "version": "0.43.40",
   "publishConfig": {
     "access": "public",
-    "directory": "../../dist/packages/flowrunner-canvas"
+    "_directory": "../../dist/packages/flowrunner-canvas"
   },
   "description": "Flow based programming ('nodes + wires') and UI designer which can run standalone or export flows in json format for external use",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "**"
+    "dist",
+    "package.json"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",

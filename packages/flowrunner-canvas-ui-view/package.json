@@ -3,13 +3,14 @@
   "version": "0.43.37",
   "publishConfig": {
     "access": "public",
-    "directory": "../../dist/packages/flowrunner-canvas-ui-view"
+    "_directory": "../../dist/packages/flowrunner-canvas-ui-view"
   },
   "description": "view components for flowrunner-canvas to use in webapps",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "**"
+    "dist",
+    "package.json"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",

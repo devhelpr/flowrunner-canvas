@@ -3,11 +3,12 @@
   "version": "0.0.6",
   "publishConfig": {
     "access": "public",
-    "directory": "../../libs/flowrunner-canvas-icons"
+    "_directory": "../../libs/flowrunner-canvas-icons"
   },
   "description": "icons for flowrunner-canvas and related packages",
   "files": [
-    "**"
+    "dist",
+    "package.json"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",
   "author": "Maikel van de Lisdonk",
