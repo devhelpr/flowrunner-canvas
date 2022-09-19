@@ -7,7 +7,7 @@
   },
   "description": "icons for flowrunner-canvas and related packages",
   "files": [
-    "dist",
+    "lib",
     "package.json"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",

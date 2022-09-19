@@ -10,3 +10,4 @@ secrets.json
 /apps/**/build
 /apps/**/bundle
 /apps/**/lib
+/libs/flowrunner-canvas-icons/lib

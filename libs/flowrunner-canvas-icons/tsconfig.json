@@ -12,6 +12,6 @@
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "outDir":"./dist"
+    "outDir":"./lib"
   }
 }
