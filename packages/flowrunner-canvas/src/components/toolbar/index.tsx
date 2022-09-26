@@ -13,7 +13,7 @@ import { ModulesPopup } from '../modules-popup';
 
 import { Navbar } from 'react-bootstrap';
 
-import { useFlowStore } from '@devhelpr/flowrunner-canvas-core';
+import { useFlowStore, INodeFlowState, INode } from '@devhelpr/flowrunner-canvas-core';
 import { PopupEnum, useCanvasModeStateStore } from '@devhelpr/flowrunner-canvas-core';
 import { useSelectedNodeStore } from '@devhelpr/flowrunner-canvas-core';
 import { useLayoutStore } from '@devhelpr/flowrunner-canvas-core';
@@ -80,6 +80,8 @@ export interface ToolbarProps {
 
   getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any;
   renderHtmlNode?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings?: any) => any;
+
+  getNodeState?: (node: INode) => INodeFlowState;
 }
 
 export interface ToolbarState {
@@ -938,7 +940,13 @@ export const Toolbar = (props: ToolbarProps) => {
 
   const onClickExportToSvg = (event) => {
     event.preventDefault();
-    const output = createFlowAsSvg(props.flow, positionContext, props.getNodeInstance, props.flowrunnerConnector);
+    const output = createFlowAsSvg(
+      props.flow,
+      positionContext,
+      props.getNodeInstance,
+      props.flowrunnerConnector,
+      props.getNodeState,
+    );
     if (output) {
       const svgBlob = new Blob([output], { type: 'image/svg+xml;charset=utf-8' });
       const svgUrl = URL.createObjectURL(svgBlob);

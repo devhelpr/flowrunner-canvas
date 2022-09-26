@@ -52,6 +52,8 @@ import {
   getNodeInstance,
   ErrorBoundary,
   FlowStorageProviderService,
+  INode,
+  INodeFlowState,
 } from '@devhelpr/flowrunner-canvas-core';
 
 import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
@@ -134,6 +136,7 @@ export interface IFlowrunnerCanvasProps {
 
 const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
   const [renderFlowCanvas, setRenderFlowCanvas] = useState(false);
+  const [nodeStateFunction, setNodeStateFunction] = useState<any>(undefined);
 
   const flowrunnerConnector = useRef((props.flowrunnerConnector || new FlowConnector()) as IFlowrunnerConnector);
   const canvasToolbarsubject = useRef(undefined as any);
@@ -234,6 +237,10 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
     }
   }, [props.flowStorageProvider, props.flowrunnerConnector]);
 
+  const getNodeStateFunction = (nodeFlowstateFunction: (node: INode) => INodeFlowState) => {
+    setNodeStateFunction({ getFunction: nodeFlowstateFunction });
+  };
+
   if (!renderFlowCanvas || !flowrunnerConnector.current) {
     return <></>;
   }
@@ -268,6 +275,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
             onGetExampleFlow={props.onGetExampleFlow}
             getNodeInstance={getNodeInstanceRef.current}
             renderHtmlNode={renderHtmlNodeRef.current}
+            getNodeState={nodeStateFunction?.getFunction}
           ></Toolbar>
 
           <CanvasComponent
@@ -295,6 +303,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
             useCanvasModeStateStore={useCanvasModeStateStore}
             useSelectedNodeStore={useSelectedNodeStore}
             externalId="AppCanvas"
+            getNodeStateFunction={getNodeStateFunction}
           ></CanvasComponent>
         </ErrorBoundary>
       </Suspense>

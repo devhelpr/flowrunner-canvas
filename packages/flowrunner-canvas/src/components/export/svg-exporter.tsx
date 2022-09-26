@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { INode, IConnectionNode, IPositionContextUtils, IFlowrunnerConnector } from '@devhelpr/flowrunner-canvas-core';
+import {
+  INode,
+  IConnectionNode,
+  IPositionContextUtils,
+  IFlowrunnerConnector,
+  INodeFlowState,
+} from '@devhelpr/flowrunner-canvas-core';
 import { renderToString } from 'react-dom/server';
 import { getWidthForHtmlNode } from '../canvas/utils';
 import { getNode } from './node-types';
@@ -21,6 +27,7 @@ export const createFlowAsSvg = (
   positionContext: IPositionContextUtils,
   getNodeInstance: (node: any, flowrunnerConnector?: IFlowrunnerConnector, flow?: any, taskSettings?: any) => any,
   flowrunnerConnector: IFlowrunnerConnector,
+  getNodeState?: (node: INode) => INodeFlowState,
 ) => {
   let minX = 0;
   let minY = 0;
@@ -38,6 +45,9 @@ export const createFlowAsSvg = (
     const flowNode = flow[loop];
 
     if (flowNode.taskType !== 'connection') {
+      if (getNodeState) {
+        console.log('nodeState', flowNode.name, getNodeState(flowNode));
+      }
       const position = (positionContext.getPosition(flowNode.name) || flowNode) as unknown as INodePosition;
       const { width, height } = getWidthForHtmlNode(flowNode, getNodeInstance);
       if (!isMinMaxInitialized) {

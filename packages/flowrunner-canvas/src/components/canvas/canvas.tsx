@@ -33,6 +33,8 @@ import {
   setMultiSelectInfo,
   resetOnSetCanvasStateCallback,
   setOnSetCanvasStateCallback,
+  INodeFlowState,
+  INode,
 } from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
 import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
@@ -88,6 +90,8 @@ export interface CanvasProps {
   useFlowStore: () => IFlowState;
   useCanvasModeStateStore: () => ICanvasModeState;
   useSelectedNodeStore: (param?: any) => INodeState;
+
+  getNodeStateFunction?: (nodeFlowstateFunction: (node: INode) => INodeFlowState) => void;
 }
 
 export interface CanvasState {
@@ -238,6 +242,18 @@ export const Canvas = (props: CanvasProps) => {
     };
   };
 
+  const getNodeFlowState = (node: INode): INodeFlowState => {
+    if (!node) {
+      return { state: '' };
+    }
+    if (nodesStateLocal.current[node.name]) {
+      return {
+        state: nodesStateLocal.current[node.name],
+      };
+    }
+    return { state: '' };
+  };
+
   const updateTouchedNodes = () => {
     // DONT UPDATE STATE HERE!!!
     if (touchedNodesLocal.current) {
@@ -357,6 +373,9 @@ export const Canvas = (props: CanvasProps) => {
   useEffect(() => {
     if (!(props.useSelectedNodeStore as any).subscribe) {
       return;
+    }
+    if (props.getNodeStateFunction) {
+      props.getNodeStateFunction(getNodeFlowState);
     }
 
     (props.useSelectedNodeStore as any).subscribe(

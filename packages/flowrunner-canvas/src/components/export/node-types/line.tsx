@@ -126,7 +126,7 @@ export const Line = (props: ILineNode) => {
         id={connectionNode.name + '_arrow'}
         markerWidth="10"
         markerHeight="10"
-        refX="2"
+        refX="5"
         refY="5"
         orient={getAngle(1)}
       >

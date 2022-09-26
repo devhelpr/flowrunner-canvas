@@ -18,6 +18,7 @@ export * from './interfaces/IModalSize';
 export * from './interfaces/INodeDependency';
 export * from './interfaces/shape-types';
 export * from './interfaces/INode';
+export * from './interfaces/INodeFlowState';
 
 export { setCustomConfig, registerCustomNodeType, getTaskConfig, getTaskConfigForTask } from './config';
 export { getFlowAgent } from './flow-agent';

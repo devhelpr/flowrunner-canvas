@@ -126,6 +126,7 @@ const taskTypeConfig: ITaskTypeConfig = {
 
   OnStartFlow: {
     shapeType: 'Html',
+    shapeHint: 'circle',
     htmlPlugin: 'shapeNode',
     styleShapeBody: {
       width: '64px',
@@ -151,6 +152,7 @@ const taskTypeConfig: ITaskTypeConfig = {
 
   StateChangeTriggerTask: {
     shapeType: 'Html',
+    shapeHint: 'circle',
     htmlPlugin: 'shapeNode',
     styleShapeBody: {
       width: '64px',
@@ -216,6 +218,7 @@ const taskTypeConfig: ITaskTypeConfig = {
 
   StartState: {
     shapeType: 'Html',
+    shapeHint: 'circle',
     htmlPlugin: 'shapeNode',
     constraints: {
       output: {
