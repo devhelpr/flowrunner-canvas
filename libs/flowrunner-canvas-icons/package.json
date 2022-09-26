@@ -9,6 +9,8 @@
   "files": [
     "lib",
     "src/lib/*.svg",
+    "src/lib/*.tsx",
+    "src/index.tsx",
     "package.json"
   ],
   "repository": "https://www.github.com/devhelpr/flowrunner-canvas",

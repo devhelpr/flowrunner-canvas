@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 /*import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
@@ -52,6 +53,8 @@ import {
   getNodeInstance,
   ErrorBoundary,
   FlowStorageProviderService,
+  INode,
+  INodeFlowState,
 } from '@devhelpr/flowrunner-canvas-core';
 
 import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
@@ -306,6 +309,7 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
         const App = (props: IAppProps) => {
           const [loggedIn, setLoggedIn] = useState(props.isLoggedIn);
           const [editorMode, setEditorMode] = useState('canvas');
+          const [nodeStateFunction, setNodeStateFunction] = useState<any>(undefined);
           const flows = useFlows(flowrunnerConnector, useFlowStore, initalFlowId);
 
           const onClose = () => {
@@ -320,6 +324,11 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
 
           const onRedirectToFlowUrl = (flowId) => {
             window.location.href = `/canvas/${flowId}`;
+          };
+
+          const getNodeStateFunction = (nodeFlowstateFunction: (node: INode) => INodeFlowState) => {
+            console.log('getNodeStateFunction', nodeFlowstateFunction);
+            setNodeStateFunction({ getFunction: nodeFlowstateFunction });
           };
           /*
 					{false && !!hasUIControlsBar && editorMode == "canvas" && flowrunnerConnector.isActiveFlowRunner() &&<UIControlsBar renderHtmlNode={renderHtmlNode}
@@ -359,8 +368,9 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
                       onRedirectToFlowUrl={onRedirectToFlowUrl}
                       onGetExamples={onGetExampleFlows}
                       onGetExampleFlow={onGetExampleFlow}
+                      getNodeState={nodeStateFunction?.getFunction}
                     ></Toolbar>
-                    {editorMode == 'canvas' && (
+                    {editorMode === 'canvas' && (
                       <CanvasComponent
                         canvasToolbarsubject={canvasToolbarsubject}
                         hasCustomNodesAndRepository={true}
@@ -382,6 +392,7 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
                         useCanvasModeStateStore={useCanvasModeStateStore}
                         useSelectedNodeStore={useSelectedNodeStore}
                         externalId="AppCanvas"
+                        getNodeStateFunction={getNodeStateFunction}
                       ></CanvasComponent>
                     )}
                     {editorMode == 'uiview-editor' && (

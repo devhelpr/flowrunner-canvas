@@ -1,0 +1,12 @@
+export { IconActor } from './lib/icon-actor';
+export { IconMapEvent } from './lib/icon-map-event';
+export { IconCircle } from './lib/icon-circle';
+export { IconCog } from './lib/icon-cog';
+export { IconColumnsSolid } from './lib/icon-columns-solid';
+export { IconFilterEvent } from './lib/icon-filter-event';
+export { IconGameBoardLight } from './lib/icon-game-board-light';
+export { IconLayout } from './lib/icon-layout';
+export { IconReduceEvent } from './lib/icon-reduce-event';
+export { IconServerSolid } from './lib/icon-server-solid';
+export { IconWebassembly } from './lib/icon-webassembly';
+export { IconBoltLightning } from './lib/icon-bolt-lightning';

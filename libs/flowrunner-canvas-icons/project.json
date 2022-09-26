@@ -2,12 +2,13 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/flowrunner-canvas-icons/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nrwl/web:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "libs/flowrunner-canvas-icons/lib",
+        "outputPath": "libs/flowrunner-canvas-icons/dist",
         "tsConfig": "libs/flowrunner-canvas-icons/tsconfig.lib.json",
         "project": "libs/flowrunner-canvas-icons/package.json",
         "entryFile": "libs/flowrunner-canvas-icons/src/index.ts",
@@ -16,7 +17,7 @@
         "compiler": "babel",
         "assets": [
           {
-            "glob": "libs/flowrunner-canvas-icons/**/*.svg",
+            "glob": "libs/flowrunner-canvas-icons/README.md",
             "input": ".",
             "output": "."
           }
@@ -26,15 +27,10 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "libs/flowrunner-canvas-icons/**/*.ts"
-        ]
+        "lintFilePatterns": ["libs/flowrunner-canvas-icons/**/*.{ts,tsx,js,jsx}"]
       }
     }
-  },
-  "tags": []
+  }
 }
