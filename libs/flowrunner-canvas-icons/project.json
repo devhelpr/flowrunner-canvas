@@ -11,7 +11,7 @@
         "outputPath": "libs/flowrunner-canvas-icons/dist",
         "tsConfig": "libs/flowrunner-canvas-icons/tsconfig.lib.json",
         "project": "libs/flowrunner-canvas-icons/package.json",
-        "entryFile": "libs/flowrunner-canvas-icons/src/index.ts",
+        "entryFile": "libs/flowrunner-canvas-icons/src/index.tsx",
         "external": ["react/jsx-runtime"],
         "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
         "compiler": "babel",
