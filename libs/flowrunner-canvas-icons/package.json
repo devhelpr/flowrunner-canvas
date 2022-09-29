@@ -6,6 +6,8 @@
     "_directory": "../../libs/flowrunner-canvas-icons"
   },
   "description": "icons for flowrunner-canvas and related packages",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "lib",
     "src/lib/*.svg",
