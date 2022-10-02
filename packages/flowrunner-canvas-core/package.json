@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas-core",
-  "version": "0.43.42",
+  "version": "0.43.43",
   "publishConfig": {
     "access": "public",
     "_directory": "../../dist/packages/flowrunner-canvas-core"
@@ -18,7 +18,7 @@
   "dependencies": {
     "@devhelpr/expressionrunner": "^0.2.9",
     "@devhelpr/flowrunner": "^0.14.1",
-    "@devhelpr/flowrunner-canvas-icons": "^0.0.11",
+    "@devhelpr/flowrunner-canvas-icons": "^0.0.12",
     "@devhelpr/layoutrunner": "^0.0.2",
     "@material-ui/core": "4.12.4",
     "@material-ui/icons": "^4.11.3",
