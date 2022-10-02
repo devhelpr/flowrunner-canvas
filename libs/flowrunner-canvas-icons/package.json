@@ -1,11 +1,13 @@
 {
   "name": "@devhelpr/flowrunner-canvas-icons",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "publishConfig": {
     "access": "public",
     "_directory": "../../libs/flowrunner-canvas-icons"
   },
   "description": "icons for flowrunner-canvas and related packages",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "lib",
     "src/lib/*.svg",
