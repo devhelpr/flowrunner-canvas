@@ -27,11 +27,11 @@ function storeTransaction(store: IDBObjectStore, transaction: ITransaction) {
     transaction?.flowId,
   );
 
-  objectRequest.onerror = function(event) {
+  objectRequest.onerror = function (event) {
     console.log('handleTransactions error', event);
   };
 
-  objectRequest.onsuccess = function(event) {
+  objectRequest.onsuccess = function (event) {
     if (objectRequest.result) {
       isProcessing = false;
       handleTransactions();
@@ -56,11 +56,11 @@ function handleTransactions() {
 
     var getRequest = store.get(transaction?.flowId);
 
-    getRequest.onerror = function(event) {
+    getRequest.onerror = function (event) {
       storeTransaction(store, transaction);
     };
 
-    getRequest.onsuccess = function(event) {
+    getRequest.onsuccess = function (event) {
       if (getRequest.result) {
         transaction.name = getRequest.result.name;
       }
@@ -263,22 +263,25 @@ function getTasks() {
 }
 
 function saveFlow(flowId: string, flow: any) {
-  console.log('Saving flow', flowId, flow);
-  const flowPackage = {
-    flow: flow,
-    name: flowId,
-    id: flowId,
-    flowType: 'playground',
-  };
-  //localStorage.setItem('flow-' + flowId, JSON.stringify(flowPackage));
+  return new Promise((resolve, reject) => {
+    console.log('Saving flow', flowId, flow);
+    const flowPackage = {
+      flow: flow,
+      name: flowId,
+      id: flowId,
+      flowType: 'playground',
+    };
+    //localStorage.setItem('flow-' + flowId, JSON.stringify(flowPackage));
 
-  transactions.push({
-    flowId,
-    flow,
-    name: `Flow ${flowId}`,
+    transactions.push({
+      flowId,
+      flow,
+      name: `Flow ${flowId}`,
+    });
+    console.log('Saving flow', transactions);
+    handleTransactions();
+    resolve(true);
   });
-  console.log('Saving flow', transactions);
-  handleTransactions();
 }
 
 function setSelectedFlow(flowName: string) {
@@ -290,10 +293,13 @@ function getSelectedFlow() {
 }
 
 function storeFlowPackage(flowPackage: any) {
-  if (flowPackage) {
-    saveFlow(getSelectedFlow(), flowPackage.flow);
-  }
-  //localStorage.setItem('flowPackage', JSON.stringify(flowPackage));
+  return new Promise((resolve, reject) => {
+    if (flowPackage) {
+      saveFlow(getSelectedFlow(), flowPackage.flow);
+    }
+    //localStorage.setItem('flowPackage', JSON.stringify(flowPackage));
+    resolve(true);
+  });
 }
 function getFlowPackage() {
   var packageAsString = localStorage.getItem('flowPackage');
@@ -334,16 +340,16 @@ function getFlows() {
     var objectStore = transaction.objectStore(flowStoreName);
     var objectRequest = objectStore.getAll();
 
-    objectRequest.onerror = function(event) {
+    objectRequest.onerror = function (event) {
       reject(Error('Error text'));
     };
 
-    objectRequest.onsuccess = function(event) {
+    objectRequest.onsuccess = function (event) {
       if (objectRequest.result) {
         console.log('getall', objectRequest.result);
         if (objectRequest.result.length > 0) {
           resolve(
-            objectRequest.result.map(item => {
+            objectRequest.result.map((item) => {
               return {
                 name: item.name,
                 id: item.flowId,
@@ -392,11 +398,11 @@ function getFlow(flowId: string) {
     var objectStore = transaction.objectStore(flowStoreName);
     var objectRequest = objectStore.get(flowId);
 
-    objectRequest.onerror = function(event) {
+    objectRequest.onerror = function (event) {
       reject(Error('Error text'));
     };
 
-    objectRequest.onsuccess = function(event) {
+    objectRequest.onsuccess = function (event) {
       if (objectRequest.result) {
         _flowName = objectRequest.result.name;
         resolve({
@@ -452,11 +458,11 @@ function addFlow(name, flow) {
       flowId,
     );
 
-    objectRequest.onerror = function(event) {
+    objectRequest.onerror = function (event) {
       console.log('handleTransactions error', event);
     };
 
-    objectRequest.onsuccess = function(event) {
+    objectRequest.onsuccess = function (event) {
       if (objectRequest.result) {
         isProcessing = false;
         resolve({ id: flowId });
@@ -478,11 +484,11 @@ function setFlowName(flowId: string, flowName: string): Promise<string> {
     let objectStore = transaction.objectStore(flowStoreName);
     let objectRequest = objectStore.get(flowId);
 
-    objectRequest.onerror = function(event) {
+    objectRequest.onerror = function (event) {
       reject(Error('Error text'));
     };
 
-    objectRequest.onsuccess = function(event) {
+    objectRequest.onsuccess = function (event) {
       if (objectRequest.result) {
         const putObjectRequest = objectStore.put(
           {
@@ -493,11 +499,11 @@ function setFlowName(flowId: string, flowName: string): Promise<string> {
           flowId,
         );
 
-        putObjectRequest.onerror = function(event) {
+        putObjectRequest.onerror = function (event) {
           console.log('handleTransactions error', event);
         };
 
-        putObjectRequest.onsuccess = function(event) {
+        putObjectRequest.onsuccess = function (event) {
           _flowName = flowName;
           if (putObjectRequest.result) {
             resolve(flowId);
@@ -538,8 +544,6 @@ export const setTasks = (setupTasks: any[]) => {
 };
 
 export const flowrunnerIndexedDbStorageProvider: IStorageProvider = {
-  storeFlowPackage: storeFlowPackage,
-  getFlowPackage: getFlowPackage,
   getFlows: getFlows,
   getFlow: getFlow,
   saveFlow: saveFlow,
@@ -573,7 +577,7 @@ export const createIndexedDBStorageProvider = () => {
       reject(new Error('createIndexedDBStorageProvider failed'));
     }
 
-    dbRequest.onupgradeneeded = function(event) {
+    dbRequest.onupgradeneeded = function (event) {
       if (!event || !event.target || !(event.target as any).result) {
         reject(new Error('No event target'));
       }
@@ -584,7 +588,7 @@ export const createIndexedDBStorageProvider = () => {
       });
     };
 
-    dbRequest.onsuccess = event => {
+    dbRequest.onsuccess = (event) => {
       if (!event || !event.target || !(event.target as any).result) {
         reject(new Error('No event target'));
       }
@@ -593,7 +597,7 @@ export const createIndexedDBStorageProvider = () => {
       resolve(flowrunnerIndexedDbStorageProvider);
     };
 
-    dbRequest.onerror = event => {
+    dbRequest.onerror = (event) => {
       reject();
     };
   });

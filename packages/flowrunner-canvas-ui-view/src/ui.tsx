@@ -37,12 +37,6 @@ export const UIView = (props: IUIViewProps) => {
     storageProvider = readOnlyFlowrunnerStorageProvider(props.flowPackage, getDefaultUITasks);
     hasStorageProvider = true;
 
-    const options: any = {};
-
-    if (hasStorageProvider) {
-      options.initialStoreState = storageProvider?.getFlowPackage();
-    }
-
     let worker = getFlowAgent();
     worker.postMessage('worker', {
       command: 'init',

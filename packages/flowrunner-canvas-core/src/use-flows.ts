@@ -30,8 +30,8 @@ export const useFlows = (
 
   const flowStore = useFlowStore();
   const layout = useLayoutStore();
-  const setCanvasFlowType = useCanvasModeStateStore(state => state.setFlowType);
-  const canvasflowType = useCanvasModeStateStore(state => state.flowType);
+  const setCanvasFlowType = useCanvasModeStateStore((state) => state.setFlowType);
+  const canvasflowType = useCanvasModeStateStore((state) => state.flowType);
 
   const getFlows = (getFlowId?) => {
     if (flowrunnerConnector.hasStorageProvider) {
@@ -47,7 +47,7 @@ export const useFlows = (
 
             loadFlow(loadFlowId);
           })
-          .catch(error => {
+          .catch((error) => {
             console.log('ERROR in getflows', error);
           });
       } else {
@@ -65,14 +65,14 @@ export const useFlows = (
     }
 
     fetch('/api/get-flows')
-      .then(res => {
+      .then((res) => {
         if (res.status >= 400) {
           setFlowState(FlowState.error);
           throw new Error('Bad response from server');
         }
         return res.json();
       })
-      .then(flows => {
+      .then((flows) => {
         if (flows.length > 0) {
           setFlows(flows);
           //const id =      flowId === undefined ? flows[0].id : currentFlowId;
@@ -84,7 +84,7 @@ export const useFlows = (
           //loadFlow(id);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   };
@@ -116,17 +116,19 @@ export const useFlows = (
     if (flowState == FlowState.loading) {
       if (flowrunnerConnector.hasStorageProvider) {
         if (flowrunnerConnector.storageProvider?.isAsync) {
-          (flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as Promise<any>).then(flowPackage => {
-            console.log('LOAD FLOW', currentFlowId, flowPackage);
-            positionContext.clearPositions();
-            flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
-            setFlowType(flowPackage.flowType || 'playground');
-            setCanvasFlowType(flowPackage.flowType || 'playground');
-            flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
-            setFlow(flowPackage.flow);
-            layout.storeLayout(JSON.stringify(flowPackage.layout));
-            setFlowState(FlowState.loaded);
-          });
+          (flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as Promise<any>).then(
+            (flowPackage) => {
+              console.log('LOAD FLOW', currentFlowId, flowPackage);
+              positionContext.clearPositions();
+              flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
+              setFlowType(flowPackage.flowType || 'playground');
+              setCanvasFlowType(flowPackage.flowType || 'playground');
+              flowStore.storeFlow(flowPackage.flow, currentFlowId as string);
+              setFlow(flowPackage.flow);
+              layout.storeLayout(JSON.stringify(flowPackage.layout));
+              setFlowState(FlowState.loaded);
+            },
+          );
         } else {
           positionContext.clearPositions();
           const flowPackage: any = flowrunnerConnector.storageProvider?.getFlow(currentFlowId as string) as any;
@@ -142,14 +144,14 @@ export const useFlows = (
       }
 
       fetch('/api/flow?flow=' + currentFlowId)
-        .then(res => {
+        .then((res) => {
           if (res.status >= 400) {
             setFlowState(FlowState.error);
             throw new Error('Bad response from server');
           }
           return res.json();
         })
-        .then(flowPackage => {
+        .then((flowPackage) => {
           console.log('LOAD FLOW via fetch', currentFlowId, flowPackage);
           positionContext.clearPositions();
           flowrunnerConnector.setFlowType(flowPackage.flowType || 'playground');
@@ -160,7 +162,7 @@ export const useFlows = (
           layout.storeLayout(JSON.stringify(flowPackage.layout));
           setFlowState(FlowState.loaded);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           setFlowState(FlowState.error);
         });
@@ -178,7 +180,7 @@ export const useFlows = (
 
   const saveFlow = (selectedFlow?, stateFlow?: any[]) => {
     console.log('SAVE FLOW', stateFlow, flowStore.flow);
-    const flowAndUpdatedPositions = (stateFlow || flowStore.flow || []).map(node => {
+    const flowAndUpdatedPositions = (stateFlow || flowStore.flow || []).map((node) => {
       let updatedNode = { ...node };
       if (node.x !== undefined && node.y !== undefined && node.shapeType !== 'Line') {
         const position = positionContext.getPosition(node.name);
@@ -200,12 +202,25 @@ export const useFlows = (
 
     if (flowrunnerConnector.hasStorageProvider) {
       console.log('flowAndUpdatedPositions', flowAndUpdatedPositions);
-      flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
-      if (onFlowHasChanged) {
-        onFlowHasChanged(flowAndUpdatedPositions);
-      }
-      if (selectedFlow) {
-        loadFlow(selectedFlow); //,true
+      if (flowrunnerConnector.storageProvider?.isAsync) {
+        flowrunnerConnector.storageProvider
+          ?.saveFlow(currentFlowId as string, flowAndUpdatedPositions)
+          .then((resolve, reject) => {
+            if (onFlowHasChanged) {
+              onFlowHasChanged(flowAndUpdatedPositions);
+            }
+            if (selectedFlow) {
+              loadFlow(selectedFlow); //,true
+            }
+          });
+      } else {
+        flowrunnerConnector.storageProvider?.saveFlow(currentFlowId as string, flowAndUpdatedPositions);
+        if (onFlowHasChanged) {
+          onFlowHasChanged(flowAndUpdatedPositions);
+        }
+        if (selectedFlow) {
+          loadFlow(selectedFlow); //,true
+        }
       }
     } else {
       if (!selectedFlow) {
@@ -223,19 +238,19 @@ export const useFlows = (
           'Content-Type': 'application/json',
         },
       })
-        .then(res => {
+        .then((res) => {
           if (res.status >= 400) {
             throw new Error('Bad response from server');
           }
 
           return res.json();
         })
-        .then(status => {
+        .then((status) => {
           if (selectedFlow) {
             loadFlow(selectedFlow); //,true
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     }

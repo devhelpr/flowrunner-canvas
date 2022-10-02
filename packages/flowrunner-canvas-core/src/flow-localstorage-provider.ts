@@ -278,7 +278,7 @@ function setAdditionalTasks(tasks: any[]) {
 }
 
 function setFlowName(flowId: string, flowName: string): Promise<string> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     resolve(flowId);
   });
 }
@@ -288,8 +288,6 @@ function getFlowName() {
 }
 
 export const flowrunnerStorageProvider: IStorageProvider = {
-  storeFlowPackage: storeFlowPackage,
-  getFlowPackage: getFlowPackage,
   getFlows: getFlows,
   getFlow: getFlow,
   saveFlow: saveFlow,
@@ -299,7 +297,7 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => new Promise(resolve => resolve('UUID')),
+  addFlow: (name, flow) => new Promise((resolve) => resolve('UUID')),
   isUI: false,
   isReadOnly: false,
   canStoreMultipleFlows: false,
@@ -309,8 +307,6 @@ export const flowrunnerStorageProvider: IStorageProvider = {
 };
 
 export const configurableFlowrunnerStorageProvider: IStorageProvider = {
-  storeFlowPackage: storeFlowPackage,
-  getFlowPackage: getFlowPackage,
   getFlows: getFlows,
   getFlow: getFlow,
   saveFlow: saveFlow,
@@ -320,7 +316,7 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => new Promise(resolve => resolve('UUID')),
+  addFlow: (name, flow) => new Promise((resolve) => resolve('UUID')),
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
@@ -333,20 +329,8 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
 
 const isReadOnly = true;
 
-export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks?: () => any[]) : IStorageProvider => {
+export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks?: () => any[]): IStorageProvider => {
   return {
-  
-    storeFlowPackage: storeFlowPackage,
-    getFlowPackage: () => {
-      if (flowPackage) {
-        return flowPackage;
-      }
-
-      if (isReadOnly) {
-        return JSON.parse(getDefaultFlow());
-      }
-      return getFlowPackage();
-    },
     getFlows: () => {
       if (flowPackage) {
         return [
@@ -356,14 +340,14 @@ export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks
             id: flowPackage.name,
             flowType: flowPackage.flowType,
           },
-        ]
+        ];
       }
       if (isReadOnly) {
         return getDefaultFlows();
       }
       return getFlows();
     },
-    getFlow: flowId => {
+    getFlow: (flowId) => {
       if (flowPackage) {
         return flowPackage.flow;
       }
@@ -381,7 +365,7 @@ export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks
       }
       saveFlow(flowId, flow);
     },
-    setSelectedFlow: flowId => {
+    setSelectedFlow: (flowId) => {
       if (flowPackage) {
         return;
       }
@@ -403,7 +387,7 @@ export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks
     getApiProxyUrl: () => {
       return '';
     },
-    addFlow: (name, flow) => new Promise(resolve => resolve('UUID')),
+    addFlow: (name, flow) => new Promise((resolve) => resolve('UUID')),
     isUI: false,
     setDefaultFlow: setDefaultFlow,
     setAdditionalTasks: setAdditionalTasks,
@@ -412,5 +396,5 @@ export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks
     isAsync: false,
     setFlowName: setFlowName,
     getFlowName: getFlowName,
-  }
+  };
 };

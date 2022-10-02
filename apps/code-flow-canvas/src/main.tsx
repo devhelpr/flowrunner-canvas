@@ -59,6 +59,7 @@ import {
 
 import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
 import { registerCustomPlugins } from './flow-plugins';
+import { createFlowrunnerStorageProvider } from './flow-localstorage-provider';
 
 let flowRunnerConnectorInstance: IFlowrunnerConnector;
 const flowRunnerCanvasPluginRegisterFunctions: any[] = [];
@@ -164,6 +165,20 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
 
     createIndexedDBStorageProvider()
       .then((result) => {
+        /*const result = createFlowrunnerStorageProvider({}, [
+      {
+        name: 'AssignTask',
+        id: 'AssignTask',
+        taskType: 'AssignTask',
+        shapeType: 'Html',
+        x: 302,
+        y: 570,
+        assignToProperty: 'test',
+        value: 'hello world',
+        htmlPlugin: 'formNode',
+      },
+    ]);
+    */
         if (!result) {
           throw new Error('No Storage Provider is available');
         }
@@ -178,15 +193,12 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
             </FormNodeDatasourceProvider>
           </React.StrictMode>,
         );
-        /*
-			(ReactDOM as any).render(<FlowrunnerCanvas 
-				developmentMode={true}
-				flowStorageProvider={flowrunnerLocalStorageProvider}></FlowrunnerCanvas>, root);
-			*/
       })
       .catch(() => {
         throw new Error('Error when creating Storage Provider');
       });
+
+    // needed to prevent fallthrough ...
     return;
   }
 
@@ -214,12 +226,6 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
         storageProvider = flowStorageProvider as IStorageProvider;
         hasStorageProvider = true;
         FlowStorageProviderService.setFlowStorageProvider(storageProvider);
-      }
-
-      const options: any = {};
-
-      if (hasStorageProvider) {
-        options.initialStoreState = storageProvider?.getFlowPackage();
       }
 
       let worker = getFlowAgent();

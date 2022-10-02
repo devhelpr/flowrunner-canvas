@@ -21,9 +21,9 @@ export interface IFlowState extends State {
   deleteNodes: (nodes: any[]) => void;
 }
 
-const handleStorageProvider = config => (set, get, api) =>
+const handleStorageProvider = (config) => (set, get, api) =>
   config(
-    args => {
+    async (args) => {
       // pre setstate
 
       // set state
@@ -41,7 +41,11 @@ const handleStorageProvider = config => (set, get, api) =>
       if (storageProvider) {
         let flowState = get();
         console.log('PRE SAVEFLOW in handleStorageProvider', flowState.flow);
-        storageProvider.saveFlow(flowState.flowId, flowState.flow);
+        if (storageProvider.isAsync) {
+          await storageProvider.saveFlow(flowState.flowId, flowState.flow);
+        } else {
+          storageProvider.saveFlow(flowState.flowId, flowState.flow);
+        }
       }
     },
     get,
@@ -64,7 +68,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
     flowId: '',
     flowHashmap: new Map(),
     storeFlow: (flow: any[], flowId: string, positionContext?: IPositionContext) =>
-      set(state => {
+      set((state) => {
         return {
           flowId: flowId,
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
@@ -72,7 +76,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         };
       }),
     storeFlowNode: (node: any, orgNodeName: string, positionContext?: IPositionContext) =>
-      set(state => {
+      set((state) => {
         let position: IPosition | undefined = undefined;
         if (positionContext) {
           position = positionContext.positions.get(orgNodeName);
@@ -118,10 +122,10 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         };
       }),
     storeFlowNodes: (nodes: any[], positionContext?: IPositionContext) =>
-      set(state => {
+      set((state) => {
         let flow = state.flow.map((currentNode, index) => {
           let _storeNode = currentNode;
-          nodes.forEach(node => {
+          nodes.forEach((node) => {
             let position: IPosition | undefined = undefined;
             if (positionContext) {
               position = positionContext.positions.get(node.name);
@@ -168,7 +172,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         };
       }),
     addFlowNode: (node: any, positionContext?: IPositionContext) =>
-      set(state => {
+      set((state) => {
         /*const flowHashmap = state.flowHashmap;
         flowHashmap.set(node.name, {
           index: state.flow.length,
@@ -182,7 +186,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         };
       }),
     addFlowNodes: (nodes: any[], positionContext?: IPositionContext) =>
-      set(state => {
+      set((state) => {
         let flow = [...state.flow, ...nodes];
         return {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
@@ -190,7 +194,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         };
       }),
     addConnection: (connection: any, positionContext?: IPositionContext) =>
-      set(state => {
+      set((state) => {
         /*const flowHashmap = state.flowHashmap;
         if (flowHashmap.has(connection.startshapeid)) {
           let copy = {...flowHashmap.get(connection.startshapeid)};
@@ -226,7 +230,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
       }),
     deleteConnection: (node: any) =>
       set(
-        produce(draftState => {
+        produce((draftState) => {
           let index = -1;
           draftState.flow.map((draftNode, mapIndex) => {
             if (draftNode.name === node.name) {
@@ -240,7 +244,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         }),
       ),
     deleteNode: (node: any, deleteLines: boolean) =>
-      set(state => {
+      set((state) => {
         let index = -1;
         /*draftState.flow.map((draftNode, mapIndex) => {
             if (draftNode.name === node.name) {
@@ -248,7 +252,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
             }
           });
           */
-        let flow = state.flow.filter(draftNode => {
+        let flow = state.flow.filter((draftNode) => {
           if (draftNode.name === node.name) {
             return false;
           }
@@ -260,7 +264,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
           return true;
         });
-        flow = flow.map(draftNode => {
+        flow = flow.map((draftNode) => {
           if (draftNode.startshapeid === node.name) {
             let updatedNode = { ...draftNode };
             updatedNode.startshapeid = undefined;
@@ -287,16 +291,16 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         };
       }),
     deleteNodes: (nodes: any[]) => {
-      set(state => {
+      set((state) => {
         let index = -1;
-        const isNodeInList = nodeName => {
+        const isNodeInList = (nodeName) => {
           return (
-            nodes.findIndex(node => {
+            nodes.findIndex((node) => {
               return node.name === nodeName;
             }) >= 0
           );
         };
-        let flow = state.flow.filter(draftNode => {
+        let flow = state.flow.filter((draftNode) => {
           if (isNodeInList(draftNode.name)) {
             return false;
           }
@@ -305,7 +309,7 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
           }
           return true;
         });
-        flow = flow.map(draftNode => {
+        flow = flow.map((draftNode) => {
           if (isNodeInList(draftNode.startshapeid)) {
             let updatedNode = { ...draftNode };
             updatedNode.startshapeid = undefined;
@@ -331,6 +335,6 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
   };
 };
 
-export const useFlowStore = create<IFlowState>(handleStorageProvider(set => storeHandler(set)));
-export const useFlowForMultiFormStore = create<IFlowState>(set => storeHandler(set));
-export const useBundleFlowStore = create<IFlowState>(set => storeHandler(set));
+export const useFlowStore = create<IFlowState>(handleStorageProvider((set) => storeHandler(set)));
+export const useFlowForMultiFormStore = create<IFlowState>((set) => storeHandler(set));
+export const useBundleFlowStore = create<IFlowState>((set) => storeHandler(set));

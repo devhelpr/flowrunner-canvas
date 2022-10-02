@@ -172,12 +172,6 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
     renderHtmlNodeRef.current = renderHtmlNode;
     getNodeInstanceRef.current = getNodeInstance;
 
-    const options: any = {};
-
-    if (hasStorageProvider) {
-      options.initialStoreState = storageProvider?.getFlowPackage();
-    }
-
     flowAgent.current = getFlowAgent();
     if (props.onMessageFromFlow) {
       flowAgent.current.addEventListener('external', props.onMessageFromFlow);
