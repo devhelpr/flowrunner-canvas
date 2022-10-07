@@ -1569,6 +1569,10 @@ const taskTypeConfig: ITaskTypeConfig = {
                   value: 'stateMachineEventButton',
                   label: 'StateMachine Event Button',
                 },
+                {
+                  value: 'triggerbutton',
+                  label: 'Trigger Button',
+                },
               ],
             },
             {

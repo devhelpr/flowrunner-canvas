@@ -11,7 +11,7 @@ export class FlowAgent implements IFlowAgent {
   observables = {};
 
   postMessage = (eventName, message: any) => {
-    (this.eventListeners[eventName] || []).map(listener => {
+    (this.eventListeners[eventName] || []).map((listener) => {
       listener({ eventName: eventName, data: message }, this);
     });
   };
@@ -36,7 +36,7 @@ export class FlowAgent implements IFlowAgent {
   };
   terminate = () => {
     if (this.flow) {
-      console.log("before calling destroyFlow");
+      console.log('before calling destroyFlow');
       this.flow.destroyFlow();
     }
     this.eventListeners = {};
@@ -349,7 +349,7 @@ const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
           const pluginInstance = new pluginClass();
           let result = pluginInstance.execute({ payload: payload }, undefined);
           resolve(result);
-        }).then(payload => {
+        }).then((payload) => {
           //console.log("payload FlowPluginWrapperTask", node, payload);
           node.observable.next({
             nodeName: node.name,
@@ -401,7 +401,7 @@ export class TimerTask extends FlowTask {
       executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
 
     */
-    console.log("timer", this,this.isExecuting, this.node.name);
+    console.log('timer', this, this.isExecuting, this.node.name);
     if (!this.isExecuting) {
       this.isExecuting = true;
 
@@ -462,7 +462,7 @@ export class TimerTask extends FlowTask {
       return true;
     } else {
       if (node.interval) {
-        console.log("node.interval" , node.interval);
+        console.log('node.interval', node.interval);
         /*if (timers[node.name]) {
           clearInterval(timers[node.name]);
           timers[node.name] = undefined;
@@ -475,7 +475,7 @@ export class TimerTask extends FlowTask {
         timers[node.name] = timer;
         return subject;
         */
-       return false;
+        return false;
       }
     }
     /*if (timers[node.name]) {
@@ -519,53 +519,6 @@ export class RandomTask extends ObservableTask {
 
   public override getName() {
     return 'RandomTask';
-  }
-}
-
-export class ApiProxyTask extends FlowTask {
-  public override execute(node: any, services: any) {
-    const promise = new Promise((resolve, reject) => {
-      node.payload = Object.assign({}, node.payload);
-      try {
-        fetch('/api/proxy', {
-          method: 'post',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: replaceValues(node.url, node.payload, true),
-            body: !!node.sendPayloadToApi && node.payload,
-            httpMethod: node.httpMethod || 'get',
-          }),
-        })
-          .then(res => {
-            if (res.status >= 400) {
-              throw new Error('Api-proxy : Bad response from server (' + node.name + ')');
-            }
-            return res.json();
-          })
-          .then(response => {
-            if (Array.isArray(response)) {
-              resolve({ ...node.payload, result: [...response] });
-            } else {
-              resolve({ ...node.payload, ...response });
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            reject('Api-proxy : Bad response from server (' + node.name + ') : ' + err);
-          });
-      } catch (err) {
-        console.error(err);
-        reject('Api-proxy : Bad response from server (' + node.name + ') : ' + err);
-      }
-    });
-
-    return promise;
-  }
-
-  public override getName() {
-    return 'ApiProxyTask';
   }
 }
 
@@ -648,7 +601,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
       if (payload) {
         worker.flow
           .executeNode(data.nodeName, payload || {})
-          .then(result => {
+          .then((result) => {
             if (sendMessageOnResolve) {
               worker.postMessage('external', {
                 command: 'ExecuteFlowNodeResult',
@@ -657,7 +610,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
               });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             console.log('executeNode failed', error);
             if (sendMessageOnResolve) {
               worker.postMessage('external', {
@@ -671,7 +624,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         console.log('retriggerNode', data.nodeName);
         worker.flow
           .retriggerNode(data.nodeName)
-          .then(result => {
+          .then((result) => {
             if (sendMessageOnResolve) {
               worker.postMessage('external', {
                 command: 'ExecuteFlowNodeResult',
@@ -680,7 +633,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
               });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             console.log('executeNode failed', error);
             if (sendMessageOnResolve) {
               worker.postMessage('external', {
@@ -720,10 +673,10 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         console.log('pre modifyFlowNode executeNode', data);
         worker.flow
           .retriggerNode(data.executeNode)
-          .then(result => {
+          .then((result) => {
             //console.log('result after modifyFlowNode executeNode', result);
           })
-          .catch(error => {
+          .catch((error) => {
             console.log('modifyFlowNode executeNode failed', data, error);
           });
       }
@@ -735,10 +688,10 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
 
         worker.flow
           .triggerEventOnNode(data.nodeName, data.triggerEvent, {})
-          .then(result => {
+          .then((result) => {
             //console.log('result after modifyFlowNode executeNode', result);
           })
-          .catch(error => {
+          .catch((error) => {
             console.log('modifyFlowNode triggerEventOnNode failed', data, error);
           });
       }
@@ -873,13 +826,12 @@ const startFlow = (
     flow.registerTask('MapPayloadTask', MapPayloadTask);
     flow.registerTask('ListTask', ListTask);
     */
-    worker.flow.registerTask('OutputValueTask', OutputValueTask);    
-    
+    worker.flow.registerTask('OutputValueTask', OutputValueTask);
+
     worker.flow.registerTask('RandomTask', RandomTask);
     worker.flow.registerTask('TimerTask', TimerTask);
     worker.flow.registerTask('InputTask', InputTask);
     worker.flow.registerTask('ListTask', ListTask);
-    worker.flow.registerTask('ApiProxyTask', ApiProxyTask);
 
     registerTasks(worker.flow);
 
@@ -903,7 +855,7 @@ const startFlow = (
   }
   let services = {
     flowEventRunner: worker.flow,
-    isInAutoFormStepMode : worker.isInAutoFormStepMode,
+    isInAutoFormStepMode: worker.isInAutoFormStepMode,
     pluginClasses: {},
     logMessage: (arg1, arg2) => {
       console.log(arg1, arg2);
@@ -982,7 +934,7 @@ const startFlow = (
 
       console.log('flow running');
     })
-    .catch(error => {
+    .catch((error) => {
       console.log('error when starting flow', error);
     });
 };

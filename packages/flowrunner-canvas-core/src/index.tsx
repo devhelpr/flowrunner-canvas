@@ -19,6 +19,7 @@ export * from './interfaces/INodeDependency';
 export * from './interfaces/shape-types';
 export * from './interfaces/INode';
 export * from './interfaces/INodeFlowState';
+export * from './interfaces/IFlowPackage';
 
 export { setCustomConfig, registerCustomNodeType, getTaskConfig, getTaskConfigForTask } from './config';
 export { getFlowAgent } from './flow-agent';
@@ -71,7 +72,7 @@ export * from './html-plugins/form-node';
 export * from './state-machine';
 export { onFocus } from './html-plugins/form-controls/helpers/focus';
 
-export { getDefaultUITasks, registerTasks, registerCustomTask } from './flow-tasks';
+export { getDefaultUITasks, registerTasks, registerCustomTask, registerTaskImplementationOverride } from './flow-tasks';
 export type { FlowType } from './flow-tasks';
 
 export { MapEventTask } from './flowrunner-plugins/map-event-task';

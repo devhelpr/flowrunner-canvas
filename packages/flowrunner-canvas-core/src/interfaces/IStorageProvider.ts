@@ -1,7 +1,16 @@
+import { IFlowPackage } from './IFlowPackage';
+
+export interface IFlowInfo {
+  name: string;
+  id: string;
+  fileName?: string;
+  flowType?: string;
+}
+
 export interface IStorageProvider {
   addFlow: (name, flow) => Promise<any>;
-  getFlows: () => any[] | Promise<any[]>;
-  getFlow: (flowId: string) => any | Promise<any>;
+  getFlows: () => IFlowInfo[] | Promise<IFlowInfo[]>;
+  getFlow: (flowId: string) => IFlowPackage | Promise<IFlowPackage>;
   saveFlow: (flowId: string, flow: any[]) => any | Promise<any>;
   getTasks: () => any[];
   getApiProxyUrl: () => string;

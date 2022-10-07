@@ -1,3 +1,5 @@
+import { IFlowrunnerConnector } from '../../interfaces/IFlowrunnerConnector';
+
 export interface IFormControlProps {
   onChange: (value, metaInfo) => void;
   value: string;
@@ -13,4 +15,5 @@ export interface IFormControlProps {
   enabled?: boolean;
   fieldIndex: number;
   currentFormValues?: any;
+  flowrunnerConnector: IFlowrunnerConnector | undefined;
 }

@@ -278,9 +278,7 @@ function setAdditionalTasks(tasks: any[]) {
 }
 
 function setFlowName(flowId: string, flowName: string): Promise<string> {
-  return new Promise((resolve) => {
-    resolve(flowId);
-  });
+  return Promise.resolve(flowId);
 }
 
 function getFlowName() {
@@ -297,7 +295,7 @@ export const flowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => new Promise((resolve) => resolve('UUID')),
+  addFlow: (name, flow) => Promise.resolve('UUID'),
   isUI: false,
   isReadOnly: false,
   canStoreMultipleFlows: false,
@@ -316,7 +314,7 @@ export const configurableFlowrunnerStorageProvider: IStorageProvider = {
   getApiProxyUrl: () => {
     return '';
   },
-  addFlow: (name, flow) => new Promise((resolve) => resolve('UUID')),
+  addFlow: (name, flow) => Promise.resolve('UUID'),
   isUI: false,
   setDefaultFlow: setDefaultFlow,
   setAdditionalTasks: setAdditionalTasks,
@@ -349,7 +347,7 @@ export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks
     },
     getFlow: (flowId) => {
       if (flowPackage) {
-        return flowPackage.flow;
+        return flowPackage;
       }
       if (isReadOnly) {
         return JSON.parse(getDefaultFlow());
@@ -387,7 +385,7 @@ export const readOnlyFlowrunnerStorageProvider = (flowPackage: any, getFlowTasks
     getApiProxyUrl: () => {
       return '';
     },
-    addFlow: (name, flow) => new Promise((resolve) => resolve('UUID')),
+    addFlow: (name, flow) => Promise.resolve('UUID'),
     isUI: false,
     setDefaultFlow: setDefaultFlow,
     setAdditionalTasks: setAdditionalTasks,

@@ -50,6 +50,7 @@ import { MapEventTask } from '../flowrunner-plugins/map-event-task';
 import { FilterEventTask } from '../flowrunner-plugins/filter-event-task';
 import { ReduceEventTask } from '../flowrunner-plugins/reduce-event-task';
 import { OperationEventTask } from '../flowrunner-plugins/operation-event-task';
+import { ApiProxyTask } from '../flowrunner-plugins/api-proxy-task';
 
 export interface IFlowTask {
   new (): FlowTask;
@@ -71,6 +72,16 @@ export const registerCustomTask = (name: string, TaskClass: IFlowTask, flowType:
     flowType,
   });
 };
+
+const taskOverrides: { [taskName: string]: IFlowTask } = {};
+
+export const registerTaskImplementationOverride = (name: string, TaskClass: IFlowTask) => {
+  taskOverrides[name] = TaskClass;
+};
+
+function getTaskClass(name: string, TaskClass: IFlowTask): IFlowTask {
+  return taskOverrides[name] || TaskClass;
+}
 
 export const registerTasks = (flow) => {
   console.log('registerTasks', customTasks);
@@ -135,6 +146,8 @@ export const registerTasks = (flow) => {
   flow.registerTask('FilterEventTask', FilterEventTask);
   flow.registerTask('ReduceEventTask', ReduceEventTask);
   flow.registerTask('OperationEventTask', OperationEventTask);
+
+  flow.registerTask('ApiProxyTask', getTaskClass('ApiProxyTask', ApiProxyTask));
 };
 
 export const getDefaultUITasks = () => {

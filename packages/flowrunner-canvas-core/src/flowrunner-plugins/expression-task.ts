@@ -35,8 +35,10 @@ export class ExpressionTask extends FlowTask {
           this.compiledExpressionTree = createExpressionTree(node.expression);
           this.expression = node.expression;
         }
-        // force properties to number
+
         let payload: any = {};
+
+        // force properties to number
         if (node.forceNumeric === true) {
           for (const property in node.payload) {
             if (node.payload.hasOwnProperty(property)) {
@@ -50,6 +52,29 @@ export class ExpressionTask extends FlowTask {
         } else {
           payload = node.payload;
         }
+
+        if (node.assignToProperty) {
+          // const matches = node.expression.match(/^\w+/g);
+          // if (node.assignToProperty) {
+          //   matches.forEach((match) => {
+          //     const currentValue = services.flowEventRunner.getPropertyFromNode(node.name, match);
+
+          //     if (node.forceNumeric === true) {
+          //       payload[match] = parseFloat(currentValue) || 0;
+          //     } else {
+          //       payload[match] = currentValue;
+          //     }
+          //   });
+          // }
+          const currentValue = services.flowEventRunner.getPropertyFromNode(node.name, node.assignToProperty);
+
+          if (node.forceNumeric === true) {
+            payload[node.assignToProperty] = parseFloat(currentValue) || 0;
+          } else {
+            payload[node.assignToProperty] = currentValue;
+          }
+        }
+
         if (payload.values) {
           let values = convertGridToNamedVariables(payload.values);
           payload = { ...payload, ...values };
@@ -69,6 +94,7 @@ export class ExpressionTask extends FlowTask {
             if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
               node.payload[node.assignAsPropertyFromObject][node.assignToProperty] = resultToPayload;
             } else {
+              services.flowEventRunner.setPropertyOnNode(node.name, node.assignToProperty, resultToPayload);
               node.payload[node.assignToProperty] = resultToPayload;
             }
 

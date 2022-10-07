@@ -16,13 +16,14 @@ import {
   readOnlyFlowrunnerStorageProvider,
   FormNodeDatasourceProvider,
   PositionProvider,
+  IFlowPackage,
 } from '@devhelpr/flowrunner-canvas-core';
 
 import { UserInterfaceView } from './userinterface-view';
 
 export interface IUIViewProps {
   flowId: string;
-  flowPackage?: any;
+  flowPackage?: IFlowPackage;
   showTitleBar?: boolean;
 }
 

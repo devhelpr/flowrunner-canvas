@@ -55,11 +55,13 @@ import {
   FlowStorageProviderService,
   INode,
   INodeFlowState,
+  registerTaskImplementationOverride,
 } from '@devhelpr/flowrunner-canvas-core';
 
 import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
 import { registerCustomPlugins } from './flow-plugins';
 import { createFlowrunnerStorageProvider } from './flow-localstorage-provider';
+import { ApiProxyTask } from './flow-plugins/api-custom-proxy-task';
 
 let flowRunnerConnectorInstance: IFlowrunnerConnector;
 const flowRunnerCanvasPluginRegisterFunctions: any[] = [];
@@ -106,6 +108,7 @@ const TestApp = (props: ITestAppProps) => {
       flowrunnerConnector={new FlowConnector()}
       onGetExamples={undefined}
       onGetExampleFlow={undefined}
+      hasCustomNodesAndRepository={false}
     ></FlowrunnerCanvas>
   );
 

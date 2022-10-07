@@ -23,11 +23,11 @@ export interface IFlowState extends State {
 
 const handleStorageProvider = (config) => (set, get, api) =>
   config(
-    async (args) => {
+    (args) => {
       // pre setstate
 
       // set state
-      set(args);
+      set(args)
 
       // after setstate
       let hasStorageProvider = false;
@@ -40,9 +40,10 @@ const handleStorageProvider = (config) => (set, get, api) =>
 
       if (storageProvider) {
         let flowState = get();
+
         console.log('PRE SAVEFLOW in handleStorageProvider', flowState.flow);
         if (storageProvider.isAsync) {
-          await storageProvider.saveFlow(flowState.flowId, flowState.flow);
+          return storageProvider.saveFlow(flowState.flowId, flowState.flow);
         } else {
           storageProvider.saveFlow(flowState.flowId, flowState.flow);
         }

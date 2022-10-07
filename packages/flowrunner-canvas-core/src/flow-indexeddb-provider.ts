@@ -1,5 +1,6 @@
-import { IStorageProvider } from './interfaces/IStorageProvider';
+import { IFlowInfo, IStorageProvider } from './interfaces/IStorageProvider';
 import * as uuid from 'uuid';
+import { IFlowPackage } from './interfaces/IFlowPackage';
 const uuidV4 = uuid.v4;
 let defaultflowId = '00000000-0000-0000-0000-000000000000';
 
@@ -262,16 +263,9 @@ function getTasks() {
   return [...tasks, ...additionalTasks];
 }
 
-function saveFlow(flowId: string, flow: any) {
+function saveFlow(flowId: string, flow: any[]) {
   return new Promise((resolve, reject) => {
     console.log('Saving flow', flowId, flow);
-    const flowPackage = {
-      flow: flow,
-      name: flowId,
-      id: flowId,
-      flowType: 'playground',
-    };
-    //localStorage.setItem('flow-' + flowId, JSON.stringify(flowPackage));
 
     transactions.push({
       flowId,
@@ -292,45 +286,9 @@ function getSelectedFlow() {
   return 'flow'; //localStorage.getItem('selected-flow') || 'flow';
 }
 
-function storeFlowPackage(flowPackage: any) {
-  return new Promise((resolve, reject) => {
-    if (flowPackage) {
-      saveFlow(getSelectedFlow(), flowPackage.flow);
-    }
-    //localStorage.setItem('flowPackage', JSON.stringify(flowPackage));
-    resolve(true);
-  });
-}
-function getFlowPackage() {
-  var packageAsString = localStorage.getItem('flowPackage');
-  if (packageAsString) {
-    return JSON.parse(packageAsString);
-  }
-  return JSON.parse(getDefaultFlow());
-  /*
-  return {
-    dummy: '',
-    flow: [],
-    layout: '{}',
-    selectedNode: {},
-    selectedFlow: 'flow',
-  };
-  */
-}
-
-function getDefaultFlows() {
-  return [
-    {
-      fileName: 'flow.json',
-      name: 'flow',
-      id: 'flow',
-      flowType: 'playground',
-    },
-  ];
-}
 function getFlows() {
   console.log('getFlows');
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<IFlowInfo[]>((resolve, reject) => {
     if (!database) {
       reject('No database');
       return;
@@ -388,7 +346,7 @@ function getDefaultFlow() {
 }
 
 function getFlow(flowId: string) {
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<IFlowPackage>((resolve, reject) => {
     if (!database) {
       reject('No database');
       return;
