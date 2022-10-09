@@ -69,9 +69,10 @@ export class ExpressionTask extends FlowTask {
           const currentValue = services.flowEventRunner.getPropertyFromNode(node.name, node.assignToProperty);
 
           if (node.forceNumeric === true) {
-            payload[node.assignToProperty] = parseFloat(currentValue) || 0;
+            payload[node.assignToProperty] =
+              parseFloat(currentValue) || (node.assignToProperty && parseFloat(payload[node.assignToProperty])) || 0;
           } else {
-            payload[node.assignToProperty] = currentValue;
+            payload[node.assignToProperty] = currentValue || payload[node.assignToProperty] || '';
           }
         }
 
