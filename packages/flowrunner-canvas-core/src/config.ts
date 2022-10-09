@@ -1660,6 +1660,13 @@ const taskTypeConfig: ITaskTypeConfig = {
               fieldType: 'text',
               visibilityCondition: "(fieldType=='slider')",
             },
+            {
+              fieldName: 'autoTrigger',
+              fieldType: 'checkbox',
+              label: 'AutoTrigger',
+              defaultValue: true,
+              visibilityCondition: "(fieldType=='triggerbutton')",
+            },
           ],
         },
         {

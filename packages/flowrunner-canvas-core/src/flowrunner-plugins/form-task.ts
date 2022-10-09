@@ -24,8 +24,7 @@ export class FormTask extends ObservableTask {
         if (metaInfo.fieldName) {
           if (metaInfo.fieldType === 'triggerbutton') {
             currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);
-            console.log('triggerbutton', currentValue);
-            if (currentValue === 'trigger') {
+            if (currentValue === 'trigger' || !!metaInfo.autoTrigger) {
               currentValue = '';
               values[metaInfo.fieldName] = '';
             } else {
