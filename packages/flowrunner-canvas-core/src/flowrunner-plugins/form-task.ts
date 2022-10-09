@@ -1,7 +1,5 @@
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
-import { FlowTask, ObservableTask } from '@devhelpr/flowrunner';
-import { current } from 'immer';
-import { E } from 'packages/flowrunner-canvas-core/dist/index2';
+import { ObservableTask } from '@devhelpr/flowrunner';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
