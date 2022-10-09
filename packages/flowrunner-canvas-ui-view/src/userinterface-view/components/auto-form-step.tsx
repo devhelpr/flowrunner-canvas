@@ -87,24 +87,24 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   const [payload, setPayload] = useState<any>({});
   const [currentValues, setCurrentValues] = useState<any>(undefined);
   const [isLastNode, setIsLastNode] = useState(false);
-  const [allFlowSteps , setAllFlowSteps] = useState<string[]>([]);
+  const [allFlowSteps, setAllFlowSteps] = useState<string[]>([]);
 
   const getFormFlowPath = (nodeName, nodeIndex) => {
-    let path : string[] = [];
+    let path: string[] = [];
     const nodeHash = flowHashmapRef.current.get(nodeName);
     if (nodeHash) {
-      const nodeByIndex =  flowRef.current[nodeHash.index];
-      if (nodeByIndex.taskType  === "FormTask" || nodeByIndex.taskType === "DebugTask") {
-        path.push( nodeByIndex.formStepTitle || nodeByIndex.formTitle || nodeByIndex.name);
+      const nodeByIndex = flowRef.current[nodeHash.index];
+      if (nodeByIndex.taskType === 'FormTask' || nodeByIndex.taskType === 'DebugTask') {
+        path.push(nodeByIndex.formStepTitle || nodeByIndex.formTitle || nodeByIndex.name);
       }
-    
+
       if (nodeHash.start.length > 0) {
-        const startNodeByIndex =  flowRef.current[nodeHash.start[0]];
+        const startNodeByIndex = flowRef.current[nodeHash.start[0]];
         if (startNodeByIndex) {
-          if (startNodeByIndex.taskType === "connection") {
+          if (startNodeByIndex.taskType === 'connection') {
             const startshapeHash = flowHashmapRef.current.get(startNodeByIndex.endshapeid);
             if (startshapeHash) {
-              const startshapeByIndex =  flowRef.current[startshapeHash.index];
+              const startshapeByIndex = flowRef.current[startshapeHash.index];
               if (startshapeByIndex) {
                 path = [...path, ...getFormFlowPath(startshapeByIndex.name, startshapeHash.index)];
               }
@@ -116,23 +116,28 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
       }
     }
     return path;
-  }
+  };
 
   useLayoutEffect(() => {
-    document.body.classList.add("auto-form-step__body");
+    document.body.classList.add('auto-form-step__body');
   }, []);
 
   useLayoutEffect(() => {
     flowRef.current = flow.flow;
     flowHashmapRef.current = flow.flowHashmap;
     if (flow.flow && flow.flowHashmap) {
-      let startNodeName = "";
+      let startNodeName = '';
       let startNodeIndex = -1;
-      let startNode : any = undefined;
+      let startNode: any = undefined;
       flow.flow.forEach((node, index) => {
-        if (node.taskType !== "connection" && node.taskType !== "FunctionInputTask" && node.taskType !== "Annotation" && node.taskType !== "Section") {
+        if (
+          node.taskType !== 'connection' &&
+          node.taskType !== 'FunctionInputTask' &&
+          node.taskType !== 'Annotation' &&
+          node.taskType !== 'Section'
+        ) {
           const nodeHash = flow.flowHashmap.get(node.name);
-          if (nodeHash) {
+          if (nodeHash && nodeHash.end) {
             if (!startNodeName && nodeHash.end.length === 0) {
               startNodeName = node.name;
               startNodeIndex = index;
@@ -143,9 +148,8 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
       });
 
       if (startNodeIndex >= 0) {
-
-        let helper : string[] = [] ;
-        if (startNode.taskType === "FormTask" && startNode.taskType === "DebugTask") {
+        let helper: string[] = [];
+        if (startNode.taskType === 'FormTask' && startNode.taskType === 'DebugTask') {
           helper = [startNodeName];
         }
         helper = [...helper, ...getFormFlowPath(startNodeName, startNodeIndex)];
@@ -255,13 +259,14 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
           const flowHash = flowHashmapRef.current.get(showNode);
           if (flowHash) {
             const nodeViaFlowHash = flowRef.current[flowHash.index];
-            if (nodeViaFlowHash && 
-                (nodeViaFlowHash.taskType === "FormTask" || nodeViaFlowHash.taskType === "DebugTask")) {
-
+            if (
+              nodeViaFlowHash &&
+              (nodeViaFlowHash.taskType === 'FormTask' || nodeViaFlowHash.taskType === 'DebugTask')
+            ) {
               title = nodeViaFlowHash.formStepTitle || nodeViaFlowHash.formTitle || showNode;
               setCurrentNode(nodeViaFlowHash);
 
-              setFlowSteps(flowSteps => [
+              setFlowSteps((flowSteps) => [
                 ...flowSteps,
                 {
                   nodeName: showNode,
@@ -271,8 +276,6 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
             }
           }
         }
-
-        
       }
     }
   };
@@ -293,9 +296,13 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   );
 
   useLayoutEffect(() => {
-    let registeredNode = currentNode?.name ?? "";
+    let registeredNode = currentNode?.name ?? '';
     if (currentNode && props.flowrunnerConnector) {
-      props.flowrunnerConnector?.registerFlowNodeObserver(currentNode.name, observableId.current, receivePayloadFromNode);
+      props.flowrunnerConnector?.registerFlowNodeObserver(
+        currentNode.name,
+        observableId.current,
+        receivePayloadFromNode,
+      );
     }
     setCurrentValues(undefined);
     if (registeredNode) {
@@ -324,16 +331,15 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   const onNextStep = (event) => {
     event.preventDefault();
 
-    if (currentNode && currentNode.taskType === "DebugTask") {
-
+    if (currentNode && currentNode.taskType === 'DebugTask') {
       if (props.flowrunnerConnector) {
         props.flowrunnerConnector?.modifyFlowNode(currentNode.name, '', undefined, currentNode.name, '', {
-          waitForUserSubmit: true
+          waitForUserSubmit: true,
         });
       }
       return;
     }
-  
+
     if (
       !formInfoRef.current ||
       (formInfoRef.current && formInfoRef.current.onCanSubmitForm && !formInfoRef.current.onCanSubmitForm())
@@ -449,7 +455,7 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 
     return (
       <>
-        <div className={`w-100 auto-form-step ${currentNode?.cssClassName ?? ""}`}>
+        <div className={`w-100 auto-form-step ${currentNode?.cssClassName ?? ''}`}>
           <h1>{currentNode.formTitle || currentNode.name}</h1>
           <div className="tw-flex tw-flex-row">
             {allFlowSteps.map((item, index) => {
@@ -457,17 +463,23 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
               if (currentNode) {
                 const currentStepTitle = currentNode.formStepTitle || currentNode.formTitle || currentNode.name;
                 if (currentStepTitle === item) {
-                  return <React.Fragment key={'flowstep' + index}>                
-                    {separator}
-                    <span><strong>{item}</strong></span>
-                  </React.Fragment>;
+                  return (
+                    <React.Fragment key={'flowstep' + index}>
+                      {separator}
+                      <span>
+                        <strong>{item}</strong>
+                      </span>
+                    </React.Fragment>
+                  );
                 }
               }
-              const className = flowSteps.find(step => step.title === item) ? "" : "tw-text-gray-300";
-              return <React.Fragment key={'flowstep' + index}>                
-                {separator}
-                <span className={className}>{item}</span>
-              </React.Fragment>;
+              const className = flowSteps.find((step) => step.title === item) ? '' : 'tw-text-gray-300';
+              return (
+                <React.Fragment key={'flowstep' + index}>
+                  {separator}
+                  <span className={className}>{item}</span>
+                </React.Fragment>
+              );
             })}
           </div>
           <div className="py-3">

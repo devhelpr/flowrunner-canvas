@@ -20,6 +20,8 @@ export * from './interfaces/shape-types';
 export * from './interfaces/INode';
 export * from './interfaces/INodeFlowState';
 export * from './interfaces/IFlowPackage';
+export * from './interfaces/IFlowMap';
+export type { TFlowMap } from './interfaces/IFlowMap';
 
 export { setCustomConfig, registerCustomNodeType, getTaskConfig, getTaskConfigForTask } from './config';
 export { getFlowAgent } from './flow-agent';

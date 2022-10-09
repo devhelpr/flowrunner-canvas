@@ -49,7 +49,7 @@ export const useSetPositionHook = (
 
     if (!linesOnly) {
       if (draggingMultipleNodes.current && draggingMultipleNodes.current.length == 0) {
-        flowStore.flow.map(flowNode => {
+        flowStore.flow.map((flowNode) => {
           if (flowNode.name !== node.name) {
             // node is not selected or handled by this setNewPositionForNode call
             /*if (shapeRefs[flowNode.name]) {
@@ -270,8 +270,8 @@ export const useSetPositionHook = (
     const startLines = FlowToCanvas.getLinesForStartNodeFromCanvasFlow(flowStore.flow, node, flowStore.flowHashmap);
     let lines = {};
     if (startLines) {
-      startLines.map(lineNode => {
-        let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+      startLines.map((lineNode) => {
+        let endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid)?.index ?? -1];
         const positionLine = positionContext.getPosition(lineNode.name) || lineNode;
         let endPos = {
           x: positionLine.xend,
@@ -389,8 +389,8 @@ export const useSetPositionHook = (
 
     const endLines = FlowToCanvas.getLinesForEndNodeFromCanvasFlow(flowStore.flow, node, flowStore.flowHashmap);
     if (endLines) {
-      endLines.map(lineNode => {
-        let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
+      endLines.map((lineNode) => {
+        let startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid)?.index ?? -1];
         let positionNode: any = undefined;
         if (startNode) {
           positionNode = positionContext.getPosition(startNode.name) || startNode;
@@ -501,14 +501,14 @@ export const useSetPositionHook = (
 
     if (node.shapeType === 'Line') {
       newPosition = positionContext.getPosition(node.name);
-      let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid).index];
+      let endNode = flowStore.flow[flowStore.flowHashmap.get(node.endshapeid)?.index ?? -1];
       let newEndPosition: any = {
         x: 0,
         y: 0,
       };
       if (node.endshapeid) {
         if (endNode) {
-          let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];
+          let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid)?.index ?? -1];
           const positionStartNode = positionContext.getPosition(startNode.name) || startNode;
 
           const positionNode = positionContext.getPosition(endNode.name) || endNode;
@@ -529,7 +529,7 @@ export const useSetPositionHook = (
       }
 
       if (node.startshapeid) {
-        let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid).index];
+        let startNode = flowStore.flow[flowStore.flowHashmap.get(node.startshapeid)?.index ?? -1];
         if (startNode) {
           const positionNode = positionContext.getPosition(startNode.name) || startNode;
           let newStartPosition = FlowToCanvas.getStartPointForLine(

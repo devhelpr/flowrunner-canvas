@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, RefObject, useImperativeHandle , useRef, useMemo} from 'react';
+import { useState, useEffect, RefObject, useImperativeHandle, useRef, useMemo } from 'react';
 
 import useImage from 'use-image';
 import { Group, Text, Rect as KonvaRect, Image as KonvaImage, Line as KonvaLine } from 'react-konva';
@@ -9,271 +9,286 @@ import { ShapeSettings } from '@devhelpr/flowrunner-canvas-core';
 import { Lines } from './line-helper';
 
 const getStrokeColor = (backgroundColorString, settings) => {
-	switch (backgroundColorString)  {
-		case "background-yellow": {
-			return "#f0e938";
-		}
-		case "background-orange": {
-			return "#f8a523";
-		}
-		case "background-blue": {
-			return "#36a4f9";
-		}
-		case "background-green": {
-			return "#3bee76";
-		}
-		case "background-purple": {
-			return "#cc8aee";
-		}
-		default: {
-			return settings.strokeColor;
-		}
-	}
-}
+  switch (backgroundColorString) {
+    case 'background-yellow': {
+      return '#f0e938';
+    }
+    case 'background-orange': {
+      return '#f8a523';
+    }
+    case 'background-blue': {
+      return '#36a4f9';
+    }
+    case 'background-green': {
+      return '#3bee76';
+    }
+    case 'background-purple': {
+      return '#cc8aee';
+    }
+    default: {
+      return settings.strokeColor;
+    }
+  }
+};
 
 const getFillColor = (backgroundColorString, settings) => {
-	switch (backgroundColorString)  {
-		case "background-yellow": {
-			return "#fbf791";
-		}
-		case "background-orange": {
-			return "#f4c67d";
-		}
-		case "background-blue": {
-			return "#86c6f8";
-		}
-		case "background-green": {
-			return "#7df4a4";
-		}
-		case "background-purple": {
-			return "#e2bcf5";
-		}
-		default: {
-			return settings.fillColor;
-		}
-	}
-}
+  switch (backgroundColorString) {
+    case 'background-yellow': {
+      return '#fbf791';
+    }
+    case 'background-orange': {
+      return '#f4c67d';
+    }
+    case 'background-blue': {
+      return '#86c6f8';
+    }
+    case 'background-green': {
+      return '#7df4a4';
+    }
+    case 'background-purple': {
+      return '#e2bcf5';
+    }
+    default: {
+      return settings.fillColor;
+    }
+  }
+};
 
-export const Rect = React.forwardRef((props: ShapeTypeProps, ref : any) => {
-	const settings = useMemo(() => ShapeSettings.getShapeSettings(props.taskType, props.node),
-		[props.taskType, props.node]);
-	
-	const [image] = useImage("/svg/layout.svg");
-	const [cogImage] = useImage("/svg/cog.svg");
-	const groupRef = useRef(null as any);
+export const Rect = React.forwardRef((props: ShapeTypeProps, ref: any) => {
+  const settings = useMemo(
+    () => ShapeSettings.getShapeSettings(props.taskType, props.node),
+    [props.taskType, props.node],
+  );
 
-	let rect : any = useRef(null as any);	
-	let textRef : any = undefined;
-	let skewX = 0;
-	let skewXOffset = 0;
-	let includeSvgIcon = false;
+  const [image] = useImage(`${(window as any).globalPathImages || ''}/assets/svg/layout.svg`);
+  const [cogImage] = useImage(`${(window as any).globalPathImages || ''}/assets/svg/cog.svg`);
+  const groupRef = useRef(null as any);
 
-	if (settings.isSkewed) {
-		skewX = -0.5;
-		skewXOffset = (ShapeMeasures.rectWidht/8);
-	}
+  let rect: any = useRef(null as any);
+  let textRef: any = undefined;
+  let skewX = 0;
+  let skewXOffset = 0;
+  let includeSvgIcon = false;
 
-	if (props.node && props.node.objectSchema) {
-		if (props.node.objectSchema == "layout") {
-			includeSvgIcon = true;			
-		}
-	}
-	
-	useEffect(() => {
-		if (rect && rect.current) {			
-			rect.current.skew({
-				x: skewX,
-				y: 0
-			});
-			//rect.current.cache();
-		}
+  if (settings.isSkewed) {
+    skewX = -0.5;
+    skewXOffset = ShapeMeasures.rectWidht / 8;
+  }
 
-		if (textRef) {
-			textRef.cache();
-		}
-		
-	});
+  if (props.node && props.node.objectSchema) {
+    if (props.node.objectSchema == 'layout') {
+      includeSvgIcon = true;
+    }
+  }
 
-	const setRef = (ref) => {
-		rect.current = ref;
-		if (rect.current) {
-			rect.current.skew({
-				x: skewX,
-				y: 0
-			});
-		}
-	}	
+  useEffect(() => {
+    if (rect && rect.current) {
+      rect.current.skew({
+        x: skewX,
+        y: 0,
+      });
+      //rect.current.cache();
+    }
 
-	const setTextRef =  (ref) => {
-		textRef = ref;		
-	}	
+    if (textRef) {
+      textRef.cache();
+    }
+  });
 
-	
-	useImperativeHandle(ref, () => ({
-		getGroupRef: () => {
-			return groupRef.current;
-		},
-		modifyShape: (action : ModifyShapeEnum, parameters : any) => {
-			switch (+action) {
-				case ModifyShapeEnum.GetShapeType : {
-					return "rect";
-					break;
-				}
-				case ModifyShapeEnum.GetXY : {
-					if (groupRef && groupRef.current) {
-						return {
-							x: (groupRef.current as any).x(),
-							y: (groupRef.current as any).y(),
-						}
-					}
-					break;
-				}
-				case ModifyShapeEnum.SetXY : {
-					if (groupRef && groupRef.current && parameters) {
-						groupRef.current.x(parameters.x);
-						groupRef.current.y(parameters.y);
-					}
-					break;
-				}
-				case ModifyShapeEnum.SetOpacity : {
-					if (groupRef && groupRef.current && parameters) {
-						groupRef.current.opacity(parameters.opacity);						
-					}
-					break;
-				}
-				case ModifyShapeEnum.SetPoints : {
-					break;
-				}
-				case ModifyShapeEnum.SetState : {
-					if (rect && rect.current && parameters) {
-						if (parameters.state == ShapeStateEnum.Selected) {
-							rect.current.to({
-								duration: 0.15,
-								stroke:settings.strokeColor,
-								fill:settings.fillSelectedColor
-							});
-						} else
-						if (parameters.state == ShapeStateEnum.Default) {
-							let strokeColor = settings.strokeColor;
-							let fillColor = settings.fillColor;
+  const setRef = (ref) => {
+    rect.current = ref;
+    if (rect.current) {
+      rect.current.skew({
+        x: skewX,
+        y: 0,
+      });
+    }
+  };
 
-							if (settings.background) {
-								strokeColor = getStrokeColor(settings.background, settings);
-								fillColor = getFillColor(settings.background, settings);
-							}
-							rect.current.to({
-								duration: 0.15,
-								stroke:strokeColor,
-								fill:fillColor
-							});
-						}
-					}
+  const setTextRef = (ref) => {
+    textRef = ref;
+  };
 
-					break;
-				}
-				default:
-					break;
-			}
-		}
-	}));
+  useImperativeHandle(ref, () => ({
+    getGroupRef: () => {
+      return groupRef.current;
+    },
+    modifyShape: (action: ModifyShapeEnum, parameters: any) => {
+      switch (+action) {
+        case ModifyShapeEnum.GetShapeType: {
+          return 'rect';
+          break;
+        }
+        case ModifyShapeEnum.GetXY: {
+          if (groupRef && groupRef.current) {
+            return {
+              x: (groupRef.current as any).x(),
+              y: (groupRef.current as any).y(),
+            };
+          }
+          break;
+        }
+        case ModifyShapeEnum.SetXY: {
+          if (groupRef && groupRef.current && parameters) {
+            groupRef.current.x(parameters.x);
+            groupRef.current.y(parameters.y);
+          }
+          break;
+        }
+        case ModifyShapeEnum.SetOpacity: {
+          if (groupRef && groupRef.current && parameters) {
+            groupRef.current.opacity(parameters.opacity);
+          }
+          break;
+        }
+        case ModifyShapeEnum.SetPoints: {
+          break;
+        }
+        case ModifyShapeEnum.SetState: {
+          if (rect && rect.current && parameters) {
+            if (parameters.state == ShapeStateEnum.Selected) {
+              rect.current.to({
+                duration: 0.15,
+                stroke: settings.strokeColor,
+                fill: settings.fillSelectedColor,
+              });
+            } else if (parameters.state == ShapeStateEnum.Default) {
+              let strokeColor = settings.strokeColor;
+              let fillColor = settings.fillColor;
 
-	let strokeColor = settings.strokeColor;
-	let fillColor = props.isSelected ? settings.fillSelectedColor : settings.fillColor;
-	if (!props.isSelected && settings.background) {
-		strokeColor = getStrokeColor(settings.background, settings);
-		fillColor = getFillColor(settings.background, settings);
-	}
+              if (settings.background) {
+                strokeColor = getStrokeColor(settings.background, settings);
+                fillColor = getFillColor(settings.background, settings);
+              }
+              rect.current.to({
+                duration: 0.15,
+                stroke: strokeColor,
+                fill: fillColor,
+              });
+            }
+          }
 
-	//ref={ref} (group)
-	return <>
-		<Group
-			ref={groupRef}
-			x={props.x}
-			y={props.y}
-			transformsEnabled={settings.isSkewed ? "all" : "position"}
-			draggable={false}
-			order={0}
-			onTouchStart={props.onTouchStart}
-			onTouchMove={props.onTouchMove}
-			onTouchEnd={props.onTouchEnd}
-			onDragStart={props.onDragStart}
-			onDragMove={props.onDragMove}
-			onDragEnd={props.onDragEnd}
-			onMouseOver={props.onMouseOver}
-			onMouseOut={props.onMouseOut}
-			onMouseDown={props.onMouseStart}
-			onMouseMove={props.onMouseMove}
-			onMouseUp={props.onMouseEnd}
-			onMouseLeave={props.onMouseLeave}
-			onClick={props.onClickShape}
-			listening={true}		
-			opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
-			>
-			<KonvaRect
-				ref={ref => (setRef(ref))}
-				x={skewXOffset}
-				y={0}
-				stroke={strokeColor}
-				hitStrokeWidth={0}			
-				strokeWidth={4}
-				listening={true}
-				cornerRadius={settings.cornerRadius}
-				transformsEnabled={settings.isSkewed ? "all" : "position"}
-				width={ShapeMeasures.rectWidht}
-				height={ShapeMeasures.rectHeight}
-				fill={fillColor}  
-				perfectDrawEnabled={false}>
-			</KonvaRect>
-			{settings.subShapeType && settings.subShapeType == "Model" && <KonvaLine
-				points={[skewXOffset,10,(skewXOffset+ShapeMeasures.rectWidht),10]}
-				stroke={settings.strokeColor} 
-				transformsEnabled={"position"}
-				listening={false}
-				perfectDrawEnabled={false}
-				strokeWidth={4}
-			></KonvaLine>}
-			{includeSvgIcon && <KonvaImage image={image}
-				pathColor={settings.textColor} 		
-				width={Math.round(ShapeMeasures.rectWidht / 4)}
-				height={Math.round(ShapeMeasures.rectWidht / 4)}			
-				keepRatio={true}
-				listening={false}
-				perfectDrawEnabled={false}
-				transformsEnabled={"position"}
-				x={Math.round((ShapeMeasures.rectWidht / 2) - (ShapeMeasures.rectWidht / 8))}
-				y={8} 
-			/>}
-			<Text
-				ref={ref => (setTextRef(ref))}
-				x={0}
-				y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
-				text={!!props.hasTaskNameAsNodeTitle ? props.node.taskType : props.node && props.node.label ? props.node.label : props.name}
-				align='center'
-				fontSize={18}
-				transformsEnabled={"position"}
-				width={ShapeMeasures.rectWidht}
-				height={ShapeMeasures.rectHeight}
-				verticalAlign="middle"
-				listening={false}
-				wrap="none"
-				ellipsis={true}
-				fill={settings.textColor}
-				perfectDrawEnabled={false}>
-			</Text>
-			{!!settings.hasConfigMenu && <KonvaImage image={cogImage}
-				pathColor={settings.textColor} 
-				transformsEnabled={"position"}
-				listening={true}
-				perfectDrawEnabled={false}		
-				width={Math.round(ShapeMeasures.rectWidht / 8)}
-				height={Math.round(ShapeMeasures.rectWidht / 8)}
-				keepRatio={true}
-				x={Math.round(ShapeMeasures.rectWidht - (ShapeMeasures.rectWidht / 8) - 4)}
-				y={4}
-				onClick={props.onClickSetup} 
-			/>}
-		</Group>			
-	</>
+          break;
+        }
+        default:
+          break;
+      }
+    },
+  }));
+
+  let strokeColor = settings.strokeColor;
+  let fillColor = props.isSelected ? settings.fillSelectedColor : settings.fillColor;
+  if (!props.isSelected && settings.background) {
+    strokeColor = getStrokeColor(settings.background, settings);
+    fillColor = getFillColor(settings.background, settings);
+  }
+
+  //ref={ref} (group)
+  return (
+    <>
+      <Group
+        ref={groupRef}
+        x={props.x}
+        y={props.y}
+        transformsEnabled={settings.isSkewed ? 'all' : 'position'}
+        draggable={false}
+        order={0}
+        onTouchStart={props.onTouchStart}
+        onTouchMove={props.onTouchMove}
+        onTouchEnd={props.onTouchEnd}
+        onDragStart={props.onDragStart}
+        onDragMove={props.onDragMove}
+        onDragEnd={props.onDragEnd}
+        onMouseOver={props.onMouseOver}
+        onMouseOut={props.onMouseOut}
+        onMouseDown={props.onMouseStart}
+        onMouseMove={props.onMouseMove}
+        onMouseUp={props.onMouseEnd}
+        onMouseLeave={props.onMouseLeave}
+        onClick={props.onClickShape}
+        listening={true}
+        opacity={props.canvasHasSelectedNode && !props.isSelected && !props.isConnectedToSelectedNode ? 1 : 1}
+      >
+        <KonvaRect
+          ref={(ref) => setRef(ref)}
+          x={skewXOffset}
+          y={0}
+          stroke={strokeColor}
+          hitStrokeWidth={0}
+          strokeWidth={4}
+          listening={true}
+          cornerRadius={settings.cornerRadius}
+          transformsEnabled={settings.isSkewed ? 'all' : 'position'}
+          width={ShapeMeasures.rectWidht}
+          height={ShapeMeasures.rectHeight}
+          fill={fillColor}
+          perfectDrawEnabled={false}
+        ></KonvaRect>
+        {settings.subShapeType && settings.subShapeType == 'Model' && (
+          <KonvaLine
+            points={[skewXOffset, 10, skewXOffset + ShapeMeasures.rectWidht, 10]}
+            stroke={settings.strokeColor}
+            transformsEnabled={'position'}
+            listening={false}
+            perfectDrawEnabled={false}
+            strokeWidth={4}
+          ></KonvaLine>
+        )}
+        {includeSvgIcon && (
+          <KonvaImage
+            image={image}
+            pathColor={settings.textColor}
+            width={Math.round(ShapeMeasures.rectWidht / 4)}
+            height={Math.round(ShapeMeasures.rectWidht / 4)}
+            keepRatio={true}
+            listening={false}
+            perfectDrawEnabled={false}
+            transformsEnabled={'position'}
+            x={Math.round(ShapeMeasures.rectWidht / 2 - ShapeMeasures.rectWidht / 8)}
+            y={8}
+          />
+        )}
+        <Text
+          ref={(ref) => setTextRef(ref)}
+          x={0}
+          y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
+          text={
+            !!props.hasTaskNameAsNodeTitle
+              ? props.node.taskType
+              : props.node && props.node.label
+              ? props.node.label
+              : props.name
+          }
+          align="center"
+          fontSize={18}
+          transformsEnabled={'position'}
+          width={ShapeMeasures.rectWidht}
+          height={ShapeMeasures.rectHeight}
+          verticalAlign="middle"
+          listening={false}
+          wrap="none"
+          ellipsis={true}
+          fill={settings.textColor}
+          perfectDrawEnabled={false}
+        ></Text>
+        {!!settings.hasConfigMenu && (
+          <KonvaImage
+            image={cogImage}
+            pathColor={settings.textColor}
+            transformsEnabled={'position'}
+            listening={true}
+            perfectDrawEnabled={false}
+            width={Math.round(ShapeMeasures.rectWidht / 8)}
+            height={Math.round(ShapeMeasures.rectWidht / 8)}
+            keepRatio={true}
+            x={Math.round(ShapeMeasures.rectWidht - ShapeMeasures.rectWidht / 8 - 4)}
+            y={4}
+            onClick={props.onClickSetup}
+          />
+        )}
+      </Group>
+    </>
+  );
 });
 
 /*

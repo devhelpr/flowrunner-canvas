@@ -35,6 +35,7 @@ import {
   setOnSetCanvasStateCallback,
   INodeFlowState,
   INode,
+  TFlowMap,
 } from '@devhelpr/flowrunner-canvas-core';
 import { Subject } from 'rxjs';
 import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
@@ -60,6 +61,8 @@ import { FloatingToolbar } from '../toolbar/floating-toolbar';
 import { useSetPositionHook } from './hooks/use-set-position-hook';
 import { getWidthForHtmlNode } from './utils';
 import { AnnotationActor } from './annotations/annotation-actor';
+import { addNodeToEnd, insertNode } from './manipulation/insert-node';
+import { SelectTask } from '../select-task';
 
 const uuidV4 = uuid.v4;
 
@@ -116,6 +119,7 @@ export const Canvas = (props: CanvasProps) => {
   const [canvasKey, setCanvasKey] = useState(1);
   const [showNodeSettings, setShowNodeSettings] = useState(false);
   const [showNodeEdit, setShowNodeEdit] = useState(false);
+  const [showSelectTask, setShowSelectTask] = useState('');
   const [editNode, setEditNode] = useState(undefined);
   const [editNodeSettings, setEditNodeSettings] = useState(undefined);
   const [isConnectingNodesByDragging, setIsConnectingNodesByDragging] = useState(false);
@@ -132,7 +136,7 @@ export const Canvas = (props: CanvasProps) => {
   const selectNode = props.useSelectedNodeStore((state) => state.selectNode) as any;
   const touchedNodesStore = useNodesTouchedStateStore();
 
-  let flowStoreHashMap = useRef(null);
+  let flowStoreHashMap = useRef<TFlowMap | null>(null);
   let flowStoreFlow = useRef<any[] | null>(null);
   let currentFlowId = useRef<string | number | undefined>('');
 
@@ -2234,8 +2238,8 @@ export const Canvas = (props: CanvasProps) => {
 
             if ((touchNode.current as any).shapeType === 'Line') {
               let lineNode = touchNode.current as any;
-              if (lineNode.startshapeid) {
-                const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
+              if (lineNode.startshapeid && flowStore.flowHashmap) {
+                const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid)?.index ?? -1];
                 if (startNode) {
                   setNewPositionForNode(
                     event,
@@ -2259,7 +2263,7 @@ export const Canvas = (props: CanvasProps) => {
                 }
               }
               if (lineNode.endshapeid) {
-                const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+                const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid)?.index ?? -1];
                 if (endNode) {
                   setNewPositionForNode(
                     event,
@@ -3068,7 +3072,7 @@ export const Canvas = (props: CanvasProps) => {
           if (touchNode.current && (touchNode.current as any).shapeType === 'Line') {
             let lineNode = touchNode.current as any;
             if (lineNode.startshapeid) {
-              const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid).index];
+              const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid)?.index ?? -1];
               if (startNode) {
                 setNewPositionForNode(
                   event,
@@ -3092,7 +3096,7 @@ export const Canvas = (props: CanvasProps) => {
               }
             }
             if (lineNode.endshapeid) {
-              const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid).index];
+              const endNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.endshapeid)?.index ?? -1];
               if (endNode) {
                 setNewPositionForNode(
                   event,
@@ -3615,7 +3619,7 @@ export const Canvas = (props: CanvasProps) => {
     } else {
       const mappedNode = flowStore.flowHashmap.get(node.name);
       if (mappedNode) {
-        if (mappedNode.end.length > 0) {
+        if (mappedNode.end && (mappedNode.end?.length ?? -1) > 0) {
           const lineNode = flowStore.flow[mappedNode.end[0]];
 
           if (!lineNode) {
@@ -5166,7 +5170,13 @@ export const Canvas = (props: CanvasProps) => {
       const mappedNode = flowStore.flowHashmap.get(existingNode.name);
       // an existing node that is already connected on both ends, shall not
       // be auto connected to other nodes
-      if (mappedNode.start.length > 0 && mappedNode.end.length > 0) {
+      if (
+        mappedNode &&
+        mappedNode.start &&
+        mappedNode.start.length > 0 &&
+        mappedNode.end &&
+        mappedNode.end.length > 0
+      ) {
         console.log('movingExistingOrNewNodeOnCanvas mappedNode.start.length > 0 && mappedNode.end.length > 0');
         return;
       }
@@ -5942,9 +5952,54 @@ export const Canvas = (props: CanvasProps) => {
     //return false;
   };
 
+  const onCloseSelectTask = () => {
+    setShowSelectTask('');
+  };
+
+  const onSelectedTask = (taskName) => {
+    if (!flowStoreHashMap.current) {
+      setShowSelectTask('');
+      return;
+    }
+    if (showSelectTask === 'INSERTNODEONLINE') {
+      insertNode(
+        selectedNodeRef.current.node,
+        flowStoreHashMap.current,
+        flowStoreFlow.current,
+        flowStore,
+        props.getNodeInstance,
+        positionContext.context,
+        taskName,
+      );
+    } else if (showSelectTask === 'ADDNEWNODEAFTERNODE') {
+      addNodeToEnd(
+        selectedNodeRef.current.node,
+        flowStoreHashMap.current,
+        flowStoreFlow.current,
+        flowStore,
+        props.getNodeInstance,
+        positionContext.context,
+        taskName,
+      );
+    }
+
+    setShowSelectTask('');
+  };
+
   const onKeyUp = (event) => {
     ctrlDown.current = false;
     shiftDown.current = false;
+
+    if (event.keyCode === 45) {
+      // insert key
+      if (flowStoreHashMap.current && selectedNodeRef.current && selectedNodeRef.current.node !== undefined) {
+        if (selectedNodeRef.current.node.shapeType === 'Line') {
+          setShowSelectTask('INSERTNODEONLINE');
+        } else {
+          setShowSelectTask('ADDNEWNODEAFTERNODE');
+        }
+      }
+    }
   };
 
   const onStoreFlowNode = (node: any, orgNodeName: string) => {
@@ -6290,7 +6345,7 @@ export const Canvas = (props: CanvasProps) => {
                                 }
 
                                 if (node.endshapeid !== undefined) {
-                                  const endIndex = flowStore.flowHashmap.get(node.endshapeid).index;
+                                  const endIndex = flowStore.flowHashmap.get(node.endshapeid)?.index ?? -1;
                                   if (endIndex >= 0) {
                                     const endNode = flowStore.flow[endIndex];
                                     if (endNode) {
@@ -6517,6 +6572,14 @@ export const Canvas = (props: CanvasProps) => {
           flowrunnerConnector={props.flowrunnerConnector}
           onClose={onCloseEditNode}
         ></EditNodePopup>
+      )}
+      {showSelectTask && (
+        <SelectTask
+          hasDefaultUITasks={props.hasDefaultUITasks}
+          onClose={onCloseSelectTask}
+          onSelectedTask={onSelectedTask}
+          flowrunnerConnector={props.flowrunnerConnector}
+        ></SelectTask>
       )}
       <Flow flow={flowStore.flow} flowId={flowStore.flowId} flowrunnerConnector={props.flowrunnerConnector} />
     </>

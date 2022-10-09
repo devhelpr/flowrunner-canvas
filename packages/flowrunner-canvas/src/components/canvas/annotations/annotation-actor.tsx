@@ -31,7 +31,7 @@ export interface IAnnotationActorProps {
 export const AnnotationActor = React.forwardRef((props: IAnnotationActorProps, ref: any) => {
   let rect: any = useRef(null as any);
   let actor: any = useRef(null as any);
-  const [image] = useImage('/assets/svg/actor.svg');
+  const [image] = useImage(`${(window as any).globalPathImages || ''}/assets/svg/actor.svg`);
   const setRef = (ref) => {
     rect.current = ref;
   };

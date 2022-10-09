@@ -51,7 +51,7 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
         return '#f8a523';
       }
       case 'blue': {
-        return '#36a4f9';
+        return '#000040';
       }
       case 'green': {
         return '#004000';
@@ -77,7 +77,7 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
         return '#f4c67d';
       }
       case 'blue': {
-        return '#86c6f8';
+        return '#000083';
       }
       case 'green': {
         return '#008300';

@@ -6,6 +6,7 @@ import { ShapeSettings } from './shape-settings';
 import { pointOnRect } from './intersect';
 import { cubicBezierAABB } from 'bezier-intersect';
 import { calculateLineControlPoints } from './line-points';
+import { INodeMapInfo, TFlowMap } from '../interfaces/IFlowMap';
 
 export class FlowToCanvas {
   static convertFlowPackageToCanvasFlow(flow, positionContext?: IPositionContext) {
@@ -15,8 +16,8 @@ export class FlowToCanvas {
     const startPerf = performance.now();
     const resultFlow = flow.map((node, index) => {
       if (node.shapeType === 'line') {
-        const shartShapes = flow.filter(startnode => startnode.name === node.startshapeid);
-        const endShapes = flow.filter(endnode => endnode.name === node.endshapeid);
+        const shartShapes = flow.filter((startnode) => startnode.name === node.startshapeid);
+        const endShapes = flow.filter((endnode) => endnode.name === node.endshapeid);
 
         if (shartShapes.length >= 1 && endShapes.length >= 1) {
           const startPosition = FlowToCanvas.getStartPointForLine(
@@ -58,9 +59,9 @@ export class FlowToCanvas {
     return resultFlow;
   }
 
-  static createFlowHashMap = flow => {
+  static createFlowHashMap = (flow) => {
     const startPerf = performance.now();
-    let flowHashMap = new Map();
+    let flowHashMap: TFlowMap = new Map();
     if (!flow) {
       return flowHashMap;
     }
@@ -81,8 +82,10 @@ export class FlowToCanvas {
       } else {
         if (flowHashMap.has(node.startshapeid)) {
           let copy = flowHashMap.get(node.startshapeid);
-          copy.start.push(index);
-          flowHashMap.set(node.startshapeid, { ...copy });
+          if (copy && copy.start) {
+            copy.start.push(index);
+            flowHashMap.set(node.startshapeid, { ...copy });
+          }
           //startNode.start.push(index);
         } else {
           flowHashMap.set(node.startshapeid, {
@@ -105,8 +108,10 @@ export class FlowToCanvas {
 
         if (flowHashMap.has(node.endshapeid)) {
           let copy = flowHashMap.get(node.endshapeid);
-          copy.end.push(index);
-          flowHashMap.set(node.endshapeid, { ...copy });
+          if (copy && copy.end) {
+            copy.end.push(index);
+            flowHashMap.set(node.endshapeid, { ...copy });
+          }
         } else {
           flowHashMap.set(node.endshapeid, {
             index: -1,
@@ -312,7 +317,7 @@ export class FlowToCanvas {
 
       return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
-        y: newPosition.y - (isEvent ? (-32 + -4 - 32 - 8) - 12 : -8 + -4 - 32 - 8),
+        y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 - 12 : -8 + -4 - 32 - 8),
       };
 
       //return result;
@@ -545,7 +550,7 @@ export class FlowToCanvas {
     const startConnection = flowHashMap.get(startNode.name);
     if (startConnection) {
       let nodes: any[] = [];
-      flowHashMap.get(flow[startConnection.index].name).start.map(startIndex => {
+      flowHashMap.get(flow[startConnection.index].name).start.map((startIndex) => {
         let connection = flow[startIndex];
         if (connection) {
           nodes.push(connection);
@@ -564,7 +569,7 @@ export class FlowToCanvas {
     const endConnection = flowHashMap.get(endNode.name);
     if (endConnection) {
       let nodes: any[] = [];
-      flowHashMap.get(flow[endConnection.index].name).end.map(endIndex => {
+      flowHashMap.get(flow[endConnection.index].name).end.map((endIndex) => {
         let connection = flow[endIndex];
         if (connection) {
           nodes.push(connection);

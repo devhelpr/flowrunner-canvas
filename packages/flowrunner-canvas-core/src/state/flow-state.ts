@@ -5,11 +5,12 @@ import produce from 'immer';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 import { FlowStorageProviderService } from '../services/FlowStorageProviderService';
 import { IPosition, IPositionContext } from '../contexts/position-context';
+import { TFlowMap } from '../interfaces/IFlowMap';
 
 export interface IFlowState extends State {
   flow: any[];
   flowId: string;
-  flowHashmap: any;
+  flowHashmap: TFlowMap;
   storeFlow: (flow: any[], flowId: string, positionContext?: IPositionContext) => void;
   storeFlowNode: (node: any, orgNodeName: string, positionContext?: IPositionContext) => void;
   storeFlowNodes: (node: any, positionContext?: IPositionContext) => void;
@@ -27,7 +28,7 @@ const handleStorageProvider = (config) => (set, get, api) =>
       // pre setstate
 
       // set state
-      set(args)
+      set(args);
 
       // after setstate
       let hasStorageProvider = false;
