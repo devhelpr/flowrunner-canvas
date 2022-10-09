@@ -30,7 +30,9 @@ export const TriggerButton = (props: IFormControlProps) => {
         onClick={(event) => {
           event.preventDefault();
           if (props.flowrunnerConnector) {
-            props.flowrunnerConnector.executeFlowNode(props.node.name, {});
+            props.flowrunnerConnector?.modifyFlowNode(props.node.name, props.fieldName, 'trigger', props.node.name, '');
+
+            //props.flowrunnerConnector.executeFlowNode(props.node.name, props.payload || {});
           }
           return false;
         }}

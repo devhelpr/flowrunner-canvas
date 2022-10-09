@@ -1,5 +1,7 @@
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 import { FlowTask, ObservableTask } from '@devhelpr/flowrunner';
+import { current } from 'immer';
+import { E } from 'packages/flowrunner-canvas-core/dist/index2';
 import * as uuid from 'uuid';
 const uuidV4 = uuid.v4;
 
@@ -22,39 +24,51 @@ export class FormTask extends ObservableTask {
       (metaInfoDefinition || []).map((metaInfo, index) => {
         let currentValue;
         if (metaInfo.fieldName) {
-          currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);
-          if (currentValue !== undefined) {
-            // TODO : (naiev approach)
-            // (.. check if metaInfo.fieldType == select/radiobutton)
-            // .. check if currentValue exists in datasource
-            // .. if not.. then use defaultValue or ""
+          if (metaInfo.fieldType === 'triggerbutton') {
+            currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);
+            console.log('triggerbutton', currentValue);
+            if (currentValue === 'trigger') {
+              currentValue = '';
+              values[metaInfo.fieldName] = '';
+            } else {
+              currentValue = undefined;
+              values[metaInfo.fieldName] = undefined;
+              isValid = false;
+            }
+          } else {
+            currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);
+            if (currentValue !== undefined) {
+              // TODO : (naiev approach)
+              // (.. check if metaInfo.fieldType == select/radiobutton)
+              // .. check if currentValue exists in datasource
+              // .. if not.. then use defaultValue or ""
 
-            if (metaInfo.datasource && node.payload[metaInfo.datasource]) {
-              const datasource = node.payload[metaInfo.datasource];
-              if (datasource) {
-                let isFound = false;
-                datasource.map(item => {
-                  if (typeof item === "string" || typeof item === "number") {
-                    if (item.toString() === currentValue) {
+              if (metaInfo.datasource && node.payload[metaInfo.datasource]) {
+                const datasource = node.payload[metaInfo.datasource];
+                if (datasource) {
+                  let isFound = false;
+                  datasource.map((item) => {
+                    if (typeof item === 'string' || typeof item === 'number') {
+                      if (item.toString() === currentValue) {
+                        isFound = true;
+                      }
+                    } else if (item.value !== undefined && item.value === currentValue) {
                       isFound = true;
                     }
-                  } else
-                  if (item.value !== undefined && item.value === currentValue) {
-                    isFound = true;
-                  }
-                });
+                  });
 
-                if (!isFound) {
-                  currentValue = '';
+                  if (!isFound) {
+                    currentValue = '';
+                  }
                 }
               }
-            }
 
-            values[metaInfo.fieldName] = currentValue;
-          } else {
-            if (metaInfo.defaultValue) {
-              values[metaInfo.fieldName] = metaInfo.defaultValue;
-              currentValue = metaInfo.defaultValue;
+              values[metaInfo.fieldName] = currentValue;
+            } else {
+              if (metaInfo.defaultValue) {
+                values[metaInfo.fieldName] = metaInfo.defaultValue;
+                currentValue = metaInfo.defaultValue;
+              }
             }
           }
         }
@@ -64,13 +78,13 @@ export class FormTask extends ObservableTask {
         }
 
         let isVisible = true;
-        if (metaInfo.visibilityCondition) {				
-					const expression = createExpressionTree(metaInfo.visibilityCondition);
-					let data = {...node, ...node.payload, ...values};
+        if (metaInfo.visibilityCondition) {
+          const expression = createExpressionTree(metaInfo.visibilityCondition);
+          let data = { ...node, ...node.payload, ...values };
           const result = executeExpressionTree(expression, data);
           isVisible = !!result;
         }
-  
+
         if (isVisible && !!metaInfo.required && metaInfo.fieldName && values[metaInfo.fieldName] === undefined) {
           isValid = false;
         }
@@ -81,15 +95,14 @@ export class FormTask extends ObservableTask {
 
       let hasValues = Object.keys(values).length > 0;
       if (isValid && hasValues) {
-
         if (node.outputProperty && node.outputExpression) {
           const expression = createExpressionTree(node.outputExpression);
-					let data = {...values};
+          let data = { ...values };
           payload[node.outputProperty] = executeExpressionTree(expression, data);
         }
         return payload;
       }
-      console.log("form-task", node.name, isValid, hasValues, values, metaInfoDefinition);
+      console.log('form-task', node.name, isValid, hasValues, values, metaInfoDefinition);
       return false;
     } catch (err) {
       console.log('FormTask error', err);
