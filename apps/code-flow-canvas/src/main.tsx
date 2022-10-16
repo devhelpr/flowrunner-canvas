@@ -245,21 +245,26 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
       let flowrunnerConnector: any = undefined;
 
       const onDestroyAndRecreateWorker = () => {
-        console.log('onDestroyAndRecreateWorker handling');
+        console.log('onDestroyAndRecreateWorker handling code-flow-canvas');
         if (worker) {
-          worker.terminate();
+          //worker.terminate();
         }
-        worker = getFlowAgent();
-        worker.postMessage('worker', {
-          command: 'init',
-        });
-        flowrunnerConnector.registerWorker(worker);
+        if (!worker) {
+          worker = getFlowAgent();
+
+          worker.postMessage('worker', {
+            command: 'init',
+          });
+          flowrunnerConnector.registerWorker(worker);
+        }
       };
 
       if (hasRunningFlowRunner) {
-        flowrunnerConnector = new FlowConnector();
-        flowrunnerConnector.registerWorker(worker);
-        flowrunnerConnector.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
+        if (!flowrunnerConnector) {
+          flowrunnerConnector = new FlowConnector();
+          flowrunnerConnector.registerWorker(worker);
+          flowrunnerConnector.registerDestroyAndRecreateWorker(onDestroyAndRecreateWorker);
+        }
       } else {
         flowrunnerConnector = new EmptyFlowConnector();
       }

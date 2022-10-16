@@ -39,7 +39,6 @@ export class FormTask extends ObservableTask {
               // (.. check if metaInfo.fieldType == select/radiobutton)
               // .. check if currentValue exists in datasource
               // .. if not.. then use defaultValue or ""
-
               if (metaInfo.datasource && node.payload[metaInfo.datasource]) {
                 const datasource = node.payload[metaInfo.datasource];
                 if (datasource) {

@@ -194,9 +194,13 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
       console.log('onDestroyAndRecreateWorker handling');
       if (flowAgent) {
         flowAgent.current.removeEventListener('external', props.onMessageFromFlow);
-        flowAgent.current.terminate();
+        //flowAgent.current.terminate();
       }
-      flowAgent.current = getFlowAgent();
+
+      if (!flowAgent.current) {
+        flowAgent.current = getFlowAgent();
+      }
+
       if (props.onMessageFromFlow) {
         flowAgent.current.addEventListener('external', props.onMessageFromFlow);
       }

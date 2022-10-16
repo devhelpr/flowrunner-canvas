@@ -793,7 +793,7 @@ const startFlow = (
     isSameFlow = true;
   }
 
-  console.log('startFlow', `isSameFlow = ${isSameFlow}`, flowId, currentFlowId, flowPackage);
+  console.log('startFlow', `isSameFlow = ${isSameFlow}`, worker.flow, flowId, currentFlowId, flowPackage);
 
   currentFlowId = flowId;
 
@@ -816,8 +816,11 @@ const startFlow = (
     }
   }
 
+  let reinitMiddleWare = false;
   if (!isSameFlow || !worker.flow) {
+    console.log('new FlowEventRunner');
     worker.flow = new FlowEventRunner();
+    reinitMiddleWare = true;
     /*
     flow.registerTask('PreviewTask', PreviewTask);
     flow.registerTask('InputTask', InputTask);
@@ -848,7 +851,7 @@ const startFlow = (
     }
   }
 
-  if (!isSameFlow) {
+  if (!isSameFlow || reinitMiddleWare) {
     worker.flow.registerMiddleware((result: any, id: any, title: any, nodeType: any, payload: any, dateTime: any) => {
       return onExecuteNode(result, id, title, nodeType, payload, dateTime, worker);
     });

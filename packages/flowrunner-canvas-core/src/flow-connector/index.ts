@@ -35,7 +35,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   registerFlowExecutionObserver = (observableId: string, callback: (executionEvent: IExecutionEvent) => void) => {};
 
-  unregisterFlowExecuteObserver = observableId => {};
+  unregisterFlowExecuteObserver = (observableId) => {};
 
   updateFlowNode = () => {};
 
@@ -45,7 +45,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   executeFlowNode = (nodeName: string, payload?: any) => {};
 
   clearNodeState = (nodeName) => {};
-  
+
   modifyFlowNode = (
     nodeName: string,
     propertyName: string,
@@ -116,7 +116,7 @@ export class FlowConnector implements IFlowrunnerConnector {
 
   isInAutoFormStepMode = false;
 
-  screenUICallback: (action: any) => void = action => {
+  screenUICallback: (action: any) => void = (action) => {
     return;
   };
 
@@ -177,7 +177,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         this.nodeExecutionsByNode[event.data.name].push(event.data);
         this.nodeExecutionsByNode[event.data.name].splice(0, this.nodeExecutionsByNode[event.data.name].length - 5);
 
-        this.executionObservables.map(exectutionObservable => {
+        this.executionObservables.map((exectutionObservable) => {
           exectutionObservable.callback(event.data);
         });
       } else if (event.data.command == 'SendObservableNodePayload') {
@@ -185,7 +185,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         if (
           event.data.payload &&
           event.data.payload.nodeName &&
-          this.observables.filter(observable => {
+          this.observables.filter((observable) => {
             return observable.nodeName === event.data.payload.nodeName;
           }).length > 0
         ) {
@@ -193,7 +193,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           //this.observables[event.data.payload.nodeName](event.data.payload.payload);
 
           this.observables
-            .filter(observable => {
+            .filter((observable) => {
               return observable.nodeName === event.data.payload.nodeName;
             })
             .map((observable, index) => {
@@ -202,7 +202,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         } // TODO : FIX THESE TWO ... should be the same...
         else if (
           event.data.nodeName &&
-          this.observables.filter(observable => {
+          this.observables.filter((observable) => {
             return observable.nodeName === event.data.nodeName;
           }).length > 0
         ) {
@@ -210,7 +210,7 @@ export class FlowConnector implements IFlowrunnerConnector {
           //this.observables[event.data.nodeName](event.data.payload);
 
           this.observables
-            .filter(observable => {
+            .filter((observable) => {
               return observable.nodeName === event.data.nodeName;
             })
             .map((observable, index) => {
@@ -254,7 +254,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         }
         //
       } else if (event.data.command == 'RegisterFlowNodeObservers') {
-        this.observables.map(observable => {
+        this.observables.map((observable) => {
           if (this.worker) {
             this.worker.postMessage('worker', {
               command: 'registerFlowNodeObserver',
@@ -268,7 +268,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   };
 
   registerFlowNodeObserver = (nodeName: string, observableId: string, callback: (payload: any) => void) => {
-    let results = this.observables.filter(ob => {
+    let results = this.observables.filter((ob) => {
       return ob.nodeName == ob.nodeName && ob.id == observableId;
     });
 
@@ -314,7 +314,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   executionObservables: any[] = [];
 
   registerFlowExecutionObserver = (observableId: string, callback: (executionEvent: IExecutionEvent) => void) => {
-    let results = this.executionObservables.filter(ob => {
+    let results = this.executionObservables.filter((ob) => {
       return ob.id == observableId;
     });
 
@@ -326,7 +326,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     }
   };
 
-  unregisterFlowExecuteObserver = observableId => {
+  unregisterFlowExecuteObserver = (observableId) => {
     let indexes: number[] = [];
 
     // TODO : refactor this to a better way !!
@@ -356,7 +356,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     this.forcePushToFlowRunner = false;
 
     let flowToFlowRunner = [
-      ...flow.map(node => {
+      ...flow.map((node) => {
         return { ...node };
       }),
     ];
@@ -370,7 +370,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       }
 
       this.worker.isInAutoFormStepMode = this.isInAutoFormStepMode;
-      
+
       this.currentFlowId = flowId;
 
       console.log('AFTER onDestroyAndRecreateWorker');
@@ -449,11 +449,11 @@ export class FlowConnector implements IFlowrunnerConnector {
       if (this.worker) {
         this.worker.postMessage('worker', {
           command: 'clearNodeState',
-          nodeName: nodeName
+          nodeName: nodeName,
         });
       }
     }
-  }
+  };
 
   isActiveFlowRunner = () => {
     return true;
@@ -472,7 +472,7 @@ export class FlowConnector implements IFlowrunnerConnector {
       return [];
     }
 
-    return Object.keys(this.pluginRegistry).map(pluginName => {
+    return Object.keys(this.pluginRegistry).map((pluginName) => {
       let plugin = this.pluginRegistry[pluginName];
       return {
         className: plugin.FlowTaskPluginClassName,
@@ -529,7 +529,7 @@ export class FlowConnector implements IFlowrunnerConnector {
     callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
   ) => {
     //console.log('registerNodeStateObserver', observableId);
-    let results = this.nodeStateObservables.filter(ob => {
+    let results = this.nodeStateObservables.filter((ob) => {
       return ob.id == observableId;
     });
     if (results.length == 0) {

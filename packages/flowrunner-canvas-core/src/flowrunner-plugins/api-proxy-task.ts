@@ -27,7 +27,15 @@ export class ApiProxyTask extends FlowTask {
             if (Array.isArray(response)) {
               resolve({ ...node.payload, result: [...response] });
             } else {
-              resolve({ ...node.payload, ...response });
+              if (node.prefixOutputProps) {
+                let responseObject = {};
+                Object.keys(response).forEach((keyName) => {
+                  responseObject[`${node.prefixOutputProps}${keyName}`] = response[keyName];
+                });
+                resolve({ ...node.payload, ...responseObject });
+              } else {
+                resolve({ ...node.payload, ...response });
+              }
             }
           })
           .catch((err) => {
