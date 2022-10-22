@@ -1,6 +1,7 @@
 import {
   getNewConnection,
   getNewNode,
+  getTaskConfigForTask,
   IConnectionNode,
   INode,
   TFlowMap,
@@ -28,14 +29,22 @@ export const insertNode = (
         const nodeStart = flowStoreFlow[mappedNodeStart.index];
         const nodeEnd = flowStoreFlow[mappedNodeEnd.index];
 
+        let presetValues = {};
+        const shapeSetting = getTaskConfigForTask(taskName);
+        if (shapeSetting && shapeSetting.presetValues) {
+          presetValues = shapeSetting.presetValues;
+        }
+
         let newNode = getNewNode(
           {
             name: taskName,
             id: taskName,
             taskType: taskName,
-            shapeType: 'Html',
+            shapeType:
+              taskName == 'IfConditionTask' ? 'Diamond' : shapeSetting.shapeType ? shapeSetting.shapeType : 'Rect',
             x: (nodeStart.x + nodeEnd.x) / 2,
             y: (nodeStart.y + nodeEnd.y) / 2,
+            ...presetValues,
           },
           flowStore.flow,
         );
@@ -49,11 +58,17 @@ export const insertNode = (
           false,
           ThumbPositionRelativeToNode.default,
         );
+        if (taskName === 'IfConditionTask') {
+          (connection as any).thumbPosition = 1;
+          (connection as any).followflow = 'onsuccess';
+        }
 
         flowStore.addConnection(connection);
 
-        selectedNode.endshapeid = newNode.name;
-        flowStore.storeFlowNode(selectedNode, selectedNode.name, positionContext);
+        let modifiedNode = { ...selectedNode };
+        modifiedNode.endshapeid = newNode.name;
+
+        flowStore.storeFlowNode(modifiedNode, modifiedNode.name, positionContext);
       }
     }
   }
@@ -72,14 +87,22 @@ export const addNodeToEnd = (
     if (selectedNode.shapeType !== 'Line') {
       const mappedSelectedNode: any = flowStoreHashMap && (flowStoreHashMap as any).get(selectedNode.name);
       if (flowStoreFlow && mappedSelectedNode.start.length === 0) {
+        let presetValues = {};
+        const shapeSetting = getTaskConfigForTask(taskName);
+        if (shapeSetting && shapeSetting.presetValues) {
+          presetValues = shapeSetting.presetValues;
+        }
+
         let newNode = getNewNode(
           {
             name: taskName,
             id: taskName,
             taskType: taskName,
-            shapeType: 'Html',
+            shapeType:
+              taskName == 'IfConditionTask' ? 'Diamond' : shapeSetting.shapeType ? shapeSetting.shapeType : 'Rect',
             x: selectedNode.x + 500,
             y: selectedNode.y,
+            ...presetValues,
           },
           flowStore.flow,
         );
