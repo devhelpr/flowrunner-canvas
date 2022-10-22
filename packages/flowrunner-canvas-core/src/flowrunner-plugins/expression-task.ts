@@ -66,7 +66,9 @@ export class ExpressionTask extends FlowTask {
           //     }
           //   });
           // }
-          const currentValue = services.flowEventRunner.getPropertyFromNode(node.name, node.assignToProperty);
+          const currentValue = node.noLocalState
+            ? 0
+            : services.flowEventRunner.getPropertyFromNode(node.name, node.assignToProperty);
 
           if (node.forceNumeric === true) {
             payload[node.assignToProperty] =
@@ -95,7 +97,9 @@ export class ExpressionTask extends FlowTask {
             if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
               node.payload[node.assignAsPropertyFromObject][node.assignToProperty] = resultToPayload;
             } else {
-              services.flowEventRunner.setPropertyOnNode(node.name, node.assignToProperty, resultToPayload);
+              if (!node.noLocalState) {
+                services.flowEventRunner.setPropertyOnNode(node.name, node.assignToProperty, resultToPayload);
+              }
               node.payload[node.assignToProperty] = resultToPayload;
             }
 

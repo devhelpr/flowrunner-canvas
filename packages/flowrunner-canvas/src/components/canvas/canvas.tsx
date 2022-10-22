@@ -218,6 +218,7 @@ export const Canvas = (props: CanvasProps) => {
   let ctrlDown = useRef(false);
 
   let animationScript = useRef(undefined as any);
+  let anmationActive = useRef(false);
   let interactionState = useRef<InteractionState>(InteractionState.idle);
 
   const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
@@ -328,7 +329,6 @@ export const Canvas = (props: CanvasProps) => {
     setHtmlGlobalScale(stageX, stageY, stageScale);
   };
 
-  //htmlWrapper
   const setHtmlGlobalScale = (stageX, stageY, stageScale) => {
     if (htmlWrapper && htmlWrapper.current) {
       (htmlWrapper.current as any).style.transform =
@@ -525,8 +525,9 @@ export const Canvas = (props: CanvasProps) => {
       if (stageInstance !== undefined && stageInstance.getPointerPosition()) {
         const oldScale = stageInstance.scaleX();
 
-        let xPos = stageInstance.getPointerPosition().x;
-        let yPos = stageInstance.getPointerPosition().y;
+        const touchPos = getCurrentPosition(e);
+        let xPos = touchPos.x; //stageInstance.getPointerPosition().x;
+        let yPos = touchPos.y; //stageInstance.getPointerPosition().y;
 
         if (isPinching.current && touchPosition) {
           xPos = touchPosition.x;
@@ -540,6 +541,7 @@ export const Canvas = (props: CanvasProps) => {
 
         const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
         const startPerf = performance.now();
+        console.log('pre set scale 4', newScale);
         stageInstance.scale({ x: newScale, y: newScale });
         const newPos = {
           x: -(mousePointTo.x - xPos / newScale) * newScale,
@@ -976,6 +978,7 @@ export const Canvas = (props: CanvasProps) => {
 
   const onResize = (event) => {
     updateDimensions();
+    console.log('onresize');
     fitStage(undefined, true, true);
   };
 
@@ -1199,7 +1202,7 @@ export const Canvas = (props: CanvasProps) => {
 
         if (!currentFlowId.current || flowStore.flowId !== currentFlowId.current) {
           // this causes fitStage after save
-          fitStage(undefined, false, false);
+          fitStage(undefined, true, true);
         }
         currentFlowId.current = flowStore.flowId;
 
@@ -1208,7 +1211,9 @@ export const Canvas = (props: CanvasProps) => {
           if (stageDiv && stageDiv.attrs['container']) {
             // trick to allow keyboard events on parent without
             // needing to click the div first
-            stageDiv.attrs['container'].parentNode.focus();
+            stageDiv.attrs['container'].parentNode.focus({
+              preventScroll: true,
+            });
           }
         }
 
@@ -1219,9 +1224,13 @@ export const Canvas = (props: CanvasProps) => {
 
         if (flowStore.flow.length == 1) {
           if (!flowIsFittedStageForSingleNode.current) {
-            fitStage(undefined, false, false);
+            fitStage(undefined, true, true);
             flowIsFittedStageForSingleNode.current = true;
           }
+        } else {
+          // needed? dit triggert resize na HMR .....
+          console.log('fitstage in use layouteffect !?', stageX.current);
+          fitStage(undefined, true, true);
         }
 
         setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
@@ -1884,8 +1893,18 @@ export const Canvas = (props: CanvasProps) => {
       return;
     } else if (node.shapeType === 'Rect' || node.shapeType === 'Diamond') {
       if (interactionState.current === InteractionState.idle) {
-        console.log('onmouseend rect/diamond idle', node.name, event);
+        console.log(
+          'onmouseend rect/diamond idle',
+          node.name,
+          event.target?.attrs?.dataElementType ?? '',
+          event.target,
+          event,
+        );
+        if ((event.target?.attrs?.dataElementType ?? '') === 'Settings') {
+          const settings = ShapeSettings.getShapeSettings(node.taskType, node);
 
+          onClickSetup(node, settings, event);
+        }
         touching.current = false;
         (touchNode.current as any) = undefined;
         touchNodeGroup.current = undefined;
@@ -1893,8 +1912,8 @@ export const Canvas = (props: CanvasProps) => {
         draggingMultipleNodes.current = [];
         interactionState.current = InteractionState.idle;
 
-        selectNode(node.name, node);
         selectedNodeRef.current = node;
+        selectNode(node.name, node);
         (document.body.style.cursor as any) = null;
         document.body.classList.remove('mouse--moving');
         return;
@@ -2307,7 +2326,7 @@ export const Canvas = (props: CanvasProps) => {
             if (
               (touchNode.current as any).shapeType !== 'Line' &&
               (touchNode.current as any).taskType !== 'Annotation' &&
-              (touchNode.current as any).shapeType !== 'Secion' &&
+              (touchNode.current as any).shapeType !== 'Section' &&
               interactionState.current === InteractionState.draggingNode
             ) {
               removeOrAddNodeToSections(touchNode.current);
@@ -3821,6 +3840,13 @@ export const Canvas = (props: CanvasProps) => {
     selectedNodeRef.current = node;
     selectNode(node.name, node);
 
+    const element = document.getElementById(node.name);
+    if (element) {
+      element.focus({
+        preventScroll: true,
+      });
+    }
+
     if (canvasMode.isConnectingNodes) {
       canvasMode.setConnectiongNodeCanvasMode(false);
     }
@@ -3833,7 +3859,7 @@ export const Canvas = (props: CanvasProps) => {
 
     if (event.altKey) {
       console.log('TRIGGER ANIMATE TO', node.name);
-      fitStage(undefined, false, false, true, node.name);
+      fitStage(undefined, false, false, false, node.name);
     }
 
     return false;
@@ -3937,8 +3963,9 @@ export const Canvas = (props: CanvasProps) => {
     doSetHtmlElementsPositionAndScale?: boolean,
     doAnimate?: boolean,
     animateToNode?: string,
+    onEndAnimation?: () => void,
   ) => {
-    console.log('FITSTAGE', doAnimate, animateToNode);
+    console.log('FITSTAGE..', doBatchdraw, doSetHtmlElementsPositionAndScale, doAnimate, animateToNode);
     let xMin;
     let yMin;
     let xMax;
@@ -3948,7 +3975,7 @@ export const Canvas = (props: CanvasProps) => {
     if (stage && stage.current) {
       let stageInstance = (stage.current as any).getStage();
       if (stageInstance !== undefined) {
-        flowStore.flow.map((shape, index) => {
+        flowStore.flow.forEach((shape, index) => {
           if (node !== undefined) {
             if (node.id !== shape.id) {
               return;
@@ -4108,6 +4135,7 @@ export const Canvas = (props: CanvasProps) => {
             }
 
             if (doFitStage) {
+              console.log('pre set scale 1', scale);
               stageInstance.scale({ x: scale, y: scale });
             }
             const newPos = {
@@ -4132,11 +4160,13 @@ export const Canvas = (props: CanvasProps) => {
               if (!!doBatchdraw) {
                 stageInstance.batchDraw();
               }
+
               stageX.current = newPos.x;
               stageY.current = newPos.y;
               stageScale.current = scale;
 
               if (doSetHtmlElementsPositionAndScale === undefined || !!doSetHtmlElementsPositionAndScale) {
+                console.log('FITSTAGE setHtmlElementsPositionAndScale', scale);
                 setHtmlElementsPositionAndScale(newPos.x, newPos.y, scale);
               }
               setCanvasOpacity(1);
@@ -4156,7 +4186,32 @@ export const Canvas = (props: CanvasProps) => {
 							- waarom springt ie naar herstart terug naar begin? .. vanwege de hele fitStage functionaliteit
 						*/
 
+            if (animateToNode && !doAnimate) {
+              scale = 1;
+
+              let position = positionContext.getPosition(animateToNode);
+              console.log('animateToNode', animateToNode, position);
+              newPos.x = offsetX + -(position?.x ?? 0) * scale + stageWidth / 2 - 150 * scale;
+              newPos.y = -(position?.y ?? 0) * scale + (stageHeight + 64) / 2 - 150 * scale;
+
+              let stageInstance = (stage.current as any).getStage();
+              console.log('pre reset scale 2');
+              stageInstance.scale({ x: 1, y: 1 });
+              stageInstance.position(newPos);
+              stageX.current = stageInstance.x();
+              stageY.current = stageInstance.y();
+              stageScale.current = stageInstance.scale().x;
+
+              stageInstance.draw();
+              setHtmlGlobalScale(stageX.current, stageY.current, stageScale.current);
+
+              return;
+            }
+
             if (window.localStorage && !!doAnimate) {
+              if (anmationActive.current) {
+                return;
+              }
               let as = '';
               animationScript.current = undefined;
 
@@ -4164,7 +4219,7 @@ export const Canvas = (props: CanvasProps) => {
                 animationScript.current = {
                   nodes: [animateToNode],
                   zoom: 1,
-                  duration: 2,
+                  duration: 0.75,
                   loop: 0,
                 };
               } else {
@@ -4219,6 +4274,7 @@ export const Canvas = (props: CanvasProps) => {
                     //let offsetX = newPos.x;//stageX.current;
                     //let offsetY = newPos.y;//stageY.current;
                     const triggerAnimation = () => {
+                      anmationActive.current = true;
                       let isDrawing = false;
                       newPos.x = offsetX + -(position?.x ?? 0) * scale + stageWidth / 2 - 150 * scale;
                       newPos.y = -(position?.y ?? 0) * scale + (stageHeight + 64) / 2 - 150 * scale;
@@ -4262,8 +4318,12 @@ export const Canvas = (props: CanvasProps) => {
                                 (layer.current as any).listening(true);
                                 (layer.current as any).batchDraw();
                               }
-
+                              anmationActive.current = false;
                               document.exitPointerLock();
+                            }
+
+                            if (onEndAnimation) {
+                              onEndAnimation();
                             }
                           }
                         },
@@ -4281,14 +4341,14 @@ export const Canvas = (props: CanvasProps) => {
             y: 0,
           };
           let scale = 1;
-          console.log('FITSTAGE without any nodes in the flow');
+          console.log('FITSTAGE without any nodes in the flow..');
           const stageContainerElement = (canvasWrapper as any).current; //document.querySelector(".canvas-controller__scroll-container");
           if (stageContainerElement !== null) {
             if (stageContainerElement.clientWidth < 1024) {
               scale = 0.5;
             }
           }
-
+          console.log('pre set scale 3', scale);
           stageInstance.scale({ x: scale, y: scale });
           stageInstance.position(newPos);
 
@@ -5911,14 +5971,14 @@ export const Canvas = (props: CanvasProps) => {
       return;
     }
 
-    if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
+    /*if (event.keyCode == fKey || event.keyCode == fKeyCapt) {
       if (selectedNodeRef.current) {
         event.preventDefault();
         fitStage(undefined, false, false, true);
         return false;
       }
       return true;
-    }
+    }*/
 
     if (event.keyCode == shiftKey) {
       shiftDown.current = true;
@@ -5986,9 +6046,38 @@ export const Canvas = (props: CanvasProps) => {
     setShowSelectTask('');
   };
 
+  const moveToNode = (nodeName: string) => {
+    if (!flowStoreHashMap.current || !flowStoreFlow.current) {
+      return;
+    }
+    const mappedNewNode = flowStoreHashMap.current.get(nodeName);
+    if (mappedNewNode) {
+      const moveToNode = flowStoreFlow.current[mappedNewNode.index];
+      if (moveToNode) {
+        selectedNodeRef.current = moveToNode;
+        selectNode(moveToNode.name, moveToNode);
+        const element = document.getElementById(moveToNode.name);
+        if (element) {
+          element.focus({
+            preventScroll: true,
+          });
+        }
+
+        fitStage(undefined, false, false, true, moveToNode.name);
+      }
+    }
+  };
+
   const onKeyUp = (event) => {
     ctrlDown.current = false;
     shiftDown.current = false;
+
+    if (event.target && (event.target.tagName || '').toLowerCase() == 'input') {
+      return;
+    }
+    if (event.target && (event.target.tagName || '').toLowerCase() == 'textarea') {
+      return;
+    }
 
     if (event.keyCode === 45) {
       // insert key
@@ -5997,6 +6086,147 @@ export const Canvas = (props: CanvasProps) => {
           setShowSelectTask('INSERTNODEONLINE');
         } else {
           setShowSelectTask('ADDNEWNODEAFTERNODE');
+        }
+      }
+    } else if (event.shiftKey && event.keyCode === 50) {
+      // shift 2
+      console.log('shift 2 - zoom to node', selectedNodeRef.current);
+      if (selectedNodeRef.current && selectedNodeRef.current.node) {
+        fitStage(undefined, false, false, true, selectedNodeRef.current.node.name);
+      } else {
+        let nodeToFocus = '';
+        if (flowStoreFlow.current) {
+          flowStoreFlow.current.forEach((node) => {
+            if (
+              !nodeToFocus &&
+              node.shapeType !== 'Line' &&
+              node.taskType !== 'Annotation' &&
+              node.taskType !== 'FunctionInputTask' &&
+              flowStoreHashMap.current
+            ) {
+              const mappedNode = flowStoreHashMap.current.get(node.name);
+              if (mappedNode && mappedNode.end && mappedNode.end.length === 0) {
+                nodeToFocus = node.name;
+              }
+            }
+          });
+        }
+        if (nodeToFocus) {
+          moveToNode(nodeToFocus);
+        }
+      }
+    } else if (event.shiftKey && event.keyCode === 48) {
+      // shift 0
+      console.log('shift 0 - zoom to fit!');
+      fitStage(undefined, true, true);
+    }
+    // if key == cursor-keys right(39)/left(37) : select next node up or downstream .. (and zoom in?)
+    // up 38
+    // down 40
+    else if (event.keyCode === 38) {
+      // up
+      if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.node &&
+        flowStoreHashMap.current &&
+        flowStoreFlow.current
+      ) {
+        if (anmationActive.current) {
+          return;
+        }
+        const mappedNode = flowStoreHashMap.current.get(selectedNodeRef.current.node.name);
+        if (mappedNode && mappedNode.start && mappedNode.start.length > 0) {
+          let index = -1;
+          mappedNode.start.forEach((connectionIndex) => {
+            if (flowStoreFlow.current) {
+              const connection = flowStoreFlow.current[connectionIndex];
+              if (connection) {
+                if (index === -1 && connection.followflow === 'onsuccess') {
+                  index = connectionIndex;
+                  moveToNode(connection.endshapeid);
+                }
+              }
+            }
+          });
+        }
+      }
+    } else if (event.keyCode === 40) {
+      // down
+      if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.node &&
+        flowStoreHashMap.current &&
+        flowStoreFlow.current
+      ) {
+        if (anmationActive.current) {
+          return;
+        }
+        const mappedNode = flowStoreHashMap.current.get(selectedNodeRef.current.node.name);
+        if (mappedNode && mappedNode.start && mappedNode.start.length > 0) {
+          let index = -1;
+          mappedNode.start.forEach((connectionIndex) => {
+            if (flowStoreFlow.current) {
+              const connection = flowStoreFlow.current[connectionIndex];
+              if (connection) {
+                if (index === -1 && (connection.followflow === 'onfailure' || connection.event)) {
+                  index = connectionIndex;
+                  moveToNode(connection.endshapeid);
+                }
+              }
+            }
+          });
+        }
+      }
+    } else if (event.keyCode === 39) {
+      // right
+      if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.node &&
+        flowStoreHashMap.current &&
+        flowStoreFlow.current
+      ) {
+        if (anmationActive.current) {
+          return;
+        }
+        const mappedNode = flowStoreHashMap.current.get(selectedNodeRef.current.node.name);
+
+        if (mappedNode && mappedNode.start && mappedNode.start.length > 0) {
+          // const nodeStart = flowStoreFlow.current[mappedNode.start[0]];
+          // console.log('move to', nodeStart);
+          // if (!nodeStart.followflow) {
+          //   moveToNode(nodeStart.endshapeid);
+          // }
+
+          let index = -1;
+          mappedNode.start.forEach((connectionIndex) => {
+            if (flowStoreFlow.current) {
+              const connection = flowStoreFlow.current[connectionIndex];
+              if (connection) {
+                if (index === -1 && !connection.followflow && !connection.event) {
+                  index = connectionIndex;
+                  moveToNode(connection.endshapeid);
+                }
+              }
+            }
+          });
+        }
+      }
+    } else if (event.keyCode === 37) {
+      // left
+      if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.node &&
+        flowStoreHashMap.current &&
+        flowStoreFlow.current
+      ) {
+        if (anmationActive.current) {
+          return;
+        }
+        const mappedNode = flowStoreHashMap.current.get(selectedNodeRef.current.node.name);
+        if (mappedNode && mappedNode.end && mappedNode.end.length > 0) {
+          const nodeEnd = flowStoreFlow.current[mappedNode.end[0]];
+          console.log('move to', nodeEnd);
+          moveToNode(nodeEnd.startshapeid);
         }
       }
     }

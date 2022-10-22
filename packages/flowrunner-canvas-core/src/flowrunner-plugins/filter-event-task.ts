@@ -1,7 +1,7 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 
 export class FilterEventTask extends FlowTask {
-  public override execute(node: any, services: any) {    
+  public override execute(node: any, services: any) {
     const flow = services.workerContext.flow;
     return new Promise((resolve, reject) => {
       let payload = { ...node.payload };
@@ -15,14 +15,14 @@ export class FilterEventTask extends FlowTask {
         const callEventFlow = (element) => {
           return new Promise<any>((resolveCall, rejectCall) => {
             try {
-              let elementPayload : any = {};
-              if (typeof element === "object") {
-                elementPayload = {...element};
+              let elementPayload: any = {};
+              if (typeof element === 'object') {
+                elementPayload = { ...element };
               } else {
                 elementPayload = {
-                  element
-                }
-              };
+                  element,
+                };
+              }
               flow
                 .triggerEventOnNode(node.name, 'onElement', elementPayload)
                 .then((payload) => {
@@ -31,10 +31,11 @@ export class FilterEventTask extends FlowTask {
                   });
                 })
                 .catch(() => {
+                  console.log('callEventFlow reject');
                   rejectCall();
                 });
             } catch (err) {
-              console.log("Error in FilterEventTask onElement", err);
+              console.log('Error in FilterEventTask onElement', err);
               rejectCall();
             }
           });
@@ -50,17 +51,19 @@ export class FilterEventTask extends FlowTask {
         };
 
         try {
-          forAllElements(payload[node.listProperty]).then(() => {
-            payload[node.outputProperty || 'result'] = result;
-            resolve(payload);
-          }).catch((err) => {
-            console.log('Error in FilterEventTask onElement', err);
-            reject();
-          });    
+          forAllElements(payload[node.listProperty])
+            .then(() => {
+              payload[node.outputProperty || 'result'] = result;
+              resolve(payload);
+            })
+            .catch((err) => {
+              console.log('Error in FilterEventTask onElement', err);
+              reject();
+            });
         } catch (err) {
           console.log('Error in FilterEventTask onElement', err);
           reject();
-        }        
+        }
       }
     });
   }

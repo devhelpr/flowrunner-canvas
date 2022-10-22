@@ -30,7 +30,7 @@ export interface ICustomTaskConfig {
   subShapeType?: string;
   htmlPlugin?: 'formNode' | 'shapeNode' | string;
   shapeHint?: 'rect' | 'circle' | 'diamond' | 'triangle' | 'actor';
-  label?: string;
+  label?: string | ((node: any) => string);
   icon?: string;
   iconIllustration?: string;
   background?: string;
@@ -444,17 +444,25 @@ const taskTypeConfig: ITaskTypeConfig = {
       withValue: '',
       usingCondition: 'equals',
       dataType: 'string',
+      mode: 'expression',
       dontTriggerOnEmptyValues: true,
     },
     //_label: '{compareProperty} {usingCondition} {withProperty}{withValue}',
-    label:
-      '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
+    //label:
+    //  '{expression} {compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
+    label: (node: any) => {
+      if (node && node.mode === 'expression') {
+        return '{expression}';
+      }
+      return '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"';
+    },
     hasConfigMenu: true,
     configMenu: {
       fields: [
-        { fieldName: 'compareProperty', required: true },
-        { fieldName: 'withProperty' },
-        { fieldName: 'withValue' },
+        { fieldName: 'expression', fieldType: 'textarea', required: true, visibilityCondition: 'mode == "expression"' },
+        { fieldName: 'compareProperty', required: true, visibilityCondition: 'mode != "expression"' },
+        { fieldName: 'withProperty', visibilityCondition: 'mode != "expression"' },
+        { fieldName: 'withValue', visibilityCondition: 'mode != "expression"' },
         {
           fieldName: 'usingCondition',
           fieldType: 'select',
@@ -484,6 +492,7 @@ const taskTypeConfig: ITaskTypeConfig = {
               value: 'bigger-or-equal',
             },
           ],
+          visibilityCondition: 'mode != "expression"',
         },
         {
           fieldName: 'dataType',
@@ -496,6 +505,21 @@ const taskTypeConfig: ITaskTypeConfig = {
             {
               label: 'number',
               value: 'number',
+            },
+          ],
+          visibilityCondition: 'mode != "expression"',
+        },
+        {
+          fieldName: 'mode',
+          fieldType: 'select',
+          options: [
+            {
+              label: 'Default',
+              value: 'default',
+            },
+            {
+              label: 'Expression',
+              value: 'expression',
             },
           ],
         },
@@ -678,6 +702,14 @@ const taskTypeConfig: ITaskTypeConfig = {
       httpMethod: 'get',
       sendPayloadToApi: false,
     },
+    hasConfigMenu: true,
+    configMenu: {
+      fields: [
+        { fieldName: 'url', required: true },
+        { fieldName: 'get' },
+        { fieldName: 'sendPayloadToApi', fieldType: 'checkbox' },
+      ],
+    },
   },
   CustomCodeTask: {
     shapeType: 'Html',
@@ -745,6 +777,10 @@ const taskTypeConfig: ITaskTypeConfig = {
             label: 'Numeric',
           },
         ],
+      },
+      {
+        fieldName: 'noLocalState',
+        fieldType: 'checkbox',
       },
     ],
   },
@@ -1509,6 +1545,11 @@ const taskTypeConfig: ITaskTypeConfig = {
           label: 'Form Step Title',
         },
         {
+          fieldName: 'formStepCategory',
+          fieldType: 'text',
+          label: 'Form Step Category',
+        },
+        {
           fieldName: 'metaInfo',
           fieldType: 'objectList',
           label: 'Form controls',
@@ -1821,6 +1862,10 @@ const taskTypeConfig: ITaskTypeConfig = {
               label: 'text',
             },
             {
+              value: 'statictext',
+              label: 'Static Text',
+            },
+            {
               value: 'list',
               label: 'list',
             },
@@ -1854,19 +1899,54 @@ const taskTypeConfig: ITaskTypeConfig = {
             },
           ],
         },
-        { fieldName: 'propertyName' },
-        { fieldName: 'format' },
-        { fieldName: 'fixed', dataType: 'number' },
-        { fieldName: 'decimalSeparator' },
-        { fieldName: 'afterLabel' },
-        { fieldName: 'rows', dataType: 'number' },
-        { fieldName: 'columns', dataType: 'number' },
-        { fieldName: 'mode', defaultValue: 'matrix' },
-        { fieldName: 'template' },
-        { fieldName: 'replaceValues', fieldType: 'checkbox' },
-        { fieldName: 'asElement', fieldType: 'checkbox' },
-        { fieldName: 'htmlElement' },
-        { fieldName: 'cssClassName' },
+        { fieldName: 'text', visibilityCondition: 'visualizer == "statictext"' },
+
+        { fieldName: 'xProperty', visibilityCondition: 'visualizer == "xycanvas"' },
+        { fieldName: 'yProperty', visibilityCondition: 'visualizer == "xycanvas"' },
+        { fieldName: 'listProperty', visibilityCondition: 'visualizer == "xycanvas"' },
+        { fieldName: 'color', visibilityCondition: 'visualizer == "xycanvas" || visualizer == "color"' },
+
+        {
+          fieldName: 'propertyName',
+          visibilityCondition: 'visualizer == "text" || visualizer == "richtext" || visualizer == "number"',
+        },
+
+        { fieldName: 'format', visibilityCondition: 'visualizer == "number"' },
+        { fieldName: 'fixed', dataType: 'number', visibilityCondition: 'visualizer == "number"' },
+        { fieldName: 'decimalSeparator', visibilityCondition: 'visualizer == "number"' },
+        {
+          fieldName: 'afterLabel',
+          visibilityCondition: 'visualizer == "text" || visualizer == "richtext" || visualizer == "number"',
+        },
+        {
+          fieldName: 'rows',
+          dataType: 'number',
+          visibilityCondition: 'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas"',
+        },
+        {
+          fieldName: 'columns',
+          dataType: 'number',
+          visibilityCondition: 'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas"',
+        },
+        {
+          fieldName: 'mode',
+          defaultValue: 'matrix',
+          visibilityCondition: 'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas"',
+        },
+
+        { fieldName: 'template', visibilityCondition: 'visualizer == "text" || visualizer == "richtext"' },
+        {
+          fieldName: 'replaceValues',
+          fieldType: 'checkbox',
+          visibilityCondition: 'visualizer == "text" || visualizer == "richtext"',
+        },
+        {
+          fieldName: 'asElement',
+          fieldType: 'checkbox',
+          visibilityCondition: 'visualizer == "text"',
+        },
+        { fieldName: 'htmlElement', visibilityCondition: 'visualizer == "text" || visualizer == "richtext"' },
+        { fieldName: 'cssClassName', visibilityCondition: 'visualizer == "text" || visualizer == "statictext"' },
         { fieldName: 'visibilityCondition' },
         {
           fieldName: 'flowId',
@@ -1888,6 +1968,46 @@ const taskTypeConfig: ITaskTypeConfig = {
           fieldName: 'formStepTitle',
           fieldType: 'text',
           label: 'Form Step Title',
+        },
+
+        {
+          fieldName: 'elements',
+          fieldType: 'objectList',
+          label: 'Elements',
+          idProperty: 'fieldId',
+          autoId: 'none',
+          metaInfo: [
+            {
+              fieldName: 'visualizer',
+              fieldType: 'select',
+              options: [
+                {
+                  value: 'number',
+                  label: 'number',
+                },
+                {
+                  value: 'text',
+                  label: 'text',
+                },
+                {
+                  value: 'statictext',
+                  label: 'Static Text',
+                },
+              ],
+            },
+            { fieldName: 'text', visibilityCondition: 'visualizer == "statictext"' },
+            { fieldName: 'propertyName' },
+            { fieldName: 'format' },
+            { fieldName: 'fixed', dataType: 'number' },
+            { fieldName: 'decimalSeparator' },
+            { fieldName: 'afterLabel' },
+            { fieldName: 'template' },
+            { fieldName: 'replaceValues', fieldType: 'checkbox' },
+            { fieldName: 'asElement', fieldType: 'checkbox' },
+            { fieldName: 'htmlElement' },
+            { fieldName: 'cssClassName' },
+            { fieldName: 'visibilityCondition' },
+          ],
         },
       ],
     },

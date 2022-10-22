@@ -18,6 +18,7 @@ import { replaceValuesExpressions, hasReplacebleValuesExistingInPayload } from '
 import { Lines } from './line-helper';
 
 import useImage from 'use-image';
+import { getLabelForNode } from 'packages/flowrunner-canvas/src/utils/label-for-node';
 
 export const Diamond = React.forwardRef((props: ShapeTypeProps, ref: any) => {
   const [image] = useImage(`${(window as any).globalPathImages || ''}/assets/svg/cog.svg`);
@@ -117,8 +118,9 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps, ref: any) => {
   }));
 
   let labelText = props.node && props.node.label ? props.node.label : props.name;
-  if ((settings as any).label && hasReplacebleValuesExistingInPayload((settings as any).label, props.node)) {
-    labelText = replaceValuesExpressions((settings as any).label, props.node, '-');
+  // && hasReplacebleValuesExistingInPayload((settings as any).label, props.node)
+  if ((settings as any).label) {
+    labelText = getLabelForNode(props.node, settings); //replaceValuesExpressions((settings as any).label, props.node, '-');
   } else if (!!props.hasTaskNameAsNodeTitle) {
     labelText = props.node.taskType;
   }
@@ -255,6 +257,7 @@ export const Diamond = React.forwardRef((props: ShapeTypeProps, ref: any) => {
             perfectDrawEnabled={false}
             transformsEnabled={'position'}
             onClick={props.onClickSetup}
+            dataElementType="Settings"
           />
         )}
       </Group>

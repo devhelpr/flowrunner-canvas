@@ -172,17 +172,6 @@ export class FlowToCanvas {
           height = nodeInstance.getHeight(startShape);
         }
       }
-      /*
-      let result = {
-        //(isEvent ? 18 - 8 : 0)
-        x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth) / 2,
-        y:
-          newPosition.y -
-          (isEvent
-            ? -32 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2
-            : -8 + -4 - 32 - 8 + (height || startShape.height || ShapeMeasures.htmlHeight) / 2),
-      };
-      */
 
       width = width || taskSettings.width || startShape.width || ShapeMeasures.htmlWidth;
       height = height || taskSettings.height || startShape.height || ShapeMeasures.htmlHeight;
@@ -358,11 +347,9 @@ export class FlowToCanvas {
         skewXOffset = ShapeMeasures.rectWidht / 8 - 4;
       }
       return {
-        // + (isEvent ? 18 - 14 : 0)
         x: newPosition.x + ShapeMeasures.rectWidht + skewXOffset,
         y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (isEvent ? 4 + 8 + 24 + 36 : 4 + 8),
       };
-      // y: newPosition.y + (isEvent ? 4 + 8 : ShapeMeasures.rectHeight / 2),
     }
   }
 
@@ -513,7 +500,6 @@ export class FlowToCanvas {
         x: newPosition.x - 8,
         y: newPosition.y + 40 + 12,
       };
-      //return endpoint;
     } else if (shapeType == 'Circle') {
       return {
         x: newPosition.x,
@@ -531,15 +517,10 @@ export class FlowToCanvas {
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
-      let skewXOffset = 0;
-      if (taskSettings.isSkewed) {
-        skewXOffset = ShapeMeasures.rectWidht / 8 - 8;
-      }
       return {
-        x: newPosition.x + skewXOffset - 8,
+        x: newPosition.x - 8,
         y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (4 + 8),
       };
-      //y: newPosition.y + ShapeMeasures.rectHeight / 2,
     }
   }
 

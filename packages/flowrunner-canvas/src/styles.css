@@ -174,6 +174,15 @@ img {
   border-radius: 10px;
   transform-origin: top left;
   height: auto;
+  &:focus-within,
+  &:focus {
+    outline: none;
+
+    .canvas__html-shape-bar {
+      outline: 4px solid rgba(0, 0, 0, 0.5);
+      z-index: 2;
+    }
+  }
 }
 
 .canvas__html-shape.composite-hint {
@@ -191,7 +200,6 @@ img {
   right: -6px;
   z-index: 2;
   pointer-events: auto;
-  //cursor: pointer;
 
   border-radius: 3px;
 
@@ -231,7 +239,6 @@ img {
   bottom: -6px;
   z-index: 2;
   pointer-events: auto;
-  //cursor: pointer;
 
   width: 16px;
   height: 10px;
@@ -261,7 +268,7 @@ img {
   border-radius: 50%;
   position: absolute;
   top: -24px;
-  left: -24px;
+  left: -22px;
   clip-path: ellipse(100% 30% at 50% 72%);
 }
 
@@ -274,7 +281,6 @@ img {
   top: 44px;
   z-index: 2;
   pointer-events: auto;
-  //cursor: pointer;
 
   border-radius: 3px;
 
@@ -315,7 +321,6 @@ img {
   top: -6px;
   z-index: 2;
   pointer-events: auto;
-  //cursor: pointer;
 
   width: 16px;
   height: 10px;
@@ -346,7 +351,7 @@ img {
   border-radius: 50%;
   position: absolute;
   top: -24px;
-  left: -24px;
+  left: -22px;
   clip-path: ellipse(100% 67% at 50% -6%);
 }
 
@@ -692,10 +697,6 @@ img {
 
 .html-plugin-node > div.stage-div {
   height: auto;
-}
-
-.connecting-nodes .canvas__html-shape-body {
-  //cursor: pointer;
 }
 
 ._connecting-nodes .html-plugin-node > div {

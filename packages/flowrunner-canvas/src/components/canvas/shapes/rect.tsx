@@ -284,6 +284,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref: any) => {
             x={Math.round(ShapeMeasures.rectWidht - ShapeMeasures.rectWidht / 8 - 4)}
             y={4}
             onClick={props.onClickSetup}
+            dataElementType="Settings"
           />
         )}
       </Group>
