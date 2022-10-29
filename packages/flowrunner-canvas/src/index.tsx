@@ -86,24 +86,43 @@ export const registerFlowRunnerCanvasPlugin = (
   FlowTaskPlugin,
   FlowTaskPluginClassName,
   flowType?: string,
+  flowRunnerConnector?: IFlowrunnerConnector,
+  customPluginRegistry?: any,
+  customConfig?: any,
 ) => {
-  if (flowRunnerConnectorInstance) {
-    pluginRegistry[FlowTaskPluginClassName] = {
+  if (flowRunnerConnectorInstance || flowRunnerConnector || customPluginRegistry) {
+    const plugin = {
       VisualizationComponent: VisualizationComponent,
       FlowTaskPlugin: FlowTaskPlugin,
       FlowTaskPluginClassName: FlowTaskPluginClassName,
       flowType: flowType || 'playground',
     };
-    console.log(pluginRegistry);
 
-    setCustomConfig(FlowTaskPluginClassName, {
-      shapeType: 'Html',
-      hasUI: true,
-      presetValues: {
-        htmlPlugin: FlowTaskPluginClassName,
-      },
-    });
-    flowRunnerConnectorInstance.setPluginRegistry(pluginRegistry);
+    if (customPluginRegistry) {
+      customPluginRegistry[FlowTaskPluginClassName] = plugin;
+      console.log(customPluginRegistry);
+    } else {
+      pluginRegistry[FlowTaskPluginClassName] = plugin;
+      console.log(pluginRegistry);
+    }
+
+    const customPluginConfig = customConfig || {};
+    customPluginConfig.shapeType = 'Html';
+    customPluginConfig.hasUI = true;
+    if (!customPluginConfig.presetValues) {
+      customPluginConfig.presetValues = {};
+    }
+    customPluginConfig.presetValues.htmlPlugin = FlowTaskPluginClassName;
+
+    setCustomConfig(FlowTaskPluginClassName, customPluginConfig);
+    console.log('custom config', FlowTaskPluginClassName, customPluginConfig);
+    if (!customPluginRegistry) {
+      if (flowRunnerConnector) {
+        flowRunnerConnector.setPluginRegistry(pluginRegistry);
+      } else {
+        flowRunnerConnectorInstance.setPluginRegistry(pluginRegistry);
+      }
+    }
   }
 };
 

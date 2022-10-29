@@ -30,6 +30,7 @@ import {
   DebugInfo,
   UserInterfaceViewEditor,
   IExampleFlow,
+  registerFlowRunnerCanvasPlugin,
 } from '@devhelpr/flowrunner-canvas';
 
 import {
@@ -62,6 +63,10 @@ import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
 import { registerCustomPlugins } from './flow-plugins';
 import { createFlowrunnerStorageProvider } from './flow-localstorage-provider';
 import { ApiProxyTask } from './flow-plugins/api-custom-proxy-task';
+import { MapBoxTestTask } from './flow-plugins/mapbox-test-task';
+import { getMapBoxTestComponent } from './html-plugins/mapbox-test';
+import { getEChartsComponent } from './html-plugins/echarts-test';
+import { EChartsTestTask } from './flow-plugins/echarts-test-task';
 
 let flowRunnerConnectorInstance: IFlowrunnerConnector;
 const flowRunnerCanvasPluginRegisterFunctions: any[] = [];
@@ -216,11 +221,67 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
     })
     .then((config) => {
       console.log('config', config);
-      if (config) {
-        Object.keys(config).forEach((keyName) => {
+      if (config.config) {
+        Object.keys(config.config).forEach((keyName) => {
           setCustomConfig(keyName, config[keyName]);
         });
       }
+
+      registerFlowRunnerCanvasPlugin(
+        'MapBoxTestTask',
+        getMapBoxTestComponent(config.secrets),
+        MapBoxTestTask,
+        'MapBoxTestTask',
+        'playground',
+        undefined,
+        pluginRegistry,
+        {
+          icon: 'fa-map',
+          hasConfigMenu: true,
+          configMenu: {
+            fields: [{ fieldName: 'test' }],
+          },
+        },
+      );
+
+      registerFlowRunnerCanvasPlugin(
+        'EChartsTestTask',
+        getEChartsComponent(config.secrets),
+        EChartsTestTask,
+        'EChartsTestTask',
+        'playground',
+        undefined,
+        pluginRegistry,
+        {
+          icon: 'fas fa-chart-pie',
+          hasConfigMenu: true,
+          configMenu: {
+            fields: [
+              {
+                fieldName: 'datasource',
+                fieldType: 'select',
+                options: [
+                  { label: 'Property', value: 'property' },
+                  { label: 'Grid column', value: 'grid-column' },
+                  { label: 'Grid range', value: 'grid-range' },
+                ],
+              },
+              {
+                fieldName: 'propertyName',
+                visibilityCondition: 'datasource == "property"',
+              },
+              {
+                fieldName: 'gridColumn',
+                visibilityCondition: 'datasource == "grid-column"',
+              },
+              {
+                fieldName: 'gridRange',
+                visibilityCondition: 'datasource == "grid-range"',
+              },
+            ],
+          },
+        },
+      );
 
       let hasStorageProvider = false;
 
@@ -316,6 +377,7 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
       interface IAppProps {
         isLoggedIn: boolean;
       }
+      console.log('pre registerFlowRunnerCanvasPlugin');
 
       if (applicationMode === ApplicationMode.Canvas) {
         //import('./components/canvas').then((module) => {

@@ -31,6 +31,11 @@ export const registerCustomPlugins = () => {
           fieldType: 'textarea',
           required: true,
         },
+        {
+          fieldName: 'testjson',
+          fieldType: 'textarea',
+          storeAsBase64: true,
+        },
       ],
     },
     'playground',

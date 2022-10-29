@@ -75,14 +75,25 @@ import {
 
 const uuidV4 = uuid.v4;
 
-registerExpressionFunction('sum', (a: number, ...args: number[]) => {
+registerExpressionFunction('sum', ((a: string, ...args: string[]) => {
   console.log('sum', a, args[0]);
-  if (isRangeValue(a.toString())) {
+  const sumExpression = a.toString();
+  if (sumExpression >= 'A' && sumExpression <= 'Z' && sumExpression.length === 1) {
+    let helperValues = (args[0] as any).values;
+    let result = 0;
+    helperValues.forEach((row) => {
+      const numberValue: Number = Number(sumExpression.charCodeAt(0) as Number) - 65;
+      if (numberValue < row.length) {
+        result += Number((row as any[])[numberValue as unknown as any]) || 0;
+      }
+    });
+    return result;
+  } else if (isRangeValue(sumExpression)) {
     const range = getRangeFromValues((args[0] as any).values, a.toString());
     const valueParameterNames = getRangeValueParameters(a.toString());
     let result = 0;
     console.log(range);
-    range.map((value, index) => {
+    range.forEach((value, index) => {
       if (args[0][valueParameterNames[index]]) {
         result += Number(args[0][valueParameterNames[index]]) || 0;
       } else {
@@ -93,9 +104,47 @@ registerExpressionFunction('sum', (a: number, ...args: number[]) => {
     return result;
   } else {
     // todo ... add other arguments as well
-    return Number(a) + args[0];
+    return 0;
   }
-});
+}) as unknown as (value: number, ...args: number[]) => number);
+
+registerExpressionFunction('avg', ((a: string, ...args: string[]) => {
+  console.log('avg', a, args[0]);
+  const sumExpression = a.toString();
+  if (sumExpression >= 'A' && sumExpression <= 'Z' && sumExpression.length === 1) {
+    let helperValues = (args[0] as any).values;
+    let result = 0;
+    if (helperValues.length > 0) {
+      helperValues.forEach((row) => {
+        const numberValue: Number = Number(sumExpression.charCodeAt(0) as Number) - 65;
+        if (numberValue < row.length) {
+          result += Number((row as any[])[numberValue as unknown as any]) || 0;
+        }
+      });
+      return result / helperValues.length;
+    }
+    return result;
+  } else if (isRangeValue(sumExpression)) {
+    const range = getRangeFromValues((args[0] as any).values, a.toString());
+    const valueParameterNames = getRangeValueParameters(a.toString());
+    let result = 0;
+    console.log(range);
+    if (range.length > 0) {
+      range.forEach((value, index) => {
+        if (args[0][valueParameterNames[index]]) {
+          result += Number(args[0][valueParameterNames[index]]) || 0;
+        } else {
+          result += Number(value) || 0;
+        }
+      });
+      return result / range.length;
+    }
+    return result;
+  } else {
+    // todo ... add other arguments as well
+    return 0;
+  }
+}) as unknown as (value: number, ...args: number[]) => number);
 
 registerExpressionFunction('Math.PI', (a: number, ...args: number[]) => {
   return Math.PI;
@@ -858,10 +907,11 @@ const startFlow = (
   }
   let services = {
     flowEventRunner: worker.flow,
+    pluginTaskExtensions: {},
     isInAutoFormStepMode: worker.isInAutoFormStepMode,
     pluginClasses: {},
     logMessage: (arg1, arg2) => {
-      console.log(arg1, arg2);
+      //console.log(arg1, arg2);
     },
     registerModel: (modelName: string, definition: any) => {},
     getWebAssembly: () => {

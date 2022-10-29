@@ -1905,7 +1905,8 @@ const taskTypeConfig: ITaskTypeConfig = {
         { fieldName: 'yProperty', visibilityCondition: 'visualizer == "xycanvas"' },
         { fieldName: 'listProperty', visibilityCondition: 'visualizer == "xycanvas"' },
         { fieldName: 'color', visibilityCondition: 'visualizer == "xycanvas" || visualizer == "color"' },
-
+        { fieldName: 'includeLines', fieldType: 'checkbox', visibilityCondition: 'visualizer == "xycanvas"' },
+        { fieldName: 'showCurved', fieldType: 'checkbox', visibilityCondition: 'visualizer == "xycanvas"' },
         {
           fieldName: 'propertyName',
           visibilityCondition: 'visualizer == "text" || visualizer == "richtext" || visualizer == "number"',

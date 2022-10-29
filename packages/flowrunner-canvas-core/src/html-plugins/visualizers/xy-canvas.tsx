@@ -230,13 +230,18 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
       let yNext = 0;
       if (!!node.includeLines && index < payloads.length - 1) {
         if (xProperty == 'index') {
-          xNext = xPosition + 1;
+          xNext = xCorrection + (xPosition + 1) * minmax.ratioX;
         } else {
-          xNext = payloads[index + 1][xProperty];
+          const xNextValue =
+            payloads[index + 1][xProperty] ||
+            (payloads[index + 1][xProperty] === 0 ? 0 : xProperty === 'value' ? payloads[index + 1] || 0 : 0);
+          xNext = xNextValue;
+          xNext += width / 2 - xCorrection - (minmax.maxX ?? 0) / 2;
         }
-        yNext =
-          yCorrection +
-          (height - yCorrectionHeight - (payloads[index + 1][yProperty] * minmax.ratio + minmax.correction));
+        const yNextValue =
+          payloads[index + 1][yProperty] ||
+          (payloads[index + 1][yProperty] === 0 ? 0 : yProperty === 'value' ? payloads[index + 1] || 0 : 0);
+        yNext = yCorrection + (height - yCorrectionHeight - (yNextValue * minmax.ratio + minmax.correction));
       }
       circle = (
         <React.Fragment key={'xycanvas-wrapper-' + index + '-' + serieIndex}>
@@ -287,30 +292,59 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
   };
 
   getCurved = (node: any, xProperty, yProperty, payloads: any[], minmax: IMinMax) => {
-    let height = (this.props.node.height || 250) - heightCorrection;
+    const height = (this.props.node.height || 250) - heightCorrection;
     let points: number[] = [];
-    payloads.map((payload, index) => {
-      if (index % (node.sample || 10) == 0) {
-        if ((xProperty == 'index' || !isNaN(payload[xProperty])) && !isNaN(payload[yProperty])) {
-          let xPosition = index;
-          if (payloads.length < 250) {
-            xPosition = index + (250 - payloads.length);
-          }
 
+    const width = this.props.node.width || 250;
+    const xCorrection = 8;
+    const yCorrection = 8;
+    const yCorrectionHeight = 16;
+    payloads.map((payload, index) => {
+      let xPosition = index;
+      if (index % (node.sample || 1) == 0) {
+        if (
+          ((xProperty == 'index' || !isNaN(payload[xProperty] || !isNaN(payload as unknown as any))) &&
+            !isNaN(payload[yProperty])) ||
+          !isNaN(payload as unknown as any)
+        ) {
+          const xValue =
+            xProperty === 'index'
+              ? index
+              : payload[xProperty] || (payload[xProperty] === 0 ? 0 : xProperty === 'value' ? payload || 0 : 0);
+          const yValue =
+            payload[yProperty] || (payload[yProperty] === 0 ? 0 : yProperty === 'value' ? payload || 0 : 0);
           let x = 0;
           if (xProperty == 'index') {
-            x = xPosition;
+            x = xCorrection + xPosition * minmax.ratioX; //- xCorrection * minmax.ratio;
           } else {
-            x = payload[xProperty];
+            x = xValue;
+            x += width / 2 - xCorrection - (minmax.maxX ?? 0) / 2;
           }
-          let y = 2 + (height - 2 - (payload[yProperty] * minmax.ratio + minmax.correction));
+
+          let y = yCorrection + (height - yCorrectionHeight - (yValue * minmax.ratio + minmax.correction));
+
+          /*
+			let xPosition = index;
+			if (payloads.length < 250) {
+				xPosition = index + (250 - payloads.length);
+			}
+
+			let x = 0;
+			if (xProperty == 'index') {
+				x = xPosition;
+			} else {
+				x = payload[xProperty];
+			}
+			let y = 2 + (height - 2 - (payload[yProperty] * minmax.ratio + minmax.correction));
+			*/
           points.push(x);
           points.push(y);
         }
       }
     });
     // tension={node.tension || 1}
-    return <Line points={points} stroke={'#000000'} bezier={true} strokeWidth={1}></Line>;
+    // bezier={true}
+    return <Line points={points} stroke={'#000000'} tension={0.25} strokeWidth={1}></Line>;
   };
 
   override render() {

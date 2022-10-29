@@ -221,6 +221,7 @@ export const Canvas = (props: CanvasProps) => {
   let anmationActive = useRef(false);
   let interactionState = useRef<InteractionState>(InteractionState.idle);
 
+  let setTriggerFitStage = useRef(false);
   const selectedNodeRef = useRef(useSelectedNodeStore.getState().node);
 
   const getCurrentPosition = (event: any) => {
@@ -973,7 +974,13 @@ export const Canvas = (props: CanvasProps) => {
     const rect = (canvasWrapper as any).current.getBoundingClientRect();
     canvasTopLeftPositionRef.current = { x: rect.left, y: rect.top };
     updateDimensions();
-    console.log('CANVAS BOUNDING RECT USEEFFECT', rect, (canvasWrapper as any).current);
+    console.log(
+      'MOUNT: CANVAS BOUNDING RECT USEEFFECT',
+      rect,
+      (canvasWrapper as any).current,
+      setTriggerFitStage.current,
+    );
+    setTriggerFitStage.current = true;
   }, []);
 
   const onResize = (event) => {
@@ -1129,6 +1136,8 @@ export const Canvas = (props: CanvasProps) => {
   };
 
   useLayoutEffect(() => {
+    console.log('USELAYOUTEFFECT trigger on props.flowState, flowStore.flow, flowStore.flowHashmap');
+
     flowStoreHashMap.current = flowStore.flowHashmap;
     flowStoreFlow.current = flowStore.flow;
     window.addEventListener('resize', onResize);
@@ -1226,15 +1235,23 @@ export const Canvas = (props: CanvasProps) => {
           if (!flowIsFittedStageForSingleNode.current) {
             fitStage(undefined, true, true);
             flowIsFittedStageForSingleNode.current = true;
+            setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+            recalculateStartEndpoints(false);
           }
         } else {
-          // needed? dit triggert resize na HMR .....
-          console.log('fitstage in use layouteffect !?', stageX.current);
-          fitStage(undefined, true, true);
+          console.log('fitstage in use layouteffect !?', stageX.current, setTriggerFitStage.current);
         }
 
-        setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
-        recalculateStartEndpoints(false);
+        // no longer needed.. dit triggert resize na HMR ... en ook dan na eerste aanpassing ve node
+        // is nu gefixt door het zetten van scaleX/scaleY/position via de refs op de stage in de render (op html element gebeurde dat al)
+        /*
+        if (false && setTriggerFitStage.current) {
+          setTriggerFitStage.current = false;
+          fitStage(undefined, true, true);
+          setHtmlElementsPositionAndScale(stageX.current, stageY.current, stageScale.current);
+          recalculateStartEndpoints(false);
+        }
+        */
       }
       touchedNodesStore.setNodesTouched(touchedNodesLocal.current);
 
@@ -6123,6 +6140,12 @@ export const Canvas = (props: CanvasProps) => {
     // if key == cursor-keys right(39)/left(37) : select next node up or downstream .. (and zoom in?)
     // up 38
     // down 40
+    /*
+
+      TODO: also take into account: (navigation should make sense ... cursor keys should map connections to thumbs on the nodes where possible)
+      "thumbPosition": 2, ... alternatives : 0 or 3 or 4
+      "thumbEndPosition": 1 or undefined
+    */
     else if (event.keyCode === 38) {
       // up
       if (
@@ -6343,6 +6366,9 @@ export const Canvas = (props: CanvasProps) => {
                   pixelRatio={1}
                   width={stageWidth}
                   height={stageHeight}
+                  scaleX={stageScale.current}
+                  scaleY={stageScale.current}
+                  position={{ x: stageX.current, y: stageY.current }}
                   ref={(ref) => ((stage as any).current = ref)}
                   onDragMove={onDragStageMove}
                   onDragEnd={onDragStageEnd}

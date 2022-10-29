@@ -685,7 +685,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
   );
 
   const onReceiveValue = (value, metaInfo) => {
-    if (metaInfo.fieldType == 'color') {
+    if (metaInfo.fieldType == -'color') {
       if (throttleTimer.current) {
         clearTimeout(throttleTimer.current);
       }
@@ -694,7 +694,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
         () => {
           setValueViaOnReceive(value, metaInfo);
         },
-        metaInfo.fieldType == 'color' ? 50 : 5,
+        metaInfo.fieldType === 'color' ? 50 : 5,
       );
     } else {
       setValueViaOnReceive(value, metaInfo);

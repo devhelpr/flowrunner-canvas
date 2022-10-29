@@ -44,10 +44,11 @@ let mediaStorage = '';
 
 let secrets = {};
 try {
-  secrets = JSON.parse(readFileSync('./secrets.json').toString());
+  secrets = JSON.parse(readFileSync(getPathToLocalFile('secrets.json')).toString());
 } catch (err) {
   secrets = {};
 }
+console.log('secrets', secrets);
 
 function start(flowFileName, taskPlugins, options) {
   /*
@@ -277,7 +278,12 @@ function start(flowFileName, taskPlugins, options) {
     });
 
     app.get('/api/get-config', (req, res) => {
-      res.send(JSON.stringify(config));
+      res.send(
+        JSON.stringify({
+          config: config,
+          secrets: secrets,
+        }),
+      );
     });
 
     const flowRouteHandler = (req, res) => {
@@ -955,11 +961,13 @@ function start(flowFileName, taskPlugins, options) {
             const services = {
               flowEventRunner: flow,
               pluginClasses: {},
+
               logMessage: (arg1, arg2) => {
                 //console.log(arg1, arg2);
               },
               // eslint-disable-next-line @typescript-eslint/no-empty-function
               registerModel: (modelName, definition) => {},
+              pluginTaskExtensions: {},
             };
 
             runner.start(

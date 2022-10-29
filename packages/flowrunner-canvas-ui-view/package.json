@@ -16,8 +16,8 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/expressionrunner": "0.3.0",
-    "@devhelpr/flowrunner": "0.15.3",
+    "@devhelpr/expressionrunner": "0.3.1",
+    "@devhelpr/flowrunner": "0.16.2",
     "@devhelpr/flowrunner-canvas-core": "^0.43.49",
     "@devhelpr/layoutrunner": "^0.0.2",
     "@dnd-kit/core": "^3.1.1",

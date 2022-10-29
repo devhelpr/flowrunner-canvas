@@ -83,7 +83,7 @@ export class ExpressionTask extends FlowTask {
           payload = { ...payload, ...values };
         }
         try {
-          console.log('expression', node.forceNumeric, payload, this.compiledExpressionTree);
+          //console.log('expression', node.forceNumeric, payload, this.compiledExpressionTree);
           const result = executeExpressionTree(this.compiledExpressionTree, payload || {});
           if (node.mode && node.mode === 'numeric' && (isNaN(result) || result === 'undefined')) {
             console.log('ExpressionTask - result is NaN/undefined', result);
