@@ -46,3 +46,23 @@ from workspace root:
   ... output staat in ./dist/apps/code-flow-canvas
 
    
+## Create new build-in task
+
+- Create task-plugin in flowrunner-canvas-core/flowrunner-plugins
+- Create config in flowrunner-canvas-core/config.ts
+- Register task-class with flow.registerTask in flowrunner-canvas-core/flow-tasks
+
+If it has a custom node which needs to be rendered in the flow..
+- Create tsx file in flowrunner-canvas-core/html-plugins
+- Add component to flowrunner-canvas-core/renderHtmlNode
+- Does the component need to be visible in user-uiview? add hasUI to config in config.ts
+
+## Create custom task outside flowrunner-canvas-core
+
+If it has only a task-plugin an NO custom node appearance:
+- Create task-plugin in app/code-flow-canvas/flow-plugins
+- Register task-plugin with registerCustomNodeType in registerCustomPlugins in app/code-flow-canvas/flow-plugins/index.ts (config is specified there as well)
+
+If it has a custom node which needs to be rendered in the flow..
+- Creaate tsx file in app/code-flow-canvas/html-plugins
+- Register task-plugin and custom node with registerFlowRunnerCanvasPlugin in app/code-flow-canvas/main.tsx (this will change in the near future)
