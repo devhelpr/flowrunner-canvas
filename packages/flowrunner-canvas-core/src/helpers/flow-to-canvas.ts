@@ -517,6 +517,30 @@ export class FlowToCanvas {
         y: newPosition.y + ShapeMeasures.diamondSize / 2,
       };
     } else {
+      const nodeAttachedToCenter = endNode.lineConnectionEndPoints === 'center-of-node';
+      if (!!nodeAttachedToCenter) {
+        const resultPointOnRect = pointOnRect(
+          startNodePosition.x + ShapeMeasures.rectWidht / 2 - 8,
+          startNodePosition.y + ShapeMeasures.rectHeight / 2,
+          newPosition.x - 8,
+          newPosition.y,
+          newPosition.x + ShapeMeasures.rectWidht + 8,
+          newPosition.y + ShapeMeasures.rectHeight,
+          true,
+        );
+
+        if (resultPointOnRect) {
+          return {
+            x: resultPointOnRect.x,
+            y: resultPointOnRect.y,
+          };
+        }
+
+        return {
+          x: newPosition.x + ShapeMeasures.rectWidht / 2 - 8,
+          y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (4 + 8),
+        };
+      }
       return {
         x: newPosition.x - 8,
         y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (4 + 8),

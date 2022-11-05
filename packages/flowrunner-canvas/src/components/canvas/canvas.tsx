@@ -4657,7 +4657,7 @@ export const Canvas = (props: CanvasProps) => {
             const endPositionNode = positionContext.getPosition(endNode.name) || endNode;
 
             const startPosition = FlowToCanvas.getStartPointForLine(
-              startNode,
+              { ...startNode, lineConnectionEndPoints: 'center-of-node', curveMode: 'straight' },
               {
                 x: startPositionNode.x,
                 y: startPositionNode.y,
@@ -4669,7 +4669,7 @@ export const Canvas = (props: CanvasProps) => {
             );
 
             const endPosition = FlowToCanvas.getEndPointForLine(
-              endNode,
+              { ...endNode, lineConnectionEndPoints: 'center-of-node', curveMode: 'straight' },
               {
                 x: endPositionNode.x,
                 y: endPositionNode.y,
@@ -4692,6 +4692,7 @@ export const Canvas = (props: CanvasProps) => {
               endshapeid: endNode.name,
               isConnectionWithVariable: !!nodeDependency.isVariable,
               isConnectionWithFunction: !!nodeDependency.isFunction,
+              curveMode: 'straight',
             };
             connections.push(connection);
           }
@@ -4837,7 +4838,7 @@ export const Canvas = (props: CanvasProps) => {
                   const endPositionNode = positionContext.getPosition(nodeEnd.name) || nodeEnd;
 
                   let startPosition = FlowToCanvas.getStartPointForLine(
-                    node,
+                    { ...node, lineConnectionEndPoints: 'center-of-node', curveMode: 'straight' },
                     { x: startPositionNode.x, y: startPositionNode.y },
                     nodeEnd,
                     endPositionNode,
@@ -4845,7 +4846,7 @@ export const Canvas = (props: CanvasProps) => {
                     props.getNodeInstance,
                   );
                   let endPosition = FlowToCanvas.getEndPointForLine(
-                    nodeEnd,
+                    { ...nodeEnd, lineConnectionEndPoints: 'center-of-node', curveMode: 'straight' },
                     { x: endPositionNode.x, y: endPositionNode.y },
                     node,
                     startPositionNode,
@@ -4854,7 +4855,7 @@ export const Canvas = (props: CanvasProps) => {
 
                   if (!startToEnd) {
                     startPosition = FlowToCanvas.getStartPointForLine(
-                      nodeEnd,
+                      { ...nodeEnd, lineConnectionEndPoints: 'center-of-node', curveMode: 'straight' },
                       { x: endPositionNode.x, y: endPositionNode.y },
                       node,
                       { x: startPositionNode.x, y: startPositionNode.y },
@@ -4862,7 +4863,7 @@ export const Canvas = (props: CanvasProps) => {
                       props.getNodeInstance,
                     );
                     endPosition = FlowToCanvas.getEndPointForLine(
-                      node,
+                      { ...node, lineConnectionEndPoints: 'center-of-node', curveMode: 'straight' },
                       { x: startPositionNode.x, y: startPositionNode.y },
                       nodeEnd,
                       endPositionNode,
@@ -4883,6 +4884,7 @@ export const Canvas = (props: CanvasProps) => {
                     endshapeid: startToEnd ? nodeEnd.name : node.name,
                     isConnectionWithVariable: isConnectionWithVariable,
                     isConnectionWithFunction: isFunctionCall,
+                    curveMode: 'straight',
                   };
                   connections.push(connection);
                 }
@@ -6353,7 +6355,7 @@ export const Canvas = (props: CanvasProps) => {
 
   const canvasHasSelectedNode: boolean = !!selectedNodeRef.current;
 
-  const connections = canvasMode.showDependencies ? getDependentConnections() : [];
+  const dependencyConnections = canvasMode.showDependencies ? getDependentConnections() : [];
   let nodesConnectedToSelectedNode: any = {};
   //const flowMemo = flowStore.flow;/*useMemo(() => {
   //	return flowStore.flow
@@ -6530,8 +6532,8 @@ export const Canvas = (props: CanvasProps) => {
                           }
                           return null;
                         })}
-                        {connections.length > 0 &&
-                          connections.map((node, index) => {
+                        {dependencyConnections.length > 0 &&
+                          dependencyConnections.map((node, index) => {
                             if (canvasHasSelectedNode && selectedNodeRef.current) {
                               if (node.startshapeid === selectedNodeRef.current.name) {
                                 nodesConnectedToSelectedNode[node.endshapeid] = true;
@@ -6562,6 +6564,7 @@ export const Canvas = (props: CanvasProps) => {
                                 selectedNodeName={canvasHasSelectedNode ? selectedNodeRef.current.name : ''}
                                 startNodeName={node.startshapeid}
                                 endNodeName={node.endshapeid}
+                                lineNode={node}
                                 noMouseEvents={true}
                               ></Shapes.Line>
                             );
