@@ -56,7 +56,7 @@ getDefaultUITasks as well
 
 If it has a custom node which needs to be rendered in the flow..
 - Create tsx file in flowrunner-canvas-core/html-plugins
-- Add component to flowrunner-canvas-core/renderHtmlNode
+- Add component to flowrunner-canvas-core/renderHtmlNode and getNodeInstance
 - Does the component need to be visible in user-uiview? add hasUI to config in config.ts
 
 ## Create custom task outside flowrunner-canvas-core

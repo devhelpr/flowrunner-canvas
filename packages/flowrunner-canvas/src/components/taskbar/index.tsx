@@ -330,6 +330,7 @@ export const Taskbar = (props: TaskbarProps) => {
     'FormTask',
     'ApiProxyTask',
     'DataGridTask',
+    'DataTableTask',
   ];
   const stateTasks = [
     'State',

@@ -52,6 +52,7 @@ import { ReduceEventTask } from '../flowrunner-plugins/reduce-event-task';
 import { OperationEventTask } from '../flowrunner-plugins/operation-event-task';
 import { ApiProxyTask } from '../flowrunner-plugins/api-proxy-task';
 import { CreateListTask } from '../flowrunner-plugins/create-list-task';
+import { DataTableTask } from '../flowrunner-plugins/data-table-task';
 
 export interface IFlowTask {
   new (): FlowTask;
@@ -115,6 +116,7 @@ export const registerTasks = (flow) => {
   flow.registerTask('MatrixTask', MatrixTask);
   flow.registerTask('GridEditTask', GridEditTask);
   flow.registerTask('DataGridTask', DataGridTask);
+  flow.registerTask('DataTableTask', DataTableTask);
   flow.registerTask('RunWasmFlowTask', RunWasmFlowTask);
   flow.registerTask('ScreenTask', ScreenTask);
   flow.registerTask('FormTask', FormTask);
@@ -200,8 +202,11 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'InputTask', fullName: 'InputTask', flowType: 'playground' });
   tasks.push({ className: 'ListTask', fullName: 'ListTask', flowType: 'playground' });
   tasks.push({ className: 'MatrixTask', fullName: 'MatrixTask', flowType: 'playground' });
+
   tasks.push({ className: 'GridEditTask', fullName: 'GridEditTask', flowType: 'playground' });
   tasks.push({ className: 'DataGridTask', fullName: 'DataGridTask', flowType: 'playground' });
+  tasks.push({ className: 'DataTableTask', fullName: 'DataTableTask', flowType: 'playground' });
+
   tasks.push({ className: 'SearchDataGridTask', fullName: 'SearchDataGridTask', flowType: 'playground' });
   tasks.push({ className: 'FilterDataGridTask', fullName: 'FilterDataGridTask', flowType: 'playground' });
   tasks.push({ className: 'TransformTask', fullName: 'TransformTask', flowType: 'playground' });

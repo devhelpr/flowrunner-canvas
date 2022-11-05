@@ -436,7 +436,6 @@ img {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   padding: 20px;
   height: 100%;
   width: 100%;
@@ -476,6 +475,10 @@ img {
     margin-bottom: 5px;
     margin-top: 5px;
   }
+}
+
+.html-plugin-node:not(.tw-items-start) {
+  align-items: center;
 }
 
 .canvas__html-shape-bar:hover {

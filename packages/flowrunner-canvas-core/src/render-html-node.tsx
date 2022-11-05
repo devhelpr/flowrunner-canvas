@@ -14,6 +14,7 @@ import { FormNodeHtmlPlugin, FormNodeHtmlPluginInfo, IFormInfoProps } from './ht
 import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 import { DataGridNodeHtmlPluginInfo, DataGridNodeHtmlPlugin } from './html-plugins/data-grid-node';
 import { IFlowState, useFlowStore } from './state/flow-state';
+import { DataTableNodeHtmlPlugin, DataTableNodeHtmlPluginInfo } from './html-plugins/data-table-node';
 
 const DebugNodeHtmlPlugin = React.lazy(() =>
   import('./html-plugins/debug-node').then(({ DebugNodeHtmlPlugin }) => ({ default: DebugNodeHtmlPlugin })),
@@ -139,6 +140,15 @@ export const renderHtmlNode = (
         node={node}
       ></DataGridNodeHtmlPlugin>
     );
+  } else if (htmlPlugin == 'dataTableNode') {
+    return (
+      <DataTableNodeHtmlPlugin
+        key={(flowId ? '' : flowId) + node.name}
+        flowrunnerConnector={flowrunnerConnector}
+        node={node}
+        flow={flow}
+      ></DataTableNodeHtmlPlugin>
+    );
   } else if (htmlPlugin == 'debugNode') {
     return (
       <Suspense fallback={<div>Loading...</div>}>
@@ -216,6 +226,8 @@ export const getNodeInstance = (
     return new DebugNodeHtmlPluginInfo();
   } else if (htmlPlugin == 'dataGridNode') {
     return new DataGridNodeHtmlPluginInfo();
+  } else if (htmlPlugin == 'dataTableNode') {
+    return new DataTableNodeHtmlPluginInfo();
   }
   return;
 };

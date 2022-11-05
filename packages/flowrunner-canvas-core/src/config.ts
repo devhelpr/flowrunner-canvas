@@ -1022,6 +1022,36 @@ const taskTypeConfig: ITaskTypeConfig = {
       ],
     },
   },
+  DataTableTask: {
+    hasUI: true,
+    hasConfigMenu: true,
+    shapeType: 'Html',
+    htmlPlugin: 'dataTableNode',
+    icon: 'fa-table',
+    presetValues: {
+      htmlPlugin: 'dataTableNode',
+      propertyName: '',
+    },
+    configMenu: {
+      fields: [
+        { fieldName: 'dataPropertyName' },
+        {
+          fieldName: 'columns',
+          fieldType: 'objectList',
+          label: 'Columns',
+          idProperty: 'fieldId',
+          autoId: 'none',
+          metaInfo: [
+            {
+              fieldName: 'columnName',
+              fieldType: 'text',
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+  },
   SliderTask: {
     hasUI: true,
     hasConfigMenu: true,
