@@ -325,6 +325,7 @@ export const Taskbar = (props: TaskbarProps) => {
     'AssignTask',
     'IfConditionTask',
     'ExpressionTask',
+    'CreateListTask',
     'DebugTask',
     'FormTask',
     'ApiProxyTask',
