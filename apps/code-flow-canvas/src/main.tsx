@@ -239,9 +239,7 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
           icon: 'fa-map',
           hasConfigMenu: true,
           hasUI: true,
-          presetValues: {
-            visualizer: 'visualizer',
-          },
+          presetValues: {},
           configMenu: {
             fields: [{ fieldName: 'test' }],
           },
@@ -260,9 +258,7 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
           icon: 'fas fa-chart-pie',
           hasConfigMenu: true,
           hasUI: true,
-          presetValues: {
-            visualizer: 'visualizer',
-          },
+          presetValues: {},
           configMenu: {
             fields: [
               {

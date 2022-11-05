@@ -50,7 +50,9 @@ from workspace root:
 
 - Create task-plugin in flowrunner-canvas-core/flowrunner-plugins
 - Create config in flowrunner-canvas-core/config.ts
-- Register task-class with flow.registerTask in flowrunner-canvas-core/flow-tasks
+- Register task-class with flow.registerTask in flowrunner-canvas-core/flow-tasks and add it to
+getDefaultUITasks as well
+- (Optional) to add task to taskbar category.. add this to flowrunner-canvas/taskbar (this will change in the near future)
 
 If it has a custom node which needs to be rendered in the flow..
 - Create tsx file in flowrunner-canvas-core/html-plugins

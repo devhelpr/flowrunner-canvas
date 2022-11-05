@@ -745,6 +745,41 @@ const taskTypeConfig: ITaskTypeConfig = {
       },
     ],
   },
+  CreateListTask: {
+    shapeType: 'Html',
+    icon: 'fa-bars',
+    presetValues: {
+      listExpression: '',
+      assignToProperty: '',
+      forceNumeric: true,
+    },
+    htmlPlugin: 'formNode',
+    showNotSelectedAsLabels: true,
+    metaInfo: [
+      {
+        fieldName: 'listExpression',
+        required: true,
+      },
+      {
+        fieldName: 'assignToProperty',
+        required: true,
+      },
+      {
+        fieldName: 'mode',
+        fieldType: 'select',
+        options: [
+          {
+            value: 'default',
+            label: 'Default',
+          },
+          {
+            value: 'numeric',
+            label: 'Numeric',
+          },
+        ],
+      },
+    ],
+  },
   ExpressionTask: {
     shapeType: 'Html',
     icon: 'fa-calculator',

@@ -51,6 +51,7 @@ import { FilterEventTask } from '../flowrunner-plugins/filter-event-task';
 import { ReduceEventTask } from '../flowrunner-plugins/reduce-event-task';
 import { OperationEventTask } from '../flowrunner-plugins/operation-event-task';
 import { ApiProxyTask } from '../flowrunner-plugins/api-proxy-task';
+import { CreateListTask } from '../flowrunner-plugins/create-list-task';
 
 export interface IFlowTask {
   new (): FlowTask;
@@ -134,6 +135,7 @@ export const registerTasks = (flow) => {
   flow.registerTask('DebugTask', DebugTask);
   flow.registerTask('GroupAndSumTask', GroupAndSumTask);
   flow.registerTask('ExpressionTask', ExpressionTask);
+  flow.registerTask('CreateListTask', CreateListTask);
   flow.registerTask('MultiFormTask', MultiFormTask);
   flow.registerTask('SelectValueFromListTask', SelectValueFromListTask);
   flow.registerTask('PrototypeTask', PrototypeTask);
@@ -190,6 +192,7 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'RandomTask', fullName: 'RandomTask', flowType: 'playground' });
   tasks.push({ className: 'TimerTask', fullName: 'TimerTask', flowType: 'playground' });
   tasks.push({ className: 'ExpressionTask', fullName: 'ExpressionTask', flowType: 'playground' });
+  tasks.push({ className: 'CreateListTask', fullName: 'CreateListTask', flowType: 'playground' });
   tasks.push({ className: 'OutputValueTask', fullName: 'OutputValueTask', flowType: 'playground' });
   tasks.push({ className: 'ConditionalTriggerTask', fullName: 'ConditionalTriggerTask', flowType: 'playground' });
   tasks.push({ className: 'ApiProxyTask', fullName: 'ApiProxyTask', flowType: 'playground' });
