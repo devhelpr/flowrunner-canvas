@@ -80,6 +80,9 @@ registerExpressionFunction('sum', ((a: string, ...args: string[]) => {
   const sumExpression = a.toString();
   if (sumExpression >= 'A' && sumExpression <= 'Z' && sumExpression.length === 1) {
     let helperValues = (args[0] as any).values;
+    if (!helperValues) {
+      return 0;
+    }
     let result = 0;
     helperValues.forEach((row) => {
       const numberValue: Number = Number(sumExpression.charCodeAt(0) as Number) - 65;
@@ -113,6 +116,9 @@ registerExpressionFunction('avg', ((a: string, ...args: string[]) => {
   const sumExpression = a.toString();
   if (sumExpression >= 'A' && sumExpression <= 'Z' && sumExpression.length === 1) {
     let helperValues = (args[0] as any).values;
+    if (!helperValues) {
+      return 0;
+    }
     let result = 0;
     if (helperValues.length > 0) {
       helperValues.forEach((row) => {
@@ -381,29 +387,21 @@ const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
       if (node.observable) {
         new Promise((resolve, reject) => {
           const executeId = uuidV4();
-          //console.log("FlowPluginWrapperTaskInternal", pluginName, node.name, executeId, node.payload);
-          /*
-          flowPluginNodes[node.name] = {
-            resolve,
-            executeId,
-          };
-          */
           const payload = { ...node.payload, executeId: executeId };
-          /*ctx.postMessage('external', {
-            command: 'ExecuteFlowPlugin',
-            payload: payload,
-            nodeName: node.name,
-            pluginName: pluginName,
-          });*/
           const pluginInstance = new pluginClass();
-          let result = pluginInstance.execute({ payload: payload }, undefined);
+          let result = pluginInstance.execute({ payload: payload }, services);
           resolve(result);
         }).then((payload) => {
-          //console.log("payload FlowPluginWrapperTask", node, payload);
           node.observable.next({
             nodeName: node.name,
             payload: Object.assign({}, payload),
           });
+
+          if (services?.isInAutoFormStepMode) {
+            if (!services.flowEventRunner.getPropertyFromNode(node.name, 'waitForUserSubmit')) {
+              return false;
+            }
+          }
         });
 
         return node.observable;
@@ -891,11 +889,13 @@ const startFlow = (
       pluginRegistry.map((plugin: any) => {
         console.log('pluginName', plugin.FlowTaskPluginClassName);
 
+        /*
         worker.flow?.registerTask(
           plugin.FlowTaskPluginClassName,
           FlowPluginWrapperTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin),
         );
-        //flow.registerTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin);
+        */
+        worker.flow?.registerTask(plugin.FlowTaskPluginClassName, plugin.FlowTaskPlugin);
       });
     }
   }

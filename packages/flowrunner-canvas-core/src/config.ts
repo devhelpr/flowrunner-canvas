@@ -2133,7 +2133,7 @@ const taskTypeConfig: ITaskTypeConfig = {
 
 let fullConfig = { ...taskTypeConfig };
 
-export const setCustomConfig = (className: string, config: any) => {
+export const setCustomConfig = (className: string, config: ICustomTaskConfig) => {
   if (config) {
     customConfig[className] = config;
   }

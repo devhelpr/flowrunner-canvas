@@ -94,7 +94,8 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     const nodeHash = flowHashmapRef.current.get(nodeName);
     if (nodeHash) {
       const nodeByIndex = flowRef.current[nodeHash.index];
-      if (nodeByIndex.taskType === 'FormTask' || nodeByIndex.taskType === 'DebugTask') {
+      const settings = ShapeSettings.getShapeSettings(nodeByIndex.taskType, nodeByIndex);
+      if (settings.hasUI || nodeByIndex.taskType === 'FormTask' || nodeByIndex.taskType === 'DebugTask') {
         path.push(nodeByIndex.formStepTitle || nodeByIndex.formTitle || nodeByIndex.name);
       }
 
@@ -149,7 +150,8 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 
       if (startNodeIndex >= 0) {
         let helper: string[] = [];
-        if (startNode.taskType === 'FormTask' && startNode.taskType === 'DebugTask') {
+        const settings = ShapeSettings.getShapeSettings(startNode.taskType, startNode);
+        if (settings.hasUI || startNode.taskType === 'FormTask' || startNode.taskType === 'DebugTask') {
           helper = [startNodeName];
         }
         helper = [...helper, ...getFormFlowPath(startNodeName, startNodeIndex)];
@@ -166,16 +168,14 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     if (!nodeName) {
       return false;
     }
-    //console.log('checkIfNodeHasTouchedOutputNodes', nodeName);
     if (flowHashmapRef.current && flowRef.current) {
       const nodeHash = flowHashmapRef.current.get(nodeName);
 
       if (isDeeper) {
         let nodeViaHash = flowRef.current[nodeHash.index];
-        //console.log('check isDeeper', nodeName, nodeViaHash);
-        if (nodeViaHash.taskType === 'FormTask' || nodeViaHash.taskType === 'DebugTask') {
+        const settings = ShapeSettings.getShapeSettings(nodeViaHash.taskType, nodeViaHash);
+        if (settings.hasUI || nodeViaHash.taskType === 'FormTask' || nodeViaHash.taskType === 'DebugTask') {
           if (touchedNodesLocal.current[nodeViaHash.name] === true) {
-            //console.log('checkingNode is touched (deeper)', nodeViaHash.name);
             return true;
           }
         }
@@ -187,12 +187,9 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
         while (loop < nodeHash.start.length && !nodeHasTouchedOuputNode) {
           const checkingIndex = nodeHash.start[loop];
           const checkingNode = flowRef.current[checkingIndex];
-          //console.log('checking...', nodeName, checkingNode);
-          // "taskType": "FormTask",
-          // "taskType": "DebugTask",
-          if (checkingNode.taskType === 'FormTask' || checkingNode.taskType === 'DebugTask') {
+          const settings = ShapeSettings.getShapeSettings(checkingNode.taskType, checkingNode);
+          if (settings.hasUI || checkingNode.taskType === 'FormTask' || checkingNode.taskType === 'DebugTask') {
             if (touchedNodesLocal.current[checkingNode.name] === true) {
-              //console.log('checkingNode is touched', checkingNode.name);
               setIsLastNode(true);
             } else {
               nodeHasTouchedOuputNode = checkIfNodeHasTouchedOutputNodes(checkingNode.name, true);
@@ -207,7 +204,6 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
           loop++;
         }
       }
-      //console.log('checkIfNodeHasTouchedOutputNodes ouput', nodeName, nodeHasTouchedOuputNode);
       return nodeHasTouchedOuputNode;
     }
     return false;
@@ -219,39 +215,28 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     }
     if (flowHashmapRef.current) {
       const nodeHash = flowHashmapRef.current.get(nodeName);
-      //console.log('checkIfNodeHasOutputNodes', nodeName, nodeHash, flowHashmapRef.current);
       const result = nodeHash && nodeHash.start && nodeHash.start.length && nodeHash.start.length > 0;
-      if (!result) {
-        //console.log('checkIfNodeHasOutputNodes no output nodes', nodeName);
-      }
       return result;
     }
     return false;
   };
 
-  const updateTouchedNodes = () => {
+  const updateTouchedNodes = useCallback(() => {
     if (touchedNodesLocal.current) {
       let showNode = '';
-      //console.log('updateTouchedNodes', touchedNodesLocal.current);
       Object.keys(touchedNodesLocal.current).forEach((touchNodeId: string) => {
         if (touchNodeId !== 'undefined') {
           const nodeHash = flowHashmapRef.current.get(touchNodeId);
           if (nodeHash && !showNode && touchNodeId && touchedNodesLocal.current[touchNodeId] === true) {
-            //console.log('check nodes', touchNodeId, showNode);
             if (!checkIfNodeHasOutputNodes(touchNodeId)) {
-              //console.log('check nodes checkIfNodeHasOutputNodes', touchNodeId, showNode);
               showNode = touchNodeId;
               setCurrentValues(undefined);
             } else if (!checkIfNodeHasTouchedOutputNodes(touchNodeId, false)) {
-              //console.log('check nodes checkIfNodeHasTouchedOutputNodes', touchNodeId, showNode);
               showNode = touchNodeId;
             }
-            //console.log('check nodes after', touchNodeId, showNode);
           }
         }
       });
-
-      //console.log('showNode', showNode);
 
       if (showNode && flowStepsRef.current.findIndex((item) => item.nodeName === showNode) < 0) {
         let title = showNode;
@@ -259,37 +244,53 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
           const flowHash = flowHashmapRef.current.get(showNode);
           if (flowHash) {
             const nodeViaFlowHash = flowRef.current[flowHash.index];
+            const settings = ShapeSettings.getShapeSettings(nodeViaFlowHash.taskType, nodeViaFlowHash);
             if (
               nodeViaFlowHash &&
-              (nodeViaFlowHash.taskType === 'FormTask' || nodeViaFlowHash.taskType === 'DebugTask')
+              (settings.hasUI || nodeViaFlowHash.taskType === 'FormTask' || nodeViaFlowHash.taskType === 'DebugTask')
             ) {
               title = nodeViaFlowHash.formStepTitle || nodeViaFlowHash.formTitle || showNode;
+
               setCurrentNode(nodeViaFlowHash);
 
-              setFlowSteps((flowSteps) => [
-                ...flowSteps,
-                {
-                  nodeName: showNode,
-                  title: title,
-                },
-              ]);
+              setFlowSteps((flowSteps) => {
+                if (flowSteps.length > 0) {
+                  if (flowSteps[flowSteps.length - 1].nodeName === showNode) {
+                    return [...flowSteps];
+                  }
+                }
+                return [
+                  ...flowSteps,
+                  {
+                    nodeName: showNode,
+                    title: title,
+                  },
+                ];
+              });
             }
           }
         }
       }
     }
-  };
+  }, [currentNode]);
 
-  const nodeStateObserver = (nodeName: string, nodeState: string, touchedNodes: any) => {
-    //console.log('nodeStateObserver autoformstep', nodeName, nodeState, touchedNodes);
-    nodesStateLocal.current[nodeName] = nodeState;
-    touchedNodesLocal.current = touchedNodes;
-    updateTouchedNodes();
-  };
+  const nodeStateObserver = useCallback(
+    (nodeName: string, nodeState: string, touchedNodes: any, incomingPayload?: any) => {
+      if (nodeState !== 'before') {
+        return;
+      }
+      if (incomingPayload) {
+        setPayload(incomingPayload);
+      }
+      nodesStateLocal.current[nodeName] = nodeState;
+      touchedNodesLocal.current = touchedNodes;
+      updateTouchedNodes();
+    },
+    [currentNode],
+  );
 
   const receivePayloadFromNode = useCallback(
     (incomingPayload: any) => {
-      //console.log("receivePayloadFromNode", currentNode, incomingPayload);
       setPayload(incomingPayload);
     },
     [currentNode],
@@ -330,8 +331,12 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
 
   const onNextStep = (event) => {
     event.preventDefault();
-
-    if (currentNode && currentNode.taskType === 'DebugTask') {
+    const settings = ShapeSettings.getShapeSettings(currentNode?.taskType, currentNode);
+    if (
+      currentNode &&
+      currentNode.taskType !== 'FormTask' &&
+      (currentNode.taskType === 'DebugTask' || settings.hasUI)
+    ) {
       if (props.flowrunnerConnector) {
         props.flowrunnerConnector?.modifyFlowNode(currentNode.name, '', undefined, currentNode.name, '', {
           waitForUserSubmit: true,
@@ -368,7 +373,6 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
             if (flowSteps.findIndex((item) => item.nodeName === node.name) < 0) {
               props.flowrunnerConnector?.clearNodeState(node.name);
               const metaInfo = node.metaInfo || [];
-              //console.log("onNextStep metaInfo", node.name, metaInfo);
               metaInfo.forEach((field) => {
                 if (field && field.fieldName && fieldInCurrentNode.indexOf(field.fieldName) < 0) {
                   delete sendValues[field.fieldName];
@@ -377,7 +381,7 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
             }
           }
         });
-        //console.log("sendValues", sendValues);
+        sendValues.waitForUserSubmit = true;
         props.flowrunnerConnector?.modifyFlowNode(currentNode.name, '', undefined, currentNode.name, '', sendValues);
       }
     }
@@ -385,7 +389,6 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
   };
 
   const onOverrideReceiveValues = (nodeName: string, values: any) => {
-    //console.log("onOverrideReceiveValues", nodeName, currentNode, values, currentNode && currentNode.name === nodeName, isLastNode);
     if (currentNode && currentNode.name === nodeName) {
       setCurrentValues(values);
     }
@@ -416,7 +419,6 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
     formInfoRef.current = formInfo;
   };
 
-  //console.log('currentNode', currentNode, flowHashmapRef.current, flowRef.current);
   if (!currentNode) {
     return <></>;
   }
@@ -451,7 +453,22 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
         }
       }
     }
-    //console.log("settings ui", node.name, isInEditMode, settings);
+
+    let initialDatasource: any = {};
+    let datasourcePropertyName: any = undefined;
+    if (currentNode?.taskType === 'FormTask' && payload) {
+      currentNode.metaInfo.map((metaInfo) => {
+        if (metaInfo.datasource && payload[metaInfo.datasource]) {
+          datasourcePropertyName = metaInfo.datasource;
+        }
+      });
+
+      if (datasourcePropertyName) {
+        if (datasourcePropertyName) {
+          initialDatasource[datasourcePropertyName] = payload[datasourcePropertyName];
+        }
+      }
+    }
 
     return (
       <>
@@ -484,6 +501,7 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
           </div>
           <div className="py-3">
             <div
+              key={currentNode?.name}
               style={{
                 width: (width || node.width || 250) + 'px',
                 minHeight: (height || node.height || 250) + 'px',
@@ -496,7 +514,7 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
               data-node={node.name}
               data-html-plugin={nodeClone.htmlPlugin}
               data-node-type={node.taskType}
-              data-visualizer={nodeClone.visualizer || ''}
+              data-visualizer={nodeClone.visualizer || (settings.hasUI ? 'has-ui' : '') || ''}
               data-x={node.x}
               data-y={node.y}
               className="canvas__html-shape"
@@ -515,6 +533,8 @@ export const AutoFormStep = (props: IAutoFormStepProps) => {
                     onOverrideReceiveValues,
                     true,
                     onFormInfo,
+                    true,
+                    initialDatasource,
                   )}
               </div>
             </div>

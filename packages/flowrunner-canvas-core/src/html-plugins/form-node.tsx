@@ -105,8 +105,10 @@ export interface FormNodeHtmlPluginProps {
   isNodeSettingsUI?: boolean;
   datasources?: any;
 
+  initialDatasource?: any;
   initialValues?: any;
   isInFormConfirmMode?: boolean;
+  isUIView?: boolean;
   onSetValue?: (value, fieldName) => void;
 
   useFlowStore?: (param?: any) => IFlowState;
@@ -116,21 +118,12 @@ export interface FormNodeHtmlPluginProps {
   onFormInfo?: (formInfo: IFormInfoProps) => void;
 }
 
-export interface FormNodeHtmlPluginState {
-  value: string;
-  values: string[];
-  node: any;
-  errors: any;
-  datasource: any;
-  receivedPayload: any;
-}
-
 export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
   const [value, setValue] = useState('');
   const [values, setValues] = useState<any[]>(props.initialValues || []);
   const [node, setNode] = useState({} as any);
   const [errors, setErrors] = useState({} as any);
-  const [datasource, setDatasource] = useState({} as any);
+  const [datasource, setDatasource] = useState(props.initialDatasource || ({} as any));
   const [receivedPayload, setReceivedPayload] = useState({} as any);
   const storeFlowNode =
     (props.useFlowStore && (props.useFlowStore(useCallback((state) => state.storeFlowNode, [])) as any)) ||
@@ -381,7 +374,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
         onCanSubmitForm,
       });
     }
-  }, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
+  }, [
+    props.taskSettings,
+    props.initialValues,
+    props.node,
+    values,
+    props.isObjectListNodeEditing,
+    props.isNodeSettingsUI,
+  ]);
 
   const onSubmit = useCallback(
     (event?: any) => {
@@ -391,10 +391,18 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       onCanSubmitForm();
       return false;
     },
-    [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI],
+    [
+      props.taskSettings,
+      props.node,
+      props.initialValues,
+      values,
+      props.isObjectListNodeEditing,
+      props.isNodeSettingsUI,
+    ],
   );
 
   const onCanSubmitForm = useCallback(() => {
+    console.log('onCanSubmitForm');
     //
     //	 debugNode doesn't get triggered after pushFlow...
     //   .. in the worker the observables that are used to send SendObservableNodePayload
@@ -429,15 +437,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
     (metaInfo || []).map((metaInfo) => {
       let isVisible = true;
+      let data = { ...props.node, ...props.initialValues, ...receivedPayload, ...values };
       if (metaInfo.visibilityCondition) {
         const expression = createExpressionTree(metaInfo.visibilityCondition);
-        let data = { ...props.node, ...receivedPayload, ...values };
         const result = executeExpressionTree(expression, data);
         isVisible = !!result;
       }
 
       if (isVisible && metaInfo && !!metaInfo.required) {
-        const value = values[metaInfo.fieldName] || props.node[metaInfo.fieldName] || '';
+        const value = data[metaInfo.fieldName] || props.node[metaInfo.fieldName] || '';
         if (value === '') {
           doSubmit = false;
           updatedErrors[metaInfo.fieldName] = `${metaInfo.fieldName} is a required field`;
@@ -452,7 +460,14 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       setErrors(updatedErrors);
       return false;
     }
-  }, [props.taskSettings, props.node, values, props.isObjectListNodeEditing, props.isNodeSettingsUI]);
+  }, [
+    props.taskSettings,
+    props.node,
+    props.initialValues,
+    values,
+    props.isObjectListNodeEditing,
+    props.isNodeSettingsUI,
+  ]);
 
   const onModifyFlowThrottleTimer = useCallback(() => {
     //console.log("onModifyFlowThrottleTimer", props.node.name, node, values);
@@ -510,7 +525,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
               props.onOverrideReceiveValues(props.node.name, updatedValues);
             } else if (!props.isInFormConfirmMode && props.flowrunnerConnector) {
               //console.log("setValueHelper pre modifyFlowNode", value, updatedValues);
-
               props.flowrunnerConnector?.modifyFlowNode(
                 props.node.name,
                 fieldName,
@@ -561,6 +575,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       props.isNodeSettingsUI,
       props.onSetValue,
       props.flowrunnerConnector,
+      props.initialValues,
     ],
   );
 
@@ -571,10 +586,24 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
     event.persist();
 
     if (fieldType == 'fileupload') {
-      valueForNode = {
-        fileName: event.target.files[0].name,
-        fileData: event.target.files[0],
-      };
+      const fileInfo = event.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener('load', (event) => {
+        valueForNode = {
+          fileName: fileInfo.name,
+          fileData: fileInfo,
+        };
+        if (metaInfo.storeAsBase64 && event && event.target && event.target.result) {
+          const data = btoa((event.target.result as string).toString());
+          valueForNode = {
+            fileName: fileInfo.name,
+            fileData: data,
+          };
+        }
+        setValueHelper(fieldName, valueForNode, metaInfo);
+      });
+      reader.readAsBinaryString(fileInfo);
+      return;
 
       //valueForNode = event.target.value;
     } else if (metaInfo && metaInfo.dataType === 'number') {
@@ -681,6 +710,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       props.isNodeSettingsUI,
       props.onSetValue,
       props.flowrunnerConnector,
+      props.initialValues,
     ],
   );
 
@@ -760,7 +790,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
         }
       }
     },
-    [props.node, node, value, values, props.flowrunnerConnector],
+    [props.node, node, value, values, props.flowrunnerConnector, props.initialValues],
   );
 
   const renderFields = useCallback(() => {
@@ -789,7 +819,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
         {metaInfo.map((metaInfo, index) => {
           const fieldType = getFieldType(metaInfo);
 
-          let data = { ...props.node, ...receivedPayload, ...values };
+          let data = { ...props.node, ...props.initialValues, ...receivedPayload, ...values };
           if (metaInfo.visibilityCondition) {
             const expression = createExpressionTree(metaInfo.visibilityCondition);
 
@@ -824,8 +854,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
             let inputValue = '';
             let fileObject: any = undefined;
             if (fieldType !== 'fileupload') {
-              if (values[metaInfo.fieldName] !== undefined) {
-                inputValue = values[metaInfo.fieldName];
+              if (data[metaInfo.fieldName] !== undefined) {
+                inputValue = data[metaInfo.fieldName];
               } else {
                 inputValue = props.node[metaInfo.fieldName] || '';
                 if (!inputValue) {
@@ -888,12 +918,20 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
                   </label>
                   {fieldType === 'fileupload' && fileObject && <div>{fileObject.fileName || ''}</div>}
                   <div className="input-group mb-1">
+                    {fieldType === 'fileupload' && (
+                      <label
+                        htmlFor={'input-' + props.node.name + '-' + metaInfo.fieldName}
+                        className="btn btn-primary tw-w-full"
+                      >
+                        {metaInfo.uploadButtonTitle || 'Upload file'}
+                      </label>
+                    )}
                     <input
                       onChange={(event) => onChange(metaInfo.fieldName, metaInfo.fieldType || 'text', metaInfo, event)}
                       onFocus={onFocus}
                       key={'index' + index}
                       type={fieldType === 'fileupload' ? 'file' : fieldType}
-                      className="form-control"
+                      className={`form-control ${fieldType === 'fileupload' ? 'tw-hidden' : ''}`}
                       value={inputValue}
                       accept={metaInfo.acceptFiles || ''}
                       id={'input-' + props.node.name + '-' + metaInfo.fieldName}
@@ -915,11 +953,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
             } else if (metaInfo.datasource == '[WASMFLOW]') {
               datasourceToUse = flowsWasm;
             } else if (datasourceContext.getDatasource(metaInfo.datasource)) {
+              console.log('datasourceToUse via context');
               datasourceToUse = datasourceContext.getDatasource(metaInfo.datasource);
             } else if (metaInfo.datasource && datasource[metaInfo.datasource]) {
+              console.log('datasourceToUse via props.datasources', datasource);
               datasourceToUse = datasource[metaInfo.datasource];
             }
-
+            if (datasourceToUse) {
+              console.log('datasourceToUse', datasourceToUse);
+            }
             if (!!props.isReadOnly) {
               let data = '';
               if (metaInfo.fieldType == 'objectList') {
@@ -940,8 +982,8 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
             }
 
             let inputValue = '';
-            if (values[metaInfo.fieldName] !== undefined) {
-              inputValue = values[metaInfo.fieldName];
+            if (data[metaInfo.fieldName] !== undefined) {
+              inputValue = data[metaInfo.fieldName];
             } else {
               inputValue = props.node[metaInfo.fieldName] || '';
               if (!inputValue) {
@@ -995,6 +1037,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
     props.isNodeSettingsUI,
     props.isObjectListNodeEditing,
     props.flowrunnerConnector,
+    props.initialValues,
   ]);
 
   /*if (!!props.node.formDefinitionAsPayload && !props.isNodeSettingsUI) {
@@ -1009,7 +1052,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
     <div
       className="html-plugin-node"
       style={{
-        backgroundColor: 'white',
+        backgroundColor: !props.isUIView && props.node.taskType === 'FormTask' ? '#f2f2f2' : 'white',
       }}
     >
       <div className={'w-100 h-auto'}>

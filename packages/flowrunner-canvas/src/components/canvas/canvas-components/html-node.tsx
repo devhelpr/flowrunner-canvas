@@ -178,7 +178,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
         data-node={props.node.name}
         data-task={props.node.taskType}
         data-html-plugin={nodeClone.htmlPlugin}
-        data-visualizer={props.node.visualizer || 'default'}
+        data-visualizer={props.node.visualizer || (settings.hasUI ? 'has-ui' : '') || 'default'}
         data-x={position.x}
         data-y={position.y}
         data-height={height || props.node.height || 250}

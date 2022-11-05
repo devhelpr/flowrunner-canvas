@@ -36,6 +36,12 @@ export const registerCustomPlugins = () => {
           fieldType: 'textarea',
           storeAsBase64: true,
         },
+        {
+          fieldName: 'wasm',
+          fieldType: 'fileupload',
+          storeAsBase64: true,
+          acceptFiles: '.wasm',
+        },
       ],
     },
     'playground',

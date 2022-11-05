@@ -67,6 +67,7 @@ let flowRunnerCanvasPluginRegisterFunctions: any[] = [];
 import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
 import { Canvas as CanvasComponent } from './components/canvas';
 import { IExampleFlow } from './components/new-flow';
+import { ICustomTaskConfig } from 'packages/flowrunner-canvas-core/src/config';
 export { CanvasComponent };
 export { UserInterfaceViewEditor };
 export type { IExampleFlow } from './components/new-flow';
@@ -88,7 +89,7 @@ export const registerFlowRunnerCanvasPlugin = (
   flowType?: string,
   flowRunnerConnector?: IFlowrunnerConnector,
   customPluginRegistry?: any,
-  customConfig?: any,
+  customConfig?: ICustomTaskConfig,
 ) => {
   if (flowRunnerConnectorInstance || flowRunnerConnector || customPluginRegistry) {
     const plugin = {

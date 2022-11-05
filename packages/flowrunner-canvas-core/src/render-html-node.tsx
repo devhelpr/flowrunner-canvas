@@ -39,6 +39,8 @@ export const renderHtmlNode = (
   onOverrideReceiveValues?: (nodeName: string, values: any) => void,
   isInFormConfirmMode?: boolean,
   onFormInfo?: (formInfo: IFormInfoProps) => void,
+  isUIView?: boolean,
+  initialDatasource?: any,
 ) => {
   let htmlPlugin = node.htmlPlugin;
   if (!htmlPlugin || htmlPlugin == '') {
@@ -125,6 +127,8 @@ export const renderHtmlNode = (
         onOverrideReceiveValues={onOverrideReceiveValues}
         isInFormConfirmMode={isInFormConfirmMode}
         onFormInfo={onFormInfo}
+        isUIView={isUIView}
+        initialDatasource={initialDatasource}
       ></FormNodeHtmlPlugin>
     );
   } else if (htmlPlugin == 'dataGridNode') {

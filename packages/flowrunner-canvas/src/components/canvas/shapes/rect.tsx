@@ -253,7 +253,9 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref: any) => {
           x={0}
           y={includeSvgIcon ? Math.round(ShapeMeasures.rectWidht / 8) : 0}
           text={
-            !!props.hasTaskNameAsNodeTitle
+            props.node.label
+              ? props.node.label
+              : !!props.hasTaskNameAsNodeTitle
               ? props.node.taskType
               : props.node && props.node.label
               ? props.node.label

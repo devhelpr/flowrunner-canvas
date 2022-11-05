@@ -34,6 +34,7 @@ export interface IModule {
 }
 
 export const Taskbar = (props: TaskbarProps) => {
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [metaDataInfo, setMetaDataInfo] = useState([] as any[]);
   const [menuMode, setMenuMode] = useState(TaskMenuMode.tasks);
   const [modules, setModules] = useState([] as IModule[]);
@@ -64,9 +65,7 @@ export const Taskbar = (props: TaskbarProps) => {
         return { ...task, icon: taskSettings.icon || task.icon || '' };
       });
 
-    console.log('setupTasks - setMetaDataInfo');
     setMetaDataInfo(tasks);
-    console.log('setupTasks - after setMetaDataInfo', metaDataInfo);
   };
 
   const loadTasks = () => {
@@ -76,6 +75,8 @@ export const Taskbar = (props: TaskbarProps) => {
       console.log('loadTasks - hasStorageProvider');
       let tasks: any[] = props.flowrunnerConnector.storageProvider?.getTasks() || [];
       setupTasks([...tasks, ...props.flowrunnerConnector.getTasksFromPluginRegistry()]);
+      setHasLoaded(true);
+
       return;
     }
 
@@ -117,6 +118,8 @@ export const Taskbar = (props: TaskbarProps) => {
             isAnnotation: true,
           },
         ]);
+
+        setHasLoaded(true);
       })
       .catch((err) => {
         console.error(err);
@@ -181,16 +184,19 @@ export const Taskbar = (props: TaskbarProps) => {
     const controller = new AbortController();
     abortableControllerRef.current = controller;
     return () => {
+      console.log('loadTasks - aborted');
       controller.abort();
     };
   }, []);
 
   useEffect(() => {
-    console.log('USEEFFECT taskbar : trigger loadTasks etc is done now', metaDataInfo.length);
-    loadTasks();
-    if (props.hasCustomNodesAndRepository) {
-      loadRepositoryItems();
-      loadCustomNodesItems();
+    console.log('USEEFFECT taskbar : trigger loadTasks', metaDataInfo.length);
+    if (canvasMode.flowType !== '') {
+      loadTasks();
+      if (props.hasCustomNodesAndRepository) {
+        loadRepositoryItems();
+        loadCustomNodesItems();
+      }
     }
   }, [canvasMode.flowType, props.hasCustomNodesAndRepository]);
 
@@ -304,30 +310,146 @@ export const Taskbar = (props: TaskbarProps) => {
     );
   };
 
+  if (canvasMode.flowType === '') {
+    return <></>;
+  }
+
   if (menuMode == TaskMenuMode.tasks && metaDataInfo.length <= 1) {
     return <></>;
   }
 
+  let showCoreCategory = false;
+  let showStateCategory = false;
+  let showAnnotationsCategory = false;
+  const coreTasks = [
+    'AssignTask',
+    'IfConditionTask',
+    'ExpressionTask',
+    'DebugTask',
+    'FormTask',
+    'ApiProxyTask',
+    'DataGridTask',
+  ];
+  const stateTasks = [
+    'State',
+    'Event',
+    'Guard',
+    'Action',
+    'OnStartFlow',
+    'StateChangeTriggerTask',
+    'StateMachine',
+    'StartState',
+  ];
+  const annotationTasks = ['AnnotationActor', 'AnnotationText'];
+  if (menuMode === TaskMenuMode.tasks) {
+    showCoreCategory =
+      metaDataInfo.filter((metaData) => {
+        return coreTasks.find((item) => item === metaData.className);
+      }).length > 0;
+
+    showStateCategory =
+      metaDataInfo.filter((metaData) => {
+        return stateTasks.find((item) => item === metaData.className);
+      }).length > 0;
+
+    showAnnotationsCategory =
+      metaDataInfo.filter((metaData) => {
+        return annotationTasks.find((item) => item === metaData.className);
+      }).length > 0;
+  }
   return (
     <>
       <div className="taskbar" style={{ pointerEvents: props.isDragging ? 'none' : 'auto' }}>
-        {menuMode == TaskMenuMode.tasks ? (
+        {hasLoaded && menuMode == TaskMenuMode.tasks ? (
           <div className="taskbar__ribbon">
             <>
-              {metaDataInfo.map((taskMetaData: any, index) => {
-                return (
-                  <Draggable id={taskMetaData.className} key={taskMetaData.className}>
-                    {renderRect(taskMetaData.className, taskMetaData)}
-                  </Draggable>
-                );
-              })}
+              {showCoreCategory && (
+                <div className="p-1 tw-mt-0 tw-bg-gray-300">
+                  <h2>Core</h2>
+                </div>
+              )}
+              {hasLoaded &&
+                showCoreCategory &&
+                metaDataInfo.map((taskMetaData: any, index) => {
+                  if (coreTasks.find((item) => item === taskMetaData.className)) {
+                    return (
+                      <Draggable id={taskMetaData.className} key={taskMetaData.className}>
+                        {renderRect(taskMetaData.className, taskMetaData)}
+                      </Draggable>
+                    );
+                  }
+                  return null;
+                })}
+              {showAnnotationsCategory && (
+                <div className="p-1 tw-mt-4 tw-bg-gray-300">
+                  <h2>Annotations</h2>
+                </div>
+              )}
+              {hasLoaded &&
+                showAnnotationsCategory &&
+                metaDataInfo.map((taskMetaData: any, index) => {
+                  if (annotationTasks.find((item) => item === taskMetaData.className)) {
+                    return (
+                      <Draggable id={taskMetaData.className} key={taskMetaData.className}>
+                        {renderRect(taskMetaData.className, taskMetaData)}
+                      </Draggable>
+                    );
+                  }
+                  return null;
+                })}
+              {showStateCategory && (
+                <div className="p-1 tw-mt-4 tw-bg-gray-300">
+                  <h2>Statemachine</h2>
+                </div>
+              )}
+              {hasLoaded &&
+                showStateCategory &&
+                metaDataInfo.map((taskMetaData: any, index) => {
+                  if (stateTasks.find((item) => item === taskMetaData.className)) {
+                    return (
+                      <Draggable id={taskMetaData.className} key={taskMetaData.className}>
+                        {renderRect(taskMetaData.className, taskMetaData)}
+                      </Draggable>
+                    );
+                  }
+                  return null;
+                })}
+              {showCoreCategory && (
+                <div className="p-1 tw-mt-4 tw-bg-gray-300">
+                  <h2>Other</h2>
+                </div>
+              )}
+              {hasLoaded &&
+                metaDataInfo.map((taskMetaData: any, index) => {
+                  if (showCoreCategory) {
+                    if (coreTasks.find((item) => item === taskMetaData.className)) {
+                      return null;
+                    }
+                  }
+                  if (showStateCategory) {
+                    if (stateTasks.find((item) => item === taskMetaData.className)) {
+                      return null;
+                    }
+                  }
+                  if (showAnnotationsCategory) {
+                    if (annotationTasks.find((item) => item === taskMetaData.className)) {
+                      return null;
+                    }
+                  }
+                  return (
+                    <Draggable id={taskMetaData.className} key={taskMetaData.className}>
+                      {renderRect(taskMetaData.className, taskMetaData)}
+                    </Draggable>
+                  );
+                })}
               <div>
-                {repositoryItems && repositoryItems.items && repositoryItems.items.length > 0 && (
+                {hasLoaded && repositoryItems && repositoryItems.items && repositoryItems.items.length > 0 && (
                   <div className="p-1 tw-mt-4 tw-bg-gray-300">
                     <h2>Repository</h2>
                   </div>
                 )}
-                {repositoryItems &&
+                {hasLoaded &&
+                  repositoryItems &&
                   repositoryItems.items &&
                   repositoryItems.items.map((repoItem: any, index) => {
                     const taskRepoItem: any = {
@@ -344,12 +466,13 @@ export const Taskbar = (props: TaskbarProps) => {
                   })}
               </div>
               <div>
-                {customNodes && customNodes.items && customNodes.items.length > 0 && (
+                {hasLoaded && customNodes && customNodes.items && customNodes.items.length > 0 && (
                   <div className="p-1 tw-mt-4 tw-bg-gray-300">
                     <h2>CustomNodes</h2>
                   </div>
                 )}
-                {customNodes &&
+                {hasLoaded &&
+                  customNodes &&
                   customNodes.items &&
                   customNodes.items.map((customNode: any, index) => {
                     const taskCustomNode: any = {

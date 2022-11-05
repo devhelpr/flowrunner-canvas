@@ -1285,7 +1285,7 @@ textarea.form-control:disabled {
   /*justify-content: space-between;*/
 }
 
-.ui-view-layout__container .canvas__html-shape:not([data-node-type='DebugTask']) {
+.ui-view-layout__container .canvas__html-shape:not([data-node-type='DebugTask']):not([data-visualizer='has-ui']) {
   min-height: auto !important;
   width: 100% !important;
 }
@@ -1956,7 +1956,7 @@ textarea.form-control:disabled {
   }
 
   .canvas__html-shape-body {
-    outline: 2px solid #a2a2a2;
+    /*outline: 2px solid #a2a2a2;*/
     border-radius: 0;
     border-bottom-right-radius: 2px;
     border-bottom-left-radius: 2px;

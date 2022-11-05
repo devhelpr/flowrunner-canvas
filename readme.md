@@ -39,3 +39,10 @@ from workspace root:
     />
 
 	... and other asset from assets
+
+## build code-flow-canvas app
+
+  yarn nx build code-flow-canvas
+  ... output staat in ./dist/apps/code-flow-canvas
+
+   

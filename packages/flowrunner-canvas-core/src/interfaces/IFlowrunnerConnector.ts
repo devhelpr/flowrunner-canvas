@@ -13,11 +13,11 @@ export interface IFlowrunnerConnector {
   flowView: string;
   forcePushToFlowRunner: boolean;
 
-  isInAutoFormStepMode : boolean;
+  isInAutoFormStepMode: boolean;
 
   registerNodeStateObserver: (
     observableId: string,
-    callback: (nodeName: string, nodeState: string, touchedNodes: any) => void,
+    callback: (nodeName: string, nodeState: string, touchedNodes: any, payload?: any) => void,
   ) => void;
   unregisterNodeStateObserver: (observableId: string) => void;
 

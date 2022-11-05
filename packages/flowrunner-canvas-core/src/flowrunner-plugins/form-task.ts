@@ -5,6 +5,12 @@ const uuidV4 = uuid.v4;
 
 export class FormTask extends ObservableTask {
   public override execute(node: any, services: any) {
+    if (services.isInAutoFormStepMode) {
+      if (!services.flowEventRunner.getPropertyFromNode(node.name, 'waitForUserSubmit')) {
+        return false;
+      }
+    }
+
     if (!!node.formDefinitionAsPayload) {
       const payload = { ...node.payload };
       payload['metaInfo'] = node.metaInfo || [];
@@ -96,6 +102,12 @@ export class FormTask extends ObservableTask {
           let data = { ...values };
           payload[node.outputProperty] = executeExpressionTree(expression, data);
         }
+
+        if (services.isInAutoFormStepMode) {
+          services.flowEventRunner.setPropertyOnNode(node.name, 'waitForUserSubmit', false);
+        }
+
+        console.log('form-task', node.name, isValid, hasValues, values, metaInfoDefinition, payload);
         return payload;
       }
       console.log('form-task', node.name, isValid, hasValues, values, metaInfoDefinition);

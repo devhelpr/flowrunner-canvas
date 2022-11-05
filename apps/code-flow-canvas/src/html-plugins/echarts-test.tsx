@@ -44,13 +44,66 @@ const getDatasource = (node: any, payload: any) => {
 
 export const EChartsTest = (props: IEChartsTestProps) => {
   const datasource: number[] = useMemo(() => getDatasource(props.node, props.payload), [props.node, props.payload]);
-
+  /*
+xAxis: {
+    type: 'category',
+    
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [150, 230, 224, 218, 135, 147, 260],
+      type: 'line'
+    }
+  ]
+*/
+  if (props.node.chartType === 'line') {
+    return (
+      <ReactECharts
+        style={{ height: '100%', minHeight: '100%', width: '100%', position: 'absolute' }}
+        option={{
+          useDirtyRect: false,
+          legend: { show: false },
+          grid: {
+            left: '10%',
+            bottom: '10%',
+            right: '10%',
+            top: '10%',
+          },
+          xAxis: {
+            type: 'category',
+          },
+          yAxis: {
+            type: 'value',
+          },
+          series: [
+            {
+              data: datasource,
+              type: 'line',
+              label: {
+                show: false,
+              },
+            },
+          ],
+        }}
+      />
+    );
+  }
   return (
     <ReactECharts
       style={{ height: '100%', minHeight: '100%', width: '100%', position: 'absolute' }}
       option={{
+        useDirtyRect: false,
         legend: { show: false },
         grid: { top: '55%', show: false },
+        xAxis: {
+          show: false,
+        },
+        yAxis: {
+          show: false,
+        },
         series: [
           {
             type: 'pie',
@@ -61,15 +114,8 @@ export const EChartsTest = (props: IEChartsTestProps) => {
               focus: 'self',
             },
             data: datasource,
-            itemStyle: {
-              normal: {
-                label: {
-                  show: false,
-                },
-                labelLine: {
-                  show: false,
-                },
-              },
+            label: {
+              show: false,
             },
           },
         ],
