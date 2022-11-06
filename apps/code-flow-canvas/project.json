@@ -4,7 +4,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/web:webpack",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": [
         "{options.outputPath}"
       ],
@@ -51,7 +51,7 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/web:dev-server",
+      "executor": "@nrwl/webpack:dev-server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "code-flow-canvas:build",
@@ -82,7 +82,7 @@
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": [
-        "coverage/apps/code-flow-canvas"
+        "{workspaceRoot}/coverage/apps/code-flow-canvas"
       ],
       "options": {
         "jestConfig": "apps/code-flow-canvas/jest.config.ts",

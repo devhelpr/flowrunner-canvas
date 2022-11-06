@@ -12,16 +12,30 @@
     "noImplicitAny": false,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@devhelpr/flowrunner-canvas": ["packages/flowrunner-canvas/src/index.tsx"],
-      "@devhelpr/flowrunner-canvas-core": ["packages/flowrunner-canvas-core/src/index.tsx"],
-      "@devhelpr/flowrunner-canvas-icons": ["libs/flowrunner-canvas-icons/src/index.tsx"],
-      "@devhelpr/flowrunner-canvas-ui-view": ["packages/flowrunner-canvas-ui-view/src/index.tsx"]
+      "@devhelpr/flowrunner-canvas": [
+        "packages/flowrunner-canvas/src/index.tsx"
+      ],
+      "@devhelpr/flowrunner-canvas-core": [
+        "packages/flowrunner-canvas-core/src/index.tsx"
+      ],
+      "@devhelpr/flowrunner-canvas-icons": [
+        "libs/flowrunner-canvas-icons/src/index.tsx"
+      ],
+      "@devhelpr/flowrunner-canvas-ui-view": [
+        "packages/flowrunner-canvas-ui-view/src/index.tsx"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

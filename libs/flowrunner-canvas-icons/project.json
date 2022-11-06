@@ -5,14 +5,18 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nrwl/web:rollup",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nrwl/rollup:rollup",
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "libs/flowrunner-canvas-icons/dist",
         "tsConfig": "libs/flowrunner-canvas-icons/tsconfig.lib.json",
         "project": "libs/flowrunner-canvas-icons/package.json",
         "entryFile": "libs/flowrunner-canvas-icons/src/index.tsx",
-        "external": ["react/jsx-runtime"],
+        "external": [
+          "react/jsx-runtime"
+        ],
         "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
         "compiler": "babel",
         "assets": [
@@ -27,9 +31,13 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["libs/flowrunner-canvas-icons/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": [
+          "libs/flowrunner-canvas-icons/**/*.{ts,tsx,js,jsx}"
+        ]
       }
     }
   }

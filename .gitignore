@@ -11,3 +11,4 @@ secrets.json
 /apps/**/bundle
 /apps/**/lib
 /libs/flowrunner-canvas-icons/lib
+nx-cloud.env

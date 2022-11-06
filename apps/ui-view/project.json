@@ -4,7 +4,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/web:webpack",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": [
         "{options.outputPath}"
       ],
@@ -51,7 +51,7 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/web:dev-server",
+      "executor": "@nrwl/webpack:dev-server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "ui-view:build",
@@ -81,7 +81,7 @@
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": [
-        "coverage/apps/ui-view"
+        "{workspaceRoot}/coverage/apps/ui-view"
       ],
       "options": {
         "jestConfig": "apps/ui-view/jest.config.ts",
