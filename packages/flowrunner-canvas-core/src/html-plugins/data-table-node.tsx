@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useReceivedPayload } from '../hooks/use-received-payload';
 
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
-
-import * as uuid from 'uuid';
-const uuidV4 = uuid.v4;
 
 export class DataTableNodeHtmlPluginInfo {
   getWidth = (node) => {
@@ -25,77 +22,16 @@ export interface DataTableNodeHtmlPluginProps {
 }
 
 export const DataTableNodeHtmlPlugin = (props: DataTableNodeHtmlPluginProps) => {
-  const [receivedPayload, setReceivedPayload] = useState<any>({});
-  const observableId = useRef(uuidV4());
-  const unmounted = useRef(false);
+  const { payload } = useReceivedPayload(props.flowrunnerConnector, props.node, props.flow);
 
-  const receivedPayloads = useRef([] as any[]);
-
-  useEffect(() => {
-    unmounted.current = false;
-    console.log('DataTableNodeHtmlPlugin mount');
-    props.flowrunnerConnector.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
-    return () => {
-      console.log('DataTableNodeHtmlPlugin unmount');
-      props.flowrunnerConnector.unregisterFlowNodeObserver(props.node.name, observableId.current);
-      unmounted.current = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    unmounted.current = false;
-    console.log('DataTableNodeHtmlPlugin mount nf');
-
-    props.flowrunnerConnector.registerFlowNodeObserver(props.node.name, observableId.current, receivePayloadFromNode);
-    return () => {
-      unmounted.current = true;
-      console.log('DataTableNodeHtmlPlugin unmount nf');
-      props.flowrunnerConnector.unregisterFlowNodeObserver(props.node.name, observableId.current);
-    };
-  }, [props.node, props.flow]);
-
-  const receivePayloadFromNode = useCallback(
-    (payload: any) => {
-      console.log('data-table-node payload', payload);
-      if (unmounted.current) {
-        return;
-      }
-      if (!!payload.isDebugCommand) {
-        if (payload.debugCommand === 'resetPayloads') {
-          if (receivedPayloads.current.length > 0) {
-            receivedPayloads.current = [];
-            setReceivedPayload({});
-          }
-        }
-        return;
-      }
-
-      let newReceivedPayloads: any[] = [...receivedPayloads.current];
-      newReceivedPayloads.push({ ...payload });
-      if (newReceivedPayloads.length > 1) {
-        newReceivedPayloads = newReceivedPayloads.slice(Math.max(newReceivedPayloads.length - 1, 0));
-      }
-      receivedPayloads.current = newReceivedPayloads;
-
-      setReceivedPayload({ ...payload });
-
-      return;
-    },
-    [props.node, props.flow],
-  );
-  console.log('data-table-node', props.node, receivedPayload);
-  if (
-    !props.node.dataPropertyName ||
-    !props.node.columns ||
-    !receivedPayload ||
-    !receivedPayload[props.node.dataPropertyName]
-  ) {
+  console.log('data-table-node', props.node, payload);
+  if (!props.node.dataPropertyName || !props.node.columns || !payload || !payload[props.node.dataPropertyName]) {
     return null;
   }
 
   const rows = (
     <>
-      {receivedPayload[props.node.dataPropertyName].map((row, index) => {
+      {payload[props.node.dataPropertyName].map((row, index) => {
         if (index >= 10) {
           return null;
         }
