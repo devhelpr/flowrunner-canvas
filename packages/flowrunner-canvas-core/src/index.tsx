@@ -81,3 +81,4 @@ export { MapEventTask } from './flowrunner-plugins/map-event-task';
 export { FilterEventTask } from './flowrunner-plugins/filter-event-task';
 export { ReduceEventTask } from './flowrunner-plugins/reduce-event-task';
 export * from './config';
+export { useReceivedPayload } from './hooks/use-received-payload';
