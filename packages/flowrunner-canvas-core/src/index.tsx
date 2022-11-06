@@ -80,3 +80,4 @@ export type { FlowType } from './flow-tasks';
 export { MapEventTask } from './flowrunner-plugins/map-event-task';
 export { FilterEventTask } from './flowrunner-plugins/filter-event-task';
 export { ReduceEventTask } from './flowrunner-plugins/reduce-event-task';
+export * from './config';

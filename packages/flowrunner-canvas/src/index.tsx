@@ -54,6 +54,7 @@ import {
   FlowStorageProviderService,
   INode,
   INodeFlowState,
+  ICustomTaskConfig,
 } from '@devhelpr/flowrunner-canvas-core';
 
 import { UserInterfaceView } from '@devhelpr/flowrunner-canvas-ui-view';
@@ -67,7 +68,6 @@ let flowRunnerCanvasPluginRegisterFunctions: any[] = [];
 import { UserInterfaceViewEditor } from './components/userinterface-view-editor';
 import { Canvas as CanvasComponent } from './components/canvas';
 import { IExampleFlow } from './components/new-flow';
-import { ICustomTaskConfig } from 'packages/flowrunner-canvas-core/src/config';
 export { CanvasComponent };
 export { UserInterfaceViewEditor };
 export type { IExampleFlow } from './components/new-flow';
