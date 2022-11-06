@@ -56,6 +56,7 @@ getDefaultUITasks as well
 
 If it has a custom node which needs to be rendered in the flow..
 - Create tsx file in flowrunner-canvas-core/html-plugins
+- There's a useReceivedPayload hook which returns the payload when received when the node is triggered
 - Add component to flowrunner-canvas-core/renderHtmlNode and getNodeInstance
 - Does the component need to be visible in user-uiview? add hasUI to config in config.ts
 

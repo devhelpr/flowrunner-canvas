@@ -24,7 +24,6 @@ export interface DataTableNodeHtmlPluginProps {
 export const DataTableNodeHtmlPlugin = (props: DataTableNodeHtmlPluginProps) => {
   const { payload } = useReceivedPayload(props.flowrunnerConnector, props.node, props.flow);
 
-  console.log('data-table-node', props.node, payload);
   if (!props.node.dataPropertyName || !props.node.columns || !payload || !payload[props.node.dataPropertyName]) {
     return null;
   }
@@ -48,6 +47,7 @@ export const DataTableNodeHtmlPlugin = (props: DataTableNodeHtmlPluginProps) => 
       })}
     </>
   );
+
   const table = (
     <>
       {
