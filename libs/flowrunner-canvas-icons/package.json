@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner-canvas-icons",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "publishConfig": {
     "access": "public",
     "_directory": "../../libs/flowrunner-canvas-icons"
