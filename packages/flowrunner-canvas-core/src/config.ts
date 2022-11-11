@@ -41,6 +41,7 @@ export interface ICustomTaskConfig {
   hasThumbs?: boolean;
   hasConfigMenu?: boolean;
   hasUI?: boolean;
+  isFormTask?: boolean;
 
   constraints?: any;
   events?: any[];
