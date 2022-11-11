@@ -1,6 +1,5 @@
 import create from 'zustand';
 import { State, SetState } from 'zustand';
-import produce from 'immer';
 
 interface INodesState extends State {
   nodes: any;
@@ -12,7 +11,7 @@ let storeHandler = (set: SetState<INodesState>): INodesState => {
   return {
     nodes: {},
     setNodeState: (nodeName: string, nodeState: string) =>
-      set(state => {
+      set((state) => {
         let newNodes = { ...state.nodes };
         newNodes[nodeName] = nodeState;
         return {
@@ -20,7 +19,7 @@ let storeHandler = (set: SetState<INodesState>): INodesState => {
         };
       }),
     clearNodesState: () =>
-      set(state => {
+      set((state) => {
         return {
           nodes: {},
         };
@@ -28,5 +27,5 @@ let storeHandler = (set: SetState<INodesState>): INodesState => {
   };
 };
 
-export const useNodesStateStore = create<INodesState>(set => storeHandler(set));
-export const useNodesStateForMultiFormStore = create<INodesState>(set => storeHandler(set));
+export const useNodesStateStore = create<INodesState>((set) => storeHandler(set));
+export const useNodesStateForMultiFormStore = create<INodesState>((set) => storeHandler(set));

@@ -72,6 +72,7 @@
   },
   "scripts": {
     "build": "nx build",
+    "build-code-flow": "nx build code-flow-canvas",
     "start": "nx serve code-flow-canvas",
     "startapi": "nx serve api",
     "versionandpublishpackages": "lerna publish --no-private"
@@ -79,4 +80,3 @@
   "name": "flowrunner-canvas-root",
   "version": "0.0.1"
 }
-

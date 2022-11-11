@@ -6863,7 +6863,12 @@ export const Canvas = (props: CanvasProps) => {
           </div>
         </div>
       </DndContext>
-      <FloatingToolbar useCanvasModeStateStore={props.useCanvasModeStateStore} />
+      <FloatingToolbar
+        formNodesubject={props.formNodesubject}
+        flowrunnerConnector={props.flowrunnerConnector}
+        useFlowStore={props.useFlowStore}
+        useCanvasModeStateStore={props.useCanvasModeStateStore}
+      />
       {showNodeSettings && (
         <EditNodeSettings
           modalSize={props.modalSize}

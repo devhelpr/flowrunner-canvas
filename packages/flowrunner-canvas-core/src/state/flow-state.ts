@@ -1,13 +1,19 @@
 import create from 'zustand';
 import { State, SetState } from 'zustand';
 import { FlowToCanvas } from '../helpers/flow-to-canvas';
-import produce from 'immer';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 import { FlowStorageProviderService } from '../services/FlowStorageProviderService';
 import { IPosition, IPositionContext } from '../contexts/position-context';
 import { TFlowMap } from '../interfaces/IFlowMap';
+import { IUndoConnectionMode, IUndoNode } from '../interfaces/IUndoNode';
+import { storeFlowNode } from './handle-flow-state';
+import { deleteFlowNode } from './handle-flow-state/delete-flow-node';
+import { addFlowNode } from './handle-flow-state/add-flow-node';
+import { connectFlowNode } from './handle-flow-state/connect-flow-node';
 
 export interface IFlowState extends State {
+  undoList: IUndoNode[];
+  redoList: IUndoNode[];
   flow: any[];
   flowId: string;
   flowHashmap: TFlowMap;
@@ -20,6 +26,7 @@ export interface IFlowState extends State {
   deleteConnection: (node: any) => void;
   deleteNode: (node: any, deleteLines: boolean) => void;
   deleteNodes: (nodes: any[]) => void;
+  undoNode: () => void;
 }
 
 const handleStorageProvider = (config) => (set, get, api) =>
@@ -54,21 +61,63 @@ const handleStorageProvider = (config) => (set, get, api) =>
     api,
   );
 
-/*
-  TODO : handle delete/add in flowHashmap
-*/
-
-/*produce(draftState => {
-          draftState.flowId = flowId;
-          draftState.flowHashmap = FlowToCanvas.createFlowHashMap(flow);
-          draftState.flow = FlowToCanvas.convertFlowPackageToCanvasFlow(flow);
-}),*/
-
 export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
   return {
+    undoList: [],
+    redoList: [],
     flow: [],
     flowId: '',
     flowHashmap: new Map(),
+    undoNode: () =>
+      set((state) => {
+        let undoList = [...state.undoList];
+        console.log('undoList', undoList);
+        if (undoList.length > 0) {
+          const undoNode = undoList.pop();
+
+          if (undoNode && undoNode.undoType === 'add') {
+            let result = addFlowNode(undoNode.node.name, undoNode.node, state.flow);
+            if (undoNode.connections && undoNode.connectionMode === IUndoConnectionMode.addConnection) {
+              undoNode.connections.forEach((connection) => {
+                result = addFlowNode(connection.name, connection, result.flow);
+              });
+            } else if (undoNode.connections && undoNode.connectionMode === IUndoConnectionMode.reconnect) {
+              undoNode.connections.forEach((connection) => {
+                if (connection.startshapeid === undoNode.node.name || connection.endshapeid === undoNode.node.name) {
+                  result.flow = connectFlowNode(undoNode.node.name, connection, result.flow);
+                }
+              });
+            }
+            return {
+              undoList: undoList,
+              flow: result.flow,
+              flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
+            };
+          } else if (undoNode && undoNode.undoType === 'delete') {
+            const result = deleteFlowNode(undoNode.node.name, undoNode.node, false, state.flow);
+            return {
+              undoList: undoList,
+              flow: result.flow,
+              flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
+            };
+          } else if (undoNode && undoNode.undoType === 'modify') {
+            console.log('undo', undoNode);
+            const result = storeFlowNode(undoNode.node.name, undoNode.node, undefined, state.flow);
+
+            return {
+              undoList: undoList,
+              flow: result.flow,
+              flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
+            };
+          }
+        }
+
+        return {
+          undoList: undoList,
+          flow: state.flow,
+          flowHashmap: state.flowHashmap,
+        };
+      }),
     storeFlow: (flow: any[], flowId: string, positionContext?: IPositionContext) =>
       set((state) => {
         return {
@@ -83,44 +132,16 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
         if (positionContext) {
           position = positionContext.positions.get(orgNodeName);
         }
-        let flow = state.flow.map((currentNode, index) => {
-          if (currentNode.name === orgNodeName) {
-            const newNode = Object.assign(
-              {},
-              node,
-              {
-                name: node.name,
-                id: node.name,
-              },
-              position,
-            );
-            return newNode;
-          } else if (currentNode.startshapeid === orgNodeName && node.shapeType !== 'Line') {
-            const newNode = Object.assign(
-              {},
-              currentNode,
-              {
-                startshapeid: node.name,
-              },
-              position,
-            );
-            return newNode;
-          } else if (currentNode.endshapeid === orgNodeName && node.shapeType !== 'Line') {
-            const newNode = Object.assign(
-              {},
-              currentNode,
-              {
-                endshapeid: node.name,
-              },
-              position,
-            );
-            return newNode;
-          }
-          return currentNode;
-        });
+        const result = storeFlowNode(orgNodeName, node, position, state.flow);
+        let undoList = state.undoList;
+        if (result.undoNode) {
+          console.log('push node to undoList', result.undoNode);
+          undoList = [...state.undoList, result.undoNode];
+        }
         return {
-          flow: flow,
-          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
+          undoList: undoList,
+          flow: result.flow,
+          flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
         };
       }),
     storeFlowNodes: (nodes: any[], positionContext?: IPositionContext) =>
@@ -175,16 +196,12 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
       }),
     addFlowNode: (node: any, positionContext?: IPositionContext) =>
       set((state) => {
-        /*const flowHashmap = state.flowHashmap;
-        flowHashmap.set(node.name, {
-          index: state.flow.length,
-          start: [] as number[],
-          end: [] as number[],
-        });*/
-        let flow = [...state.flow, node];
+        const result = addFlowNode(node.name, node, state.flow);
+        const undoList = [...state.undoList, result.undoNode];
         return {
-          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
-          flow: flow,
+          undoList: undoList,
+          flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
+          flow: result.flow,
         };
       }),
     addFlowNodes: (nodes: any[], positionContext?: IPositionContext) =>
@@ -197,99 +214,57 @@ export const storeHandler = (set: SetState<IFlowState>): IFlowState => {
       }),
     addConnection: (connection: any, positionContext?: IPositionContext) =>
       set((state) => {
-        /*const flowHashmap = state.flowHashmap;
-        if (flowHashmap.has(connection.startshapeid)) {
-          let copy = {...flowHashmap.get(connection.startshapeid)};
-          copy.start.push(state.flow.length);
-          flowHashmap.set(connection.startshapeid, copy);
-          //startNode.start.push(index);
-        } else {
-          flowHashmap.set(connection.startshapeid, {
-            index: -1,
-            start: [state.flow.length] as number[],
-            end: [] as number[],
-          });
-        }
-
-        if (flowHashmap.has(connection.endshapeid)) {
-          let copy = {...flowHashmap.get(connection.endshapeid)};
-          copy.end.push(state.flow.length);
-          flowHashmap.set(connection.endshapeid, copy);
-        } else {
-          flowHashmap.set(connection.endshapeid, {
-            index: -1,
-            start: [] as number[],
-            end: [state.flow.length] as number[],
-          });
-        }
-        */
-
-        let flow = [...state.flow, connection];
+        const result = addFlowNode(connection.name, connection, state.flow);
+        const undoList = [...state.undoList, result.undoNode];
         return {
-          flowHashmap: FlowToCanvas.createFlowHashMap(flow),
-          flow: flow,
+          flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
+          flow: result.flow,
+          undoList: undoList,
         };
       }),
     deleteConnection: (node: any) =>
-      set(
-        produce((draftState) => {
-          let index = -1;
-          draftState.flow.map((draftNode, mapIndex) => {
-            if (draftNode.name === node.name) {
-              index = mapIndex;
-            }
-          });
-          if (index >= 0) {
-            draftState.flow.splice(index, 1);
-            draftState.flowHashmap = FlowToCanvas.createFlowHashMap(draftState.flow);
-          }
-        }),
-      ),
-    deleteNode: (node: any, deleteLines: boolean) =>
       set((state) => {
+        let undoList = state.undoList;
         let index = -1;
-        /*draftState.flow.map((draftNode, mapIndex) => {
-            if (draftNode.name === node.name) {
-              index = mapIndex;
-            }
-          });
-          */
-        let flow = state.flow.filter((draftNode) => {
-          if (draftNode.name === node.name) {
-            return false;
-          }
-          if (draftNode.startshapeid === node.name || draftNode.endshapeid === node.name) {
-            if (!!deleteLines) {
-              return false;
-            }
-            return true;
-          }
-          return true;
-        });
-        flow = flow.map((draftNode) => {
-          if (draftNode.startshapeid === node.name) {
-            let updatedNode = { ...draftNode };
-            updatedNode.startshapeid = undefined;
+        state.flow.forEach((currentNode, mapIndex) => {
+          if (currentNode.name === node.name) {
+            index = mapIndex;
 
-            if (draftNode.endshapeid === node.name) {
-              updatedNode.endshapeid = undefined;
-            }
-            return updatedNode;
-          } else if (draftNode.endshapeid === node.name) {
-            let updatedNode = { ...draftNode };
-            updatedNode.endshapeid = undefined;
-            return updatedNode;
+            undoList = [
+              ...state.undoList,
+              {
+                node: {
+                  ...currentNode,
+                },
+                connections: [],
+                undoType: 'add',
+              },
+            ];
           }
-          return draftNode;
         });
-        //if (index >= 0) {
-        //  draftState.flow.splice(index, 1);
-        //  draftState.flowHashmap = FlowToCanvas.createFlowHashMap(draftState.flow);
-        // }
 
+        let flow = [...state.flow];
+        if (index >= 0) {
+          flow.splice(index, 1);
+        }
         return {
           flowHashmap: FlowToCanvas.createFlowHashMap(flow),
           flow: flow,
+          undoList: undoList,
+        };
+      }),
+    deleteNode: (node: any, deleteLines: boolean) =>
+      set((state) => {
+        const result = deleteFlowNode(node.name, node, deleteLines, state.flow);
+
+        let undoList = state.undoList;
+        if (result.undoNode) {
+          undoList = [...state.undoList, result.undoNode];
+        }
+        return {
+          flowHashmap: FlowToCanvas.createFlowHashMap(result.flow),
+          flow: result.flow,
+          undoList: undoList,
         };
       }),
     deleteNodes: (nodes: any[]) => {

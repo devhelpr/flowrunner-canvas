@@ -321,16 +321,14 @@ export const Taskbar = (props: TaskbarProps) => {
   let showCoreCategory = false;
   let showStateCategory = false;
   let showAnnotationsCategory = false;
+  let showUICategory = false;
   const coreTasks = [
     'AssignTask',
     'IfConditionTask',
     'ExpressionTask',
     'CreateListTask',
-    'DebugTask',
-    'FormTask',
     'ApiProxyTask',
     'DataGridTask',
-    'DataTableTask',
   ];
   const stateTasks = [
     'State',
@@ -342,6 +340,7 @@ export const Taskbar = (props: TaskbarProps) => {
     'StateMachine',
     'StartState',
   ];
+  const uiTasks = ['FormTask', 'DataTableTask', 'DebugTask'];
   const annotationTasks = ['AnnotationActor', 'AnnotationText'];
   if (menuMode === TaskMenuMode.tasks) {
     showCoreCategory =
@@ -352,6 +351,11 @@ export const Taskbar = (props: TaskbarProps) => {
     showStateCategory =
       metaDataInfo.filter((metaData) => {
         return stateTasks.find((item) => item === metaData.className);
+      }).length > 0;
+
+    showUICategory =
+      metaDataInfo.filter((metaData) => {
+        return uiTasks.find((item) => item === metaData.className);
       }).length > 0;
 
     showAnnotationsCategory =
@@ -374,6 +378,23 @@ export const Taskbar = (props: TaskbarProps) => {
                 showCoreCategory &&
                 metaDataInfo.map((taskMetaData: any, index) => {
                   if (coreTasks.find((item) => item === taskMetaData.className)) {
+                    return (
+                      <Draggable id={taskMetaData.className} key={taskMetaData.className}>
+                        {renderRect(taskMetaData.className, taskMetaData)}
+                      </Draggable>
+                    );
+                  }
+                  return null;
+                })}
+              {showUICategory && (
+                <div className="p-1 tw-mt-4 tw-bg-gray-300">
+                  <h2>UI</h2>
+                </div>
+              )}
+              {hasLoaded &&
+                showUICategory &&
+                metaDataInfo.map((taskMetaData: any, index) => {
+                  if (uiTasks.find((item) => item === taskMetaData.className)) {
                     return (
                       <Draggable id={taskMetaData.className} key={taskMetaData.className}>
                         {renderRect(taskMetaData.className, taskMetaData)}

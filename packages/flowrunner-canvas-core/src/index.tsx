@@ -21,6 +21,7 @@ export * from './interfaces/INode';
 export * from './interfaces/INodeFlowState';
 export * from './interfaces/IFlowPackage';
 export * from './interfaces/IFlowMap';
+export * from './interfaces/IUndoNode';
 export type { TFlowMap } from './interfaces/IFlowMap';
 
 export { setCustomConfig, registerCustomNodeType, getTaskConfig, getTaskConfigForTask } from './config';
