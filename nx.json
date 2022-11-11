@@ -14,7 +14,8 @@
           "test",
           "e2e",
           "css"
-        ]      }
+        ]
+      }
     }
   },
   "targetDefaults": {
