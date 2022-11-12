@@ -82,6 +82,8 @@ export interface ToolbarProps {
   renderHtmlNode?: (node: any, flowrunnerConnector: IFlowrunnerConnector, flow: any, taskSettings?: any) => any;
 
   getNodeState?: (node: INode) => INodeFlowState;
+
+  onNewFlow?: (id: string) => void;
 }
 
 export interface ToolbarState {
@@ -761,10 +763,13 @@ export const Toolbar = (props: ToolbarProps) => {
     setShowSchemaPopup(false);
     setShowNewFlow(false);
     setShowModulesPopup(false);
+    if (props.onNewFlow) {
+      props.onNewFlow(id.toString());
+    } else {
+      props.onGetFlows(id);
 
-    props.onGetFlows(id);
-
-    setSelectedFlow(id as string);
+      setSelectedFlow(id as string);
+    }
   };
 
   const onSelectTask = (taskClassName) => {

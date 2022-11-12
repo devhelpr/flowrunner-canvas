@@ -152,6 +152,7 @@ export interface IFlowrunnerCanvasProps {
   getNodeDependencies?: (nodeName: string) => INodeDependency[];
   renderMenuOptions?: () => JSX.Element;
   onFlowHasChanged?: (flow: any) => void;
+  onNewFlow?: (id: string) => void;
 }
 
 const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
@@ -294,6 +295,7 @@ const InternalFlowrunnerCanvas = (props: IFlowrunnerCanvasProps) => {
             getNodeInstance={getNodeInstanceRef.current}
             renderHtmlNode={renderHtmlNodeRef.current}
             getNodeState={nodeStateFunction?.getFunction}
+            onNewFlow={props.onNewFlow}
           ></Toolbar>
 
           <CanvasComponent

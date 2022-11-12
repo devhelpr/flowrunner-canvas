@@ -458,6 +458,9 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
                       onGetExamples={onGetExampleFlows}
                       onGetExampleFlow={onGetExampleFlow}
                       getNodeState={nodeStateFunction?.getFunction}
+                      onNewFlow={(id: string) => {
+                        window.location.href = `/canvas/${id}`;
+                      }}
                     ></Toolbar>
                     {editorMode === 'canvas' && (
                       <CanvasComponent
@@ -484,7 +487,7 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
                         getNodeStateFunction={getNodeStateFunction}
                       ></CanvasComponent>
                     )}
-                    {editorMode == 'uiview-editor' && (
+                    {editorMode === 'uiview-editor' && (
                       <Suspense fallback={<div>Loading...</div>}>
                         <UserInterfaceViewEditor
                           renderHtmlNode={renderHtmlNode}

@@ -1,5 +1,6 @@
 import { registerCustomNodeType } from '@devhelpr/flowrunner-canvas-core';
 import { DummyTestTask } from './dummy-task';
+import { WebassemblyPackageTask } from './wasm-package-task';
 
 export const registerCustomPlugins = () => {
   registerCustomNodeType(
@@ -46,6 +47,39 @@ export const registerCustomPlugins = () => {
     },
     'playground',
     DummyTestTask,
+  );
+
+  registerCustomNodeType(
+    'WebassemblyPackageTask',
+    {
+      icon: 'fa-cube',
+      shapeType: 'Html',
+      htmlPlugin: 'formNode',
+      showNotSelectedAsLabels: true,
+      constraints: {
+        input: {
+          allowedInputs: 1,
+          notAllowed: [],
+          allowed: [],
+        },
+        output: {
+          allowedOutputs: 1,
+          notAllowed: [],
+          allowed: [],
+        },
+      },
+      metaInfo: [
+        {
+          fieldName: 'wasmPackage',
+          label: 'Upload wasm package',
+          fieldType: 'fileupload',
+          storeAsBase64: true,
+          acceptFiles: '.wasm.json',
+        },
+      ],
+    },
+    'playground',
+    WebassemblyPackageTask,
   );
 
   registerCustomNodeType(

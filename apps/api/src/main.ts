@@ -485,14 +485,22 @@ function start(flowFileName, taskPlugins, options) {
         console.log('info', req.protocol, req.get('host'));
       }
       const urlWithSecrets = replaceValues(url, secrets);
-      console.log('api proxy', url, req.body);
 
       const options: any = {};
 
+      const headers: any = {};
+      if (req.body.headers) {
+        Object.keys(req.body.headers).forEach((headerName) => {
+          headers[headerName] = replaceValues(req.body.headers[headerName], secrets);
+        });
+      }
+
+      console.log('api proxy', url, secrets, req.body, headers);
+      options.headers = {
+        'Content-Type': 'application/json',
+        ...headers,
+      };
       if (req.body?.body) {
-        options.headers = {
-          'Content-Type': 'application/json',
-        };
         options.body = JSON.stringify(req.body?.body ?? {});
       }
       fetch(urlWithSecrets, {

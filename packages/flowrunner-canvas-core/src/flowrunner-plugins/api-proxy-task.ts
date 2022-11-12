@@ -5,6 +5,25 @@ export class ApiProxyTask extends FlowTask {
   public override execute(node: any, services: any) {
     const promise = new Promise((resolve, reject) => {
       node.payload = Object.assign({}, node.payload);
+      let headers: any = {};
+      if (node.headers) {
+        Object.keys(node.headers).forEach((headerName) => {
+          headers[headerName] = replaceValues(node.headers[headerName], node.payload, true);
+        });
+      }
+
+      let body: any = undefined;
+      // sendPayloadProperties
+      if (!!node.sendPayloadToApi) {
+        body = node.payload;
+        if (node.sendPayloadProperties) {
+          body = {};
+
+          node.sendPayloadProperties.forEach((propertyName) => {
+            body[propertyName] = node.payload[propertyName];
+          });
+        }
+      }
       try {
         fetch('/api/proxy', {
           method: 'post',
@@ -13,8 +32,9 @@ export class ApiProxyTask extends FlowTask {
           },
           body: JSON.stringify({
             url: replaceValues(node.url, node.payload, true),
-            body: !!node.sendPayloadToApi && node.payload,
+            body: body,
             httpMethod: node.httpMethod || 'get',
+            headers: headers,
           }),
         })
           .then((res) => {
