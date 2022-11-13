@@ -1,6 +1,6 @@
 import { FlowTask } from '@devhelpr/flowrunner';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { getCurrentState, registerStateChangeHandler, unRegisterStateChangeHandler } from '../state-machine';
+import { Subject } from 'rxjs';
+import { registerStateChangeHandler, unRegisterStateChangeHandler } from '../state-machine';
 
 export class StateChangeTriggerTask extends FlowTask {
   _nodeName: string = '';
@@ -44,10 +44,10 @@ export class StateChangeTriggerTask extends FlowTask {
                 stateMachine: stateMachineName,
                 currentState,
                 [stateMachineName]: currentState,
-                followFlow: 'isError'
+                followFlow: 'isError',
               },
               isError: true,
-              resetNodeState: true
+              resetNodeState: true,
             });
           }
         } else if (currentState === node.State) {
@@ -68,10 +68,10 @@ export class StateChangeTriggerTask extends FlowTask {
               stateMachine: stateMachineName,
               currentState,
               [stateMachineName]: currentState,
-              followFlow: 'isError'
+              followFlow: 'isError',
             },
             isError: true,
-            resetNodeState: true
+            resetNodeState: true,
           });
         }
       },

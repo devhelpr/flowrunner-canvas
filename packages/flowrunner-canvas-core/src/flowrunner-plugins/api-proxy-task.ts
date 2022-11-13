@@ -24,6 +24,10 @@ export class ApiProxyTask extends FlowTask {
           });
         }
       }
+      let url = node.url;
+      if (!!node.urlIsPropertyName) {
+        url = node.payload[url];
+      }
       try {
         fetch('/api/proxy', {
           method: 'post',

@@ -707,7 +707,34 @@ const taskTypeConfig: ITaskTypeConfig = {
     configMenu: {
       fields: [
         { fieldName: 'url', required: true },
-        { fieldName: 'get' },
+        { fieldName: 'urlIsPropertyName', fieldType: 'checkbox' },
+        {
+          fieldName: 'httpMethod',
+          fieldtype: 'select',
+          defaultValue: 'get',
+          options: [
+            {
+              value: 'get',
+              label: 'get',
+            },
+            {
+              value: 'post',
+              label: 'post',
+            },
+            {
+              value: 'delete',
+              label: 'delete',
+            },
+            {
+              value: 'put',
+              label: 'put',
+            },
+            {
+              value: 'patch',
+              label: 'patch',
+            },
+          ],
+        },
         { fieldName: 'sendPayloadToApi', fieldType: 'checkbox' },
       ],
     },
@@ -815,8 +842,59 @@ const taskTypeConfig: ITaskTypeConfig = {
         ],
       },
       {
+        fieldName: 'forceNumeric',
+        fieldType: 'checkbox',
+      },
+      {
         fieldName: 'noLocalState',
         fieldType: 'checkbox',
+      },
+    ],
+  },
+  Variable: {
+    shapeType: 'Html',
+    icon: 'fas fa-store',
+    constraints: {
+      input: {
+        allowed: [],
+        allowedInputs: 0,
+      },
+      output: {
+        notAllowed: [],
+        allowed: [],
+        allowedOutputs: 0,
+      },
+    },
+    presetValues: {
+      variableName: '',
+    },
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'variableName',
+        required: true,
+      },
+      {
+        fieldName: 'initialValue',
+      },
+    ],
+  },
+  VariableChangeTriggerTask: {
+    shapeType: 'Html',
+    presetValues: {
+      variableName: '',
+    },
+    icon: 'fa-bolt',
+    constraints: {
+      input: {
+        allowedInputs: 0,
+      },
+    },
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'variableName',
+        required: true,
       },
     ],
   },
@@ -1032,6 +1110,14 @@ const taskTypeConfig: ITaskTypeConfig = {
     presetValues: {
       htmlPlugin: 'dataTableNode',
       propertyName: '',
+      events: [
+        {
+          eventName: 'onDelete',
+        },
+        {
+          eventName: 'onUpdate',
+        },
+      ],
     },
     configMenu: {
       fields: [
@@ -1050,8 +1136,18 @@ const taskTypeConfig: ITaskTypeConfig = {
             },
           ],
         },
+        { fieldName: 'hasDelete', fieldType: 'checkbox' },
+        { fieldName: 'hasUpdate', fieldType: 'checkbox' },
       ],
     },
+    events: [
+      {
+        eventName: 'onDelete',
+      },
+      {
+        eventName: 'onUpdate',
+      },
+    ],
   },
   SliderTask: {
     hasUI: true,

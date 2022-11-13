@@ -38,6 +38,52 @@ export const DataTableNodeHtmlPlugin = (props: DataTableNodeHtmlPluginProps) => 
             key={`row_${index}`}
             className={`tw-w-full tw-p-2 tw-align-top tw-text-left ${index % 2 == 0 ? 'tw-bg-slate-100' : ''}`}
           >
+            {!!props.node.hasDelete && (
+              <td>
+                <button
+                  type="button"
+                  className="fas fa-trash"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    console.log('onDelete', index, row);
+
+                    props.flowrunnerConnector.modifyFlowNode(
+                      props.node.name,
+                      'onDelete',
+                      undefined,
+                      undefined,
+                      'onDelete',
+                      { ...row },
+                    );
+                    return false;
+                  }}
+                ></button>
+              </td>
+            )}
+
+            {!!props.node.hasUpdate && (
+              <td>
+                <button
+                  type="button"
+                  className="fas fa-edit"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    console.log('onUpdate', index, row);
+
+                    props.flowrunnerConnector.modifyFlowNode(
+                      props.node.name,
+                      'onUpdate',
+                      undefined,
+                      undefined,
+                      'onUpdate',
+                      { ...row },
+                    );
+                    return false;
+                  }}
+                ></button>
+              </td>
+            )}
+
             {props.node.columns &&
               props.node.columns.map((column, columnIndex) => {
                 return <td key={`column_${index}_${columnIndex}`}>{row[column.columnName]}</td>;
@@ -54,10 +100,12 @@ export const DataTableNodeHtmlPlugin = (props: DataTableNodeHtmlPluginProps) => 
       {
         <table className="tw-w-full">
           <thead className="tw-w-full">
-            <tr>
+            <tr className="tw-p-2">
+              {!!props.node.hasDelete && <th></th>}
+              {!!props.node.hasUpdate && <th></th>}
               {props.node.columns &&
                 props.node.columns.map((column, index) => (
-                  <th key={index} className="tw-text-left tw-p-2">
+                  <th key={index} className="tw-text-left">
                     {column.columnName}
                   </th>
                 ))}

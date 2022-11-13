@@ -33,6 +33,8 @@ export class FormTask extends ObservableTask {
             if (currentValue === 'trigger' || !!metaInfo.autoTrigger) {
               currentValue = '';
               values[metaInfo.fieldName] = '';
+
+              services.flowEventRunner.setPropertyOnNode(node.name, metaInfo.fieldName, '');
             } else {
               currentValue = undefined;
               values[metaInfo.fieldName] = undefined;

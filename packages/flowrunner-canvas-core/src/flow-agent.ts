@@ -72,6 +72,7 @@ import {
   sendCurrentState,
   setOnGuardEventCallback,
 } from './state-machine';
+import { createVariableStore, resetVariableStore } from './flow-variables';
 
 const uuidV4 = uuid.v4;
 
@@ -732,11 +733,12 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         if (!worker.flow) {
           return;
         }
+        console.log('triggerEvent', data.nodeName, data.triggerEvent);
 
         worker.flow
-          .triggerEventOnNode(data.nodeName, data.triggerEvent, {})
+          .triggerEventOnNode(data.nodeName, data.triggerEvent, data.additionalValues)
           .then((result) => {
-            //console.log('result after modifyFlowNode executeNode', result);
+            console.log('result after modifyFlowNode triggerEvent', result);
           })
           .catch((error) => {
             console.log('modifyFlowNode triggerEventOnNode failed', data, error);
@@ -922,6 +924,9 @@ const startFlow = (
   };
   let value: boolean = false;
   let perfstart = performance.now();
+
+  resetVariableStore();
+  createVariableStore(flowPackage.flow);
 
   if (!isSameFlow) {
     try {

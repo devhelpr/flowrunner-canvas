@@ -284,7 +284,7 @@ export const Rect = React.forwardRef((props: ShapeTypeProps, ref: any) => {
             height={Math.round(ShapeMeasures.rectWidht / 8)}
             keepRatio={true}
             x={Math.round(ShapeMeasures.rectWidht - ShapeMeasures.rectWidht / 8 - 4)}
-            y={4}
+            y={8}
             onClick={props.onClickSetup}
             dataElementType="Settings"
           />

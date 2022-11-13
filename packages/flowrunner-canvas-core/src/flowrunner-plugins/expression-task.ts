@@ -1,5 +1,6 @@
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 import { FlowTask, FlowTaskPackageType } from '@devhelpr/flowrunner';
+import { isVariable, setVariableValue } from '../flow-variables';
 
 const convertGridToNamedVariables = (values: any[]) => {
   let variables: any = {};
@@ -29,8 +30,13 @@ export class ExpressionTask extends FlowTask {
   private expression: string = '';
 
   public override execute(node: any, services: any) {
+    if (!node.assignToProperty) {
+      return false;
+    }
     return new Promise((resolve, reject) => {
       if (node.expression !== 'undefined' && node.expression !== '') {
+        const isFromVariableStore = isVariable(node.assignToProperty);
+        console.log('isFromVariableStore', isFromVariableStore, node.assignToProperty);
         if (!this.compiledExpressionTree || this.expression !== node.expression) {
           this.compiledExpressionTree = createExpressionTree(node.expression);
           this.expression = node.expression;
@@ -53,7 +59,7 @@ export class ExpressionTask extends FlowTask {
           payload = node.payload;
         }
 
-        if (node.assignToProperty) {
+        if (!isFromVariableStore && node.assignToProperty) {
           // const matches = node.expression.match(/^\w+/g);
           // if (node.assignToProperty) {
           //   matches.forEach((match) => {
@@ -94,7 +100,10 @@ export class ExpressionTask extends FlowTask {
               resultToPayload = Math.floor(resultToPayload);
             }
 
-            if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
+            if (isFromVariableStore) {
+              console.log('setVariableValue', result);
+              setVariableValue(node.assignToProperty, result);
+            } else if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
               node.payload[node.assignAsPropertyFromObject][node.assignToProperty] = resultToPayload;
             } else {
               if (!node.noLocalState) {

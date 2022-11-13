@@ -339,6 +339,8 @@ export const Taskbar = (props: TaskbarProps) => {
     'StateChangeTriggerTask',
     'StateMachine',
     'StartState',
+    'Variable',
+    'VariableChangeTriggerTask',
   ];
   const uiTasks = ['FormTask', 'DataTableTask', 'DebugTask'];
   const annotationTasks = ['AnnotationActor', 'AnnotationText'];

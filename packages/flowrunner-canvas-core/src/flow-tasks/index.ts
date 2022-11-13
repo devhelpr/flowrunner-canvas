@@ -53,6 +53,8 @@ import { OperationEventTask } from '../flowrunner-plugins/operation-event-task';
 import { ApiProxyTask } from '../flowrunner-plugins/api-proxy-task';
 import { CreateListTask } from '../flowrunner-plugins/create-list-task';
 import { DataTableTask } from '../flowrunner-plugins/data-table-task';
+import { VariableTask } from '../flowrunner-plugins/variable-task';
+import { VariableChangeTriggerTask } from '../flowrunner-plugins/variable-change-trigger-task';
 
 export interface IFlowTask {
   new (): FlowTask;
@@ -102,6 +104,9 @@ export const registerTasks = (flow) => {
   flow.registerTask('Event', EventTask);
   flow.registerTask('Guard', GuardTask);
   flow.registerTask('StateChangeTriggerTask', StateChangeTriggerTask);
+
+  flow.registerTask('Variable', VariableTask);
+  flow.registerTask('VariableChangeTriggerTask', VariableChangeTriggerTask);
 
   flow.registerTask('GetCookie', GetCookie);
   flow.registerTask('SetCookie', SetCookie);
@@ -170,6 +175,9 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'Event', fullName: 'Event', flowType: 'playground' });
   tasks.push({ className: 'Guard', fullName: 'Guard', flowType: 'playground' });
   tasks.push({ className: 'StateChangeTriggerTask', fullName: 'StateChangeTriggerTask', flowType: 'playground' });
+
+  tasks.push({ className: 'Variable', fullName: 'Variable', flowType: 'playground' });
+  tasks.push({ className: 'VariableChangeTriggerTask', fullName: 'VariableChangeTriggerTask', flowType: 'playground' });
 
   tasks.push({ className: 'SetCookie', fullName: 'SetCookie', flowType: 'playground' });
   tasks.push({ className: 'GetCookie', fullName: 'GetCookie', flowType: 'playground' });

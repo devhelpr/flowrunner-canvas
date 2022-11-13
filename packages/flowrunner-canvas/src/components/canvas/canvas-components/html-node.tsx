@@ -332,18 +332,19 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
         )}
         {hasThumbs &&
           settings.events &&
-          settings.events.map((eventName, eventIndex) => {
+          settings.events.map((eventDefinition, eventIndex) => {
             return (
               <div
                 className={'canvas__html-shape-event canvas__html-shape-' + (eventIndex + 1)}
                 key={'_' + props.node.name + (props.flowId || '') + '-' + eventIndex}
+                title={eventDefinition.eventName}
                 onMouseOver={(event) => props.onMouseConnectionStartOver(props.node, true, event)}
                 onMouseOut={(event) => props.onMouseConnectionStartOut(props.node, true, event)}
                 onMouseDown={(event) =>
                   props.onMouseConnectionStartStart(
                     props.node,
                     true,
-                    eventName.eventName,
+                    eventDefinition.eventName,
                     ThumbFollowFlow.default,
                     ThumbPositionRelativeToNode.default,
                     event,
