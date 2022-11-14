@@ -156,8 +156,16 @@ export class FlowToCanvas {
       taskSettings,
     );
     let isEvent: boolean = false;
+    let eventIndex = 0;
     if (lineNodeToCheckIfIsEvent && lineNodeToCheckIfIsEvent.event && lineNodeToCheckIfIsEvent.event !== '') {
       isEvent = true;
+      if (startShape.events) {
+        startShape.events.forEach((eventDefinition, index) => {
+          if (eventDefinition.eventName === lineNodeToCheckIfIsEvent.event) {
+            eventIndex = index;
+          }
+        });
+      }
     }
 
     const nodeAttachedToCenter = startShape.lineConnectionEndPoints === 'center-of-node';
@@ -306,7 +314,7 @@ export class FlowToCanvas {
 
       return {
         x: newPosition.x + (width || startShape.width || ShapeMeasures.htmlWidth),
-        y: newPosition.y - (isEvent ? -32 + -4 - 32 - 8 - 12 : -8 + -4 - 32 - 8),
+        y: newPosition.y - (isEvent ? -(eventIndex * 36) + -32 + -4 - 32 - 8 - 12 : -8 + -4 - 32 - 8),
       };
 
       //return result;
@@ -348,7 +356,7 @@ export class FlowToCanvas {
       }
       return {
         x: newPosition.x + ShapeMeasures.rectWidht + skewXOffset,
-        y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (isEvent ? 4 + 8 + 24 + 36 : 4 + 8),
+        y: newPosition.y + ShapeMeasures.rectHeight / 2 - 12 + (isEvent ? eventIndex * 16 + 4 + 8 + 24 + 36 : 4 + 8),
       };
     }
   }

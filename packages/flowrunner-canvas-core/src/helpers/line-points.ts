@@ -27,15 +27,17 @@ export const calculateLineControlPoints = (
     factor = 0;
   }
 
-  var vec1 = new Victor(xstart, ystart);
+  let vec1 = new Victor(xstart, ystart);
   var vec2 = new Victor(xend, yend);
 
-  var distance = vec1.distance(vec2) * factor;
+  let distance = vec1.distance(vec2) * factor;
   let yadjust = 0;
   let xadjust = 0;
-  if (xend < xstart && Math.abs(ystart - yend) < 32) {
+  if (xend < xstart) {
+    // && Math.abs(ystart - yend) < 32
     yadjust = Math.abs(xstart - xend) * 0.5;
-    xadjust = 200;
+    xadjust = 500;
+    distance = vec1.distance(vec2) * 0;
   }
 
   if (useStraightLine) {
