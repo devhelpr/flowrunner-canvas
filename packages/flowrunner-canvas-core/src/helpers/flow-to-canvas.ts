@@ -797,6 +797,11 @@ export class FlowToCanvas {
       return true;
     }
 
+    if (Array.isArray(inputNode)) {
+      console.log('canNodesConnect ALLOW for now when isArray of nodes', inputNode);
+      return true;
+    }
+
     console.log('canNodesConnect', inputNode.taskType, outputNode.taskType);
     const settings = ShapeSettings.getShapeSettings(inputNode.taskType, inputNode);
     //const allowedInputTaskTypes = (settings as any)?.constraints?.input?.allowed ?? [];

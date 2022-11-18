@@ -36,7 +36,7 @@ export class ExpressionTask extends FlowTask {
     return new Promise((resolve, reject) => {
       if (node.expression !== 'undefined' && node.expression !== '') {
         const isFromVariableStore = isVariable(node.assignToProperty);
-        console.log('isFromVariableStore', isFromVariableStore, node.assignToProperty);
+        //console.log('isFromVariableStore', isFromVariableStore, node.assignToProperty);
         if (!this.compiledExpressionTree || this.expression !== node.expression) {
           this.compiledExpressionTree = createExpressionTree(node.expression);
           this.expression = node.expression;
