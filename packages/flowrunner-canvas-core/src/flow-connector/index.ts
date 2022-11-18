@@ -151,7 +151,7 @@ export class FlowConnector implements IFlowrunnerConnector {
   onMessage = (event: any, flowAgent: IFlowAgent) => {
     //console.log("event from worker", event);
     if (event && event.data) {
-      if (event.data.command == 'ExecuteFlowNodeResult') {
+      if (event.data.command === 'ExecuteFlowNodeResult') {
         if (this.onReceiveFlowNodeExecuteResult) {
           if (!event.data.result) {
             this.onReceiveFlowNodeExecuteResult(false);
@@ -159,10 +159,10 @@ export class FlowConnector implements IFlowrunnerConnector {
             this.onReceiveFlowNodeExecuteResult(event.data.payload);
           }
         }
-      } else if (event.data.command == 'SendNodeExecution') {
+      } else if (event.data.command === 'SendNodeExecution') {
         if (event.data) {
           //if (this.nodeState[event.data.name] === undefined || this.nodeState[event.data.name] != event.data.result) {
-          this.nodeStateObservables.map((callbackInfo, index) => {
+          this.nodeStateObservables.forEach((callbackInfo, index) => {
             callbackInfo.callback(event.data.name, event.data.result, event.data.touchedNodes, event.data.payload);
           });
           //}
@@ -180,7 +180,7 @@ export class FlowConnector implements IFlowrunnerConnector {
         this.executionObservables.map((exectutionObservable) => {
           exectutionObservable.callback(event.data);
         });
-      } else if (event.data.command == 'SendObservableNodePayload') {
+      } else if (event.data.command === 'SendObservableNodePayload') {
         // TODO : de eerst keer gaat dit niet goed...
         if (
           event.data.payload &&
@@ -217,7 +217,7 @@ export class FlowConnector implements IFlowrunnerConnector {
               observable.callback(event.data.payload);
             });
         }
-      } else if (event.data.command == 'ExecuteFlowPlugin') {
+      } else if (event.data.command === 'ExecuteFlowPlugin') {
         /*
           event.data.nodeName
           event.data.payload
@@ -530,9 +530,9 @@ export class FlowConnector implements IFlowrunnerConnector {
   ) => {
     //console.log('registerNodeStateObserver', observableId);
     let results = this.nodeStateObservables.filter((ob) => {
-      return ob.id == observableId;
+      return ob.id === observableId;
     });
-    if (results.length == 0) {
+    if (results.length === 0) {
       this.nodeStateObservables.push({
         callback: callback,
         id: observableId,

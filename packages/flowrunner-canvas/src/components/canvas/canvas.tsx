@@ -204,6 +204,10 @@ export const Canvas = (props: CanvasProps) => {
 
   let connectionXStart = useRef(0);
   let connectionYStart = useRef(0);
+
+  let connectionXEnd = useRef(0);
+  let connectionYEnd = useRef(0);
+
   let connectionNodeEvent = useRef(false as boolean | number);
   let connectionNodeEventName = useRef('');
 
@@ -271,11 +275,21 @@ export const Canvas = (props: CanvasProps) => {
               return;
             }
             const lineRef = shapeRefs.current[touchNodeId];
-            if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == 'line') {
+            if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) === 'line') {
               if (touchedNodesLocal.current[touchNodeId]) {
-                lineRef.modifyShape(ModifyShapeEnum.SetState, {
-                  state: ShapeStateEnum.Touched,
-                });
+                if (
+                  selectedNodeRef.current &&
+                  selectedNodeRef.current.node &&
+                  selectedNodeRef.current.node.name === touchNodeId
+                ) {
+                  lineRef.modifyShape(ModifyShapeEnum.SetState, {
+                    state: ShapeStateEnum.SelectedTouched,
+                  });
+                } else {
+                  lineRef.modifyShape(ModifyShapeEnum.SetState, {
+                    state: ShapeStateEnum.Touched,
+                  });
+                }
               } else {
                 lineRef.modifyShape(ModifyShapeEnum.SetState, {
                   state: ShapeStateEnum.Default,
@@ -390,45 +404,58 @@ export const Canvas = (props: CanvasProps) => {
         selectedNodeRef.current = node;
 
         if (previousNode && previousNode.node) {
-          const nodeElement = document.querySelector(`#${previousNode.node.id}`);
+          const nodeElement = document.querySelector(`#${previousNode.node.name}`);
           if (nodeElement) {
             nodeElement.classList.remove('canvas__html-shape--selected');
           }
-          const barElement = document.querySelector(`#${previousNode.node.id} .canvas__html-shape-bar`);
+          const barElement = document.querySelector(`#${previousNode.node.name} .canvas__html-shape-bar`);
           if (barElement) {
             barElement.classList.remove('canvas__html-shape-bar--selected');
           }
-          const htmlElement = document.querySelector(`#${previousNode.node.id}.canvas__html-shape`);
+          const htmlElement = document.querySelector(`#${previousNode.node.name}.canvas__html-shape`);
           if (htmlElement) {
             htmlElement.classList.add('canvas__html-shape');
           } else {
-            const shapeRef = shapeRefs.current[previousNode.node.id];
+            const shapeRef = shapeRefs.current[previousNode.node.name];
             if (shapeRef) {
-              shapeRef.modifyShape(ModifyShapeEnum.SetState, {
-                state: ShapeStateEnum.Default,
-              });
+              if (touchedNodesLocal.current[previousNode.node.name] === true) {
+                shapeRef.modifyShape(ModifyShapeEnum.SetState, {
+                  state: ShapeStateEnum.Touched,
+                });
+              } else {
+                shapeRef.modifyShape(ModifyShapeEnum.SetState, {
+                  state: ShapeStateEnum.Default,
+                });
+              }
             }
           }
         }
 
         if (node && node.node) {
-          const nodeElement = document.querySelector(`#${node.node.id}`);
+          console.log('modifyshape node', node.node.name);
+          const nodeElement = document.querySelector(`#${node.node.name}`);
           if (nodeElement) {
             nodeElement.classList.add('canvas__html-shape--selected');
           }
-          const barElement = document.querySelector(`#${node.node.id} .canvas__html-shape-bar`);
+          const barElement = document.querySelector(`#${node.node.name} .canvas__html-shape-bar`);
           if (barElement) {
             barElement.classList.add('canvas__html-shape-bar--selected');
           }
-          const htmlElement = document.querySelector(`#${node.node.id}.canvas__html-shape`);
+          const htmlElement = document.querySelector(`#${node.node.name}.canvas__html-shape`);
           if (htmlElement) {
             htmlElement.classList.add('canvas__html-shape');
           } else {
-            const shapeRef = shapeRefs.current[node.node.id];
+            const shapeRef = shapeRefs.current[node.node.name];
             if (shapeRef) {
-              shapeRef.modifyShape(ModifyShapeEnum.SetState, {
-                state: ShapeStateEnum.Selected,
-              });
+              if (touchedNodesLocal.current[node.node.name] === true) {
+                shapeRef.modifyShape(ModifyShapeEnum.SetState, {
+                  state: ShapeStateEnum.SelectedTouched,
+                });
+              } else {
+                shapeRef.modifyShape(ModifyShapeEnum.SetState, {
+                  state: ShapeStateEnum.Selected,
+                });
+              }
             }
           }
         }
@@ -542,7 +569,6 @@ export const Canvas = (props: CanvasProps) => {
 
         const newScale = e.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
         const startPerf = performance.now();
-        console.log('pre set scale 4', newScale);
         stageInstance.scale({ x: newScale, y: newScale });
         const newPos = {
           x: -(mousePointTo.x - xPos / newScale) * newScale,
@@ -769,11 +795,32 @@ export const Canvas = (props: CanvasProps) => {
     return outputConnections;
   };
 
+  const getDirectOutputConnectNodes = (nodeName: any) => {
+    let outputConnections: any[] = [];
+    if (!flowStoreHashMap.current || !flowStoreFlow.current) {
+      return [];
+    }
+    const mappedNode = (flowStoreHashMap.current as any).get(nodeName);
+    if (mappedNode) {
+      const outputs = mappedNode.start;
+      if (outputs && outputs.length > 0) {
+        outputs.forEach((outputIndex) => {
+          if (flowStoreFlow.current) {
+            const outputLineNode = flowStoreFlow.current[outputIndex];
+            outputConnections.push(outputLineNode);
+          }
+        });
+      }
+    }
+    return outputConnections;
+  };
+
   const nodeStateTimeoutCallback = () => {
     let resetNodes: string[] = [];
-    nodeStateList.current.map((nodeState) => {
+    let wasIncreased: string[] = [];
+    nodeStateList.current.forEach((nodeState) => {
       if (nodeState.nodeState === 'before') {
-        console.log('BEFORE node execution');
+        //console.log('BEFORE node execution');
         return;
       }
       const mappedNode: any = flowStoreHashMap.current && (flowStoreHashMap.current as any).get(nodeState.nodeName);
@@ -783,27 +830,42 @@ export const Canvas = (props: CanvasProps) => {
       let dontShowError = false;
       if (mappedNode && flowStoreFlow.current) {
         node = flowStoreFlow.current[mappedNode.index];
-        if (node && node.resetOutputPathOnError && nodeState.nodeState == 'error') {
+        if (node && node.resetOutputPathOnError && nodeState.nodeState === 'error') {
           dontShowError = true;
           connectionStream = getOutputConnectNodes(nodeState.nodeName);
           resetNodes.push(nodeState.name);
         }
+
+        const outputConnections = getDirectOutputConnectNodes(nodeState.nodeName);
+        if (outputConnections) {
+          outputConnections.forEach((node) => {
+            if (wasIncreased.indexOf(node.name) < 0) {
+              const lineRef = shapeRefs.current[node.name];
+
+              if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) === 'line') {
+                lineRef.modifyShape(ModifyShapeEnum.IncreaseDashOffset);
+              }
+
+              wasIncreased.push(node.name);
+            }
+          });
+        }
       }
-      let nodeStateClass = nodeState.nodeState == 'error' ? 'has-error' : '';
+      let nodeStateClass = nodeState.nodeState === 'error' ? 'has-error' : '';
       //const element = document.getElementById(nodeState.nodeName);
       const element = elementRefs.current[nodeState.nodeName];
       if (element) {
         element.classList.remove('has-error');
-        if (nodeStateClass != '' && !dontShowError) {
+        if (nodeStateClass !== '' && !dontShowError) {
           element.classList.add(nodeStateClass);
         }
       }
 
       const shapeRef = shapeRefs.current[nodeState.nodeName];
       let newShapeState = ShapeStateEnum.Default;
-      if (nodeState.nodeState == 'ok') {
+      if (nodeState.nodeState === 'ok') {
         newShapeState = ShapeStateEnum.Ok;
-      } else if (nodeState.nodeState == 'error' && !dontShowError) {
+      } else if (nodeState.nodeState === 'error' && !dontShowError) {
         newShapeState = ShapeStateEnum.Error;
       }
       if (shapeRef) {
@@ -826,7 +888,7 @@ export const Canvas = (props: CanvasProps) => {
       }
     });
 
-    Object.keys(touchedNodesLocal.current).map((touchNodeId: string) => {
+    Object.keys(touchedNodesLocal.current).forEach((touchNodeId: string) => {
       if (resetNodes[touchNodeId]) {
         nodesStateLocal.current[touchNodeId] = '';
         touchedNodesLocal.current[touchNodeId] = false;
@@ -834,7 +896,7 @@ export const Canvas = (props: CanvasProps) => {
 
       const lineRef = shapeRefs.current[touchNodeId];
 
-      if (lineRef && lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) == 'line') {
+      if (lineRef && lineRef.modifyShape(ModifyShapeEnum.GetShapeType, {}) === 'line') {
         return;
       }
 
@@ -849,7 +911,7 @@ export const Canvas = (props: CanvasProps) => {
           element.classList.add('untouched');
         }
       } else {
-        if (!touchedNodesLocal.current[touchNodeId] && nodesStateLocal.current[touchNodeId] != '') {
+        if (!touchedNodesLocal.current[touchNodeId] && nodesStateLocal.current[touchNodeId] !== '') {
           nodesStateLocal.current[touchNodeId] = '';
           const shapeRef = shapeRefs.current[touchNodeId];
           if (shapeRef) {
@@ -879,14 +941,14 @@ export const Canvas = (props: CanvasProps) => {
     if (nodeState === 'RESET_ALL') {
       nodeStateList.current = [];
       nodeStateCount.current = 0;
-      Object.keys(elementRefs.current).map((nodeName: string) => {
+      Object.keys(elementRefs.current).forEach((nodeName: string) => {
         const element = elementRefs.current[nodeName];
         if (element) {
           element.classList.remove('has-error');
         }
       });
 
-      Object.keys(shapeRefs.current).map((nodeName: string) => {
+      Object.keys(shapeRefs.current).forEach((nodeName: string) => {
         if (nodeName === connectionForDraggingName) {
           return;
         }
@@ -909,7 +971,7 @@ export const Canvas = (props: CanvasProps) => {
     });
     //flowStoreHashMap.current = flowStore.flowHashmap;
 
-    (nodeStateTimeout.current as any) = setTimeout(nodeStateTimeoutCallback, 30);
+    (nodeStateTimeout.current as any) = setTimeout(nodeStateTimeoutCallback, 5);
 
     /*
 			TODO
@@ -1954,14 +2016,23 @@ export const Canvas = (props: CanvasProps) => {
     if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
       if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
         if (connectionNodeThumbsLineNode.current) {
-          if (connectionNodeThumbsLineNode.current.startshapeid === node.name) {
+          if (connectionNodeThumbs.current === 'thumbstart') {
+            if (connectionNodeThumbsLineNode.current.endshapeid === node.name) {
+              return;
+            }
+            let clonedNode = { ...connectionNodeThumbsLineNode.current };
+            clonedNode.startshapeid = node.name;
+            connectionNodeThumbsLineNode.current = clonedNode;
+            return;
+          } else {
+            if (connectionNodeThumbsLineNode.current.startshapeid === node.name) {
+              return;
+            }
+            let clonedNode = { ...connectionNodeThumbsLineNode.current };
+            clonedNode.endshapeid = node.name;
+            connectionNodeThumbsLineNode.current = clonedNode;
             return;
           }
-          //connectionNodeThumbsLineNode.current.endshapeid = node.name;
-          let clonedNode = { ...connectionNodeThumbsLineNode.current };
-          clonedNode.endshapeid = node.name;
-          connectionNodeThumbsLineNode.current = clonedNode;
-          return;
         }
 
         if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
@@ -3526,26 +3597,90 @@ export const Canvas = (props: CanvasProps) => {
     if (node && touching.current && touchNode.current) {
       return;
     }
-    console.log('onMouseConnectionStartStart', nodeEvent, nodeEventName);
+    console.log('onMouseConnectionStartStart', event.shiftKey, node, nodeEvent, nodeEventName, selectedNodeRef.current);
 
     const settings = ShapeSettings.getShapeSettings(node.taskType, node);
     if (node && node.shapeType !== 'Line') {
       const allowedOutputs = FlowToCanvas.getAllowedOutputs(node.shapeType, settings);
       if (
-        allowedOutputs == 0 ||
+        allowedOutputs === 0 ||
         !FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)
       ) {
+        console.log('onMouseConnectionStartStart not allowed');
         return false;
       }
     }
 
-    interactionState.current = InteractionState.addingNewConnection;
+    /*
+    
+    // TODO : check if node has outputs... and yes, then use that for reconnection
+    
+    if (
+      selectedNodeRef.current !== undefined &&
+      (selectedNodeRef.current as any).shapeType === 'Line' &&
+      (selectedNodeRef.current as any).name !== node.name
+    ) {
+      console.log('onMouseConnectionStartStart', node.name, (selectedNodeRef.current as any).name);
+      return;
+    }*/
+
+    connectionNodeThumbsLineNode.current = undefined;
+    connectionNodeThumbs.current = '';
+    if (node && node.shapeType === 'Line') {
+      connectionNodeThumbsLineNode.current = node;
+      touchNode.current = node;
+      touchNodeGroup.current = event.currentTarget;
+
+      interactionState.current = InteractionState.addingNewConnection;
+    } else {
+      const mappedNode = flowStore.flowHashmap.get(node.name);
+      if (mappedNode) {
+        if (mappedNode.start && (mappedNode.start?.length ?? -1) > 0) {
+          let lineNode: any | undefined = undefined;
+
+          if (event.shiftKey) {
+            lineNode = flowStore.flow[mappedNode.start[0]];
+          }
+
+          if (
+            selectedNodeRef.current &&
+            selectedNodeRef.current.node &&
+            selectedNodeRef.current.node.shapeType === 'Line'
+          ) {
+            mappedNode.start.forEach((connectionNodeIndex) => {
+              const _connectionNode = flowStore.flow[connectionNodeIndex];
+              if (_connectionNode.name === selectedNodeRef.current.node.name) {
+                lineNode = _connectionNode;
+              }
+            });
+          }
+
+          if (lineNode) {
+            console.log('onMouseConnectionStartStart lineNode', lineNode);
+
+            connectionNodeThumbsLineNode.current = lineNode;
+            touchNode.current = lineNode;
+            touchNodeGroup.current = shapeRefs.current[lineNode.name];
+            interactionState.current = InteractionState.draggingConnectionStart;
+
+            connectionNodeThumbs.current = '';
+            connectionNodeThumbs.current = 'thumbstart';
+          } else {
+            interactionState.current = InteractionState.addingNewConnection;
+            touchNode.current = node;
+            touchNodeGroup.current = event.currentTarget;
+          }
+        } else {
+          interactionState.current = InteractionState.addingNewConnection;
+          touchNode.current = node;
+          touchNodeGroup.current = event.currentTarget;
+        }
+      }
+    }
 
     (isConnectingNodesByDraggingLocal.current as any) = true;
     connectionNodeEvent.current = nodeEvent;
     connectionNodeEventName.current = nodeEventName;
-    connectionNodeThumbs.current = '';
-    connectionNodeThumbsLineNode.current = undefined;
 
     connectionNodeFollowFlow.current = followFlow;
     connectionNodeThumbPositionRelativeToNode.current = thumbPositionRelativeToNode;
@@ -3554,9 +3689,6 @@ export const Canvas = (props: CanvasProps) => {
       connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.top;
     }
     document.body.classList.add('connecting-nodes');
-
-    touchNode.current = node;
-    touchNodeGroup.current = event.currentTarget;
 
     let newPosition = {
       x: 0,
@@ -3573,14 +3705,18 @@ export const Canvas = (props: CanvasProps) => {
         newPosition.y = (touchPos.y - stageInstance.y()) / scaleFactor;
         connectionXStart.current = newPosition.x;
         connectionYStart.current = newPosition.y;
+
+        //connectionXEnd.current = newPosition.x;
+        //connectionYEnd.current = newPosition.x;
       }
     }
 
-    if (node && node.shapeType === 'Line') {
+    /*if (node && node.shapeType === 'Line') {
       // dragging thumb-start
       connectionNodeThumbs.current = 'thumbstart';
       connectionNodeThumbsLineNode.current = node;
     }
+    */
     if (!event.evt) {
       event.preventDefault();
     }
@@ -3613,6 +3749,25 @@ export const Canvas = (props: CanvasProps) => {
     if (node && touching.current && touchNode.current) {
       return;
     }
+
+    if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
+      if (connectionNodeThumbsLineNode.current) {
+        if (connectionNodeThumbsLineNode.current.endshapeid === node.name) {
+          return;
+        }
+        let clonedNode = { ...connectionNodeThumbsLineNode.current };
+        clonedNode.startshapeid = node.name;
+        connectionNodeThumbsLineNode.current = clonedNode;
+        return;
+      }
+
+      if (!FlowToCanvas.canNodesConnect(touchNode.current, node)) {
+        console.log('onMouseConnectionStartEnd not allowed');
+        return false;
+      }
+
+      connectConnectionToNode(node, thumbPositionRelativeToNode);
+    }
   };
 
   const onMouseConnectionEndOver = (
@@ -3634,7 +3789,7 @@ export const Canvas = (props: CanvasProps) => {
     if (node && node.shapeType !== 'Line' && touching.current && touchNode.current) {
       const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
       if (
-        allowedInputs == 0 ||
+        allowedInputs === 0 ||
         !FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)
       ) {
         document.body.style.cursor = 'not-allowed';
@@ -3662,6 +3817,7 @@ export const Canvas = (props: CanvasProps) => {
   };
 
   const onMouseConnectionEndStart = (node, nodeEvent, event) => {
+    console.log('onMouseConnectionEndStart');
     if (interactionState.current != InteractionState.idle) {
       if (!event.evt) {
         event.preventDefault();
@@ -3679,6 +3835,14 @@ export const Canvas = (props: CanvasProps) => {
       return;
     }
 
+    /*if (
+      selectedNodeRef.current !== undefined &&
+      (selectedNodeRef.current as any).shapeType === 'Line' &&
+      (selectedNodeRef.current as any).name !== node.name
+    ) {
+      return;
+    }*/
+
     // dragging thumb-end
     if (node && node.shapeType === 'Line') {
       connectionNodeThumbsLineNode.current = node;
@@ -3690,7 +3854,20 @@ export const Canvas = (props: CanvasProps) => {
       const mappedNode = flowStore.flowHashmap.get(node.name);
       if (mappedNode) {
         if (mappedNode.end && (mappedNode.end?.length ?? -1) > 0) {
-          const lineNode = flowStore.flow[mappedNode.end[0]];
+          let lineNode = flowStore.flow[mappedNode.end[0]];
+
+          if (
+            selectedNodeRef.current &&
+            selectedNodeRef.current.node &&
+            selectedNodeRef.current.node.shapeType === 'Line'
+          ) {
+            mappedNode.end.forEach((connectionNodeIndex) => {
+              const _connectionNode = flowStore.flow[connectionNodeIndex];
+              if (_connectionNode.name === selectedNodeRef.current.node.name) {
+                lineNode = _connectionNode;
+              }
+            });
+          }
 
           if (!lineNode) {
             return;
@@ -4189,7 +4366,6 @@ export const Canvas = (props: CanvasProps) => {
             }
 
             if (doFitStage) {
-              console.log('pre set scale 1', scale);
               stageInstance.scale({ x: scale, y: scale });
             }
             const newPos = {
@@ -4404,7 +4580,6 @@ export const Canvas = (props: CanvasProps) => {
               scale = 0.5;
             }
           }
-          console.log('pre set scale 3', scale);
           stageInstance.scale({ x: scale, y: scale });
           stageInstance.position(newPos);
 

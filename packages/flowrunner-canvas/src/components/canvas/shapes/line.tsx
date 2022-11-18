@@ -36,6 +36,7 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
   const [dash, setDash] = useState(
     props.touchedNodes && props.name && props.touchedNodes[props.name] ? [5, 10] : [1, 1],
   );
+  const dashOffset = useRef(0);
   const lineRef = useRef(null as any);
   const bgLineRef = useRef(null as any);
   const textRef = useRef(null as any);
@@ -283,10 +284,26 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
           }
           break;
         }
+        case ModifyShapeEnum.IncreaseDashOffset: {
+          if (lineRef && lineRef.current) {
+            if (dashOffset.current < 0) {
+              dashOffset.current = 38;
+            } else {
+              dashOffset.current = dashOffset.current - 1;
+
+              if (dashOffset.current < 0) {
+                dashOffset.current = 38 + dashOffset.current;
+              }
+            }
+            //console.log('lineRef.current.dashOffset', props.lineNode.name);
+            lineRef.current.dashOffset(dashOffset.current);
+          }
+          break;
+        }
         case ModifyShapeEnum.SetState: {
           if (lineRef && lineRef.current && parameters) {
-            if (parameters.state == ShapeStateEnum.Touched) {
-              lineRef.current.dash([5, 10]);
+            if (parameters.state === ShapeStateEnum.SelectedTouched) {
+              //lineRef.current.dash([]);
               lineRef.current.to({
                 duration: 0.15,
                 strokeWidth: 8,
@@ -299,7 +316,38 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
                   opacity: 1,
                 });
               }
-            } else if (parameters.state == ShapeStateEnum.Default) {
+            } else if (parameters.state === ShapeStateEnum.Selected) {
+              lineRef.current.dash([]);
+              lineRef.current.to({
+                duration: 0.15,
+                strokeWidth: 8,
+                opacity: 1,
+              });
+              if (bgLineRef.current) {
+                bgLineRef.current.to({
+                  duration: 0.15,
+                  strokeWidth: 8 + 12,
+                  opacity: 1,
+                });
+              }
+            } else if (parameters.state === ShapeStateEnum.Touched) {
+              lineRef.current.dashOffset(dashOffset.current);
+              lineRef.current.dash([9, 11]);
+              lineRef.current.to({
+                duration: 0.15,
+                strokeWidth: 4,
+                opacity: 1,
+              });
+              if (bgLineRef.current) {
+                bgLineRef.current.to({
+                  duration: 0.15,
+                  strokeWidth: 4 + 12,
+                  opacity: 1,
+                });
+              }
+            } else if (parameters.state === ShapeStateEnum.Default) {
+              dashOffset.current = 0;
+              lineRef.current.dashOffset(dashOffset.current);
               lineRef.current.dash([]);
               lineRef.current.to({
                 duration: 0.15,

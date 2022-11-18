@@ -449,7 +449,6 @@ export class TimerTask extends FlowTask {
       executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
 
     */
-    console.log('timer', this, this.isExecuting, this.node.name);
     if (!this.isExecuting) {
       this.isExecuting = true;
 
@@ -500,7 +499,7 @@ export class TimerTask extends FlowTask {
     this.isExecuting = false;
     this.flow = services.workerContext.flow;
 
-    console.log('timer execute', node);
+    //console.log('timer execute', node);
     if (node.mode === 'executeNode' || node.events) {
       if (this.clearTimeout) {
         clearTimeout(this.clearTimeout);
@@ -510,7 +509,7 @@ export class TimerTask extends FlowTask {
       return true;
     } else {
       if (node.interval) {
-        console.log('node.interval', node.interval);
+        //console.log('node.interval', node.interval);
         /*if (timers[node.name]) {
           clearInterval(timers[node.name]);
           timers[node.name] = undefined;
@@ -640,7 +639,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         console.log('wasm test', flowrunner.convert(JSON.stringify({})));        
       });
       */
-    } else if (command == 'executeFlowNode' && data.nodeName) {
+    } else if (command === 'executeFlowNode' && data.nodeName) {
       if (!worker.flow) {
         return;
       }
@@ -693,7 +692,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
           });
       }
       payload = null;
-    } else if (command == 'clearNodeState') {
+    } else if (command === 'clearNodeState') {
       if (!data.nodeName) {
         return;
       }
@@ -702,7 +701,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         return;
       }
       (worker.flow as any).clearNodeState(data.nodeName);
-    } else if (command == 'modifyFlowNode') {
+    } else if (command === 'modifyFlowNode') {
       if (!data.nodeName) {
         return;
       }
@@ -744,10 +743,10 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
             console.log('modifyFlowNode triggerEventOnNode failed', data, error);
           });
       }
-    } else if (command == 'pushFlowToFlowrunner') {
+    } else if (command === 'pushFlowToFlowrunner') {
       //console.log("pushFlowToFlowrunner", data);
       startFlow({ flow: data.flow }, data.pluginRegistry, !!data.autoStartNodes, data.flowId, worker);
-    } else if (command == 'registerFlowNodeObserver') {
+    } else if (command === 'registerFlowNodeObserver') {
       if (worker.observables[data.nodeName]) {
         (worker.observables[data.nodeName] as any).unsubscribe();
         worker.observables[data.nodeName] = undefined;
@@ -776,7 +775,7 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         });
         worker.observables[data.nodeName] = subscribtion;
       }
-    } else if (command == 'ResultFlowPlugin') {
+    } else if (command === 'ResultFlowPlugin') {
       // send payload to resolve method from promise in FlowPluginTask?
       const resolve = flowPluginNodes[data.nodeName];
       if (resolve && resolve.resolve && resolve.executeId === data.payload.executeId) {
@@ -785,17 +784,17 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
         flowPluginNodes[data.nodeName] = undefined;
         payload = null;
       }
-    } else if (command == 'PauseFlowrunner') {
+    } else if (command === 'PauseFlowrunner') {
       if (!worker.flow) {
         return;
       }
       worker.flow.pauseFlowrunner();
-    } else if (command == 'ResumeFlowrunner') {
+    } else if (command === 'ResumeFlowrunner') {
       if (!worker.flow) {
         return;
       }
       worker.flow.resumeFlowrunner();
-    } else if (command == 'runTests') {
+    } else if (command === 'runTests') {
       if (!worker.flow) {
         return;
       }
@@ -847,12 +846,12 @@ const startFlow = (
   currentFlowId = flowId;
 
   if (worker.flow !== undefined) {
-    for (var key of Object.keys(worker.observables)) {
+    for (let key of Object.keys(worker.observables)) {
       worker.observables[key].unsubscribe();
     }
     worker.observables = {};
 
-    for (var timer of Object.keys(timers)) {
+    for (let timer of Object.keys(timers)) {
       clearInterval(timers[timer]);
     }
     timers = {};
@@ -963,7 +962,7 @@ const startFlow = (
       */
       //services.getWorker = getFlowAgent;
 
-      for (var key of Object.keys(worker.observables)) {
+      for (let key of Object.keys(worker.observables)) {
         const observable = worker.flow?.getObservableNode(key);
         if (observable) {
           console.log('subscribe observable after start', key);

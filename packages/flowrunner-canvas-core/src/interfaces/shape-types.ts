@@ -174,6 +174,7 @@ export enum ModifyShapeEnum {
   GetShapeType,
   SetState,
   SetOpacity,
+  IncreaseDashOffset,
 }
 
 export enum ShapeStateEnum {
@@ -182,4 +183,5 @@ export enum ShapeStateEnum {
   Selected,
   Error,
   Ok,
+  SelectedTouched,
 }

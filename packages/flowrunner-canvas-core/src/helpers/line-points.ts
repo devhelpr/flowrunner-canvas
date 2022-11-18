@@ -28,7 +28,7 @@ export const calculateLineControlPoints = (
   }
 
   let vec1 = new Victor(xstart, ystart);
-  var vec2 = new Victor(xend, yend);
+  let vec2 = new Victor(xend, yend);
 
   let distance = vec1.distance(vec2) * factor;
   let yadjust = 0;

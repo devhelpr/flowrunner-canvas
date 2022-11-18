@@ -109,6 +109,7 @@ xAxis: {
             type: 'pie',
             id: 'pie',
             radius: '90%',
+            startAngle: props.payload.startAngle || 0,
             center: ['50%', '50%'],
             emphasis: {
               focus: 'self',
