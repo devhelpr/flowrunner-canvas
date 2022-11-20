@@ -69,7 +69,7 @@ export interface IFlowrunnerConnector {
   runTests: (flowId: string) => void;
   registerWorker: (worker: IFlowAgent) => void;
 
-  clearNodeState: (nodeName) => void;
+  clearNodeState: (nodeName, initialValues?: any) => void;
 }
 
 export interface IExecutionEvent {

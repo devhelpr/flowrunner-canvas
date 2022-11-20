@@ -29,6 +29,11 @@ export const TriggerButton = (props: IFormControlProps) => {
         disabled={disabled}
         onClick={(event) => {
           event.preventDefault();
+          if (props.node.formMode === 'crud') {
+            if (props.onCanSubmitForm && !props.onCanSubmitForm()) {
+              return false;
+            }
+          }
           if (props.flowrunnerConnector) {
             props.flowrunnerConnector?.modifyFlowNode(props.node.name, props.fieldName, 'trigger', props.node.name, '');
 

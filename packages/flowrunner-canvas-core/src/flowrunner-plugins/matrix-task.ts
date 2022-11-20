@@ -178,7 +178,7 @@ export class MatrixTask extends FlowTask {
           // matrix
           // values[] : x,y,value
           try {
-            ((_payload && _payload.values) || node.values || []).map(value => {
+            ((_payload && _payload.values) || node.values || []).map((value) => {
               if (value.x >= 0 && value.y >= 0) {
                 let index = matrix.columns * value.y + value.x;
                 if (index < matrix.data.length) {
@@ -197,7 +197,7 @@ export class MatrixTask extends FlowTask {
           try {
             let currentUUID = matrix.uuid;
             let data = '';
-            matrix.data.map(cell => {
+            matrix.data.map((cell) => {
               data += cell == 1 ? '1' : '0';
             });
             if (this.webassembly === undefined) {
@@ -206,7 +206,7 @@ export class MatrixTask extends FlowTask {
                 return new Promise((resolve, reject) => {
                   loader
                     .getFlow(node.flowId)
-                    .then(flow => {
+                    .then((flow) => {
                       //console.log('RunWasmFlowTask', node.name, flow);
 
                       const webAssembly = services.getWebAssembly();
@@ -343,7 +343,7 @@ export class MatrixTask extends FlowTask {
               }
             }
 
-            const executeFlowForEachCell = nodeName => {
+            const executeFlowForEachCell = (nodeName) => {
               //console.log("executeFlowForEachCell", nodeName);
               let promises: any[] = [];
               let loopRows = 0;
@@ -403,7 +403,7 @@ export class MatrixTask extends FlowTask {
                   try {
                     let innerPromise = new Promise((resolve, reject) => {
                       Promise.all(executeFlowForEachCell(node.name))
-                        .then(values => {
+                        .then((values) => {
                           (matrix as any) = null;
                           //let _matrix = services.flowEventRunner.getPropertyFromNode(nodeName, node.propertyName + "NEW");
 
@@ -417,7 +417,7 @@ export class MatrixTask extends FlowTask {
                           }
                           currentMatrix = null;
 
-                          values.map((resultPayload, index) => {
+                          values.forEach((resultPayload, index) => {
                             if (resultPayload !== undefined) {
                               if (resultPayload.isAlive === undefined) {
                                 newMatrix.data[newMatrix.columns * resultPayload.y + resultPayload.x] =
@@ -458,7 +458,7 @@ export class MatrixTask extends FlowTask {
                     });
 
                     innerPromise
-                      .then(payload => {
+                      .then((payload) => {
                         mainResolve(payload);
                       })
                       .catch(() => {

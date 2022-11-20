@@ -55,6 +55,7 @@ import { CreateListTask } from '../flowrunner-plugins/create-list-task';
 import { DataTableTask } from '../flowrunner-plugins/data-table-task';
 import { VariableTask } from '../flowrunner-plugins/variable-task';
 import { VariableChangeTriggerTask } from '../flowrunner-plugins/variable-change-trigger-task';
+import { TimerTask } from '../flowrunner-plugins/timer-task';
 
 export interface IFlowTask {
   new (): FlowTask;
@@ -156,6 +157,8 @@ export const registerTasks = (flow) => {
   flow.registerTask('ReduceEventTask', ReduceEventTask);
   flow.registerTask('OperationEventTask', OperationEventTask);
 
+  flow.registerTask('TimerTask', TimerTask);
+
   flow.registerTask('ApiProxyTask', getTaskClass('ApiProxyTask', ApiProxyTask));
 };
 
@@ -200,7 +203,6 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'DebugTask', fullName: 'DebugTask', flowType: 'playground' });
   tasks.push({ className: 'SliderTask', fullName: 'SliderTask', flowType: 'playground' });
   tasks.push({ className: 'RandomTask', fullName: 'RandomTask', flowType: 'playground' });
-  tasks.push({ className: 'TimerTask', fullName: 'TimerTask', flowType: 'playground' });
   tasks.push({ className: 'ExpressionTask', fullName: 'ExpressionTask', flowType: 'playground' });
   tasks.push({ className: 'CreateListTask', fullName: 'CreateListTask', flowType: 'playground' });
   tasks.push({ className: 'OutputValueTask', fullName: 'OutputValueTask', flowType: 'playground' });
@@ -249,6 +251,8 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'FilterEventTask', fullName: 'FilterEventTask', flowType: 'playground' });
   tasks.push({ className: 'ReduceEventTask', fullName: 'ReduceEventTask', flowType: 'playground' });
   tasks.push({ className: 'OperationEventTask', fullName: 'OperationEventTask', flowType: 'playground' });
+
+  tasks.push({ className: 'TimerTask', fullName: 'TimerTask', flowType: 'playground' });
 
   return tasks;
 };

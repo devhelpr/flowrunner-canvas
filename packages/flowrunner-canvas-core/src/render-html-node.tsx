@@ -15,6 +15,7 @@ import { IFlowrunnerConnector } from './interfaces/IFlowrunnerConnector';
 import { DataGridNodeHtmlPluginInfo, DataGridNodeHtmlPlugin } from './html-plugins/data-grid-node';
 import { IFlowState, useFlowStore } from './state/flow-state';
 import { DataTableNodeHtmlPlugin, DataTableNodeHtmlPluginInfo } from './html-plugins/data-table-node';
+import { TimerNodeHtmlPluginInfo, TimerNodeNodeHtmlPlugin } from './html-plugins/timer-node';
 
 const DebugNodeHtmlPlugin = React.lazy(() =>
   import('./html-plugins/debug-node').then(({ DebugNodeHtmlPlugin }) => ({ default: DebugNodeHtmlPlugin })),
@@ -149,6 +150,15 @@ export const renderHtmlNode = (
         flow={flow}
       ></DataTableNodeHtmlPlugin>
     );
+  } else if (htmlPlugin == 'timerNode') {
+    return (
+      <TimerNodeNodeHtmlPlugin
+        key={(flowId ? '' : flowId) + node.name}
+        flowrunnerConnector={flowrunnerConnector}
+        node={node}
+        flow={flow}
+      ></TimerNodeNodeHtmlPlugin>
+    );
   } else if (htmlPlugin == 'debugNode') {
     return (
       <Suspense fallback={<div>Loading...</div>}>
@@ -218,6 +228,8 @@ export const getNodeInstance = (
     return new GridEditNodeHtmlPluginInfo();
   } else if (htmlPlugin == 'inputNode') {
     return new InputNodeHtmlPluginInfo();
+  } else if (htmlPlugin == 'timerNode') {
+    return new TimerNodeHtmlPluginInfo();
   } else if (htmlPlugin == 'formNode') {
     // TODO : add config as parameter to getNodeInstance and pass to constructor
 

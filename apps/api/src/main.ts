@@ -509,6 +509,9 @@ function start(flowFileName, taskPlugins, options) {
       })
         .then((response) => {
           // TODO make this configurable and also check non-happy path
+          if (response.status === 201 || response.status === 204 || response.status === 202) {
+            return Promise.resolve({});
+          }
           return response.json();
         })
         .then((json) => {

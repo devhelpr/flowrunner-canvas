@@ -423,6 +423,29 @@ img {
   top: 116px;
 }
 
+.canvas__html-shape-3 {
+  top: 152px;
+}
+
+.canvas__html-shape-TimerTask .canvas__html-shape-1 {
+  transition-duration: 100ms;
+  transition-property: scale;
+  transition-timing-function: ease-in-out;
+}
+.canvas__html-shape-TimerTask:has(.trigger) .canvas__html-shape-1 {
+  /*scale: 1.15;*/
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .canvas__html-shape--in-bar {
   position: relative;
   margin-bottom: 10px;
@@ -1421,10 +1444,16 @@ textarea.form-control:disabled {
 
 [data-task='FormTask'].untouched .html-plugin-node {
   filter: brightness(0.91);
+  cursor: default;
+  button {
+    filter: grayscale(1) brightness(2);
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
 [data-task='DebugTask'].untouched .html-plugin-node {
-  display: none;
+  /*display: none;*/
 }
 
 .container__ui-view [data-task='FormTask'].untouched {

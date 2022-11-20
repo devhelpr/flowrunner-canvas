@@ -3,6 +3,9 @@ import { useReceivedPayload } from '../hooks/use-received-payload';
 
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
 
+import { v4 } from 'uuid';
+const uuidV4 = v4;
+
 export class DataTableNodeHtmlPluginInfo {
   getWidth = (node) => {
     const columnsCount = (node.columns || []).length;
@@ -120,6 +123,24 @@ export const DataTableNodeHtmlPlugin = (props: DataTableNodeHtmlPluginProps) => 
   return (
     <div className="html-plugin-node tw-bg-white tw-items-start tw-self-start">
       <div className="w-100 h-auto">{table}</div>
+      {!!props.node.hasCreate && (
+        <div>
+          <button
+            className="tw-mt-2 btn btn-primary"
+            onClick={(event) => {
+              event.preventDefault();
+
+              props.flowrunnerConnector.modifyFlowNode(props.node.name, 'onCreate', undefined, undefined, 'onCreate', {
+                ...payload,
+                id: uuidV4(),
+              });
+              return false;
+            }}
+          >
+            Add
+          </button>
+        </div>
+      )}
     </div>
   );
 };

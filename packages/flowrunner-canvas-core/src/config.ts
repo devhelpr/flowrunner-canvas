@@ -645,7 +645,8 @@ const taskTypeConfig: ITaskTypeConfig = {
     },
   },
   ClearTask: {
-    shapeType: 'Rect',
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
   },
   TraceConsoleTask: {
     shapeType: 'Circle',
@@ -1117,6 +1118,9 @@ const taskTypeConfig: ITaskTypeConfig = {
         {
           eventName: 'onUpdate',
         },
+        {
+          eventName: 'onCreate',
+        },
       ],
     },
     configMenu: {
@@ -1138,6 +1142,8 @@ const taskTypeConfig: ITaskTypeConfig = {
         },
         { fieldName: 'hasDelete', fieldType: 'checkbox' },
         { fieldName: 'hasUpdate', fieldType: 'checkbox' },
+        { fieldName: 'hasCreate', fieldType: 'checkbox' },
+        { fieldName: 'idProperty' },
       ],
     },
     events: [
@@ -1146,6 +1152,9 @@ const taskTypeConfig: ITaskTypeConfig = {
       },
       {
         eventName: 'onUpdate',
+      },
+      {
+        eventName: 'onCreate',
       },
     ],
   },
@@ -1182,7 +1191,7 @@ const taskTypeConfig: ITaskTypeConfig = {
   TimerTask: {
     icon: 'fa-clock',
     shapeType: 'Html',
-    htmlPlugin: 'formNode',
+    htmlPlugin: 'timerNode',
     events: [
       {
         eventName: 'onTimer',
@@ -1200,9 +1209,12 @@ const taskTypeConfig: ITaskTypeConfig = {
       fields: [
         {
           fieldName: 'interval',
+          fieldType: 'slider',
           required: true,
           label: 'Interval(ms)',
           dataType: 'number',
+          min: 50,
+          max: 5000,
         },
         {
           fieldName: 'mode',
@@ -1896,6 +1908,26 @@ const taskTypeConfig: ITaskTypeConfig = {
           fieldName: 'cssClassName',
           fieldType: 'text',
           label: 'CSS ClassName',
+        },
+        {
+          fieldName: 'formMode',
+          fieldType: 'select',
+          defaultValue: 'default',
+          options: [
+            {
+              label: 'Default',
+              value: 'default',
+            },
+            {
+              label: 'CRUD',
+              value: 'crud',
+            },
+          ],
+        },
+        {
+          fieldName: 'idProperty',
+          visibilityCondition: 'formMode == "crud"',
+          required: true,
         },
       ],
     },

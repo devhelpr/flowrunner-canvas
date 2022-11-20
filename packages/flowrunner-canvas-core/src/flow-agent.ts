@@ -431,124 +431,6 @@ const FlowPluginWrapperTask = (pluginName, pluginClass: any) => {
 
 let timers: any = {};
 
-export class TimerTask extends FlowTask {
-  isExecuting: boolean = false;
-  clearTimeout: any = undefined;
-  node: any = undefined;
-  flow: any;
-
-  constructor() {
-    super();
-    console.log('create TimerTask');
-  }
-
-  public timer = () => {
-    /*
-
-      problem with pausing the flow is that this can happen during handling of
-      executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
-
-    */
-    if (!this.isExecuting) {
-      this.isExecuting = true;
-
-      if (this.clearTimeout) {
-        clearTimeout(this.clearTimeout);
-        this.clearTimeout = undefined;
-      }
-
-      if (this.flow.isPaused()) {
-        console.log('PAUSED');
-        this.clearTimeout = setTimeout(this.timer, this.node.interval);
-        return;
-      }
-
-      if (this.node.executeNode) {
-        this.flow.executeNode(this.node.executeNode, this.node.payload || {}).then(() => {
-          this.isExecuting = false;
-          if (!!this.isBeingKilled) {
-            return;
-          }
-          this.clearTimeout = setTimeout(this.timer, this.node.interval);
-        });
-      } else {
-        this.flow.triggerEventOnNode(this.node.name, 'onTimer', this.node.payload || {}).then(() => {
-          this.isExecuting = false;
-          if (!!this.isBeingKilled) {
-            return;
-          }
-          this.clearTimeout = setTimeout(this.timer, this.node.interval);
-        });
-      }
-    } else {
-      if (this.clearTimeout) {
-        clearTimeout(this.clearTimeout);
-        this.clearTimeout = undefined;
-      }
-
-      if (!!this.isBeingKilled) {
-        return;
-      }
-
-      this.clearTimeout = setTimeout(this.timer, this.node.interval);
-    }
-  };
-
-  public override execute(node: any, services: any) {
-    this.node = node;
-    this.isExecuting = false;
-    this.flow = services.workerContext.flow;
-
-    //console.log('timer execute', node);
-    if (node.mode === 'executeNode' || node.events) {
-      if (this.clearTimeout) {
-        clearTimeout(this.clearTimeout);
-        this.clearTimeout = undefined;
-      }
-      this.clearTimeout = setTimeout(this.timer, node.interval);
-      return true;
-    } else {
-      if (node.interval) {
-        //console.log('node.interval', node.interval);
-        /*if (timers[node.name]) {
-          clearInterval(timers[node.name]);
-          timers[node.name] = undefined;
-        }
-
-        let subject = new Subject<string>();
-        const timer = setInterval(() => {
-          subject.next(Object.assign({}, node.payload));
-        }, node.interval);
-        timers[node.name] = timer;
-        return subject;
-        */
-        return false;
-      }
-    }
-    /*if (timers[node.name]) {
-      clearInterval(timers[node.name]);
-      timers[node.name] = undefined;
-    }*/
-
-    return false;
-  }
-
-  isBeingKilled = false;
-  public kill() {
-    console.log('kill TimerTask');
-
-    this.isBeingKilled = true;
-    if (this.clearTimeout) {
-      clearTimeout(this.clearTimeout);
-      this.clearTimeout = undefined;
-    }
-  }
-
-  public override getName() {
-    return 'TimerTask';
-  }
-}
-
 export class RandomTask extends ObservableTask {
   public override execute(node: any, services: any) {
     node.payload = Object.assign({}, node.payload);
@@ -700,7 +582,11 @@ const onFlowAgentMessage = (event, worker: IFlowAgent) => {
       if (!worker.flow) {
         return;
       }
-      (worker.flow as any).clearNodeState(data.nodeName);
+      if (data.initialValues) {
+        (worker.flow as any).clearNodeState(data.nodeName, data.initialValues);
+      } else {
+        (worker.flow as any).clearNodeState(data.nodeName);
+      }
     } else if (command === 'modifyFlowNode') {
       if (!data.nodeName) {
         return;
@@ -880,7 +766,6 @@ const startFlow = (
     worker.flow.registerTask('OutputValueTask', OutputValueTask);
 
     worker.flow.registerTask('RandomTask', RandomTask);
-    worker.flow.registerTask('TimerTask', TimerTask);
     worker.flow.registerTask('InputTask', InputTask);
     worker.flow.registerTask('ListTask', ListTask);
 

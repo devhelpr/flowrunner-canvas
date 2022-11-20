@@ -44,7 +44,7 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
 
   executeFlowNode = (nodeName: string, payload?: any) => {};
 
-  clearNodeState = (nodeName) => {};
+  clearNodeState = (nodeName, initialValues?: any) => {};
 
   modifyFlowNode = (
     nodeName: string,
@@ -444,13 +444,21 @@ export class FlowConnector implements IFlowrunnerConnector {
     }
   };
 
-  clearNodeState = (nodeName) => {
+  clearNodeState = (nodeName, initialValues?: any) => {
     if (this.flowType == 'playground') {
       if (this.worker) {
-        this.worker.postMessage('worker', {
-          command: 'clearNodeState',
-          nodeName: nodeName,
-        });
+        if (initialValues) {
+          this.worker.postMessage('worker', {
+            command: 'clearNodeState',
+            nodeName: nodeName,
+            initialValues,
+          });
+        } else {
+          this.worker.postMessage('worker', {
+            command: 'clearNodeState',
+            nodeName: nodeName,
+          });
+        }
       }
     }
   };

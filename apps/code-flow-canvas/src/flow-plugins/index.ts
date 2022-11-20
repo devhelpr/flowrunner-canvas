@@ -58,12 +58,10 @@ export const registerCustomPlugins = () => {
       showNotSelectedAsLabels: true,
       constraints: {
         input: {
-          allowedInputs: 1,
           notAllowed: [],
           allowed: [],
         },
         output: {
-          allowedOutputs: 1,
           notAllowed: [],
           allowed: [],
         },

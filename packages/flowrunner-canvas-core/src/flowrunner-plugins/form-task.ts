@@ -25,7 +25,27 @@ export class FormTask extends ObservableTask {
         metaInfoDefinition = node.payload['metaInfo'];
       }
 
-      (metaInfoDefinition || []).map((metaInfo, index) => {
+      if (node.formMode === 'crud') {
+        const currentValues = services.flowEventRunner.getPropertiesFromNode(node.name);
+        console.log(
+          'clearNodeState check',
+          currentValues,
+          node,
+          node.idProperty,
+          currentValues[node.idProperty] !== node.payload[node.idProperty],
+        );
+        if (currentValues && currentValues[node.idProperty] !== node.payload[node.idProperty]) {
+          services.flowEventRunner.clearNodeState(node.name, { ...node.payload });
+
+          (metaInfoDefinition || []).forEach((metaInfo, index) => {
+            if (metaInfo.fieldName && node[metaInfo.fieldName]) {
+              delete node[metaInfo.fieldName];
+            }
+          });
+        }
+      }
+
+      (metaInfoDefinition || []).forEach((metaInfo, index) => {
         let currentValue;
         if (metaInfo.fieldName) {
           if (metaInfo.fieldType === 'triggerbutton') {
@@ -39,6 +59,12 @@ export class FormTask extends ObservableTask {
               currentValue = undefined;
               values[metaInfo.fieldName] = undefined;
               isValid = false;
+              console.log(
+                'form-task isvalid set to false (triggerbutton)',
+                node.name,
+                metaInfo.fieldName,
+                node.payload,
+              );
             }
           } else {
             currentValue = services.flowEventRunner.getPropertyFromNode(node.name, metaInfo.fieldName);
@@ -90,6 +116,7 @@ export class FormTask extends ObservableTask {
         }
 
         if (isVisible && !!metaInfo.required && metaInfo.fieldName && values[metaInfo.fieldName] === undefined) {
+          console.log('form-task isvalid set to false', node.name, metaInfo.fieldName);
           isValid = false;
         }
       });
@@ -109,10 +136,10 @@ export class FormTask extends ObservableTask {
           services.flowEventRunner.setPropertyOnNode(node.name, 'waitForUserSubmit', false);
         }
 
-        console.log('form-task', node.name, isValid, hasValues, values, metaInfoDefinition, payload);
+        console.log('form-task (return payload)', node.name, isValid, hasValues, values, metaInfoDefinition, payload);
         return payload;
       }
-      console.log('form-task', node.name, isValid, hasValues, values, metaInfoDefinition);
+      console.log('form-task (invalid)', node.name, isValid, hasValues, values, metaInfoDefinition);
       return false;
     } catch (err) {
       console.log('FormTask error', err);

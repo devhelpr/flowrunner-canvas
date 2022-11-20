@@ -818,6 +818,8 @@ export const Canvas = (props: CanvasProps) => {
   const nodeStateTimeoutCallback = () => {
     let resetNodes: string[] = [];
     let wasIncreased: string[] = [];
+
+    let resetUntouched = false;
     nodeStateList.current.forEach((nodeState) => {
       if (nodeState.nodeState === 'before') {
         //console.log('BEFORE node execution');
@@ -830,6 +832,9 @@ export const Canvas = (props: CanvasProps) => {
       let dontShowError = false;
       if (mappedNode && flowStoreFlow.current) {
         node = flowStoreFlow.current[mappedNode.index];
+        if (node.taskType === 'FormTask' || node.taskType === 'DataTableTask') {
+          resetUntouched = true;
+        }
         if (node && node.resetOutputPathOnError && nodeState.nodeState === 'error') {
           dontShowError = true;
           connectionStream = getOutputConnectNodes(nodeState.nodeName);
@@ -850,41 +855,42 @@ export const Canvas = (props: CanvasProps) => {
             }
           });
         }
-      }
-      let nodeStateClass = nodeState.nodeState === 'error' ? 'has-error' : '';
-      //const element = document.getElementById(nodeState.nodeName);
-      const element = elementRefs.current[nodeState.nodeName];
-      if (element) {
-        element.classList.remove('has-error');
-        if (nodeStateClass !== '' && !dontShowError) {
-          element.classList.add(nodeStateClass);
-        }
-      }
 
-      const shapeRef = shapeRefs.current[nodeState.nodeName];
-      let newShapeState = ShapeStateEnum.Default;
-      if (nodeState.nodeState === 'ok') {
-        newShapeState = ShapeStateEnum.Ok;
-      } else if (nodeState.nodeState === 'error' && !dontShowError) {
-        newShapeState = ShapeStateEnum.Error;
-      }
-      if (shapeRef) {
-        shapeRef.modifyShape(ModifyShapeEnum.SetState, {
-          state: newShapeState,
-        });
-      }
-
-      if (connectionStream) {
-        connectionStream.forEach((node) => {
-          resetNodes.push(node.name);
-          touchedNodesLocal.current[node.name] = false;
-          const shapeRef = shapeRefs.current[node.name];
-          if (shapeRef) {
-            shapeRef.modifyShape(ModifyShapeEnum.SetState, {
-              state: ShapeStateEnum.Default,
-            });
+        let nodeStateClass = nodeState.nodeState === 'error' ? 'has-error' : '';
+        //const element = document.getElementById(nodeState.nodeName);
+        const element = elementRefs.current[nodeState.nodeName];
+        if (element) {
+          element.classList.remove('has-error');
+          if (nodeStateClass !== '' && !dontShowError) {
+            element.classList.add(nodeStateClass);
           }
-        });
+        }
+
+        const shapeRef = shapeRefs.current[nodeState.nodeName];
+        let newShapeState = ShapeStateEnum.Default;
+        if (nodeState.nodeState === 'ok') {
+          newShapeState = ShapeStateEnum.Ok;
+        } else if (nodeState.nodeState === 'error' && !dontShowError) {
+          newShapeState = ShapeStateEnum.Error;
+        }
+        if (shapeRef) {
+          shapeRef.modifyShape(ModifyShapeEnum.SetState, {
+            state: newShapeState,
+          });
+        }
+
+        if (connectionStream && !resetUntouched) {
+          connectionStream.forEach((node) => {
+            resetNodes.push(node.name);
+            touchedNodesLocal.current[node.name] = false;
+            const shapeRef = shapeRefs.current[node.name];
+            if (shapeRef) {
+              shapeRef.modifyShape(ModifyShapeEnum.SetState, {
+                state: ShapeStateEnum.Default,
+              });
+            }
+          });
+        }
       }
     });
 
@@ -908,7 +914,11 @@ export const Canvas = (props: CanvasProps) => {
         } else if (touchedNodesLocal.current[touchNodeId] === true) {
           element.classList.remove('untouched');
         } else {
-          element.classList.add('untouched');
+          // TODO : can this be handle only after the node-state change of a FormNode or other UI-node???
+          //  .. because this now causes issues when being retriggered by a TimerTask in the DebugTask... "flickering"
+          if (resetUntouched) {
+            element.classList.add('untouched');
+          }
         }
       } else {
         if (!touchedNodesLocal.current[touchNodeId] && nodesStateLocal.current[touchNodeId] !== '') {
@@ -929,6 +939,7 @@ export const Canvas = (props: CanvasProps) => {
   };
 
   const nodeStateObserver = (nodeName: string, nodeState: string, _touchedNodes: any, payload: any) => {
+    //console.log('nodeStateObserver', nodeName, nodeState, { ..._touchedNodes });
     if (!updateNodeTouchedState) {
       return;
     }
@@ -939,6 +950,7 @@ export const Canvas = (props: CanvasProps) => {
     }
 
     if (nodeState === 'RESET_ALL') {
+      console.log('RESET_ALL');
       nodeStateList.current = [];
       nodeStateCount.current = 0;
       Object.keys(elementRefs.current).forEach((nodeName: string) => {
@@ -2394,7 +2406,11 @@ export const Canvas = (props: CanvasProps) => {
             }
           } else {
             // SINGLE NODE
-            if ((touchNode.current as any).shapeType === 'Line') {
+            if (!touchNode.current) {
+              return;
+            }
+
+            if ((touchNode.current as any) && (touchNode.current as any).shapeType === 'Line') {
               let lineNode = touchNode.current as any;
               if (lineNode.startshapeid && flowStore.flowHashmap) {
                 const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid)?.index ?? -1];
@@ -3699,6 +3715,7 @@ export const Canvas = (props: CanvasProps) => {
     connectionNodeThumbsLineNode.current = undefined;
     connectionNodeThumbs.current = '';
     if (node && node.shapeType === 'Line') {
+      console.log('adding connection start1');
       connectionNodeThumbsLineNode.current = node;
       touchNode.current = node;
       touchNodeGroup.current = event.currentTarget;
@@ -3709,17 +3726,23 @@ export const Canvas = (props: CanvasProps) => {
       if (mappedNode) {
         if (mappedNode.start && (mappedNode.start?.length ?? -1) > 0) {
           let lineNode: any | undefined = undefined;
-
+          console.log('start1', event.shiftKey, selectedNodeRef.current);
           if (event.shiftKey) {
-            if (!selectedNodeRef.current || !selectedNodeRef.current.node) {
+            if (
+              !selectedNodeRef.current ||
+              !selectedNodeRef.current.node ||
+              (selectedNodeRef.current.node && selectedNodeRef.current.node.shapeType !== 'Line')
+            ) {
               lineNode = flowStore.flow[mappedNode.start[0]];
-              let lineNodes: any[] = [];
-              mappedNode.start.forEach((connectionNodeIndex) => {
-                const _connectionNode = flowStore.flow[connectionNodeIndex];
-                lineNodes.push(_connectionNode);
-              });
+              if (mappedNode.start.length > 1) {
+                let lineNodes: any[] = [];
+                mappedNode.start.forEach((connectionNodeIndex) => {
+                  const _connectionNode = flowStore.flow[connectionNodeIndex];
+                  lineNodes.push(_connectionNode);
+                });
 
-              lineNode = lineNodes;
+                lineNode = lineNodes;
+              }
             }
           }
 
@@ -3746,7 +3769,12 @@ export const Canvas = (props: CanvasProps) => {
 
             connectionNodeThumbs.current = '';
             connectionNodeThumbs.current = 'thumbstart';
+
+            if (!event.evt) {
+              event.preventDefault();
+            }
           } else {
+            console.log('adding connection start2');
             interactionState.current = InteractionState.addingNewConnection;
             touchNode.current = node;
             touchNodeGroup.current = event.currentTarget;
@@ -3915,7 +3943,7 @@ export const Canvas = (props: CanvasProps) => {
 
   const onMouseConnectionEndStart = (node, nodeEvent, event) => {
     console.log('onMouseConnectionEndStart');
-    if (interactionState.current != InteractionState.idle) {
+    if (interactionState.current !== InteractionState.idle) {
       if (!event.evt) {
         event.preventDefault();
       }
@@ -3952,9 +3980,13 @@ export const Canvas = (props: CanvasProps) => {
       if (mappedNode) {
         if (mappedNode.end && (mappedNode.end?.length ?? -1) > 0) {
           let lineNode: any | undefined = undefined;
-          if (event.shiftKey) {
-            if (!selectedNodeRef.current || !selectedNodeRef.current.node) {
-              lineNode = flowStore.flow[mappedNode.end[0]];
+          if (
+            !selectedNodeRef.current ||
+            !selectedNodeRef.current.node ||
+            (selectedNodeRef.current.node && selectedNodeRef.current.node.shapeType !== 'Line')
+          ) {
+            lineNode = flowStore.flow[mappedNode.end[0]];
+            if (mappedNode.end.length > 1) {
               let lineNodes: any[] = [];
               mappedNode.end.forEach((connectionNodeIndex) => {
                 const _connectionNode = flowStore.flow[connectionNodeIndex];
@@ -3979,6 +4011,10 @@ export const Canvas = (props: CanvasProps) => {
 
           if (!lineNode) {
             return;
+          }
+
+          if (!event.evt) {
+            event.preventDefault();
           }
 
           connectionNodeThumbs.current = 'thumbend';

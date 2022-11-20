@@ -451,6 +451,11 @@ export const Taskbar = (props: TaskbarProps) => {
                       return null;
                     }
                   }
+                  if (showUICategory) {
+                    if (uiTasks.find((item) => item === taskMetaData.className)) {
+                      return null;
+                    }
+                  }
                   if (showStateCategory) {
                     if (stateTasks.find((item) => item === taskMetaData.className)) {
                       return null;

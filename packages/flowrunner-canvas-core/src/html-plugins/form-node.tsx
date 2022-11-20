@@ -139,6 +139,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
   const throttleTimer: any = useRef(null);
   const modifyFlowThrottleTimer: any = useRef(null);
   const modifyFlowThrottleEnabled: any = useRef(false);
+  const crudId: any = useRef(undefined);
 
   const datasourceContext = useFormNodeDatasourceContext();
 
@@ -233,6 +234,25 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       }
     };
   }, [props.node, props.flowrunnerConnector]);
+
+  useEffect(() => {
+    if (
+      props.flowrunnerConnector &&
+      props.node &&
+      props.node.formMode === 'crud' &&
+      receivedPayload &&
+      receivedPayload[props.node.idProperty]
+    ) {
+      if (crudId.current === undefined || crudId.current !== receivedPayload[props.node.idProperty]) {
+        console.log('FORMNode BEFORE clearNodeState', receivedPayload[props.node.idProperty], receivedPayload);
+        crudId.current = receivedPayload[props.node.idProperty];
+        // .. only if lastid != receivedpayload.id?
+        props.flowrunnerConnector.clearNodeState(props.node.name, receivedPayload);
+
+        setValues({ ...props.node.initialValues, ...receivedPayload });
+      }
+    }
+  }, [receivedPayload, props.flowrunnerConnector, props.node]);
 
   useEffect(() => {
     const THROTTLE_TIMEOUT = 500;
@@ -1011,6 +1031,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
                   fieldIndex: index,
                   enabled: !(!!props.node.formDefinitionAsPayload && !props.isNodeSettingsUI), //(!!props.isNodeSettingsUI || props.flowrunnerConnector?.getAppMode() == ApplicationMode.UI || props.isObjectListNodeEditing || (selectedNode && selectedNode.node && selectedNode.node.name === props.node.name)),
                   flowrunnerConnector: props.flowrunnerConnector,
+                  onCanSubmitForm: onCanSubmitForm,
                 })}
               </React.Fragment>
             );
@@ -1048,6 +1069,13 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 		</div>
 	}*/
 
+  let formKey = props.node.name;
+  if (props.node.formMode === 'crud') {
+    if (props.node.idProperty) {
+      formKey = `${formKey}_${receivedPayload[props.node.idProperty]}`;
+    }
+  }
+
   return (
     <div
       className="html-plugin-node"
@@ -1062,7 +1090,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
           {!!props.isObjectListNodeEditing ? (
             <div className="form">{renderFields()}</div>
           ) : (
-            <form className="form" onSubmit={onSubmit} id={`form-${props.node.name}`}>
+            <form key={formKey} data-key={formKey} className="form" onSubmit={onSubmit} id={`form-${props.node.name}`}>
               {renderFields()}
             </form>
           )}

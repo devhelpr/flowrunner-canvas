@@ -16,4 +16,5 @@ export interface IFormControlProps {
   fieldIndex: number;
   currentFormValues?: any;
   flowrunnerConnector: IFlowrunnerConnector | undefined;
+  onCanSubmitForm: () => boolean;
 }

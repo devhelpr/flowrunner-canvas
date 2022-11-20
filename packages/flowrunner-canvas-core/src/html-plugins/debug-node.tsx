@@ -47,6 +47,7 @@ export const DebugNodeHtmlPlugin = (props: DebugNodeHtmlPluginProps) => {
   const timer = useRef(undefined as any);
   const lastTime = useRef(undefined as any);
   const receivedPayloads = useRef([] as any[]);
+  const lastReceivedPayload = useRef<any>(undefined);
 
   useEffect(() => {
     unmounted.current = false;
@@ -215,7 +216,12 @@ export const DebugNodeHtmlPlugin = (props: DebugNodeHtmlPluginProps) => {
     if (payload && (payload as any).debugId) {
       delete (payload as any).debugId;
     }
-    visualizer = <div className="w-100 h-auto">{payload ? JSON.stringify(payload, null, 2) : ''}</div>;
+    if (payload) {
+      lastReceivedPayload.current = payload;
+    }
+    visualizer = (
+      <div className="w-100 h-auto">{payload ? JSON.stringify(lastReceivedPayload.current, null, 2) : ''}</div>
+    );
   }
   let elements: JSX.Element[] = [];
   if (props.node.elements) {
