@@ -3729,7 +3729,18 @@ export const Canvas = (props: CanvasProps) => {
     if (node && touching.current && touchNode.current) {
       return;
     }
-    console.log('onMouseConnectionStartStart', event.shiftKey, node, nodeEvent, nodeEventName, selectedNodeRef.current);
+    if (connectionNodeThumbs.current === 'thumbstart' || connectionNodeThumbs.current === 'thumbend') {
+      return;
+    }
+    console.log(
+      'onMouseConnectionStartStart',
+      event.shiftKey,
+      node,
+      nodeEvent,
+      nodeEventName,
+      selectedNodeRef.current,
+      connectionNodeThumbs.current,
+    );
 
     const settings = ShapeSettings.getShapeSettings(node.taskType, node);
     if (node && node.shapeType !== 'Line') {
@@ -3760,9 +3771,22 @@ export const Canvas = (props: CanvasProps) => {
     connectionNodeThumbs.current = '';
     if (node && node.shapeType === 'Line') {
       console.log('adding connection start1');
-      connectionNodeThumbsLineNode.current = node;
-      touchNode.current = node;
-      touchNodeGroup.current = event.currentTarget;
+
+      let lineNode: any | undefined = node;
+      if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.node &&
+        selectedNodeRef.current.node.shapeType === 'Line'
+      ) {
+        const mappedNode = flowStore.flowHashmap.get(node.name);
+        if (mappedNode) {
+          lineNode = mappedNode;
+        }
+      }
+
+      connectionNodeThumbsLineNode.current = lineNode;
+      touchNode.current = lineNode;
+      touchNodeGroup.current = shapeRefs.current[lineNode.name];
       connectionNodeThumbs.current = 'thumbstart';
 
       interactionState.current = InteractionState.draggingConnectionStart;
@@ -3903,9 +3927,12 @@ export const Canvas = (props: CanvasProps) => {
     if (node && touching.current && touchNode.current) {
       return;
     }
-
+    console.log('onMouseConnectionStartEnd', connectionNodeThumbsLineNode.current);
     if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
       if (connectionNodeThumbsLineNode.current) {
+        if (connectionNodeThumbsLineNode.current.shapeType === 'Line') {
+          return;
+        }
         const reconnectNode = (connection) => {
           if (connection.endshapeid === node.name) {
             return;
@@ -4027,6 +4054,10 @@ export const Canvas = (props: CanvasProps) => {
       return false;
     }
     if (node && touching.current && touchNode.current && !isConnectingNodesByDraggingLocal.current) {
+      return;
+    }
+
+    if (connectionNodeThumbs.current === 'thumbstart' || connectionNodeThumbs.current === 'thumbend') {
       return;
     }
 
@@ -4168,6 +4199,10 @@ export const Canvas = (props: CanvasProps) => {
     }
     if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
       if (connectionNodeThumbsLineNode.current) {
+        if (connectionNodeThumbsLineNode.current.shapeType === 'Line') {
+          return;
+        }
+
         const reconnectNode = (connection) => {
           if (connection.startshapeid === node.name) {
             return;
