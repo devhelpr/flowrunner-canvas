@@ -25,8 +25,14 @@ export class DummyTestTask extends FlowTask {
 
         WebAssembly.instantiate(wasm, importObject)
           .then((module) => {
-            const result = (module.instance.exports as any).main(payload['a'] || 0, payload['b'] || 0);
-            payload.result = result;
+            if (node.noParams) {
+              const result = (module.instance.exports as any).main();
+              payload.result = result;
+            } else {
+              const result = (module.instance.exports as any).main(payload['a'] || 0, payload['b'] || 0);
+              payload.result = result;
+            }
+
             resolve(payload);
           })
           .catch((err) => {

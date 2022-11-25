@@ -142,7 +142,8 @@ export const LineHelper = (props: ILineHelperProps) => {
       selectedNodeName={''}
       startNodeName={props.lineNode.startshapeid}
       endNodeName={props.lineNode.endshapeid}
-      hasEndThumb={props.endshapeid === undefined}
+      hasStartThumb={props.startshapeid === undefined || props.startshapeid === ''}
+      hasEndThumb={props.endshapeid === undefined || props.endshapeid === ''}
       noMouseEvents={false}
       touchedNodes={props.touchedNodes}
       name={props.lineNode.name}
@@ -228,15 +229,15 @@ export const Lines = (props: ILinesProp) => {
           return false;
         }
         const endIndex = item.index;
-        if (endIndex < 0) {
-          return false;
+        let endNode: any = undefined;
+        if (endIndex >= 0) {
+          endNode = flow.flow[endIndex];
         }
-        const endNode = flow.flow[endIndex];
 
         let newPosition = { x: props.node.x, y: props.node.y };
         newPosition = (positionContext.getPosition(props.node.name) as any) || newPosition;
 
-        let endPosition = { x: endNode.x, y: endNode.y };
+        let endPosition = { x: endNode?.x ?? lineNode.xend, y: endNode?.y ?? lineNode.yend };
         endPosition = (positionContext.getPosition(lineNode.endshapeid) as any) || endPosition;
 
         const newStartPosition = FlowToCanvas.getStartPointForLine(

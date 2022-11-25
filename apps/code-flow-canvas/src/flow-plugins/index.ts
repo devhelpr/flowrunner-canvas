@@ -43,6 +43,10 @@ export const registerCustomPlugins = () => {
           storeAsBase64: true,
           acceptFiles: '.wasm',
         },
+        {
+          fieldName: 'noParams',
+          fieldType: 'checkbox',
+        },
       ],
     },
     'playground',

@@ -1982,6 +1982,13 @@ export const Canvas = (props: CanvasProps) => {
 
     if (node.shapeType === 'Line') {
       if (interactionState.current !== InteractionState.draggingNodesByConnection) {
+        console.log('onMouseEnd line', connectionNodeThumbs.current);
+        if (connectionNodeThumbs.current === 'thumbend') {
+          return;
+        }
+        if (connectionNodeThumbs.current === 'thumbstart') {
+          return;
+        }
         touching.current = false;
         (touchNode.current as any) = undefined;
         touchNodeGroup.current = undefined;
@@ -2312,6 +2319,8 @@ export const Canvas = (props: CanvasProps) => {
       interactionState.current,
       connectionNodeEventName.current,
       connectionNodeEvent.current,
+      connectionNodeThumbs.current,
+      connectionNodeThumbsLineNode.current,
     );
     if (interactionState.current === InteractionState.selectingNodes) {
       interactionState.current = InteractionState.multiSelect;
@@ -2330,14 +2339,14 @@ export const Canvas = (props: CanvasProps) => {
     }
     let haveMouseEventFallThrough = false;
     if (
-      (interactionState.current == InteractionState.multiSelect && touching.current) ||
+      (interactionState.current === InteractionState.multiSelect && touching.current) ||
       touching.current ||
       isConnectingNodesByDraggingLocal.current
     ) {
       if (stage && stage.current) {
         let stageInstance = (stage.current as any).getStage();
         if (
-          interactionState.current == InteractionState.multiSelect ||
+          interactionState.current === InteractionState.multiSelect ||
           (connectionNodeThumbs.current === '' &&
             !isConnectingNodesByDraggingLocal.current &&
             mouseDragging.current &&
@@ -2411,6 +2420,7 @@ export const Canvas = (props: CanvasProps) => {
             }
 
             if ((touchNode.current as any) && (touchNode.current as any).shapeType === 'Line') {
+              console.log("onStageMouseEnd (touchNode.current as any).shapeType === 'Line'");
               let lineNode = touchNode.current as any;
               if (lineNode.startshapeid && flowStore.flowHashmap) {
                 const startNode = flowStore.flow[flowStore.flowHashmap.get(lineNode.startshapeid)?.index ?? -1];
@@ -2533,7 +2543,11 @@ export const Canvas = (props: CanvasProps) => {
                 yend: endPosition.yend,
               };
 
-              if (endpoints.startshapeid === endpoints.endshapeid) {
+              if (
+                endpoints.startshapeid !== undefined &&
+                endpoints.startshapeid !== '' &&
+                endpoints.startshapeid === endpoints.endshapeid
+              ) {
                 interactionState.current = InteractionState.idle;
                 clearConnectionState();
                 return;
@@ -2589,7 +2603,11 @@ export const Canvas = (props: CanvasProps) => {
                 xend: newPosition.x,
                 yend: newPosition.y,
               };
-              if (endpoints.startshapeid === endpoints.endshapeid) {
+              if (
+                endpoints.startshapeid !== undefined &&
+                endpoints.startshapeid !== '' &&
+                endpoints.startshapeid === endpoints.endshapeid
+              ) {
                 interactionState.current = InteractionState.idle;
                 clearConnectionState();
                 return;
@@ -2606,6 +2624,7 @@ export const Canvas = (props: CanvasProps) => {
                 storeConnection(connection, connectionNodeThumbsLineNode.current.length - 1 === index);
               });
             } else {
+              console.log('connectionNodeThumbsLineNode.current', connectionNodeThumbsLineNode.current);
               storeConnection(connectionNodeThumbsLineNode.current, true);
             }
           } else {
@@ -3666,6 +3685,31 @@ export const Canvas = (props: CanvasProps) => {
 
   const onMouseConnectionStartOut = (node, nodeEvent, event) => {
     (document.body.style.cursor as any) = null;
+
+    if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
+      if (connectionNodeThumbsLineNode.current) {
+        const disconnectNode = (connection) => {
+          let clonedNode = { ...connection };
+          clonedNode.startshapeid = '';
+          return clonedNode;
+        };
+        if (Array.isArray(connectionNodeThumbsLineNode.current)) {
+          connectionNodeThumbsLineNode.current = connectionNodeThumbsLineNode.current.map((connection) => {
+            const disconnectedNode = disconnectNode(connection);
+            if (disconnectedNode) {
+              return disconnectedNode;
+            }
+            return connection;
+          });
+          return;
+        }
+        const disconnectedNode = disconnectNode(connectionNodeThumbsLineNode.current);
+        if (disconnectedNode) {
+          connectionNodeThumbsLineNode.current = disconnectedNode;
+        }
+        return;
+      }
+    }
   };
 
   const onMouseConnectionStartStart = (
@@ -3719,8 +3763,9 @@ export const Canvas = (props: CanvasProps) => {
       connectionNodeThumbsLineNode.current = node;
       touchNode.current = node;
       touchNodeGroup.current = event.currentTarget;
+      connectionNodeThumbs.current = 'thumbstart';
 
-      interactionState.current = InteractionState.addingNewConnection;
+      interactionState.current = InteractionState.draggingConnectionStart;
     } else {
       const mappedNode = flowStore.flowHashmap.get(node.name);
       if (mappedNode) {
@@ -3939,6 +3984,31 @@ export const Canvas = (props: CanvasProps) => {
 
   const onMouseConnectionEndOut = (node, nodeEvent, event) => {
     (document.body.style.cursor as any) = null;
+
+    if (isConnectingNodesByDraggingLocal.current && touchNode.current && node) {
+      if (connectionNodeThumbsLineNode.current) {
+        const disconnectNode = (connection) => {
+          let clonedNode = { ...connection };
+          clonedNode.endshapeid = '';
+          return clonedNode;
+        };
+        if (Array.isArray(connectionNodeThumbsLineNode.current)) {
+          connectionNodeThumbsLineNode.current = connectionNodeThumbsLineNode.current.map((connection) => {
+            const disconnectedNode = disconnectNode(connection);
+            if (disconnectedNode) {
+              return disconnectedNode;
+            }
+            return connection;
+          });
+          return;
+        }
+        const disconnectedNode = disconnectNode(connectionNodeThumbsLineNode.current);
+        if (disconnectedNode) {
+          connectionNodeThumbsLineNode.current = disconnectedNode;
+        }
+        return;
+      }
+    }
   };
 
   const onMouseConnectionEndStart = (node, nodeEvent, event) => {
@@ -3972,9 +4042,9 @@ export const Canvas = (props: CanvasProps) => {
     if (node && node.shapeType === 'Line') {
       connectionNodeThumbsLineNode.current = node;
       touchNode.current = node;
-      touchNodeGroup.current = event.currentTarget;
-
-      interactionState.current = InteractionState.addingNewConnection;
+      touchNodeGroup.current = shapeRefs.current[node.name];
+      interactionState.current = InteractionState.draggingConnectionEnd;
+      connectionNodeThumbs.current = 'thumbend';
     } else {
       const mappedNode = flowStore.flowHashmap.get(node.name);
       if (mappedNode) {
@@ -6979,7 +7049,8 @@ export const Canvas = (props: CanvasProps) => {
                           } else {
                             // TODO : check here if line and startshapeid or endshapeid == undefined
                             if (node.shapeType === 'Line') {
-                              if (node.startshapeid === undefined) {
+                              console.log('node.shapeType', node.shapeType, node);
+                              if (node.startshapeid === undefined || node.startshapeid === '') {
                                 let position = positionContext.getPosition(node.name);
                                 if (!position) {
                                   positionContext.setPosition(node.name, {
@@ -6992,6 +7063,7 @@ export const Canvas = (props: CanvasProps) => {
                                 }
 
                                 if (!position) {
+                                  console.log('node.shapeType return null1', node.shapeType, node);
                                   return null;
                                 }
 
@@ -7020,9 +7092,11 @@ export const Canvas = (props: CanvasProps) => {
                                 }
 
                                 if (!position) {
+                                  console.log('node.shapeType return null2', node.shapeType, node);
                                   return null;
                                 }
 
+                                console.log('node just line ', node, position);
                                 return (
                                   <Shapes.Line
                                     key={'ln-node-' + index}
@@ -7048,7 +7122,7 @@ export const Canvas = (props: CanvasProps) => {
                                     onMouseStart={onMouseStart}
                                     onMouseMove={onMouseMove}
                                     onMouseEnd={onMouseEnd}
-                                    hasEndThumb={node.endshapeid === undefined}
+                                    hasEndThumb={node.endshapeid === undefined || node.endshapeid === ''}
                                     onMouseConnectionStartOver={onMouseConnectionStartOver}
                                     onMouseConnectionStartOut={onMouseConnectionStartOut}
                                     onMouseConnectionStartStart={onMouseConnectionStartStart}

@@ -170,7 +170,7 @@ export class FlowToCanvas {
 
     const nodeAttachedToCenter = startShape.lineConnectionEndPoints === 'center-of-node';
 
-    if (shapeType == 'Html') {
+    if (shapeType === 'Html') {
       let width = undefined;
       let height: number | undefined = undefined;
       if (getNodeInstance && startShape) {
