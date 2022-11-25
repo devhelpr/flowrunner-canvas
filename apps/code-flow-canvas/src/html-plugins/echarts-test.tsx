@@ -10,6 +10,11 @@ export interface IEChartsTestProps {
 const getDatasource = (node: any, payload: any) => {
   let datasource: number[] = [];
   if (node && payload && node.datasource === 'property' && node.propertyName && payload[node.propertyName]) {
+    if (node.objectPropertyName) {
+      return payload[node.propertyName].map(
+        (dataObject: any) => dataObject[node.objectPropertyName] as unknown as number,
+      );
+    }
     datasource = payload[node.propertyName] as unknown as number[];
   }
 

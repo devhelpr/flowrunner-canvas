@@ -22,6 +22,7 @@ import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-c
 
 import { IconIllustration } from './components/icon-illustration';
 import { replaceValuesExpressions } from '../helpers/replace-values';
+import { subscribeToTimer } from '../flowrunner-plugins/timer-task';
 
 const uuidV4 = uuid.v4;
 
@@ -120,6 +121,7 @@ export interface FormNodeHtmlPluginProps {
 
 export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
   const [value, setValue] = useState('');
+  const [timerRun, setTimerRun] = React.useState(0);
   const [values, setValues] = useState<any[]>(props.initialValues || []);
   const [node, setNode] = useState({} as any);
   const [errors, setErrors] = useState({} as any);
@@ -142,6 +144,28 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
   const crudId: any = useRef(undefined);
 
   const datasourceContext = useFormNodeDatasourceContext();
+
+  useEffect(() => {
+    let isMounted = true;
+    let timer: any = undefined;
+    const subscription = subscribeToTimer(props.node.name, (value: string) => {
+      if (isMounted) {
+        if (timerRun === 0) {
+          setTimerRun(1);
+        }
+      }
+    });
+    return () => {
+      isMounted = false;
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+      if (timer !== undefined) {
+        clearTimeout(timer);
+        timer = undefined;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     unmounted.current = false;
@@ -1078,7 +1102,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
   return (
     <div
-      className="html-plugin-node"
+      className={`html-plugin-node ${timerRun > 0 ? 'trigger' : ''}`}
       style={{
         backgroundColor: !props.isUIView && props.node.taskType === 'FormTask' ? '#f2f2f2' : 'white',
       }}

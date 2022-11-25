@@ -284,6 +284,10 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
                 visibilityCondition: 'datasource == "property"',
               },
               {
+                fieldName: 'objectPropertyName',
+                visibilityCondition: 'datasource == "property"',
+              },
+              {
                 fieldName: 'gridColumn',
                 visibilityCondition: 'datasource == "grid-column"',
               },

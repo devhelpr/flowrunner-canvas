@@ -45,6 +45,7 @@ export interface ICustomTaskConfig {
 
   constraints?: any;
   events?: any[];
+  eventConnectionsOnly?: boolean;
 
   metaInfo?: any[];
   presetValues?: any;
@@ -1146,6 +1147,7 @@ const taskTypeConfig: ITaskTypeConfig = {
         { fieldName: 'idProperty' },
       ],
     },
+    eventConnectionsOnly: true,
     events: [
       {
         eventName: 'onDelete',
@@ -1191,7 +1193,8 @@ const taskTypeConfig: ITaskTypeConfig = {
   TimerTask: {
     icon: 'fa-clock',
     shapeType: 'Html',
-    htmlPlugin: 'timerNode',
+    htmlPlugin: 'formNode',
+    eventConnectionsOnly: true,
     events: [
       {
         eventName: 'onTimer',
@@ -1204,32 +1207,30 @@ const taskTypeConfig: ITaskTypeConfig = {
         },
       ],
     },
-    hasConfigMenu: true,
-    configMenu: {
-      fields: [
-        {
-          fieldName: 'interval',
-          fieldType: 'slider',
-          required: true,
-          label: 'Interval(ms)',
-          dataType: 'number',
-          min: 50,
-          max: 5000,
-        },
-        {
-          fieldName: 'mode',
-          fieldType: 'select',
-          options: [
-            { label: 'default', value: 'default' },
-            { label: 'executeNode', value: 'executeNode' },
-          ],
-        },
-        {
-          fieldName: 'executeNode',
-          visibilityCondition: 'mode=="executeNode"',
-        },
-      ],
-    },
+    //hasConfigMenu: true,
+    metaInfo: [
+      {
+        fieldName: 'interval',
+        fieldType: 'slider',
+        required: true,
+        label: 'Interval(ms)',
+        dataType: 'number',
+        min: 50,
+        max: 500,
+      },
+      {
+        fieldName: 'mode',
+        fieldType: 'select',
+        options: [
+          { label: 'default', value: 'default' },
+          { label: 'executeNode', value: 'executeNode' },
+        ],
+      },
+      {
+        fieldName: 'executeNode',
+        visibilityCondition: 'mode=="executeNode"',
+      },
+    ],
   },
   CountTask: {
     icon: 'fa-calculator',
@@ -1773,6 +1774,10 @@ const taskTypeConfig: ITaskTypeConfig = {
                   label: 'List',
                 },
                 {
+                  value: 'icon',
+                  label: 'Icon',
+                },
+                {
                   value: 'image',
                   label: 'Image',
                 },
@@ -1858,6 +1863,67 @@ const taskTypeConfig: ITaskTypeConfig = {
                 {
                   value: 'tw-aspect-video',
                   label: '16/9',
+                },
+              ],
+            },
+            {
+              visibilityCondition: "fieldType=='icon'",
+              fieldName: 'iconClasses',
+              fieldType: 'text',
+            },
+            {
+              visibilityCondition: "fieldType=='icon'",
+              fieldName: 'iconSize',
+              fieldType: 'select',
+              defaultValue: '',
+              options: [
+                {
+                  value: 'base',
+                  label: 'Default',
+                },
+                {
+                  value: 'xs',
+                  label: 'XS',
+                },
+                {
+                  value: 'sm',
+                  label: 'SM',
+                },
+                {
+                  value: 'lg',
+                  label: 'LG',
+                },
+                {
+                  value: 'xl',
+                  label: 'XL',
+                },
+                {
+                  value: '2xl',
+                  label: '2XL',
+                },
+                {
+                  value: '3xl',
+                  label: '3XL',
+                },
+                {
+                  value: '4xl',
+                  label: '4XL',
+                },
+                {
+                  value: '5xl',
+                  label: '5XL',
+                },
+                {
+                  value: '6xl',
+                  label: '6XL',
+                },
+                {
+                  value: '7xl',
+                  label: '7XL',
+                },
+                {
+                  value: '8xl',
+                  label: '8XL',
                 },
               ],
             },

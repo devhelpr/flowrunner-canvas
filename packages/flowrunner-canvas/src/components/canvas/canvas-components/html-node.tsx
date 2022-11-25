@@ -258,7 +258,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
               props.useFlowStore,
             )}
         </div>
-        {hasThumbs && (
+        {hasThumbs && !(settings as any).eventConnectionsOnly && (
           <div
             className={'canvas__html-shape-thumb-start canvas__html-shape-0'}
             onMouseOver={(event) => props.onMouseConnectionStartOver(props.node, false, event)}
@@ -279,7 +279,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
             }
           ></div>
         )}
-        {hasThumbs && (
+        {hasThumbs && !(settings as any).eventConnectionsOnly && (
           <div
             className={'canvas__html-shape-thumb-startbottom'}
             onMouseOver={(event) => props.onMouseConnectionStartOver(props.node, false, event)}
@@ -354,6 +354,9 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
                 onMouseUp={(event) =>
                   props.onMouseConnectionStartEnd(props.node, true, ThumbPositionRelativeToNode.default, event)
                 }
+                style={{
+                  animationDuration: `${props.node?.interval * 75 ?? 1000}ms`,
+                }}
               ></div>
             );
           })}

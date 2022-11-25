@@ -14,7 +14,7 @@ import { Video } from './video';
 import { StateMachineEventButton } from './stateMachineEventButton';
 import { LinkButton } from './link-button';
 import { TriggerButton } from './trigger-button';
-
+import { Icon } from './icon';
 const RichTextEditor = React.lazy(() =>
   import('./richtexteditor').then(({ RichTextEditor }) => ({ default: RichTextEditor })),
 );
@@ -30,6 +30,7 @@ const formControls = {
   objectList: ObjectList,
   hashmap: HashMap,
   richtexteditor: RichTextEditor,
+  icon: Icon,
   image: Image,
   video: Video,
   stateMachineEventButton: StateMachineEventButton,

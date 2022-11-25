@@ -1,5 +1,5 @@
 import { shapeBackgroundColor, shapeSelectedBackgroundColor } from '../interfaces/shape-types';
-import { getTaskConfigForTask } from '../config';
+import { getTaskConfigForTask, ICustomTaskConfig } from '../config';
 
 export interface IShapeSettings {
   strokeColor: string;
@@ -19,7 +19,7 @@ export interface IShapeSettings {
 }
 
 export class ShapeSettings {
-  static getShapeSettings(taskType: string, node: any): IShapeSettings {
+  static getShapeSettings(taskType: string, node: any): IShapeSettings & ICustomTaskConfig {
     let settings: IShapeSettings = {
       strokeColor: '#000000',
       fillColor: shapeBackgroundColor,

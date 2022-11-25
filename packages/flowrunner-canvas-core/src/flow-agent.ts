@@ -835,16 +835,15 @@ const startFlow = (
   worker.flow
     .start(flowPackage, services, true, !!autoStartNodes, isSameFlow)
     .then((services: any) => {
-      /*
       // see above.. not needed here
-      services.logMessage = (arg1, arg2) => {
-        console.log(arg1, arg2);
-      };
+      //services.logMessage = (arg1, arg2) => {
+      //  console.log(arg1, arg2);
+      //};
 
-      services.getWebAssembly = () => {
-        return webAssembly;
-      }
-      */
+      //services.getWebAssembly = () => {
+      //  return webAssembly;
+      //}
+
       //services.getWorker = getFlowAgent;
 
       for (let key of Object.keys(worker.observables)) {
