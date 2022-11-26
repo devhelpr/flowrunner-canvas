@@ -824,6 +824,7 @@ const taskTypeConfig: ITaskTypeConfig = {
       {
         fieldName: 'expression',
         required: true,
+        isPreviewableExpression: true,
       },
       {
         fieldName: 'assignToProperty',

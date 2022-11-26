@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState, useRef, useCallback, useLayoutEffect } from 'react';
-import { Suspense } from 'react';
+import { useEffect, useState, useRef, useCallback, useLayoutEffect, Suspense } from 'react';
 
 import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
 
@@ -97,6 +96,7 @@ export interface IFormInfoProps {
 export interface FormNodeHtmlPluginProps {
   flowrunnerConnector?: IFlowrunnerConnector;
   node: any;
+  flow?: any;
   taskSettings?: any;
   formNodesubject?: Subject<any>;
 
@@ -132,7 +132,6 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
     useFlowStore(useCallback((state) => state.storeFlowNode, []));
   const flowsPlayground = useCanvasModeStateStore((state) => state.flowsPlayground);
   const flowsWasm = useCanvasModeStateStore((state) => state.flowsWasm);
-
   const observableId = useRef(uuidV4());
 
   const unmounted = useRef(false);
@@ -837,6 +836,35 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
     [props.node, node, value, values, props.flowrunnerConnector, props.initialValues],
   );
 
+  const expressionPreview = useCallback(
+    (expression) => {
+      if (!expression || !props.flowrunnerConnector) {
+        return null;
+      }
+      try {
+        let payload = {};
+        const currentPayload = props.flowrunnerConnector.getLastPayloadFromNode(props.node.name);
+        console.log('expressionPreview', currentPayload);
+        if (props.node.forceNumeric === true) {
+          for (const property in currentPayload) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (currentPayload.hasOwnProperty(property)) {
+              payload[property] = parseFloat(currentPayload[property]) || 0;
+            }
+          }
+        } else {
+          payload = currentPayload;
+        }
+        const compiledExpressionTree = createExpressionTree(expression);
+        const result = executeExpressionTree(compiledExpressionTree, payload || {});
+        return <>{result}</>;
+      } catch {
+        return null;
+      }
+    },
+    [receivedPayload, props.node],
+  );
+
   const renderFields = useCallback(() => {
     //console.log("RENDERFIELDS" , props.node.name, node, props);
     let metaInfo: any[] = [];
@@ -983,6 +1011,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
                       disabled={false}
                     />
                   </div>
+                  {metaInfo.isPreviewableExpression && <div>{expressionPreview(inputValue)}</div>}
                   {errors[metaInfo.fieldName] && <div className="text-danger">{errors[metaInfo.fieldName]}</div>}
                 </div>
               </React.Fragment>

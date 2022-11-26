@@ -912,7 +912,7 @@ img {
   padding-top: 10px;
 
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: hidden;
 
   -ms-overflow-style: none;
   padding: 10px;
@@ -932,20 +932,34 @@ img {
 }
 
 .debug-info::-webkit-scrollbar {
-  display: none;
+  width: 8px;
 }
 
 .debug-info__debug-info {
   white-space: pre-wrap;
   color: white;
   font-size: 12px;
-  overflow-x: scroll;
+  overflow-x: auto;
   width: 100%;
   height: 100%;
 }
 
 .debug-info__debug-info::-webkit-scrollbar {
   display: none;
+}
+
+.debug-info--fullscreen .debug-info__debug-info::-webkit-scrollbar {
+  width: 8px;
+  display: block;
+}
+
+.debug-info--fullscreen .debug-info__debug-info::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.debug-info--fullscreen .debug-info__debug-info::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
 
 .debug-info__debug-info-content {

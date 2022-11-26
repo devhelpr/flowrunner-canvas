@@ -22,6 +22,7 @@ export const DebugInfo = (props: DebugInfoProps) => {
   const [fullscreen, setFullscreen] = useState(false);
   const flowType = useCanvasModeStateStore((state) => state.flowType);
   const selectedNode = useSelectedNodeStore();
+  const [filterValue, setFilterValue] = useState('');
 
   useEffect(() => {
     props.flowrunnerConnector.registerFlowExecutionObserver('ContainedDebugInfo', (executionEvent: IExecutionEvent) => {
@@ -70,6 +71,16 @@ export const DebugInfo = (props: DebugInfoProps) => {
             <div className="debug-info__debug-info-content">
               <strong>{selectedNode.node.name}</strong>
               <br />
+              {fullscreen && (
+                <>
+                  <input
+                    className="form-control"
+                    value={filterValue}
+                    onChange={(event) => setFilterValue(event.target.value)}
+                  />
+                  <br />
+                </>
+              )}
               {debugInfo}
             </div>
           </div>
@@ -79,12 +90,22 @@ export const DebugInfo = (props: DebugInfoProps) => {
       let list = props.flowrunnerConnector.getNodeExecutionsByNodeName(selectedNode.node.name);
 
       if (list && list.length > 0 && list[list.length - 1]) {
-        const payload = { ...list[list.length - 1].payload };
+        let payload = { ...list[list.length - 1].payload };
         if (payload && payload.debugId) {
           delete payload.debugId;
         }
         if (payload && payload.nodeExecutionId) {
           delete payload.nodeExecutionId;
+        }
+        let orgPayload = { ...payload };
+        if (fullscreen && filterValue) {
+          let previewPayload: any = {};
+          Object.keys(payload).forEach((keyName) => {
+            if (keyName.toLowerCase().indexOf(filterValue.toLowerCase()) === 0) {
+              previewPayload[keyName] = payload[keyName];
+            }
+          });
+          payload = previewPayload;
         }
         const debugInfo = JSON.stringify(payload, null, 2);
         return (
@@ -94,6 +115,31 @@ export const DebugInfo = (props: DebugInfoProps) => {
               <div className="debug-info__debug-info-content">
                 <strong>{selectedNode.node.name}</strong>
                 <br />
+                {fullscreen && (
+                  <>
+                    <select
+                      className="form-control tw-sticky tw-top-0"
+                      value={filterValue}
+                      onChange={(event) => setFilterValue(event.target.value)}
+                    >
+                      <option value="">Show full payload</option>
+                      {Object.keys(orgPayload)
+                        .filter(
+                          (value) =>
+                            value.indexOf('_') !== 0 && ['request', 'response', 'followFlow'].indexOf(value) < 0,
+                        )
+                        .sort()
+                        .map((keyName, index) => {
+                          return (
+                            <option key={index} value={keyName}>
+                              {keyName}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    <br />
+                  </>
+                )}
                 {debugInfo}
               </div>
             </div>

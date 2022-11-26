@@ -73,6 +73,7 @@ import {
   setOnGuardEventCallback,
 } from './state-machine';
 import { createVariableStore, resetVariableStore } from './flow-variables';
+import { workerData } from 'worker_threads';
 
 const uuidV4 = uuid.v4;
 
@@ -713,6 +714,13 @@ const onExecuteNode = (
 
 let currentFlowId: string = '';
 let machine: IStateMachine = emptyStateMachine;
+
+export const getLastPayloadFromNode = (worker: IFlowAgent, nodeName: string) => {
+  if (!worker || !worker.flow) {
+    return;
+  }
+  return (worker.flow as any).getLastPayloadFromNode(nodeName);
+};
 
 const startFlow = (
   flowPackage: any,

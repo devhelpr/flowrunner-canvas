@@ -121,6 +121,7 @@ export const renderHtmlNode = (
         key={(flowId ? '' : flowId) + node.name}
         flowrunnerConnector={flowrunnerConnector}
         node={node}
+        flow={flow}
         taskSettings={taskSettings}
         isInFlowEditor={true}
         formNodesubject={formNodesubject}

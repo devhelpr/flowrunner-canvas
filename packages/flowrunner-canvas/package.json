@@ -17,7 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "@devhelpr/expressionrunner": "0.3.1",
-    "@devhelpr/flowrunner": "0.18.3",
+    "@devhelpr/flowrunner": "0.18.4",
     "@devhelpr/flowrunner-canvas-core": "^0.43.54",
     "@devhelpr/flowrunner-canvas-ui-view": "^0.43.55",
     "@devhelpr/layoutrunner": "^0.0.2",

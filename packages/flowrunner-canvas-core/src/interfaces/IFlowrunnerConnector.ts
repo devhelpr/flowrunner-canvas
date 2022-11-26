@@ -70,6 +70,7 @@ export interface IFlowrunnerConnector {
   registerWorker: (worker: IFlowAgent) => void;
 
   clearNodeState: (nodeName, initialValues?: any) => void;
+  getLastPayloadFromNode: (nodeName: string) => any;
 }
 
 export interface IExecutionEvent {

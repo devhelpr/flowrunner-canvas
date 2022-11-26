@@ -1708,6 +1708,9 @@ export const Canvas = (props: CanvasProps) => {
         ) {
           if (node && ((event.evt && !!event.evt.shiftKey) || (event && !!event.shiftKey))) {
             console.log('START DRAGGING MULTIPLE NODES');
+            if (connectionNodeThumbs.current === 'thumbstart' || connectionNodeThumbs.current === 'thumbend') {
+              return;
+            }
             const { width } = getWidthForHtmlNode(node, props.getNodeInstance);
             if ((node.name, mouseStartX.current > width / 2)) {
               interactionState.current = InteractionState.draggingNodesUpstream;
@@ -2787,6 +2790,9 @@ export const Canvas = (props: CanvasProps) => {
   const onStageTouchStart = (event) => {
     isPinching.current = false;
     if (event && event.evt && !!event.evt.shiftKey) {
+      if (connectionNodeThumbs.current === 'thumbstart' || connectionNodeThumbs.current === 'thumbend') {
+        return;
+      }
       console.log('onStageTouchStart with SHIFT');
       cancelDragStage();
       selectedNodes.current = [];
@@ -3796,7 +3802,7 @@ export const Canvas = (props: CanvasProps) => {
         if (mappedNode.start && (mappedNode.start?.length ?? -1) > 0) {
           let lineNode: any | undefined = undefined;
           console.log('start1', event.shiftKey, selectedNodeRef.current);
-          if (event.shiftKey) {
+          if (!event.shiftKey) {
             if (
               !selectedNodeRef.current ||
               !selectedNodeRef.current.node ||
@@ -3836,7 +3842,6 @@ export const Canvas = (props: CanvasProps) => {
             touchNodeGroup.current = shapeRefs.current[lineNode.name];
             interactionState.current = InteractionState.draggingConnectionStart;
 
-            connectionNodeThumbs.current = '';
             connectionNodeThumbs.current = 'thumbstart';
 
             if (!event.evt) {
