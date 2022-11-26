@@ -1618,10 +1618,10 @@
   resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.3.1.tgz#3c05ea9583aee56b5808f0e83fed79fc12e2cc5e"
   integrity sha512-s2ukD/NBRbyLv3UMntIV8hEDgoTyJ1Kc8tY3Opzd/+7qh6ZtvNpmZiE5qm0Lu6V1YM6bqsiIpgcEtgMKd0Nh9w==
 
-"@devhelpr/flowrunner@0.18.3":
-  version "0.18.3"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.18.3.tgz#f2697f159da218fef37cb83ec20084fa5f23112c"
-  integrity sha512-UiHpmtor56XkIOItzdqDBQtRQY5h8IfvahNQQbjdQ+yy3EAdKlx02CgQv6TaP4bU/J8CxJPu+vElV5Q9GyoeNA==
+"@devhelpr/flowrunner@0.18.4":
+  version "0.18.4"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.18.4.tgz#1d84225d24d0c6e88be3afc634c3335e336551e6"
+  integrity sha512-AIZismd90LNNqe1tNs5jEuV0IlOOfuQx6su661BQ75+78lUjN1M0NfeO70uUw4OBbpwII1wF9eGFHFb8bkLSVA==
   dependencies:
     "@devhelpr/expressionrunner" "^0.3.1"
     "@types/uuid" "^8.3.4"
