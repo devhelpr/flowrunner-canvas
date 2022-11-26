@@ -3673,7 +3673,8 @@ export const Canvas = (props: CanvasProps) => {
     const allowedOutputs = FlowToCanvas.getAllowedOutputs(node.shapeType, settings);
     if (
       allowedOutputs == 0 ||
-      !FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)
+      (connectionNodeThumbsLineNode.current &&
+        !FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap))
     ) {
       return false;
     }
@@ -3752,8 +3753,8 @@ export const Canvas = (props: CanvasProps) => {
     if (node && node.shapeType !== 'Line') {
       const allowedOutputs = FlowToCanvas.getAllowedOutputs(node.shapeType, settings);
       if (
-        allowedOutputs === 0 ||
-        !FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)
+        allowedOutputs === 0
+        // || !FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)
       ) {
         console.log('onMouseConnectionStartStart not allowed');
         return false;
@@ -3849,6 +3850,13 @@ export const Canvas = (props: CanvasProps) => {
             }
           } else {
             console.log('adding connection start2');
+
+            if (!FlowToCanvas.canHaveOutputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)) {
+              if (!event.evt) {
+                event.preventDefault();
+              }
+              return false;
+            }
             interactionState.current = InteractionState.addingNewConnection;
             touchNode.current = node;
             touchNodeGroup.current = event.currentTarget;
@@ -3992,7 +4000,8 @@ export const Canvas = (props: CanvasProps) => {
       const allowedInputs = FlowToCanvas.getAllowedInputs(node.shapeType, settings);
       if (
         allowedInputs === 0 ||
-        !FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap)
+        (connectionNodeThumbsLineNode.current &&
+          !FlowToCanvas.canHaveInputs(node.shapeType, settings, flowStore.flow, node, flowStore.flowHashmap))
       ) {
         document.body.style.cursor = 'not-allowed';
         return false;
