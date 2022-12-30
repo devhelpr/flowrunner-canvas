@@ -99,6 +99,10 @@ export class FormTask extends ObservableTask {
                 values[metaInfo.fieldName] = metaInfo.defaultValue;
                 currentValue = metaInfo.defaultValue;
               }
+              if (metaInfo.defaultTextAreaValue) {
+                values[metaInfo.fieldName] = metaInfo.defaultTextAreaValue;
+                currentValue = metaInfo.defaultTextAreaValue;
+              }
             }
           }
         }

@@ -1,11 +1,13 @@
 import { FlowTask } from '@devhelpr/flowrunner';
+import { addDebugInfoForEvent } from '../debug-info/debug-info';
+import { getPropertyByNamespacedName } from '../helpers/namespaced-properties';
 
 export class OperationEventTask extends FlowTask {
   public override execute(node: any, services: any) {
     const flow = services.workerContext.flow;
     return new Promise((resolve, reject) => {
       const operator = node.operation || '';
-      let payload = { ...node.payload };
+      let rootPayload = { ...node.payload };
       if (true) {
         let result: any;
         if (operator === 'fillList') {
@@ -15,7 +17,8 @@ export class OperationEventTask extends FlowTask {
         }
 
         let loop = 0;
-        const callEventFlow = (element) => {
+        let copyPayload = { ...rootPayload };
+        const callEventFlow = (element, index) => {
           return new Promise<any>((resolveCall, rejectCall) => {
             try {
               // should we use "item" or "element" to specify
@@ -23,12 +26,16 @@ export class OperationEventTask extends FlowTask {
               // ... should it be onItem or onElement??
               let elementPayload: any = {};
               if (typeof element === 'object') {
-                elementPayload = { ...element };
+                elementPayload = { ...element, root: copyPayload };
               } else {
                 elementPayload = {
                   element,
+                  root: copyPayload,
                 };
               }
+
+              elementPayload['_eventContext'] = `${copyPayload['_eventContext'] || ''}_${node.name}_${index}`;
+
               flow
                 .triggerEventOnNode(node.name, 'onElement', elementPayload)
                 .then((payload) => {
@@ -55,7 +62,8 @@ export class OperationEventTask extends FlowTask {
         };
 
         const forAllElements = async () => {
-          const count = parseInt(node.ExecuteCount) || 0;
+          const count =
+            parseInt(node.ExecuteCount) || parseInt(getPropertyByNamespacedName(node.ExecuteCount, rootPayload)) || 0;
 
           for (let loop = 0; loop < count; loop++) {
             //console.log("operation" , loop, count);
@@ -65,6 +73,7 @@ export class OperationEventTask extends FlowTask {
                     index: loop,
                   }
                 : { ...result, index: loop },
+              loop,
             );
             if (operator === 'fillList') {
               delete resultCall.payload.index;
@@ -73,14 +82,22 @@ export class OperationEventTask extends FlowTask {
               result = { ...result, ...resultCall.payload };
               delete result.index;
             }
+
+            addDebugInfoForEvent(
+              node.name,
+              rootPayload._eventContext || '',
+              'onElement',
+              loop,
+              structuredClone(resultCall.payload),
+            );
           }
         };
 
         try {
           forAllElements()
             .then(() => {
-              payload[node.outputProperty || 'result'] = result;
-              resolve(payload);
+              rootPayload[node.outputProperty || 'result'] = result;
+              resolve(rootPayload);
             })
             .catch((err) => {
               console.log('Error in OperationEventTask onElement', err);

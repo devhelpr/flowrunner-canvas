@@ -327,8 +327,10 @@ export const Taskbar = (props: TaskbarProps) => {
     'IfConditionTask',
     'ExpressionTask',
     'CreateListTask',
+    'CreateObjectTask',
     'ApiProxyTask',
     'DataGridTask',
+    'OperatorTask',
   ];
   const stateTasks = [
     'State',
@@ -340,6 +342,8 @@ export const Taskbar = (props: TaskbarProps) => {
     'StateMachine',
     'StartState',
     'Variable',
+    'GetVariable',
+    'SetVariable',
     'VariableChangeTriggerTask',
   ];
   const uiTasks = ['FormTask', 'DataTableTask', 'DebugTask'];

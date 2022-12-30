@@ -29,17 +29,19 @@ export const unregisterVariableObserver = (variableName: string, id: string) => 
   return;
 };
 
-export const setVariableValue = (variableName: string, value: any) => {
+export const setVariableValue = (variableName: string, value: any, replaceValue?: boolean) => {
   const hasChanged = variableStore[variableName] !== value;
-  if (Array.isArray(variableStore[variableName])) {
+  if (!!replaceValue) {
+    variableStore[variableName] = value;
+  } else if (Array.isArray(variableStore[variableName])) {
     variableStore[variableName].push(value);
   } else {
     variableStore[variableName] = value;
   }
-  console.log('setVariableValue', variableName, value);
+  //console.log('setVariableValue', variableName, value);
   const newValue = variableStore[variableName];
   if (hasChanged && variableObservers[variableName]) {
-    console.log('setVariableValue hasChanged', variableName, newValue);
+    //console.log('setVariableValue hasChanged', variableName, newValue);
     Object.keys(variableObservers[variableName]).forEach((observerKey) => {
       console.log('setVariableValue call observer', observerKey, variableName, newValue);
       variableObservers[variableName][observerKey](variableName, newValue);
@@ -60,4 +62,8 @@ export const createVariableStore = (flow: any) => {
 
 export const isVariable = (variableName: string) => {
   return variableName && variableStore[variableName] !== undefined;
+};
+
+export const getVariable = (variableName: string) => {
+  return variableStore[variableName];
 };

@@ -2,11 +2,12 @@ import { FlowTask } from '@devhelpr/flowrunner';
 import { addDebugInfoForEvent } from '../debug-info/debug-info';
 import { getPropertyByNamespacedName } from '../helpers/namespaced-properties';
 
-export class MapEventTask extends FlowTask {
+export class ForEachEventTask extends FlowTask {
   public override execute(node: any, services: any) {
     const flow = services.workerContext.flow;
     return new Promise((resolve, reject) => {
       let rootPayload = { ...node.payload };
+      let clojureScope: any = {};
       const listPropertyValue = getPropertyByNamespacedName(node.listProperty, rootPayload);
       if (node.listProperty && listPropertyValue) {
         if (!Array.isArray(listPropertyValue)) {
@@ -14,54 +15,40 @@ export class MapEventTask extends FlowTask {
           return;
         }
 
-        const length = listPropertyValue.length;
-        const result: any[] = new Array(length);
-        let loop = 0;
         let copyPayload = { ...rootPayload };
         const callEventFlow = (element, index) => {
-          return new Promise<any>((resolveCall, rejectCall) => {
+          return new Promise((resolveCall, rejectCall) => {
             try {
-              // should we use "item" or "element" to specify
-              // the separate array values in the payload send to "onItem"
-              // ... should it be onItem or onElement??
               let elementPayload: any = {};
               if (typeof element === 'object') {
-                elementPayload = { ...element, root: copyPayload };
+                elementPayload = { ...element, root: copyPayload, ...clojureScope };
               } else {
                 elementPayload = {
                   element,
                   index,
                   root: copyPayload,
+                  ...clojureScope,
                 };
               }
 
               elementPayload['_eventContext'] = `${copyPayload['_eventContext'] || ''}_${node.name}_${index}`;
 
-              //console.log('mapevent BEFORE EACH', node.name, index, elementPayload);
+              //console.log('foreachevent BEFORE EACH', node.name, index, elementPayload);
               flow
                 .triggerEventOnNode(node.name, 'onElement', elementPayload)
                 .then((payload) => {
-                  const mapReturnPayload = { ...payload };
-                  if (mapReturnPayload.nodeExecutionId) {
-                    delete mapReturnPayload.nodeExecutionId;
-                  }
-                  let payloadKeys = Object.keys(mapReturnPayload);
-                  if (payloadKeys.indexOf('_forwardFollowFlow') >= 0) {
-                    delete mapReturnPayload._forwardFollowFlow;
-                  }
-                  payloadKeys = Object.keys(mapReturnPayload);
-                  mapReturnPayload['index'] = index;
-                  delete mapReturnPayload.root;
-                  //console.log('mapevent AFTER EACH', node.name, index, mapReturnPayload);
-                  resolveCall({
-                    payload: (payloadKeys.length === 1 && mapReturnPayload.element) || mapReturnPayload,
+                  node.scopeVariables.forEach((scopeVariable) => {
+                    if (payload[scopeVariable.variableName]) {
+                      clojureScope[scopeVariable.variableName] = payload[scopeVariable.variableName];
+                    }
                   });
+                  resolveCall(true);
                 })
                 .catch(() => {
-                  rejectCall();
+                  resolveCall(true);
                 });
             } catch (err) {
-              console.log('Error in MapEventTask onElement', err);
+              console.log('Error in ForEachEventTask onElement', err);
               rejectCall();
             }
           });
@@ -70,33 +57,46 @@ export class MapEventTask extends FlowTask {
         const forAllElements = async (iterable) => {
           let index = 0;
           for (const element of iterable) {
-            const resultCall = await callEventFlow(element, index);
+            await callEventFlow(element, index);
             addDebugInfoForEvent(
               node.name,
               rootPayload._eventContext || '',
               'onElement',
               index,
-              structuredClone(resultCall.payload),
+              structuredClone(clojureScope),
             );
-            result[index] = { ...resultCall.payload };
             index++;
           }
         };
 
         try {
+          if (Array.isArray(node.scopeVariables)) {
+            node.scopeVariables.forEach((scopeVariable) => {
+              if (scopeVariable.initialValue == scopeVariable.variableName) {
+                clojureScope[scopeVariable.variableName] = rootPayload[scopeVariable.variableName];
+              } else if (scopeVariable.variableType === 'number') {
+                clojureScope[scopeVariable.variableName] = parseFloat(scopeVariable.initialValue) || 0;
+              } else {
+                if (scopeVariable.initialValue == '[]') {
+                  clojureScope[scopeVariable.variableName] = [];
+                } else {
+                  clojureScope[scopeVariable.variableName] = scopeVariable.initialValue || '';
+                }
+              }
+            });
+          }
           forAllElements(listPropertyValue)
             .then(() => {
-              rootPayload[node.outputProperty || 'result'] = result;
-
-              console.log('MAPEVENT READY', node.name, result);
+              rootPayload = { ...rootPayload, ...clojureScope };
+              console.log('FOREACHEVENT READY', node.name, rootPayload);
               resolve(rootPayload);
             })
             .catch((err) => {
-              console.log('Error in MapEventTask onElement', err);
+              console.log('Error in ForEachEventTask onElement', err);
               reject();
             });
         } catch (err) {
-          console.log('Error in MapEventTask onElement', err);
+          console.log('Error in ForEachEventTask onElement', err);
           reject();
         }
       }
@@ -104,6 +104,6 @@ export class MapEventTask extends FlowTask {
   }
 
   public override getName() {
-    return 'MapEventTask';
+    return 'ForEachEventTask';
   }
 }

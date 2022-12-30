@@ -186,6 +186,7 @@ export const HtmlNode = React.forwardRef((props: IHtmlNodeProps, ref) => {
         ref={ref as React.LegacyRef<HTMLDivElement>}
         className={
           selected +
+          `${props.node.stateMachine ?? props.node.StateMachine} ` +
           'canvas__html-shape canvas__html-shape-' +
           props.node.name +
           nodeState +

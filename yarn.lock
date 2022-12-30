@@ -1613,16 +1613,22 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
+"@devhelpr/expression-compiler@0.0.12", "@devhelpr/expression-compiler@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@devhelpr/expression-compiler/-/expression-compiler-0.0.12.tgz#407d113a8dfd7f454d3eb5b5819a9ed5197f6393"
+  integrity sha512-IyAioBhKUI6Dc90jWFeIHKVL7S1+RWF7Dwd5Wj1BxRn8aHLAez4ni4H0bHiGfrQfxVcL0UmI5T1J8qjNQSh0WA==
+
 "@devhelpr/expressionrunner@0.3.1", "@devhelpr/expressionrunner@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.3.1.tgz#3c05ea9583aee56b5808f0e83fed79fc12e2cc5e"
   integrity sha512-s2ukD/NBRbyLv3UMntIV8hEDgoTyJ1Kc8tY3Opzd/+7qh6ZtvNpmZiE5qm0Lu6V1YM6bqsiIpgcEtgMKd0Nh9w==
 
-"@devhelpr/flowrunner@0.18.4":
-  version "0.18.4"
-  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.18.4.tgz#1d84225d24d0c6e88be3afc634c3335e336551e6"
-  integrity sha512-AIZismd90LNNqe1tNs5jEuV0IlOOfuQx6su661BQ75+78lUjN1M0NfeO70uUw4OBbpwII1wF9eGFHFb8bkLSVA==
+"@devhelpr/flowrunner@0.18.6":
+  version "0.18.6"
+  resolved "https://registry.yarnpkg.com/@devhelpr/flowrunner/-/flowrunner-0.18.6.tgz#7e7f3468f602071ec88e479e3eae518aece140a4"
+  integrity sha512-AgUx3j35p0GZV3eAxa7D5yvLmaKK+ZlYkATN26RFJt46sw4kIXayjNil6Wvk1T6DUSeS4dCpgg1iaJPrySdNrw==
   dependencies:
+    "@devhelpr/expression-compiler" "^0.0.12"
     "@devhelpr/expressionrunner" "^0.3.1"
     "@types/uuid" "^8.3.4"
     moment "^2.29.4"

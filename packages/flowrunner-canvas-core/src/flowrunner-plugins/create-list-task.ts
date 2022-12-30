@@ -1,9 +1,10 @@
 import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 import { FlowTask, FlowTaskPackageType } from '@devhelpr/flowrunner';
+import { getPropertyByNamespacedName } from '../helpers/namespaced-properties';
 
 const convertGridToNamedVariables = (values: any[]) => {
   let variables: any = {};
-  values.map((rowValues: any, rowIndex: number) => {
+  values.forEach((rowValues: any, rowIndex: number) => {
     if (rowValues) {
       rowValues.map((cellValue: any, columnIndex: number) => {
         if (cellValue) {
@@ -30,6 +31,20 @@ export class CreateListTask extends FlowTask {
   private listExpression: string = '';
 
   public override execute(node: any, services: any) {
+    if (node.behavior === 'emptyList') {
+      if (node.assignToProperty) {
+        const payload = { ...node.payload };
+        if (node.isListOfArrays) {
+          const length =
+            parseInt(node.initialLength) || parseInt(getPropertyByNamespacedName(node.initialLength, payload));
+          payload[node.assignToProperty] = new Array(length).fill([]);
+        } else {
+          payload[node.assignToProperty] = [];
+        }
+        return payload;
+      }
+      return node.payload;
+    }
     return new Promise((resolve, reject) => {
       if (node.assignToProperty && node.listExpression !== 'undefined' && node.listExpression !== '') {
         if (this.compiledExpressionTree.length === 0 || this.listExpression !== node.listExpression) {
@@ -72,7 +87,6 @@ export class CreateListTask extends FlowTask {
             if (node.mode && node.mode === 'numeric' && (isNaN(result) || result === 'undefined')) {
               console.log('CreateListTask - result is NaN/undefined', result);
               reject();
-              return;
             } else {
               let resultToPayload = result;
               if (node.rounding && node.rounding === 'floor') {

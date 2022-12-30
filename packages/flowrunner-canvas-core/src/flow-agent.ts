@@ -66,16 +66,31 @@ import {
   getRangeValueParameters,
 } from '@devhelpr/expressionrunner';
 import {
-  createStateMachine,
-  emptyStateMachine,
+  getFlowByStartStateNode,
+  getStartStateNodeName,
+  getStateMachines,
+  initStateMachines,
+  //createStateMachine,
+  //emptyStateMachine,
   IStateMachine,
-  sendCurrentState,
-  setOnGuardEventCallback,
+  registerStateMachine,
+  StateChart,
+  // sendCurrentState,
+  //setOnGuardEventCallback,
 } from './state-machine';
 import { createVariableStore, resetVariableStore } from './flow-variables';
 import { workerData } from 'worker_threads';
+import { FlowToCanvas } from './helpers/flow-to-canvas';
+import { StateMachine } from '../dist';
+import { resetDebugInfo } from './debug-info/debug-info';
 
 const uuidV4 = uuid.v4;
+
+registerExpressionFunction('get', ((a: string, ...args: string[]) => {
+  const getExpression = a.toString();
+  console.log('get', getExpression, args as any);
+  return 0;
+}) as unknown as (value: number, ...args: number[]) => number);
 
 registerExpressionFunction('sum', ((a: string, ...args: string[]) => {
   console.log('sum', a, args[0]);
@@ -713,7 +728,7 @@ const onExecuteNode = (
 };
 
 let currentFlowId: string = '';
-let machine: IStateMachine = emptyStateMachine;
+let machine: StateChart[] = [];
 
 export const getLastPayloadFromNode = (worker: IFlowAgent, nodeName: string) => {
   if (!worker || !worker.flow) {
@@ -822,24 +837,46 @@ const startFlow = (
 
   if (!isSameFlow) {
     try {
-      machine = createStateMachine(flowPackage.flow);
-      setOnGuardEventCallback((stateMachineName: string, currentState: string, eventName, node: any, payload: any) => {
-        if (node && node.Expression) {
-          const expression = createExpressionTree(node.Expression);
-          const result = executeExpressionTree(expression, payload);
-          console.log('Guard result', result);
-          return result === 1;
-        }
-        return true;
+      const flowHashmap = FlowToCanvas.createFlowHashMap(flowPackage.flow);
+      console.log('pre statemachine init', flowHashmap);
+      initStateMachines();
+      const statemachines = getStartStateNodeName(flowPackage.flow);
+      statemachines.forEach((stateMachineInfo) => {
+        const stateChart = new StateChart();
+        const stateMachineFlow = getFlowByStartStateNode(stateMachineInfo.startNodeName, flowPackage.flow, flowHashmap);
+        console.log(
+          'stateMachineFlow',
+          stateMachineInfo.stateMachineName,
+          stateMachineInfo.startNodeName,
+          stateMachineFlow,
+        );
+        const machine = stateChart.createStateMachine(stateMachineFlow);
+        registerStateMachine(stateMachineInfo.stateMachineName, stateChart);
+        stateChart.setOnGuardEventCallback(
+          (stateMachineName: string, currentState: string, eventName, node: any, payload: any) => {
+            if (node && node.Expression) {
+              const expression = createExpressionTree(node.Expression);
+              const result = executeExpressionTree(expression, payload);
+              console.log('Guard result', result);
+              return result === 1;
+            }
+            return true;
+          },
+        );
       });
 
-      console.log('Statemachine definition', machine);
+      console.log('Statemachine definition', getStateMachines(), initFlowCallback);
+
+      Object.keys(initFlowCallback).forEach((name) => {
+        initFlowCallback[name]();
+      });
     } catch (err) {
       console.log('Statemachine creation error', err);
-      machine = emptyStateMachine;
+      //machine = emptyStateMachine;
     }
   }
 
+  resetDebugInfo();
   worker.flow
     .start(flowPackage, services, true, !!autoStartNodes, isSameFlow)
     .then((services: any) => {
@@ -879,13 +916,26 @@ const startFlow = (
         payload: {},
       });
 
-      sendCurrentState();
+      console.log('worker.flow.start', getStateMachines());
+      getStateMachines().forEach((StateMachine) => {
+        StateMachine.sendCurrentState();
+      });
 
       console.log('flow running');
     })
     .catch((error) => {
       console.log('error when starting flow', error);
     });
+};
+
+const initFlowCallback: any = {};
+export const registerOnInitFlow = (name: string, callback: () => void) => {
+  initFlowCallback[name] = callback;
+};
+export const unRegisterOnInitFlow = (name: string) => {
+  if (initFlowCallback[name]) {
+    delete initFlowCallback[name];
+  }
 };
 
 //ctx.addEventListener('worker', onWorkerMessage);

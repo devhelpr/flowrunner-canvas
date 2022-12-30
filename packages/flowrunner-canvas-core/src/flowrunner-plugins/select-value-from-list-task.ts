@@ -8,13 +8,13 @@ export class SelectValueFromListTask extends ObservableTask {
     if (node.inputProperty && node.outputProperty && node.selectvalue && node.list && node.list.length > 0) {
       let payload = { ...node.payload };
       if (payload[node.inputProperty]) {
-        const inputValue = parseFloat(payload[node.inputProperty]);
+        const inputValue = parseFloat(payload[node.inputProperty]) || payload[node.inputProperty];
         const helperList = node.list.map((listItem, index) => {
           return { ...listItem, _index: index };
         });
-        const results = helperList.filter(listItem => {
+        const results = helperList.filter((listItem) => {
           if (listItem.selectionValue && listItem.outputValue && listItem.comparison) {
-            const compareValue = parseFloat(listItem.selectionValue);
+            const compareValue = parseFloat(listItem.selectionValue) || listItem.selectionValue;
             if (listItem.comparison == 'smaller') {
               return inputValue < compareValue;
             } else if (listItem.comparison == 'smalleroreq') {
@@ -40,6 +40,14 @@ export class SelectValueFromListTask extends ObservableTask {
             payload[node.outputProperty] = results[results.length - 1].outputValue;
           }
 
+          payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
+          super.execute({ ...node, sendNodeName: true, payload: payload }, services);
+
+          return payload;
+        }
+
+        if (node.defaultValue || node.defaultValue === 0) {
+          payload[node.outputProperty] = node.defaultValue;
           payload.debugId = uuidV4(); // use this to match between (line)graph and history sliders
           super.execute({ ...node, sendNodeName: true, payload: payload }, services);
 

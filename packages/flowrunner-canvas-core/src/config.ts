@@ -109,6 +109,242 @@ const taskTypeConfig: ITaskTypeConfig = {
       value: '',
     },
   },
+  OperatorTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'assignToProperty',
+        required: true,
+        visibilityCondition: 'operator != "log"',
+      },
+      {
+        fieldName: 'inputProperty',
+        visibilityCondition: 'operator != "fill"',
+      },
+      {
+        fieldName: 'operator',
+        fieldType: 'select',
+        options: [
+          {
+            value: 'split',
+            label: 'Split',
+          },
+          {
+            value: 'sort',
+            label: 'Sort',
+          },
+          {
+            value: 'sum',
+            label: 'Sum',
+          },
+          {
+            value: 'trim',
+            label: 'Trim',
+          },
+          {
+            value: 'length',
+            label: 'Get length',
+          },
+          {
+            value: 'first',
+            label: 'Get first',
+          },
+          {
+            value: 'find',
+            label: 'Find in array/list',
+          },
+          {
+            value: 'get-by-index',
+            label: 'Get by index',
+          },
+          {
+            value: 'get-char-by-index',
+            label: 'Get char by index',
+          },
+          {
+            value: 'set-by-index',
+            label: 'Set by index',
+          },
+          {
+            value: 'get-by-2d-index',
+            label: 'Get by 2d-index',
+          },
+          {
+            value: 'get-char-by-2d-index',
+            label: 'Get char by 2d-index',
+          },
+          {
+            value: 'set-by-2d-index',
+            label: 'Set by 2d-index',
+          },
+          {
+            value: 'assign-to-payload',
+            label: 'Assign to payload',
+          },
+          {
+            value: 'match-regex',
+            label: 'Match using regex',
+          },
+          {
+            value: 'reverse',
+            label: 'Reverse',
+          },
+          {
+            value: 'shift',
+            label: 'Shift',
+          },
+          {
+            value: 'pop',
+            label: 'Pop',
+          },
+          {
+            value: 'getProperty',
+            label: 'Get property',
+          },
+          {
+            value: 'pushToArray',
+            label: 'Push to array',
+          },
+          {
+            value: 'deleteFromArray',
+            label: 'Delete from array',
+          },
+          {
+            value: 'flattenArray',
+            label: 'Flatten array',
+          },
+          {
+            value: 'fill',
+            label: 'Fill',
+          },
+          {
+            value: 'log',
+            label: 'Log to console',
+          },
+        ],
+      },
+      {
+        fieldName: 'splitOn',
+        visibilityCondition: 'operator == "split"',
+      },
+      {
+        fieldName: 'sortOnProperty',
+        visibilityCondition: 'operator == "sort"',
+      },
+      {
+        fieldName: 'resultAfterShift',
+        visibilityCondition: 'operator == "shift"',
+      },
+      {
+        fieldName: 'resultAfterPop',
+        visibilityCondition: 'operator == "pop"',
+      },
+      {
+        fieldName: 'deleteMode',
+        fieldType: 'select',
+        visibilityCondition: 'operator == "deleteFromArray"',
+        options: [
+          { value: 'index', label: 'Delete by index' },
+          { value: 'expression', label: 'Delete by expression' },
+        ],
+      },
+      {
+        fieldName: 'index',
+        visibilityCondition:
+          'operator == "get-by-index" || operator == "set-by-index" || operator=="get-char-by-index" || ((operator == "deleteFromArray") && (deleteMode == "index"))',
+      },
+      {
+        fieldName: 'column',
+        visibilityCondition:
+          'operator == "get-by-2d-index" || operator == "set-by-2d-index" || operator=="get-char-by-2d-index"',
+      },
+      {
+        fieldName: 'row',
+        visibilityCondition:
+          'operator == "get-by-2d-index" || operator == "set-by-2d-index" || operator=="get-char-by-2d-index"',
+      },
+      {
+        fieldName: 'flattenProperty',
+        visibilityCondition: 'operator == "flattenArray"',
+      },
+      {
+        fieldName: 'returnPropertyOfObject',
+        visibilityCondition: 'operator == "get-by-index" || operator=="get-char-by-index"',
+      },
+      {
+        fieldName: 'regex',
+        visibilityCondition: 'operator == "match-regex"',
+      },
+      {
+        fieldName: 'fillValue',
+        visibilityCondition: 'operator == "fill"',
+      },
+      {
+        fieldName: 'fillLength',
+        visibilityCondition: 'operator == "fill"',
+      },
+      {
+        fieldName: 'fillMode',
+        fieldType: 'select',
+        visibilityCondition: 'operator == "fill"',
+        options: [
+          { value: 'string', label: 'String' },
+          { value: 'array', label: 'Array' },
+        ],
+      },
+      {
+        fieldName: 'findMode',
+        fieldType: 'select',
+        visibilityCondition: 'operator == "find"',
+        options: [
+          { value: 'value', label: 'Find by value' },
+          { value: 'object', label: 'Find by property of object' },
+          { value: 'expression', label: 'Find by expression' },
+        ],
+      },
+      {
+        fieldName: 'findProperty',
+        visibilityCondition: 'findMode == "object"',
+      },
+      {
+        fieldName: 'findValue',
+        visibilityCondition: 'operator == "find" && (findMode == "value" || findMode == "object")',
+      },
+      {
+        fieldName: 'findExpression',
+        visibilityCondition: 'findMode == "expression"',
+      },
+
+      {
+        fieldName: 'deleteExpression',
+        visibilityCondition: '(operator == "deleteFromArray") && (deleteMode == "expression")',
+      },
+      {
+        fieldName: 'sortDirection',
+        fieldType: 'select',
+        visibilityCondition: 'operator == "sort"',
+        options: [
+          { value: 'ascending', label: 'Ascending' },
+          { value: 'descending', label: 'Descending' },
+        ],
+      },
+    ],
+    presetValues: {
+      assignToProperty: '',
+      value: '',
+      events: [
+        {
+          eventName: 'onError',
+        },
+      ],
+    },
+    events: [
+      {
+        eventName: 'onError',
+      },
+    ],
+  },
   TestTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
@@ -179,6 +415,9 @@ const taskTypeConfig: ITaskTypeConfig = {
         },
         {
           fieldName: 'label',
+        },
+        {
+          fieldName: 'stateMachine',
         },
       ],
     },
@@ -291,6 +530,9 @@ const taskTypeConfig: ITaskTypeConfig = {
       fields: [
         {
           fieldName: 'StateName',
+        },
+        {
+          fieldName: 'stateMachine',
         },
       ],
     },
@@ -453,7 +695,7 @@ const taskTypeConfig: ITaskTypeConfig = {
     //label:
     //  '{expression} {compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"',
     label: (node: any) => {
-      if (node && node.mode === 'expression') {
+      if (node && (node.mode === 'expression' || node.mode === 'compiled-expression')) {
         return '{expression}';
       }
       return '{compareProperty} {usingCondition=>"equals":"==","not-equals":"<>","smaller":"<","smaller-or-equal":"<=","bigger-or-equal":">=","bigger":">","default":""} "{withProperty|withValue}"';
@@ -461,10 +703,19 @@ const taskTypeConfig: ITaskTypeConfig = {
     hasConfigMenu: true,
     configMenu: {
       fields: [
-        { fieldName: 'expression', fieldType: 'textarea', required: true, visibilityCondition: 'mode == "expression"' },
-        { fieldName: 'compareProperty', required: true, visibilityCondition: 'mode != "expression"' },
-        { fieldName: 'withProperty', visibilityCondition: 'mode != "expression"' },
-        { fieldName: 'withValue', visibilityCondition: 'mode != "expression"' },
+        {
+          fieldName: 'expression',
+          fieldType: 'textarea',
+          required: true,
+          visibilityCondition: '(mode == "expression") || (mode == "compiled-expression")',
+        },
+        {
+          fieldName: 'compareProperty',
+          required: true,
+          visibilityCondition: '(mode != "expression") && (mode != "compiled-expression")',
+        },
+        { fieldName: 'withProperty', visibilityCondition: '(mode != "expression") && (mode != "compiled-expression")' },
+        { fieldName: 'withValue', visibilityCondition: '(mode != "expression") && (mode != "compiled-expression")' },
         {
           fieldName: 'usingCondition',
           fieldType: 'select',
@@ -494,7 +745,7 @@ const taskTypeConfig: ITaskTypeConfig = {
               value: 'bigger-or-equal',
             },
           ],
-          visibilityCondition: 'mode != "expression"',
+          visibilityCondition: '(mode != "expression") && (mode != "compiled-expression")',
         },
         {
           fieldName: 'dataType',
@@ -509,7 +760,7 @@ const taskTypeConfig: ITaskTypeConfig = {
               value: 'number',
             },
           ],
-          visibilityCondition: 'mode != "expression"',
+          visibilityCondition: '(mode != "expression") && (mode != "compiled-expression")',
         },
         {
           fieldName: 'mode',
@@ -522,6 +773,10 @@ const taskTypeConfig: ITaskTypeConfig = {
             {
               label: 'Expression',
               value: 'expression',
+            },
+            {
+              label: 'Expression compiler',
+              value: 'compiled-expression',
             },
           ],
         },
@@ -789,6 +1044,7 @@ const taskTypeConfig: ITaskTypeConfig = {
       {
         fieldName: 'listExpression',
         required: true,
+        visibilityCondition: 'behavior == "createbyexpression"',
       },
       {
         fieldName: 'assignToProperty',
@@ -807,6 +1063,30 @@ const taskTypeConfig: ITaskTypeConfig = {
             label: 'Numeric',
           },
         ],
+        visibilityCondition: 'behavior == "createbyexpression"',
+      },
+      {
+        fieldName: 'behavior',
+        fieldType: 'select',
+        options: [
+          {
+            value: 'createbyexpression',
+            label: 'Create by expression',
+          },
+          {
+            value: 'emptyList',
+            label: 'EmptyList',
+          },
+        ],
+      },
+      {
+        fieldName: 'isListOfArrays',
+        fieldType: 'checkbox',
+        visibilityCondition: 'behavior == "emptyList"',
+      },
+      {
+        fieldName: 'initialLength',
+        visibilityCondition: 'behavior == "emptyList" && isListOfArrays',
       },
     ],
   },
@@ -849,8 +1129,22 @@ const taskTypeConfig: ITaskTypeConfig = {
         fieldType: 'checkbox',
       },
       {
-        fieldName: 'noLocalState',
+        fieldName: 'hasLocalState',
         fieldType: 'checkbox',
+      },
+      {
+        fieldName: 'expressionRunner',
+        fieldType: 'select',
+        options: [
+          {
+            value: 'expression-runner',
+            label: 'Default',
+          },
+          {
+            value: 'expression-compiler',
+            label: 'Compiler',
+          },
+        ],
       },
     ],
   },
@@ -879,6 +1173,42 @@ const taskTypeConfig: ITaskTypeConfig = {
       },
       {
         fieldName: 'initialValue',
+      },
+    ],
+  },
+  GetVariable: {
+    shapeType: 'Html',
+    icon: 'fas fa-store',
+    presetValues: {
+      variableName: '',
+    },
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'variableName',
+        required: true,
+      },
+      {
+        fieldName: 'assignToProperty',
+        required: true,
+      },
+    ],
+  },
+  SetVariable: {
+    shapeType: 'Html',
+    icon: 'fas fa-store',
+    presetValues: {
+      variableName: '',
+    },
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'variableName',
+        required: true,
+      },
+      {
+        fieldName: 'inputProperty',
+        required: true,
       },
     ],
   },
@@ -1255,6 +1585,7 @@ const taskTypeConfig: ITaskTypeConfig = {
   MapEventTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
+    background: 'background-blue',
     iconIllustration: 'map',
     events: [
       {
@@ -1269,10 +1600,117 @@ const taskTypeConfig: ITaskTypeConfig = {
         fieldName: 'outputProperty',
       },
     ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onElement',
+        },
+      ],
+    },
+  },
+  ForEachEventTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    iconIllustration: 'foreach',
+    background: 'background-blue',
+    events: [
+      {
+        eventName: 'onElement',
+      },
+    ],
+    metaInfo: [
+      {
+        fieldName: 'listProperty',
+      },
+      {
+        fieldName: 'scopeVariables',
+        fieldType: 'objectList',
+        label: 'Scope variables',
+        idProperty: 'fieldId',
+        autoId: 'none',
+        metaInfo: [
+          {
+            fieldName: 'variableName',
+            fieldType: 'text',
+            required: true,
+          },
+          {
+            fieldName: 'variableType',
+            fieldType: 'select',
+            required: true,
+            options: [
+              { label: 'Default', value: 'default' },
+              { label: 'Number', value: 'number' },
+            ],
+          },
+          {
+            fieldName: 'initialValue',
+            fieldType: 'text',
+            required: true,
+          },
+        ],
+      },
+    ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onElement',
+        },
+      ],
+    },
+  },
+  LoopEventTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    icon: 'fa-redo',
+    background: 'background-blue',
+    events: [
+      {
+        eventName: 'onElement',
+      },
+    ],
+    metaInfo: [
+      {
+        fieldName: 'scopeVariables',
+        fieldType: 'objectList',
+        label: 'Scope variables',
+        idProperty: 'fieldId',
+        autoId: 'none',
+        metaInfo: [
+          {
+            fieldName: 'variableName',
+            fieldType: 'text',
+            required: true,
+          },
+          {
+            fieldName: 'variableType',
+            fieldType: 'select',
+            required: true,
+            options: [
+              { label: 'Default', value: 'default' },
+              { label: 'Number', value: 'number' },
+            ],
+          },
+          {
+            fieldName: 'initialValue',
+            fieldType: 'text',
+            required: true,
+          },
+        ],
+      },
+    ],
+    presetValues: {
+      events: [
+        {
+          eventName: 'onElement',
+        },
+      ],
+    },
   },
   OperationEventTask: {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
+    background: 'background-blue',
     events: [
       {
         eventName: 'onElement',
@@ -1289,7 +1727,7 @@ const taskTypeConfig: ITaskTypeConfig = {
       },
       {
         fieldName: 'ExecuteCount',
-        label: 'Execure count',
+        label: 'Execute count',
       },
 
       {
@@ -1308,6 +1746,7 @@ const taskTypeConfig: ITaskTypeConfig = {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     iconIllustration: 'filter',
+    background: 'background-blue',
     events: [
       {
         eventName: 'onElement',
@@ -1333,6 +1772,7 @@ const taskTypeConfig: ITaskTypeConfig = {
     shapeType: 'Html',
     htmlPlugin: 'formNode',
     iconIllustration: 'reduce',
+    background: 'background-blue',
     events: [
       {
         eventName: 'onElement',
@@ -1356,6 +1796,93 @@ const taskTypeConfig: ITaskTypeConfig = {
         },
       ],
     },
+  },
+  CreateObjectTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'properties',
+        fieldType: 'objectList',
+        label: 'Properties',
+        idProperty: 'fieldId',
+        autoId: 'none',
+        metaInfo: [
+          {
+            fieldName: 'propertyName',
+            fieldType: 'text',
+            required: true,
+          },
+          {
+            fieldName: 'expression',
+          },
+          {
+            fieldName: 'forceNumeric',
+            fieldType: 'checkbox',
+          },
+          {
+            fieldName: 'mode',
+            fieldType: 'select',
+            options: [
+              {
+                value: 'default',
+                label: 'Default',
+              },
+              {
+                value: 'numeric',
+                label: 'Numeric',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        fieldName: 'assignToProperty',
+      },
+    ],
+    presetValues: {},
+  },
+  MapPropertiesTask: {
+    shapeType: 'Html',
+    htmlPlugin: 'formNode',
+    metaInfo: [
+      {
+        fieldName: 'properties',
+        fieldType: 'objectList',
+        label: 'Properties',
+        idProperty: 'fieldId',
+        autoId: 'none',
+        metaInfo: [
+          {
+            fieldName: 'propertyName',
+            fieldType: 'text',
+            required: true,
+          },
+          {
+            fieldName: 'expression',
+          },
+          {
+            fieldName: 'forceNumeric',
+            fieldType: 'checkbox',
+          },
+          {
+            fieldName: 'mode',
+            fieldType: 'select',
+            options: [
+              {
+                value: 'default',
+                label: 'Default',
+              },
+              {
+                value: 'numeric',
+                label: 'Numeric',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    presetValues: {},
   },
   ExtractUniqueTask: {
     icon: 'fa-fingerprint',
@@ -1684,6 +2211,11 @@ const taskTypeConfig: ITaskTypeConfig = {
         fieldName: 'outputProperty',
         fieldType: 'text',
       },
+      {
+        fieldName: 'defaultValue',
+        fieldType: 'text',
+        dataType: 'decimal',
+      },
     ],
   },
   SvgTestTask: {
@@ -1807,6 +2339,12 @@ const taskTypeConfig: ITaskTypeConfig = {
             },
             {
               fieldName: 'defaultValue',
+              visibilityCondition: "fieldType != 'textarea'",
+            },
+            {
+              fieldName: 'defaultTextAreaValue',
+              fieldType: 'textarea',
+              visibilityCondition: "fieldType == 'textarea'",
             },
             {
               visibilityCondition: "(fieldType=='radiobutton') || (fieldType=='select')",
@@ -1948,6 +2486,11 @@ const taskTypeConfig: ITaskTypeConfig = {
               label: 'AutoTrigger',
               defaultValue: true,
               visibilityCondition: "(fieldType=='triggerbutton')",
+            },
+            {
+              fieldName: 'stateMachine',
+              visibilityCondition: "fieldType == 'stateMachineEventButton'",
+              required: true,
             },
           ],
         },
@@ -2158,6 +2701,10 @@ const taskTypeConfig: ITaskTypeConfig = {
               value: 'richtext',
               label: 'Richtext',
             },
+            {
+              value: 'asciiArt',
+              label: 'Ascii Art',
+            },
           ],
         },
         { fieldName: 'text', visibilityCondition: 'visualizer == "statictext"' },
@@ -2170,7 +2717,8 @@ const taskTypeConfig: ITaskTypeConfig = {
         { fieldName: 'showCurved', fieldType: 'checkbox', visibilityCondition: 'visualizer == "xycanvas"' },
         {
           fieldName: 'propertyName',
-          visibilityCondition: 'visualizer == "text" || visualizer == "richtext" || visualizer == "number"',
+          visibilityCondition:
+            'visualizer == "text" || visualizer == "richtext" || visualizer == "number" || visualizer == "json" || visualizer == "asciiArt"',
         },
 
         { fieldName: 'format', visibilityCondition: 'visualizer == "number"' },
@@ -2183,12 +2731,14 @@ const taskTypeConfig: ITaskTypeConfig = {
         {
           fieldName: 'rows',
           dataType: 'number',
-          visibilityCondition: 'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas"',
+          visibilityCondition:
+            'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas" || visualizer == "asciiArt"',
         },
         {
           fieldName: 'columns',
           dataType: 'number',
-          visibilityCondition: 'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas"',
+          visibilityCondition:
+            'visualizer == "gridcanvas" || visualizer == "animiatedgridcanvas" || visualizer == "asciiArt"',
         },
         {
           fieldName: 'mode',

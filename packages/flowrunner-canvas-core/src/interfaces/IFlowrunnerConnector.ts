@@ -71,6 +71,8 @@ export interface IFlowrunnerConnector {
 
   clearNodeState: (nodeName, initialValues?: any) => void;
   getLastPayloadFromNode: (nodeName: string) => any;
+  registerOnInitFlow: (name: string, callback: () => void) => void;
+  unRegisterOnInitFlow: (name: string) => void;
 }
 
 export interface IExecutionEvent {

@@ -1,15 +1,30 @@
 import { FlowTask } from '@devhelpr/flowrunner';
 import { Subject } from 'rxjs';
-import { registerStateChangeHandler, unRegisterStateChangeHandler } from '../state-machine';
+import { StateChart, getCurrentStateMachine } from '../state-machine';
 
 export class StateChangeTriggerTask extends FlowTask {
   _nodeName: string = '';
   _lastState: string = '';
+  _stateMachine: StateChart | undefined;
+  _stateMachineName: string = '';
 
   public override execute(node: any, services: any) {
     const observable = new Subject<any>();
     this._nodeName = node.name;
-    registerStateChangeHandler(
+
+    if (
+      !this._stateMachine &&
+      node.stateMachine &&
+      (this._stateMachineName == '' || this._stateMachineName !== node.stateMachine)
+    ) {
+      this._stateMachineName = node.stateMachine;
+      this._stateMachine = getCurrentStateMachine(node.stateMachine);
+    }
+    if (!this._stateMachine) {
+      return false;
+    }
+
+    this._stateMachine.registerStateChangeHandler(
       node.name,
       (stateMachineName: string, currentState: string, isStateMachineStarting?: boolean) => {
         console.log(
@@ -82,7 +97,10 @@ export class StateChangeTriggerTask extends FlowTask {
 
   public kill() {
     this._lastState = '';
-    unRegisterStateChangeHandler(this._nodeName);
+    this._stateMachineName = '';
+    if (this._stateMachine) {
+      this._stateMachine.unRegisterStateChangeHandler(this._nodeName);
+    }
   }
 
   public isStartingOnInitFlow() {

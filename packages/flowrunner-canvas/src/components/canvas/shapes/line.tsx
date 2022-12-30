@@ -475,7 +475,7 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
 			height={12}
 			fill={"#000000"}
 		></Rect>*/}
-        {props.lineNode && props.lineNode.flowPath && (
+        {props.lineNode && (props.lineNode.flowPath || props.lineNode.event) && (
           <Shape
             ref={textRef2}
             x={center.x}
@@ -484,7 +484,7 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
               context._context.textAlign = 'center';
               context._context.textBaseline = 'middle';
 
-              const size = context.measureText(props.lineNode.flowPath);
+              const size = context.measureText(props.lineNode.flowPath || props.lineNode.event);
               context._context.fillStyle = 'rgba(255, 255, 255, 1)';
               context.fillRect(
                 -(size.width + 10) / 2,
@@ -494,7 +494,7 @@ export const Line = React.forwardRef((props: LineTypeProps, ref: any) => {
               );
 
               context._context.fillStyle = '#000000';
-              context.fillText(props.lineNode.flowPath, 0, 0);
+              context.fillText(props.lineNode.flowPath || props.lineNode.event, 0, 0);
               context._context.textAlign = 'left';
               context._context.textBaseline = 'alphabetic';
             }}

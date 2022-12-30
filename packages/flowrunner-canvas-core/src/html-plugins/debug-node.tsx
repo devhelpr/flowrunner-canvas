@@ -22,6 +22,7 @@ const RichText = React.lazy(() => import('./visualizers/richtext').then(({ RichT
 
 import * as uuid from 'uuid';
 import { StaticText } from './visualizers/static-text';
+import { AsciiArt } from './visualizers/ascii-art';
 const uuidV4 = uuid.v4;
 
 export interface DebugNodeHtmlPluginProps {
@@ -173,6 +174,8 @@ export const DebugNodeHtmlPlugin = (props: DebugNodeHtmlPluginProps) => {
     visualizer = <Text node={props.node} payloads={receivedPayload}></Text>;
   } else if (props.node.visualizer === 'statictext') {
     visualizer = <StaticText node={props.node} payloads={receivedPayload}></StaticText>;
+  } else if (props.node.visualizer === 'asciiArt') {
+    visualizer = <AsciiArt node={props.node} payloads={receivedPayload}></AsciiArt>;
   } else if (props.node.visualizer === 'list') {
     visualizer = <List node={props.node} payloads={receivedPayload}></List>;
   } else if (props.node.visualizer === 'color') {
@@ -219,9 +222,13 @@ export const DebugNodeHtmlPlugin = (props: DebugNodeHtmlPluginProps) => {
     if (payload) {
       lastReceivedPayload.current = payload;
     }
-    visualizer = (
-      <div className="w-100 h-auto">{payload ? JSON.stringify(lastReceivedPayload.current, null, 2) : ''}</div>
-    );
+    let helperPayload = lastReceivedPayload.current;
+    if (props.node.visualizer === 'json') {
+      if (props.node && props.node.propertyName && lastReceivedPayload.current) {
+        helperPayload = lastReceivedPayload.current[props.node.propertyName];
+      }
+    }
+    visualizer = <div className="w-100 h-auto">{payload ? JSON.stringify(helperPayload, null, 2) : ''}</div>;
   }
   let elements: JSX.Element[] = [];
   if (props.node.elements) {

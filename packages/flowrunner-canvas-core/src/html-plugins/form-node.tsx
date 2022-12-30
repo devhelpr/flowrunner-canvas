@@ -69,6 +69,8 @@ export class FormNodeHtmlPluginInfo {
   }
 
   getHeight(node) {
+    return 200;
+    /*
     let metaInfo: any[] = [];
     if (this.taskSettings && this.taskSettings.metaInfo) {
       metaInfo = this.taskSettings && this.taskSettings.metaInfo;
@@ -78,14 +80,11 @@ export class FormNodeHtmlPluginInfo {
     }
 
     if (metaInfo.length > 0) {
-      // 70 + 16
       const height = this.getMetaInfoLength(metaInfo, node, true) * 36 + 48;
-
-      //console.log("FormNodeHtmlPluginInfo height", height);
       return height;
     }
     return 0;
-    //return (((node && node.rows) || 8) * 16) + (3 * 16) + 4 + 150;
+    */
   }
 }
 
@@ -844,7 +843,7 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       try {
         let payload = {};
         const currentPayload = props.flowrunnerConnector.getLastPayloadFromNode(props.node.name);
-        console.log('expressionPreview', currentPayload);
+        //console.log('expressionPreview', currentPayload);
         if (props.node.forceNumeric === true) {
           for (const property in currentPayload) {
             // eslint-disable-next-line no-prototype-builtins
@@ -933,6 +932,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
                 if (!inputValue) {
                   if (metaInfo.defaultValue) {
                     inputValue = metaInfo.defaultValue;
+                  }
+                  if (metaInfo.defaultTextAreaValue) {
+                    inputValue = metaInfo.defaultTextAreaValue;
                   }
                 }
               }
@@ -1062,6 +1064,9 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
               if (!inputValue) {
                 if (metaInfo.defaultValue) {
                   inputValue = metaInfo.defaultValue;
+                }
+                if (metaInfo.defaultTextAreaValue) {
+                  inputValue = metaInfo.defaultTextAreaValue;
                 }
               }
             }

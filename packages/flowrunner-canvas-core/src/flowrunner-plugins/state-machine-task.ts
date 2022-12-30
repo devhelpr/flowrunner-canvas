@@ -6,11 +6,11 @@ export class StateMachineTask extends FlowTask {
   public override execute(node: any, services: any) {
     const promise = new Promise((resolve, reject) => {
       const payload = { ...node.payload };
-      const stateMachine = getCurrentStateMachine();
-
       if (!node.StateMachine) {
         return reject();
       }
+
+      const stateMachine = getCurrentStateMachine(node.StateMachine);
 
       if (node.Expression && stateMachine.hasStateMachine) {
         const expression = createExpressionTree(node.Expression);
@@ -27,7 +27,7 @@ export class StateMachineTask extends FlowTask {
         } else {
           stateMachine
             .event(result, node.payload)
-            .then(newState => {
+            .then((newState) => {
               console.log('statemachine via expression', result, newState, payload);
               payload[node.StateMachine] = newState;
               resolve(payload);
@@ -48,7 +48,7 @@ export class StateMachineTask extends FlowTask {
         console.log('statemachine set Event', node.Event, payload);
         stateMachine
           .event(node.Event, node.payload)
-          .then(newState => {
+          .then((newState) => {
             console.log('statemachine after set Event', node.Event, newState);
             payload[node.StateMachine] = newState;
             resolve(payload);

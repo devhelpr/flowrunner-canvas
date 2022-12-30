@@ -31,8 +31,7 @@ import {
   PositionProvider,
   usePositionContext,
   setMultiSelectInfo,
-  resetOnSetCanvasStateCallback,
-  setOnSetCanvasStateCallback,
+  getStateMachines,
   INodeFlowState,
   INode,
   TFlowMap,
@@ -1113,33 +1112,43 @@ export const Canvas = (props: CanvasProps) => {
 
   useEffect(() => {
     if (props.showsStateMachineUpdates && flowStore.flow.length > 0) {
-      const clearStateNodes = () => {
-        const htmlNodes = document.querySelectorAll("[data-task='State']");
-        if (htmlNodes) {
-          htmlNodes.forEach((htmlNode) => {
-            htmlNode.classList.remove('state-active');
+      props.flowrunnerConnector.registerOnInitFlow('canvas', () => {
+        console.log('canvas statemachines', getStateMachines());
+        getStateMachines().forEach((stateChart) => {
+          const clearStateNodes = (stateMachine: string) => {
+            const htmlNodes = document.querySelectorAll(`[data-task='State'].${stateMachine}`);
+            if (htmlNodes) {
+              htmlNodes.forEach((htmlNode) => {
+                htmlNode.classList.remove('state-active');
+              });
+            }
+          };
+
+          const setCurrentStateNode = (stateMachine: string, stateName) => {
+            clearStateNodes(stateMachine);
+            console.log('setCurrentStateNode', stateName);
+            const htmlNode = document.querySelector(`[data-state="${stateName}"].${stateMachine}`);
+            if (htmlNode) {
+              htmlNode.classList.add('state-active');
+            }
+          };
+
+          //clearStateNodes();
+
+          stateChart.setOnSetCanvasStateCallback((stateMachine: string, currentState) => {
+            console.log('onStateChange', stateMachine, currentState);
+            setCurrentStateNode(stateMachine, currentState);
           });
-        }
-      };
-
-      const setCurrentStateNode = (stateName) => {
-        clearStateNodes();
-        console.log('setCurrentStateNode', stateName);
-        const htmlNode = document.querySelector(`[data-state="${stateName}"]`);
-        if (htmlNode) {
-          htmlNode.classList.add('state-active');
-        }
-      };
-
-      //clearStateNodes();
-      setOnSetCanvasStateCallback((stateMachine: string, currentState) => {
-        console.log('onStateChange', stateMachine, currentState);
-        setCurrentStateNode(currentState);
+        });
       });
     }
     return () => {
       if (props.showsStateMachineUpdates) {
-        resetOnSetCanvasStateCallback();
+        getStateMachines().forEach((stateChart) => {
+          stateChart.resetOnSetCanvasStateCallback();
+        });
+
+        props.flowrunnerConnector.unRegisterOnInitFlow('canvas');
       }
     };
   }, [flowStore.flow]);
@@ -2790,10 +2799,13 @@ export const Canvas = (props: CanvasProps) => {
   const onStageTouchStart = (event) => {
     isPinching.current = false;
     if (event && event.evt && !!event.evt.shiftKey) {
+      if (interactionState.current === InteractionState.addingNewConnection) {
+        return;
+      }
       if (connectionNodeThumbs.current === 'thumbstart' || connectionNodeThumbs.current === 'thumbend') {
         return;
       }
-      console.log('onStageTouchStart with SHIFT');
+      console.log('onStageTouchStart with SHIFT', connectionNodeThumbs.current, event);
       cancelDragStage();
       selectedNodes.current = [];
       interactionState.current = InteractionState.selectingNodes;
@@ -3747,6 +3759,7 @@ export const Canvas = (props: CanvasProps) => {
       nodeEventName,
       selectedNodeRef.current,
       connectionNodeThumbs.current,
+      thumbPositionRelativeToNode,
     );
 
     const settings = ShapeSettings.getShapeSettings(node.taskType, node);
@@ -3802,14 +3815,29 @@ export const Canvas = (props: CanvasProps) => {
       if (mappedNode) {
         if (mappedNode.start && (mappedNode.start?.length ?? -1) > 0) {
           let lineNode: any | undefined = undefined;
-          console.log('start1', event.shiftKey, selectedNodeRef.current);
-          if (!event.shiftKey) {
+          console.log(
+            'start1',
+            mappedNode.start,
+            event.shiftKey,
+            event.evt,
+            event.evt && !event.evt.shiftKey,
+            selectedNodeRef.current,
+          );
+          if ((!event.shiftKey && !event.evt) || (event.evt && !event.evt.shiftKey)) {
+            console.log('start1 NO shift key pressed');
             if (
               !selectedNodeRef.current ||
               !selectedNodeRef.current.node ||
               (selectedNodeRef.current.node && selectedNodeRef.current.node.shapeType !== 'Line')
             ) {
-              lineNode = flowStore.flow[mappedNode.start[0]];
+              const firstConnectionNode = flowStore.flow[mappedNode.start[0]];
+              if (
+                firstConnectionNode &&
+                (!(firstConnectionNode as any).thumbPosition ||
+                  (firstConnectionNode as any).thumbPosition === thumbPositionRelativeToNode)
+              ) {
+                lineNode = flowStore.flow[mappedNode.start[0]];
+              }
               if (mappedNode.start.length > 1) {
                 let lineNodes: any[] = [];
                 mappedNode.start.forEach((connectionNodeIndex) => {
@@ -3818,6 +3846,7 @@ export const Canvas = (props: CanvasProps) => {
                 });
 
                 lineNode = lineNodes;
+                //thumbPositionRelativeToNode
               }
             }
           }
@@ -3836,7 +3865,7 @@ export const Canvas = (props: CanvasProps) => {
           }
 
           if (lineNode) {
-            console.log('onMouseConnectionStartStart lineNode', lineNode);
+            console.log('onMouseConnectionStartStart lineNode', lineNode, thumbPositionRelativeToNode);
 
             connectionNodeThumbsLineNode.current = lineNode;
             touchNode.current = lineNode;
@@ -3857,11 +3886,13 @@ export const Canvas = (props: CanvasProps) => {
               }
               return false;
             }
+            //connectionNodeThumbs.current = 'thumbstart';
             interactionState.current = InteractionState.addingNewConnection;
             touchNode.current = node;
             touchNodeGroup.current = event.currentTarget;
           }
         } else {
+          console.log('adding connection start3');
           interactionState.current = InteractionState.addingNewConnection;
           touchNode.current = node;
           touchNodeGroup.current = event.currentTarget;
@@ -3872,7 +3903,13 @@ export const Canvas = (props: CanvasProps) => {
     (isConnectingNodesByDraggingLocal.current as any) = true;
     connectionNodeEvent.current = nodeEvent;
     connectionNodeEventName.current = nodeEventName;
-
+    //see also onStageTouchStart
+    console.log(
+      'onmouseconnectionstartstart pre set',
+      connectionNodeThumbs.current,
+      thumbPositionRelativeToNode,
+      connectionNodeThumbsLineNode.current,
+    );
     connectionNodeFollowFlow.current = followFlow;
     connectionNodeThumbPositionRelativeToNode.current = thumbPositionRelativeToNode;
     connectionNodeThumbPositionRelativeToEndNode.current = ThumbPositionRelativeToNode.default;
@@ -3910,6 +3947,9 @@ export const Canvas = (props: CanvasProps) => {
     */
     if (!event.evt) {
       event.preventDefault();
+    }
+    if (event.evt) {
+      event.evt.preventDefault();
     }
     return false;
   };
@@ -7098,7 +7138,7 @@ export const Canvas = (props: CanvasProps) => {
                           } else {
                             // TODO : check here if line and startshapeid or endshapeid == undefined
                             if (node.shapeType === 'Line') {
-                              console.log('node.shapeType', node.shapeType, node);
+                              //console.log('node.shapeType', node.shapeType, node);
                               if (node.startshapeid === undefined || node.startshapeid === '') {
                                 let position = positionContext.getPosition(node.name);
                                 if (!position) {

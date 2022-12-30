@@ -67,6 +67,8 @@ import { MapBoxTestTask } from './flow-plugins/mapbox-test-task';
 import { getMapBoxTestComponent } from './html-plugins/mapbox-test';
 import { getEChartsComponent } from './html-plugins/echarts-test';
 import { EChartsTestTask } from './flow-plugins/echarts-test-task';
+import { getWebGlTestComponent, WebGlTest } from './html-plugins/webgl-test';
+import { WebGlTestTask } from './flow-plugins/webgl-test-task';
 
 let flowRunnerConnectorInstance: IFlowrunnerConnector;
 const flowRunnerCanvasPluginRegisterFunctions: any[] = [];
@@ -237,6 +239,25 @@ export const startEditor = async (flowStorageProvider?: IStorageProvider, doLoca
         pluginRegistry,
         {
           icon: 'fa-map',
+          hasConfigMenu: true,
+          hasUI: true,
+          presetValues: {},
+          configMenu: {
+            fields: [{ fieldName: 'test' }],
+          },
+        },
+      );
+
+      registerFlowRunnerCanvasPlugin(
+        'WebglTestTask',
+        getWebGlTestComponent(config.secrets),
+        WebGlTestTask,
+        'WebGlTestTask',
+        'playground',
+        undefined,
+        pluginRegistry,
+        {
+          icon: 'fa-cube',
           hasConfigMenu: true,
           hasUI: true,
           presetValues: {},

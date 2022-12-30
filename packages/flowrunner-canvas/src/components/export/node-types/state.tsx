@@ -6,7 +6,7 @@ import { INodeTypeProps } from './node-type-props';
 export const State = (props: INodeTypeProps) => {
   const { node, minX, minY, width, height } = props;
   const settings = ShapeSettings.getShapeSettings(node.taskType, node) as unknown as any;
-  const stateMachine = getCurrentStateMachine();
+  const stateMachine = getCurrentStateMachine((node as any).stateMachine);
   let color: string = '#e2e2e2';
   console.log('stateMachine.currentState()', stateMachine.currentState());
   if ((node as any).StateName === stateMachine.currentState()) {

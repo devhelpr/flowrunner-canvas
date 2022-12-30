@@ -1,7 +1,7 @@
 import { IFlowrunnerConnector, IExecutionEvent, ApplicationMode } from '../interfaces/IFlowrunnerConnector';
 import { IFlowAgent } from '../interfaces/IFlowAgent';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
-import { getLastPayloadFromNode } from '../flow-agent';
+import { getLastPayloadFromNode, registerOnInitFlow, unRegisterOnInitFlow } from '../flow-agent';
 
 export class EmptyFlowConnector implements IFlowrunnerConnector {
   storageProvider: IStorageProvider | undefined = undefined;
@@ -97,6 +97,9 @@ export class EmptyFlowConnector implements IFlowrunnerConnector {
   getLastPayloadFromNode = (nodeName: string) => {
     return undefined;
   };
+
+  registerOnInitFlow = (name: string, callback: () => void) => {};
+  unRegisterOnInitFlow = (name: string) => {};
 }
 
 export class FlowConnector implements IFlowrunnerConnector {
@@ -587,5 +590,12 @@ export class FlowConnector implements IFlowrunnerConnector {
       return;
     }
     return getLastPayloadFromNode(this.worker, nodeName);
+  };
+
+  registerOnInitFlow = (name: string, callback: () => void) => {
+    registerOnInitFlow(name, callback);
+  };
+  unRegisterOnInitFlow = (name: string) => {
+    unRegisterOnInitFlow(name);
   };
 }

@@ -10,3 +10,4 @@ export { IconReduceEvent } from './lib/icon-reduce-event';
 export { IconServerSolid } from './lib/icon-server-solid';
 export { IconWebassembly } from './lib/icon-webassembly';
 export { IconBoltLightning } from './lib/icon-bolt-lightning';
+export { IconForEachEvent } from './lib/icon-foreach-event';

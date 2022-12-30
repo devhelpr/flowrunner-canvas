@@ -56,6 +56,13 @@ import { DataTableTask } from '../flowrunner-plugins/data-table-task';
 import { VariableTask } from '../flowrunner-plugins/variable-task';
 import { VariableChangeTriggerTask } from '../flowrunner-plugins/variable-change-trigger-task';
 import { TimerTask } from '../flowrunner-plugins/timer-task';
+import { OperatorTask } from '../flowrunner-plugins/operator-task';
+import { GetVariableTask } from '../flowrunner-plugins/get-variable-task';
+import { SetVariableTask } from '../flowrunner-plugins/set-variable-task';
+import { ForEachEventTask } from '../flowrunner-plugins/foreach-event-task';
+import { CreateObjectTask } from '../flowrunner-plugins/create-object-task';
+import { LoopEventTask } from '../flowrunner-plugins/loop-event-task';
+import { MapPropertiesTask } from '../flowrunner-plugins/map-properties-task';
 
 export interface IFlowTask {
   new (): FlowTask;
@@ -107,6 +114,8 @@ export const registerTasks = (flow) => {
   flow.registerTask('StateChangeTriggerTask', StateChangeTriggerTask);
 
   flow.registerTask('Variable', VariableTask);
+  flow.registerTask('GetVariable', GetVariableTask);
+  flow.registerTask('SetVariable', SetVariableTask);
   flow.registerTask('VariableChangeTriggerTask', VariableChangeTriggerTask);
 
   flow.registerTask('GetCookie', GetCookie);
@@ -156,7 +165,11 @@ export const registerTasks = (flow) => {
   flow.registerTask('FilterEventTask', FilterEventTask);
   flow.registerTask('ReduceEventTask', ReduceEventTask);
   flow.registerTask('OperationEventTask', OperationEventTask);
-
+  flow.registerTask('OperatorTask', OperatorTask);
+  flow.registerTask('ForEachEventTask', ForEachEventTask);
+  flow.registerTask('LoopEventTask', LoopEventTask);
+  flow.registerTask('CreateObjectTask', CreateObjectTask);
+  flow.registerTask('MapPropertiesTask', MapPropertiesTask);
   flow.registerTask('TimerTask', TimerTask);
 
   flow.registerTask('ApiProxyTask', getTaskClass('ApiProxyTask', ApiProxyTask));
@@ -180,6 +193,8 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'StateChangeTriggerTask', fullName: 'StateChangeTriggerTask', flowType: 'playground' });
 
   tasks.push({ className: 'Variable', fullName: 'Variable', flowType: 'playground' });
+  tasks.push({ className: 'SetVariable', fullName: 'SetVariable', flowType: 'playground' });
+  tasks.push({ className: 'GetVariable', fullName: 'GetVariable', flowType: 'playground' });
   tasks.push({ className: 'VariableChangeTriggerTask', fullName: 'VariableChangeTriggerTask', flowType: 'playground' });
 
   tasks.push({ className: 'SetCookie', fullName: 'SetCookie', flowType: 'playground' });
@@ -250,7 +265,12 @@ export const getDefaultUITasks = () => {
   tasks.push({ className: 'MapEventTask', fullName: 'MapEventTask', flowType: 'playground' });
   tasks.push({ className: 'FilterEventTask', fullName: 'FilterEventTask', flowType: 'playground' });
   tasks.push({ className: 'ReduceEventTask', fullName: 'ReduceEventTask', flowType: 'playground' });
+  tasks.push({ className: 'ForEachEventTask', fullName: 'ForEachEventTask', flowType: 'playground' });
+  tasks.push({ className: 'LoopEventTask', fullName: 'LoopEventTask', flowType: 'playground' });
   tasks.push({ className: 'OperationEventTask', fullName: 'OperationEventTask', flowType: 'playground' });
+  tasks.push({ className: 'OperatorTask', fullName: 'OperatorTask', flowType: 'playground' });
+  tasks.push({ className: 'CreateObjectTask', fullName: 'CreateObjectTask', flowType: 'playground' });
+  tasks.push({ className: 'MapPropertiesTask', fullName: 'MapPropertiesTask', flowType: 'playground' });
 
   tasks.push({ className: 'TimerTask', fullName: 'TimerTask', flowType: 'playground' });
 

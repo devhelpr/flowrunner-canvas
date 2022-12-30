@@ -4,7 +4,7 @@ import { IconMapEvent } from '@devhelpr/flowrunner-canvas-icons';
 import { IconFilterEvent } from '@devhelpr/flowrunner-canvas-icons';
 import { IconReduceEvent } from '@devhelpr/flowrunner-canvas-icons';
 import { IconBoltLightning } from '@devhelpr/flowrunner-canvas-icons';
-
+import { IconForEachEvent } from '@devhelpr/flowrunner-canvas-icons';
 export interface IIconIllustrationProps {
   iconIllustration: string;
 }
@@ -14,6 +14,11 @@ export const IconIllustration = (props: IIconIllustrationProps) => {
       {props.iconIllustration === 'map' && (
         <div className="tw-w-100 icon-wrapper">
           <IconMapEvent />
+        </div>
+      )}
+      {props.iconIllustration === 'foreach' && (
+        <div className="tw-w-100 icon-wrapper">
+          <IconForEachEvent />
         </div>
       )}
       {props.iconIllustration === 'filter' && (

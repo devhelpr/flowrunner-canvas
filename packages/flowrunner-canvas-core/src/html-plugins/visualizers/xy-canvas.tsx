@@ -353,6 +353,9 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
     let circles: any = null;
     let { node, payloads } = this.props;
 
+    if (!node) {
+      return <></>;
+    }
     if (node.listProperty) {
       if (payloads[payloads.length - 1]) {
         payloads = payloads[payloads.length - 1][node.listProperty];
@@ -423,8 +426,8 @@ export class XYCanvas extends React.Component<XYCanvasProps, XYCanvasState> {
           </Layer>
         </Stage>
         <div className="xy-canvas__legend">
-          <div className="xy-canvas__text">min: {(minmax.min || 0).toFixed(2)}</div>
-          <div className="xy-canvas__text">max: {(minmax.max || 0).toFixed(2)}</div>
+          <div className="xy-canvas__text">min: {((minmax?.min as any)?.element ?? minmax?.min ?? 0).toFixed(2)}</div>
+          <div className="xy-canvas__text">max: {((minmax?.max as any)?.element ?? minmax?.max ?? 0).toFixed(2)}</div>
         </div>
       </>
     );

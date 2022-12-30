@@ -13,12 +13,16 @@ export interface IFloatingToolbarProps {
 export const FloatingToolbar = (props: IFloatingToolbarProps) => {
   const canvasMode = props.useCanvasModeStateStore();
   const flow = props.useFlowStore();
-  const onPointerClick = () => {
+  const onPointerClick = (event) => {
+    event.preventDefault();
     canvasMode.setConnectiongNodeCanvasMode(false);
+    return false;
   };
 
-  const onConnectClick = () => {
+  const onConnectClick = (event) => {
+    event.preventDefault();
     canvasMode.setConnectiongNodeCanvasMode(true);
+    return false;
   };
 
   const onUndo = (event) => {
