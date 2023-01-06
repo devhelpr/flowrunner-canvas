@@ -6,7 +6,7 @@ import { IFlowrunnerConnector } from '../interfaces/IFlowrunnerConnector';
 import { getFormControl } from './form-controls';
 import { Subject } from 'rxjs';
 
-import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
+//import { createExpressionTree, executeExpressionTree } from '@devhelpr/expressionrunner';
 
 import { IFlowState, useFlowStore } from '../state/flow-state';
 import { useCanvasModeStateStore } from '../state/canvas-mode-state';
@@ -22,7 +22,7 @@ import { useFormNodeDatasourceContext } from '../contexts/form-node-datasource-c
 import { IconIllustration } from './components/icon-illustration';
 import { replaceValuesExpressions } from '../helpers/replace-values';
 import { subscribeToTimer } from '../flowrunner-plugins/timer-task';
-
+import { compileExpression, runExpression } from '@devhelpr/expression-compiler';
 const uuidV4 = uuid.v4;
 
 /*
@@ -477,12 +477,15 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
       }
     }
 
-    (metaInfo || []).map((metaInfo) => {
+    (metaInfo || []).forEach((metaInfo) => {
       let isVisible = true;
       let data = { ...props.node, ...props.initialValues, ...receivedPayload, ...values };
       if (metaInfo.visibilityCondition) {
-        const expression = createExpressionTree(metaInfo.visibilityCondition);
-        const result = executeExpressionTree(expression, data);
+        //const expression = createExpressionTree(metaInfo.visibilityCondition);
+        //const result = executeExpressionTree(expression, data);
+
+        const expression = compileExpression(metaInfo.visibilityCondition);
+        const result = expression(data);
         isVisible = !!result;
       }
 
@@ -854,8 +857,10 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
         } else {
           payload = currentPayload;
         }
-        const compiledExpressionTree = createExpressionTree(expression);
-        const result = executeExpressionTree(compiledExpressionTree, payload || {});
+        //const compiledExpressionTree = createExpressionTree(expression);
+        //const result = executeExpressionTree(compiledExpressionTree, payload || {});
+        const expressionFunction = compileExpression(expression);
+        const result = runExpression(expressionFunction, payload || {});
         return <>{result}</>;
       } catch {
         return null;
@@ -892,9 +897,12 @@ export const FormNodeHtmlPlugin = (props: FormNodeHtmlPluginProps) => {
 
           let data = { ...props.node, ...props.initialValues, ...receivedPayload, ...values };
           if (metaInfo.visibilityCondition) {
-            const expression = createExpressionTree(metaInfo.visibilityCondition);
+            //const expression = createExpressionTree(metaInfo.visibilityCondition);
 
-            const result = executeExpressionTree(expression, data);
+            //const result = executeExpressionTree(expression, data);
+            const expression = compileExpression(metaInfo.visibilityCondition);
+            const result = runExpression(expression, data);
+
             //console.log("visibilityCondition", metaInfo.visibilityCondition, data, result, expression);
             if (!result) {
               return <React.Fragment key={'index-f-vc-' + index}></React.Fragment>;

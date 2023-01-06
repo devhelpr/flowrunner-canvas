@@ -73,6 +73,8 @@ export * from './flow';
 
 export * from './html-plugins/form-node';
 export * from './state-machine';
+export { StateChart } from './state-machine/state-machine-v2';
+
 export { onFocus } from './html-plugins/form-controls/helpers/focus';
 
 export { getDefaultUITasks, registerTasks, registerCustomTask, registerTaskImplementationOverride } from './flow-tasks';

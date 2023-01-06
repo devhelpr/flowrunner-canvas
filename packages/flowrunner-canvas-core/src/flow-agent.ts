@@ -83,8 +83,11 @@ import { workerData } from 'worker_threads';
 import { FlowToCanvas } from './helpers/flow-to-canvas';
 import { StateMachine } from '../dist';
 import { resetDebugInfo } from './debug-info/debug-info';
+import { extendExpressionCompiler } from './expression-compiler';
 
 const uuidV4 = uuid.v4;
+
+extendExpressionCompiler();
 
 registerExpressionFunction('get', ((a: string, ...args: string[]) => {
   const getExpression = a.toString();
