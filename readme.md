@@ -1,3 +1,8 @@
+
+** this project is deprecated **
+
+
+
 # The simplest way to start playing with flowrunner-canvas
 
 - clone this github repo
